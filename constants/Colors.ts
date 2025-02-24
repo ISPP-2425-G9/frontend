@@ -24,3 +24,11 @@ export const Colors = {
     tabIconSelected: tintColorDark,
   },
 };
+
+export const GlobalStyles = {
+  darkGrey: '#434343',
+  lightGrey: '#5C5C5C',
+  blue: '#42B5FC',
+  white: '#F3F3F3',
+  red: '#E53E3E'
+}
