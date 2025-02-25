@@ -7,7 +7,9 @@ type CustomTextInputProps = TextInputProps & {
   placeholder?: string;
 };
 
-const TextImput: React.FC<CustomTextInputProps> = ({ style, placeholder, ...props }) => {
+
+
+export const CustomTextInput: React.FC<CustomTextInputProps> = ({ style, placeholder, ...props }) => {
   return (
     <TextInput
       style={[styles.input, style]}
@@ -20,14 +22,19 @@ const TextImput: React.FC<CustomTextInputProps> = ({ style, placeholder, ...prop
 
 const styles = StyleSheet.create({
   input: {
+    fontFamily: GlobalStyles.font,
+    fontSize: 16,
+    width: 400,
     height: 40,
-    borderColor: GlobalStyles.darkGrey,
+    borderColor: GlobalStyles.lightGrey,
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 15,
     paddingHorizontal: 10,
-    backgroundColor: GlobalStyles.white,
+    marginVertical: 7.5,
+    backgroundColor: GlobalStyles.lightGrey,
     color: GlobalStyles.darkGrey,
+    placeholderTextColor: GlobalStyles.grey,
   },
 });
 
-export default TextImput;
+export default TextInput;
