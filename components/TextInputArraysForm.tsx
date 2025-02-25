@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
-import TextImput from './TextInput';
+import TextImput from './CustomTextInput';
 
 interface InputField {
   name: string;

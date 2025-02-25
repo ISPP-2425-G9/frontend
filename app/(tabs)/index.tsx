@@ -4,7 +4,8 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { CustomTextInput } from '@/components/TextInput';
+import { CustomTextInput } from '@/components/CustomTextInput';
+import DropDownPicker from '@/components/DropDownPicker';
 
 export default function HomeScreen() {
   return (
@@ -52,6 +53,15 @@ export default function HomeScreen() {
         </ThemedText>
       </ThemedView>
       <CustomTextInput placeholder="Test - Type something..." />
+      <DropDownPicker 
+        options={[
+          { label: 'Opción 1', value: 'opcion1' },
+          { label: 'Opción 2', value: 'opcion2' },
+          { label: 'Opción 3', value: 'opcion3' },
+        ]}
+        onSelect={(value) => console.log(value)}
+        color="grey"
+      />
     </ParallaxScrollView>
   );
 }

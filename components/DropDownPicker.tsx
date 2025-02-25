@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { GlobalStyles } from '@/constants/Colors';
 import { AntDesign } from '@expo/vector-icons';
+import { blue } from 'react-native-reanimated/lib/typescript/Colors';
 
 type DropDownPickerProps = {
   options: { label: string; value: string }[];
@@ -11,6 +12,7 @@ type DropDownPickerProps = {
 };
 
 const DropDownPicker: React.FC<DropDownPickerProps> = ({ options, onSelect, style, color = 'blue' }) => {
+
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
 
@@ -55,27 +57,43 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   selector: {
+    width: 200,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 10,
+    padding: 2,
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 15,
     borderColor: GlobalStyles.darkGrey,
-    backgroundColor: GlobalStyles.white,
+    backgroundColor: GlobalStyles.lightGrey,
+    fontFamily: GlobalStyles.font,
+    fontSize: 16,
+    height: 40,
   },
   dropdown: {
+    width: 200,
     marginTop: 5,
-    borderWidth: 1,
-    borderRadius: 8,
+    borderWidth: 0,
     borderColor: GlobalStyles.darkGrey,
-    backgroundColor: GlobalStyles.white,
+    backgroundColor: 'transparent',
+    fontFamily: GlobalStyles.font,
+    fontSize: 16,
   },
   option: {
-    padding: 10,
+    padding: 3,
+    fontFamily: GlobalStyles.font,
+    fontSize: 16,
+    borderRadius: 15,
+    borderBottomColor: 'transparent',
+    marginBottom: 5,
   },
   text: {
     color: GlobalStyles.darkGrey,
+    backgroundColor:  GlobalStyles.lightGrey,
+    borderRadius: 15,
+    padding:7,
+    fontFamily: GlobalStyles.font,
+    fontSize: 12,
   },
 });
 
