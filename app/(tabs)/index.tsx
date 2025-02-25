@@ -6,6 +6,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { CustomTextInput } from '@/components/CustomTextInput';
 import DropDownPicker from '@/components/DropDownPicker';
+import CustomButton from '@/components/CustomButton';
 
 export default function HomeScreen() {
   return (
@@ -62,6 +63,10 @@ export default function HomeScreen() {
         onSelect={(value) => console.log(value)}
         color="grey"
       />
+      <CustomButton title="Test - Press me" onPress={() => console.log('Button pressed')} style={{width:150}}/>
+      <CustomButton title="Test - Press me" onPress={() => console.log('Button pressed')} color="red" />
+      <CustomButton title="Test - Press me" onPress={() => console.log('Button pressed')} color="grey"/>
+      <CustomButton title="Test - Press me" onPress={() => console.log('Button pressed')} color="white"/>
     </ParallaxScrollView>
   );
 }
