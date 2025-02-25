@@ -7,6 +7,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { CustomTextInput } from '@/components/CustomTextInput';
 import DropDownPicker from '@/components/DropDownPicker';
 import CustomButton from '@/components/CustomButton';
+import ImageWithText from '@/components/ImageWithText';
 
 export default function HomeScreen() {
   return (
@@ -67,6 +68,8 @@ export default function HomeScreen() {
       <CustomButton title="Test - Press me" onPress={() => console.log('Button pressed')} color="red" />
       <CustomButton title="Test - Press me" onPress={() => console.log('Button pressed')} color="grey"/>
       <CustomButton title="Test - Press me" onPress={() => console.log('Button pressed')} color="white"/>
+      <ImageWithText image={require('@/assets/images/caronte_azul.png')} text="Imagen local" />
+      <ImageWithText image={require('@/assets/images/caronte_azul.png')} />
     </ParallaxScrollView>
   );
 }
