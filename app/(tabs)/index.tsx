@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { Image, StyleSheet, Platform} from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -8,8 +8,13 @@ import { CustomTextInput } from '@/components/CustomTextInput';
 import DropDownPicker from '@/components/DropDownPicker';
 import CustomButton from '@/components/CustomButton';
 import ImageWithText from '@/components/ImageWithText';
+import CustomModal from '@/components/CustomModal';
+import React, { useState } from 'react';
 
 export default function HomeScreen() {
+
+  const [modalVisible, setModalVisible] = useState(false);
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -69,7 +74,19 @@ export default function HomeScreen() {
       <CustomButton title="Test - Press me" onPress={() => console.log('Button pressed')} color="grey"/>
       <CustomButton title="Test - Press me" onPress={() => console.log('Button pressed')} color="white"/>
       <ImageWithText image={require('@/assets/images/caronte_azul.png')} text="Imagen local" />
-      <ImageWithText image={require('@/assets/images/caronte_azul.png')} />
+      <ImageWithText image={require('@/assets/images/caronte_azul.png')} text=""/>
+      
+      <CustomButton title="Open Modal" onPress={() => { setModalVisible(true) }}/>
+      <CustomModal 
+      visible={modalVisible} 
+      onClose={() => {
+        console.log("Modal close")
+        setModalVisible(false)
+      }} 
+      title="Test Modal">
+        <CustomButton title="Test - Press me" onPress={() => console.log('Button pressed')} color="red" />
+      </CustomModal>
+
     </ParallaxScrollView>
   );
 }
