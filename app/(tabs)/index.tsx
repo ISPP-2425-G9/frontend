@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image, StyleSheet, Platform, View } from 'react-native';
+import { Image, StyleSheet, Platform, Pressable, Text, ScrollView } from 'react-native';
 import { GlobalStyles } from '@/constants/Colors';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -17,6 +17,7 @@ import CustomTableRow from '@/components/CustomTableRow';
 export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const columns = ['Patrocinador', 'NIF', 'Email'];
+  const columnsButtom = ['Patrocinador', 'NIF', 'Email', 'Acciones'];
   const data = [
     ['tuFuneraria S.L.', '12345678A', 'info@funeraria.com'],
     ['Floristería Paqui', '87654321B', 'ventas@florespaqui.com'],
@@ -97,23 +98,51 @@ export default function HomeScreen() {
         <CustomButton title="Test - Press me" onPress={() => console.log('Button pressed')} color="red" />
       </CustomModal>
 
-      {/* Ejemplo de uso de CustomTable */}
-      <CustomTable columns={columns} columnWidths={[2,1,2]}>
-        {data.map((row, index) => (
-          <CustomTableRow 
-            key={index} 
-            rowData={row} 
-            columnWidths={[2,1,2]} 
-            rowStyle={{
-              backgroundColor: index % 2 === 0 ? GlobalStyles.red : GlobalStyles.white,
-              borderBottomWidth: 1, 
-              borderBottomColor: GlobalStyles.blue 
-            }} 
-            cellStyle={{ color: GlobalStyles.darkGrey, fontSize: 14 }} 
-          />
-        ))}
-      </CustomTable>
-  
+      {/* Ejemplo de uso de CustomTable sin botón */}
+      <ScrollView horizontal={true} showsHorizontalScrollIndicator={true} contentContainerStyle={{minWidth: '100%'}}>
+        <CustomTable columns={columns} columnWidths={[2,1,2]}>
+          {data.map((row, index) => (
+            <CustomTableRow 
+              key={index} 
+              rowData={row} 
+              columnWidths={[2,1,2]} 
+              rowStyle={{
+                backgroundColor: index % 2 === 0 ? GlobalStyles.red : GlobalStyles.white,
+                borderBottomWidth: 1, 
+                borderBottomColor: GlobalStyles.blue 
+              }} 
+              cellStyle={{ color: GlobalStyles.darkGrey, fontSize: 14 }} 
+            />
+          ))}
+        </CustomTable>
+      </ScrollView>
+      {/* Ejemplo de uso de CustomTable con botón */} 
+      <ScrollView horizontal={true} showsHorizontalScrollIndicator={true} contentContainerStyle={{minWidth: '100%'}}>
+        <CustomTable columns={columnsButtom} columnWidths={[1,1,1,1.5]}>
+          {data.map((row, index) => (
+            <CustomTableRow 
+              key={index} 
+              rowData={row} 
+              columnWidths={[1,1,1,1.5]} 
+              rowStyle={{
+                backgroundColor: index % 2 === 0 ? GlobalStyles.blue : GlobalStyles.white,
+                borderBottomWidth: 1, 
+                borderBottomColor: GlobalStyles.blue 
+              }} 
+              cellStyle={{ color: GlobalStyles.darkGrey, fontSize: 14 }} 
+              actions={[
+                <Pressable key="edit" style={styles.editButton} onPress={() => console.log(`Editar ${row[0]}`)}>
+                  <Text style={styles.buttonText}>Editar</Text>
+                </Pressable>,
+                <Pressable key="delete" style={styles.deleteButton} onPress={() => console.log(`Eliminar ${row[0]}`)}>
+                  <Text style={styles.buttonText}>Eliminar</Text>
+                </Pressable>,
+              ]}
+            />
+          ))}
+        </CustomTable>
+      </ScrollView>
+
     </ParallaxScrollView>
   );
 }
@@ -135,5 +164,22 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     position: 'absolute',
+  },
+  editButton: {
+    backgroundColor: GlobalStyles.lightGrey,
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+  },
+  deleteButton: {
+    backgroundColor: GlobalStyles.red,
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: GlobalStyles.darkGrey,
+    fontWeight: 'bold',
+    fontFamily: GlobalStyles.fontBold,
   },
 });

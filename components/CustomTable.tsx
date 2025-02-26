@@ -38,7 +38,7 @@ const CustomTable: React.FC<CustomTableProps> = ({ columns, columnWidths, tableS
 
 const styles = StyleSheet.create({
   table: {
-    width: '100%',
+    minWidth: '100%',
     borderWidth: 1,
     borderColor: GlobalStyles.darkGrey,
     borderRadius: 5,
