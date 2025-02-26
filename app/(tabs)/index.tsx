@@ -1,5 +1,6 @@
-import { Image, StyleSheet, Platform} from 'react-native';
-
+import React, { useState } from 'react';
+import { Image, StyleSheet, Platform, View } from 'react-native';
+import { GlobalStyles } from '@/constants/Colors';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -9,11 +10,20 @@ import DropDownPicker from '@/components/DropDownPicker';
 import CustomButton from '@/components/CustomButton';
 import ImageWithText from '@/components/ImageWithText';
 import CustomModal from '@/components/CustomModal';
-import React, { useState } from 'react';
+import CustomTable from '@/components/CustomTable';
+import CustomTableRow from '@/components/CustomTableRow';
+
 
 export default function HomeScreen() {
-
   const [modalVisible, setModalVisible] = useState(false);
+  const columns = ['Patrocinador', 'NIF', 'Email'];
+  const data = [
+    ['tuFuneraria S.L.', '12345678A', 'info@funeraria.com'],
+    ['Floristería Paqui', '87654321B', 'ventas@florespaqui.com'],
+    ['Limpiezas Manolo', '56789012C', 'contacto@limpiezasmanolo.com'],
+    ['tanatorio.net', '23456789D', 'info@tanatorio.net'],
+    ['Deathhub', '34567890E', 'admin@deathhub.com'],
+  ];
 
   return (
     <ParallaxScrollView
@@ -87,9 +97,27 @@ export default function HomeScreen() {
         <CustomButton title="Test - Press me" onPress={() => console.log('Button pressed')} color="red" />
       </CustomModal>
 
+      {/* Ejemplo de uso de CustomTable */}
+      <CustomTable columns={columns} columnWidths={[2,1,2]}>
+        {data.map((row, index) => (
+          <CustomTableRow 
+            key={index} 
+            rowData={row} 
+            columnWidths={[2,1,2]} 
+            rowStyle={{
+              backgroundColor: index % 2 === 0 ? GlobalStyles.red : GlobalStyles.white,
+              borderBottomWidth: 1, 
+              borderBottomColor: GlobalStyles.blue 
+            }} 
+            cellStyle={{ color: GlobalStyles.darkGrey, fontSize: 14 }} 
+          />
+        ))}
+      </CustomTable>
+  
     </ParallaxScrollView>
   );
 }
+
 
 const styles = StyleSheet.create({
   titleContainer: {
