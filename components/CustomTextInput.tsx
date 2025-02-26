@@ -32,8 +32,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginVertical: 7.5,
     backgroundColor: GlobalStyles.lightGrey,
-    color: GlobalStyles.darkGrey,
-    placeholderTextColor: GlobalStyles.grey,
+    color: GlobalStyles.darkGrey
   },
 });
 
