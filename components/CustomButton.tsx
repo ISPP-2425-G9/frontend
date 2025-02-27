@@ -43,11 +43,11 @@ const styles = StyleSheet.create({
     backgroundColor: GlobalStyles.white,
   },
   textWhite: {
-    color: '#ffffff',
+    color: GlobalStyles.white,
     fontWeight: 'bold',
   },
   textGrey: {
-    color: '#434343',
+    color: GlobalStyles.darkGrey,
     fontWeight: 'bold',
   },
 });
