@@ -81,6 +81,23 @@ export default function TabLayout() {
       <Tabs.Screen name="subscribe/index" options={{ title: "Suscribirse" }} />
       <Tabs.Screen name="login/index" options={{ title: "Iniciar sesión" }} />
       <Tabs.Screen name="register/index" options={{ title: "Registrarse" }} />
+      <Tabs.Screen 
+        name="profile/index" 
+        options={{ 
+          title: "Perfil",
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name="person"
+              size={size}
+              color={color}
+              style={{
+                opacity: focused ? 1 : 0.6,
+                transform: [{ scale: focused ? 1.1 : 1 }],
+              }}
+            />
+          )
+        }} 
+      />
     </Tabs>
   );
 }
