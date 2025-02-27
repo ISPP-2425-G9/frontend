@@ -5,27 +5,28 @@ import CustomButton from './CustomButton';
 import CustomModal from './CustomModal';
 import { ThemedText } from './ThemedText';
 
-export default function LogoutButton() {
+export default function DeleteAccountButton() {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const router = useRouter();
 
-  const handleLogout = async () => {
+  const handleDeleteAccount = async () => {
     try {
       const token = await localStorage.getItem('token');
-      const response = await fetch('api/auth/logout', {
-        method: 'POST',
+      const userId = await localStorage.getItem('userId');
+
+      const response = await fetch(`api/auth/${userId}`, {
+        method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
-      if (response.ok) {
-        await localStorage.removeItem('token');
-        await localStorage.removeItem('userData');
+      if (response.status === 204) {
+        await localStorage.clear();
         router.replace('/login');
       }
     } catch (error) {
-      console.error('Error during logout:', error);
+      console.error('Error:', error);
     }
     setIsModalVisible(false);
   };
@@ -33,20 +34,21 @@ export default function LogoutButton() {
   return (
     <>
       <CustomButton 
-        title="Cerrar Sesión" 
+        title="Eliminar Cuenta" 
         onPress={() => setIsModalVisible(true)}
-        color="grey"
+        color="red"
         style={styles.button}
       />
 
       <CustomModal
         visible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
-        title="Cerrar Sesión"
+        title="Eliminar Cuenta"
       >
         <View style={styles.modalContent}>
           <ThemedText style={styles.modalText}>
-            ¿Estás seguro que deseas cerrar sesión?
+            ¿Estás seguro que deseas eliminar tu cuenta permanentemente?
+            Esta acción no se puede deshacer.
           </ThemedText>
           <View style={styles.modalButtons}>
             <CustomButton
@@ -55,9 +57,9 @@ export default function LogoutButton() {
               style={[styles.modalButton, styles.cancelButton]}
             />
             <CustomButton
-              title="Confirmar"
-              onPress={handleLogout}
-              style={[styles.modalButton, styles.confirmButton]}
+              title="Eliminar"
+              onPress={handleDeleteAccount}
+              style={[styles.modalButton, styles.deleteButton]}
             />
           </View>
         </View>
@@ -90,9 +92,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   cancelButton: {
-    backgroundColor: '#000000',
+    backgroundColor: '#4A4A4A',
   },
-  confirmButton: {
+  deleteButton: {
     backgroundColor: '#E53935',
   }
-}); 
+});

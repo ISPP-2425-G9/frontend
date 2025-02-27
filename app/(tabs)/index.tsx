@@ -12,7 +12,7 @@ import ImageWithText from '@/components/ImageWithText';
 import CustomModal from '@/components/CustomModal';
 import CustomTable from '@/components/CustomTable';
 import CustomTableRow from '@/components/CustomTableRow';
-
+import Logo from '@/components/Logo';
 
 export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -97,6 +97,7 @@ export default function HomeScreen() {
       title="Test Modal">
         <CustomButton title="Test - Press me" onPress={() => console.log('Button pressed')} color="red" />
       </CustomModal>
+      <Logo color="white" size={75} typography={true}  />
 
       {/* Ejemplo de uso de CustomTable sin botón */}
       <ScrollView horizontal={true} showsHorizontalScrollIndicator={true} contentContainerStyle={{minWidth: '100%'}}>
