@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
-import TextImput from './CustomTextInput';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import CustomTextInput from './CustomTextInput';
 
 interface InputField {
   name: string;
@@ -18,7 +18,7 @@ interface CustomFormProps {
   buttonText?: string;
 }
 
-const CustomForm: React.FC<CustomFormProps> = ({ title, description, inputs, onSubmit, style, buttonText = 'Enviar' }) => {
+const TextInputArraysForm: React.FC<CustomFormProps> = ({ title, description, inputs, onSubmit, style, buttonText = 'Enviar' }) => {
   const [formValues, setFormValues] = useState<Record<string, string>>({});
 
   const handleChange = (name: string, value: string) => {
@@ -33,18 +33,22 @@ const CustomForm: React.FC<CustomFormProps> = ({ title, description, inputs, onS
     <View style={[styles.container, style]}>
       <Text style={styles.title}>{title}</Text>
       {description && <Text style={styles.description}>{description}</Text>}
-      {inputs.map((input) => (
-        <View key={input.name} style={styles.inputContainer}>
-          <TextImput
-            placeholder={input.placeholder}
-            style={input.style}
-            secureTextEntry={input.secureTextEntry}
-            onChangeText={(value) => handleChange(input.name, value)}
-            value={formValues[input.name] || ''}
-          />
-        </View>
-      ))}
-      <Button title={buttonText} onPress={handleSubmit} />
+      <View style={styles.inputsWrapper}>
+        {inputs.map((input) => (
+          <View key={input.name} style={styles.inputContainer}>
+            <CustomTextInput
+              placeholder={input.placeholder}
+              style={[styles.input, input.style]}
+              secureTextEntry={input.secureTextEntry}
+              onChangeText={(value) => handleChange(input.name, value)}
+              value={formValues[input.name] || ''}
+            />
+          </View>
+        ))}
+      </View>
+      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+        <Text style={styles.buttonText}>{buttonText}</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -58,20 +62,45 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    alignItems: 'center',
   },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    textAlign: 'center',
   },
   description: {
     fontSize: 14,
     color: '#666',
     marginBottom: 15,
+    textAlign: 'center',
+  },
+  inputsWrapper: {
+    width: '100%',
+    alignItems: 'center',
   },
   inputContainer: {
+    width: '90%',
     marginBottom: 10,
+  },
+  input: {
+    width: '100%',
+  },
+  button: {
+    backgroundColor: '#007BFF',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 
-export default CustomForm;
+export default TextInputArraysForm;
