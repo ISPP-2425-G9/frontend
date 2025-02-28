@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import CustomModal from '@/components/CustomModal';
 import TextInputArraysForm from '@/components/TextInputArraysForm';
@@ -33,7 +33,25 @@ const RegisterScreen: React.FC = () => {
   };
 
   const handleSubmit = async (values: Record<string, string>) => {
-    console.log('Form Submitted:', values);
+    try {
+      const response = await fetch('api/auth/customers/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error en el registro');
+      }
+      
+      const data = await response.json();
+      Alert.alert('Registro exitoso', 'Tu cuenta ha sido creada con éxito.');
+      navigation.navigate('home');
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
   };
 
   const companyFields: InputField[] = [
