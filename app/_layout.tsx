@@ -84,6 +84,9 @@ export default function TabLayout() {
       <Tabs.Screen name="login/index" options={{ title: "Iniciar sesión" }} />
       <Tabs.Screen name="register/index" options={{ title: "Registrarse" }} />
       <Tabs.Screen name="profile/index" options={{title: "Perfil"}} />
+      <Tabs.Screen name="+not-found" options={{ href: null }} />
+      <Tabs.Screen name="index" options={{ href: null }} />
+
     </Tabs>
   );
 }
