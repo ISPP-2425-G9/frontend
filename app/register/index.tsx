@@ -7,6 +7,8 @@ import { GlobalStyles } from '@/constants/Colors';
 import { InputField } from '@/components/TextInputArraysForm';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
+import { Platform } from 'react-native';
+
 
 const RegisterScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(true);
@@ -47,10 +49,18 @@ const RegisterScreen: React.FC = () => {
       }
       
       const data = await response.json();
-      Alert.alert('Registro exitoso', 'Tu cuenta ha sido creada con éxito.');
+      if (Platform.OS === 'web') {
+        window.alert('Registro exitoso: Tu cuenta ha sido creada con éxito.');
+      } else {
+        Alert.alert('Registro exitoso', 'Tu cuenta ha sido creada con éxito.');
+      }
       navigation.navigate('home');
     } catch (error) {
-      Alert.alert('Error', error.message);
+      if (Platform.OS === 'web') {
+        window.alert('Error: ' + error.message);
+      } else {
+        Alert.alert('Error', error.message);
+      }
     }
   };
 
