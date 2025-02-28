@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-nati
 import CustomModal from '@/components/CustomModal';
 import TextInputArraysForm from '@/components/TextInputArraysForm';
 import { GlobalStyles } from '@/constants/Colors';
+import { InputField } from '@/components/TextInputArraysForm';
 
 const RegisterScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(true);
@@ -17,27 +18,28 @@ const RegisterScreen: React.FC = () => {
     console.log('Form Submitted:', values);
   };
 
-  const empresaFields = [
-    { name: 'name', placeholder: 'Nombre de la Empresa' },
-    { name: 'nif', placeholder: 'NIF' },
-    { name: 'zip_code', placeholder: 'Código ZIP' },
-    { name: 'telephone', placeholder: 'Teléfono' },
-    { name: 'city', placeholder: 'Ciudad' },
-    { name: 'address', placeholder: 'Dirección' },
-    { name: 'description', placeholder: 'Descripción' },
-    { name: 'email', placeholder: 'Email' },
-    { name: 'password1', placeholder: 'Contraseña' },
-    { name: 'password2', placeholder: 'Repita Contraseña' },
+  const companyFields: InputField[] = [
+    { name: 'name', placeholder: 'Nombre de la Empresa', keyboardType: 'default' },
+    { name: 'nif', placeholder: 'NIF', keyboardType: 'default' },
+    { name: 'zip_code', placeholder: 'Código ZIP', keyboardType: 'default' },
+    { name: 'telephone', placeholder: 'Teléfono', keyboardType: 'phone-pad' },
+    { name: 'city', placeholder: 'Ciudad', keyboardType: 'default' },
+    { name: 'address', placeholder: 'Dirección', keyboardType: 'default' },
+    { name: 'description', placeholder: 'Descripción', keyboardType: 'default' },
+    { name: 'email', placeholder: 'Email', keyboardType: 'email-address' },
+    { name: 'password1', placeholder: 'Contraseña', keyboardType: 'default', secureTextEntry: true },
+    { name: 'password2', placeholder: 'Repita Contraseña', keyboardType: 'default', secureTextEntry: true },
   ];
-
-  const clienteFields = [
-    { name: 'name', placeholder: 'Nombre de usuario' },
-    { name: 'telephone', placeholder: 'Número de teléfono' },
-    { name: 'dni', placeholder: 'DNI' },
-    { name: 'email', placeholder: 'Email' },
-    { name: 'password1', placeholder: 'Contraseña' },
-    { name: 'password2', placeholder: 'Repita Contraseña' },
+  
+  const clientFields: InputField[] = [
+    { name: 'name', placeholder: 'Nombre de usuario', keyboardType: 'default' },
+    { name: 'telephone', placeholder: 'Número de teléfono', keyboardType: 'phone-pad' },
+    { name: 'dni', placeholder: 'DNI', keyboardType: 'default' },
+    { name: 'email', placeholder: 'Email', keyboardType: 'email-address' },
+    { name: 'password1', placeholder: 'Contraseña', keyboardType: 'default', secureTextEntry: true },
+    { name: 'password2', placeholder: 'Repita Contraseña', keyboardType: 'default', secureTextEntry: true },
   ];
+  
 
   return (
     <View style={styles.container}>
@@ -61,7 +63,7 @@ const RegisterScreen: React.FC = () => {
         {userType === 'Empresa' && (
           <TextInputArraysForm
             title="Cuenta de empresa"
-            inputs={empresaFields}
+            inputs={companyFields}
             onSubmit={handleSubmit}
             buttonText="Registrarse"
             style={styles.formStyle}
@@ -71,7 +73,7 @@ const RegisterScreen: React.FC = () => {
         {userType === 'Cliente' && (
           <TextInputArraysForm
             title="Cuenta de usuario"
-            inputs={clienteFields}
+            inputs={clientFields}
             onSubmit={handleSubmit}
             buttonText="Registrarse"
             style={styles.formStyle}

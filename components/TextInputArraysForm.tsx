@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import CustomTextInput from './CustomTextInput';
 
-interface InputField {
+export interface InputField {
   name: string;
   placeholder: string;
   style?: object;
   secureTextEntry?: boolean;
+  keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'number-pad' | 'decimal-pad';
 }
 
 interface CustomFormProps {
@@ -40,6 +41,7 @@ const TextInputArraysForm: React.FC<CustomFormProps> = ({ title, description, in
               placeholder={input.placeholder}
               style={[styles.input, input.style]}
               secureTextEntry={input.secureTextEntry}
+              keyboardType={input.keyboardType || 'default'}
               onChangeText={(value) => handleChange(input.name, value)}
               value={formValues[input.name] || ''}
             />
