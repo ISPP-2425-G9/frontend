@@ -1,17 +1,35 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import CustomModal from '@/components/CustomModal';
 import TextInputArraysForm from '@/components/TextInputArraysForm';
 import { GlobalStyles } from '@/constants/Colors';
 import { InputField } from '@/components/TextInputArraysForm';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 const RegisterScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(true);
   const [userType, setUserType] = useState<'Empresa' | 'Cliente' | null>(null);
+  const navigation = useNavigation();
 
+  useFocusEffect(
+    useCallback(() => {
+      setUserType(null);
+      setModalVisible(true);
+    }, [])
+  );
+  
   const handleUserTypeSelection = (type: 'Empresa' | 'Cliente') => {
     setUserType(type);
     setModalVisible(false);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    if (!userType) {
+      navigation.navigate('home');
+    }
   };
 
   const handleSubmit = async (values: Record<string, string>) => {
@@ -30,7 +48,7 @@ const RegisterScreen: React.FC = () => {
     { name: 'password1', placeholder: 'Contraseña', keyboardType: 'default', secureTextEntry: true },
     { name: 'password2', placeholder: 'Repita Contraseña', keyboardType: 'default', secureTextEntry: true },
   ];
-  
+
   const clientFields: InputField[] = [
     { name: 'name', placeholder: 'Nombre de usuario', keyboardType: 'default' },
     { name: 'telephone', placeholder: 'Número de teléfono', keyboardType: 'phone-pad' },
@@ -39,13 +57,13 @@ const RegisterScreen: React.FC = () => {
     { name: 'password1', placeholder: 'Contraseña', keyboardType: 'default', secureTextEntry: true },
     { name: 'password2', placeholder: 'Repita Contraseña', keyboardType: 'default', secureTextEntry: true },
   ];
-  
+
 
   return (
     <View style={styles.container}>
       <CustomModal
         visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+        onClose={handleCloseModal}
         title="¿Qué tipo de usuario quieres ser?"
         style={styles.modalStyle}
       >

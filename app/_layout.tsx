@@ -74,6 +74,7 @@ export default function TabLayout() {
         safeAreaInsets: { top: 0 }, // Evita que el navbar se superponga con la barra de estado
       })}
     >
+      <Tabs.Screen name="home" options={{ title: "Inicio" }} />
       <Tabs.Screen name="obituaries/index" options={{ title: "Esquelas" }} />
       <Tabs.Screen name="messages/index" options={{ title: "Mensajes" }} />
       <Tabs.Screen name="contacts/index" options={{ title: "Contactos" }} />
