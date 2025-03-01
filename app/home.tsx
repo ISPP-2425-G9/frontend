@@ -1,5 +1,6 @@
 import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, ScrollView } from "react-native";
 import { GlobalStyles } from "@/constants/Colors";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const { width, height } = Dimensions.get("window");
 
@@ -14,21 +15,41 @@ export default function HomeScreen() {
         
         <View style={styles.infoBox}>
           <Text style={styles.title}>¿Qué es CARONTE?</Text>
-          <Text style={styles.description}>
-            CARONTE permite a los usuarios gestionar el envío de mensajes finales y esquelas digitales
-            a una lista de contactos seleccionada.
-          </Text>
-          <Text style={styles.description}>
-            <Text style={styles.bold}>No queremos que dejes palabras sin decir:</Text> garantizamos que
-            los mensajes y esquelas sean enviados tras la confirmación del fallecimiento, asegurando la entrega en el momento
-            adecuado.
-          </Text>
-          <Text style={styles.description}>
-            <Text style={styles.bold}>Cumplimos tu último deseo facilitando despedidas seguras y recuerdos eternos.</Text>
-          </Text>
-          <Text style={styles.description}>
-            Además, ofrecemos un espacio para que las empresas relacionadas con el sector funerario puedan patrocinar sus servicios.
-          </Text>
+          <View style={styles.infoItem}>
+            <MaterialIcons name="check-circle" size={20} color={GlobalStyles.blue} style={styles.icon} />
+            <View style={styles.textContainer}>
+              <Text style={styles.description}>
+                CARONTE permite a los usuarios gestionar el envío de mensajes finales y esquelas digitales
+                a una lista de contactos seleccionada.
+              </Text>
+            </View>
+          </View>
+          <View style={styles.infoItem}>
+            <MaterialIcons name="check-circle" size={20} color={GlobalStyles.blue} style={styles.icon} />
+            <View style={styles.textContainer}>
+              <Text style={styles.description}>
+                <Text style={styles.bold}>No queremos que dejes palabras sin decir:</Text> garantizamos que
+                los mensajes y esquelas sean enviados tras la confirmación del fallecimiento, asegurando la entrega en el momento
+                adecuado.
+              </Text>
+            </View>
+          </View>
+          <View style={styles.infoItem}>
+            <MaterialIcons name="check-circle" size={20} color={GlobalStyles.blue} style={styles.icon} />
+            <View style={styles.textContainer}>
+              <Text style={styles.description}>
+                <Text style={styles.bold}>Cumplimos tu último deseo facilitando despedidas seguras y recuerdos eternos.</Text>
+              </Text>
+            </View>
+          </View>
+          <View style={styles.infoItem}>
+            <MaterialIcons name="check-circle" size={20} color={GlobalStyles.blue} style={styles.icon} />
+            <View style={styles.textContainer}>
+              <Text style={styles.description}>
+                Además, ofrecemos un espacio para que las empresas relacionadas con el sector funerario puedan patrocinar sus servicios.
+              </Text>
+            </View>
+          </View>
         </View>
       </View>
     </ScrollView>
@@ -83,12 +104,23 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     color: GlobalStyles.darkGrey,
   },
+  infoItem: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 10,
+  },
+  icon: {
+    marginRight: 8,
+    marginTop: 4,
+  },
+  textContainer: {
+    flex: 1,
+  },
   description: {
     fontSize: 18,
     fontFamily: GlobalStyles.font,
-    textAlign: "center",
+    textAlign: "left",
     color: GlobalStyles.grey,
-    marginBottom: 10,
   },
   bold: {
     fontFamily: GlobalStyles.fontBold,
