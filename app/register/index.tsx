@@ -1,13 +1,10 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, Platform } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CustomModal from '@/components/CustomModal';
 import TextInputArraysForm from '@/components/TextInputArraysForm';
 import { GlobalStyles } from '@/constants/Colors';
 import { InputField } from '@/components/TextInputArraysForm';
-import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
-import { Platform } from 'react-native';
 
 
 const RegisterScreen: React.FC = () => {
@@ -34,7 +31,7 @@ const RegisterScreen: React.FC = () => {
     }
   };
 
-  const handleSubmit = async (values: Record<string, string>) => {
+  const handleSubmit = async (values: Record<string, string | { uri: string; name: string; type: string }>) => {
     try {
       const response = await fetch('api/auth/customers/signup', {
         method: 'POST',
@@ -55,7 +52,7 @@ const RegisterScreen: React.FC = () => {
         Alert.alert('Registro exitoso', 'Tu cuenta ha sido creada con éxito.');
       }
       navigation.navigate('home');
-    } catch (error) {
+    } catch (error: any) {
       if (Platform.OS === 'web') {
         window.alert('Error: ' + error.message);
       } else {
@@ -110,6 +107,7 @@ const RegisterScreen: React.FC = () => {
           <TextInputArraysForm
             title="Cuenta de empresa"
             inputs={companyFields}
+            imageFields={['logo']}
             onSubmit={handleSubmit}
             buttonText="Registrarse"
             style={styles.formStyle}

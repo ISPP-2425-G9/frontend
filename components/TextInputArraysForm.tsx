@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import CustomTextInput from './CustomTextInput';
 
 export interface InputField {
@@ -14,20 +15,51 @@ interface CustomFormProps {
   title: string;
   description?: string;
   inputs: InputField[];
-  onSubmit: (values: Record<string, string>) => void;
+  imageFields?: string[];
+  onSubmit: (values: Record<string, string | { uri: string; name: string; type: string }>) => void;
   style?: object;
   buttonText?: string;
 }
 
-const TextInputArraysForm: React.FC<CustomFormProps> = ({ title, description, inputs, onSubmit, style, buttonText = 'Enviar' }) => {
+const TextInputArraysForm: React.FC<CustomFormProps> = ({ title, description, inputs, imageFields = [], onSubmit, style, buttonText = 'Enviar' }) => {
   const [formValues, setFormValues] = useState<Record<string, string>>({});
+  const [images, setImages] = useState<Record<string, string | null>>(
+    imageFields.reduce((acc, field) => ({ ...acc, [field]: null }), {})
+  );
 
   const handleChange = (name: string, value: string) => {
     setFormValues((prevValues) => ({ ...prevValues, [name]: value }));
   };
 
+  const pickImage = async (field: string) => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImages((prevImages) => ({ ...prevImages, [field]: result.assets[0].uri }));
+    }
+  };
+
   const handleSubmit = () => {
-    onSubmit(formValues);
+    const formData: Record<string, string | { uri: string; name: string; type: string }> = { ...formValues };
+
+    Object.entries(images).forEach(([key, uri]) => {
+      if (uri) {
+        const imageName = uri.split('/').pop();
+        const imageType = imageName?.split('.').pop();
+        formData[key] = {
+          uri,
+          name: imageName || 'image.jpg',
+          type: `image/${imageType}`,
+        };
+      }
+    });
+
+    onSubmit(formData);
   };
 
   return (
@@ -48,6 +80,16 @@ const TextInputArraysForm: React.FC<CustomFormProps> = ({ title, description, in
           </View>
         ))}
       </View>
+
+      {imageFields.map((field) => (
+        <View key={field} style={styles.imageContainer}>
+          <TouchableOpacity style={styles.uploadButton} onPress={() => pickImage(field)}>
+            <Text style={styles.buttonText}>Seleccionar {field}</Text>
+          </TouchableOpacity>
+          {images[field] && <Image source={{ uri: images[field] }} style={styles.imagePreview} />}
+        </View>
+      ))}
+
       <TouchableOpacity style={styles.button} onPress={handleSubmit}>
         <Text style={styles.buttonText}>{buttonText}</Text>
       </TouchableOpacity>
@@ -89,6 +131,19 @@ const styles = StyleSheet.create({
   input: {
     width: '100%',
   },
+  imageContainer: {
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  uploadButton: {
+    backgroundColor: '#007BFF',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
   button: {
     backgroundColor: '#007BFF',
     paddingVertical: 12,
@@ -102,6 +157,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  imagePreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+    marginTop: 10,
   },
 });
 
