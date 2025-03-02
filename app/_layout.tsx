@@ -1,8 +1,9 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useColorScheme } from "react-native";
+import { useColorScheme, View, Text } from "react-native";
 import { GlobalStyles, Colors } from "@/constants/Colors";
 import { useFonts, DMSans_500Medium, DMSans_700Bold } from "@expo-google-fonts/dm-sans";
+import Logo from "@/components/Logo";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -34,7 +35,7 @@ export default function TabLayout() {
 
           let iconName: keyof typeof Ionicons.glyphMap = iconsDict[route.name] ?? "home";
 
-          return (
+          return route.name == "home" ? null : (
             <Ionicons
               name={iconName}
               size={size}
@@ -42,7 +43,6 @@ export default function TabLayout() {
               style={{
                 opacity: focused ? 1 : 0.6,
                 transform: [{ scale: focused ? 1.1 : 1 }],
-                transition: "opacity 0.2s, transform 0.2s",
               }}
             />
           );
@@ -70,10 +70,24 @@ export default function TabLayout() {
           fontSize: 12,
           fontWeight: "bold",
         },
-        headerShown: false, // Oculta el header de las pantallas individuales
-        safeAreaInsets: { top: 0 }, // Evita que el navbar se superponga con la barra de estado
+        headerShown: false,
+        safeAreaInsets: { top: 0 },
       })}
     >
+      <Tabs.Screen
+        name="home"
+        options={{
+          title: "",
+          tabBarLabel: () => (
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Logo size={20} color="blue" />
+              <Text style={{ marginLeft: 5, fontFamily: GlobalStyles.font, fontSize: 12, fontWeight: "bold", color: theme.tabIconSelected }}>
+                Inicio
+              </Text>
+            </View>
+          ),
+        }}
+      />
       <Tabs.Screen name="obituaries/index" options={{ title: "Esquelas" }} />
       <Tabs.Screen name="messages/index" options={{ title: "Mensajes" }} />
       <Tabs.Screen name="contacts/index" options={{ title: "Contactos" }} />
@@ -81,6 +95,9 @@ export default function TabLayout() {
       <Tabs.Screen name="subscribe/index" options={{ title: "Suscribirse" }} />
       <Tabs.Screen name="login/index" options={{ title: "Iniciar sesión" }} />
       <Tabs.Screen name="register/index" options={{ title: "Registrarse" }} />
+      <Tabs.Screen name="profile/index" options={{ title: "Perfil" }} />
+      <Tabs.Screen name="+not-found" options={{ href: null }} />
+      <Tabs.Screen name="index" options={{ href: null }} />
     </Tabs>
   );
 }

@@ -14,7 +14,7 @@ export const CustomTextInput: React.FC<CustomTextInputProps> = ({ style, placeho
     <TextInput
       style={[styles.input, style]}
       placeholder={placeholder}
-      placeholderTextColor={GlobalStyles.lightGrey}
+      placeholderTextColor={GlobalStyles.darkGrey}
       {...props}
     />
   );
@@ -32,9 +32,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginVertical: 7.5,
     backgroundColor: GlobalStyles.lightGrey,
-    color: GlobalStyles.darkGrey,
-    placeholderTextColor: GlobalStyles.grey,
+    color: GlobalStyles.darkGrey
   },
 });
 
-export default TextInput;
+export default CustomTextInput;
