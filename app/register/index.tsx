@@ -1,11 +1,12 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, Platform, Dimensions } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CustomModal from '@/components/CustomModal';
 import TextInputArraysForm from '@/components/TextInputArraysForm';
 import { GlobalStyles } from '@/constants/Colors';
 import { InputField } from '@/components/TextInputArraysForm';
 
+const { width } = Dimensions.get('window');
 
 const RegisterScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(true);
@@ -18,7 +19,7 @@ const RegisterScreen: React.FC = () => {
       setModalVisible(true);
     }, [])
   );
-  
+
   const handleUserTypeSelection = (type: 'Empresa' | 'Cliente') => {
     setUserType(type);
     setModalVisible(false);
@@ -27,13 +28,84 @@ const RegisterScreen: React.FC = () => {
   const handleCloseModal = () => {
     setModalVisible(false);
     if (!userType) {
-      navigation.navigate('home');
+      navigation.navigate('home' as never);
     }
   };
 
+  const validateData = async (values: Record<string, string | { uri: string; name: string; type: string }>, uType: String | null) => {
+    const errors: string[] = [];
+
+    const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const nifRegex = /^\[ABCDEFGHJNPQRSUVW]\d{7}[0-9A-J]$/;
+    const zipCodeRegex = /^\d{5}$/;
+    const phoneRegex = /^\+?\d{9,15}$/;
+    const dniRegex = /^\\d{8}[A-Z]$/;
+
+    if(uType === 'Empresa' ){
+
+      if (!values.nif || typeof values.nif !== 'string' || !nifRegex.test(values.nif)) {
+        errors.push('El NIF no es válido.');
+      }
+
+      if (!values.zip_code || typeof values.zip_code !== 'string' || !zipCodeRegex.test(values.zip_code)) {
+          errors.push('El código postal debe tener 5 dígitos.');
+      }
+
+      if (!values.city || typeof values.city !== 'string' || values.city.trim() === '') {
+        errors.push('La ciudad es obligatoria.');
+      }
+
+      if (!values.address || typeof values.address !== 'string' || values.address.trim() === '') {
+          errors.push('La dirección es obligatoria.');
+      }
+
+      if (!values.description || typeof values.description !== 'string' || values.description.trim() === '') {
+          errors.push('La descripción es obligatoria.');
+      }
+
+    }
+    if(uType === 'Cliente') {
+      if (!values.dni || typeof values.dni !== 'string' || !dniRegex.test(values.dni)) {
+        errors.push('El DNI debe tener 8 números y una letra mayúscula.');
+      }
+    }
+    else{
+      errors.push('Debes escoger un tipo de usuario antes de rellenar el formulario')
+    }
+
+    if (!values.name || typeof values.name !== 'string' || values.name.trim() === '') {
+        errors.push('El nombre es obligatorio.');
+    }
+
+    if (!values.telephone || typeof values.telephone !== 'string' || !phoneRegex.test(values.telephone)) {
+        errors.push('Por favor, introduce un teléfono válido incluyendo el prefijo.');
+    }
+
+
+    if (!values.email || typeof values.email !== 'string' || !emailRegex.test(values.email)) {
+        errors.push('El email no es válido.');
+    }
+
+    if (!values.password1 || typeof values.password1 !== 'string' || values.password1.length < 6) {
+        errors.push('La contraseña debe tener al menos 6 caracteres.');
+    }
+
+    if (values.password1 !== values.password2) {
+        errors.push('Las contraseñas no coinciden.');
+    }
+
+    return errors;
+};
+
+
   const handleSubmit = async (values: Record<string, string | { uri: string; name: string; type: string }>) => {
     try {
-      const response = await fetch('api/auth/customers/signup', {
+      const errors: String[] = await validateData(values, userType);
+      if(errors.length != 0){
+        throw new Error(`Hay error(es) en su formulario: ${errors}`)
+      }
+      const reqUrl = userType == 'Empresa' ? 'api/auth/companies/signup' : 'api/auth/customers/signup';
+      const response = await fetch(reqUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,7 +114,7 @@ const RegisterScreen: React.FC = () => {
       });
       
       if (!response.ok) {
-        throw new Error('Error en el registro');
+        throw new Error(`Hubo un problema al registrarse`);
       }
       
       const data = await response.json();
@@ -51,12 +123,12 @@ const RegisterScreen: React.FC = () => {
       } else {
         Alert.alert('Registro exitoso', 'Tu cuenta ha sido creada con éxito.');
       }
-      navigation.navigate('home');
+      navigation.navigate('home' as never);
     } catch (error: any) {
       if (Platform.OS === 'web') {
-        window.alert('Error: ' + error.message);
+        window.alert('Error: ' + error);
       } else {
-        Alert.alert('Error', error.message);
+        Alert.alert('Error', error);
       }
     }
   };
@@ -64,7 +136,7 @@ const RegisterScreen: React.FC = () => {
   const companyFields: InputField[] = [
     { name: 'name', placeholder: 'Nombre de la Empresa', keyboardType: 'default' },
     { name: 'nif', placeholder: 'NIF', keyboardType: 'default' },
-    { name: 'zip_code', placeholder: 'Código ZIP', keyboardType: 'default' },
+    { name: 'zip_code', placeholder: 'Código Postal', keyboardType: 'default' },
     { name: 'telephone', placeholder: 'Teléfono', keyboardType: 'phone-pad' },
     { name: 'city', placeholder: 'Ciudad', keyboardType: 'default' },
     { name: 'address', placeholder: 'Dirección', keyboardType: 'default' },
@@ -76,7 +148,7 @@ const RegisterScreen: React.FC = () => {
 
   const clientFields: InputField[] = [
     { name: 'name', placeholder: 'Nombre de usuario', keyboardType: 'default' },
-    { name: 'telephone', placeholder: 'Número de teléfono', keyboardType: 'phone-pad' },
+    { name: 'telephone', placeholder: 'Número de teléfono con prefijo. Por ejemplo: +34000000000', keyboardType: 'phone-pad' },
     { name: 'dni', placeholder: 'DNI', keyboardType: 'default' },
     { name: 'email', placeholder: 'Email', keyboardType: 'email-address' },
     { name: 'password1', placeholder: 'Contraseña', keyboardType: 'default', secureTextEntry: true },
@@ -147,14 +219,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     shadowColor: '#000',
     shadowOpacity: 0.2,
-    width: '30%',
     shadowRadius: 5,
     elevation: 5,
+    width: width > 600 ? '40%' : '80%', // Responsive modal width
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    width: '65%',
+    width: '100%',
     marginTop: 10,
   },
   button: {
@@ -170,11 +242,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   formStyle: {
-    marginTop: '5%',
+    marginTop: 70,
     backgroundColor: '#fff',
     padding: 20,
     borderRadius: 10,
-    width: '45%',
+    width: width > 600 ? '50%' : '90%', // Ajuste de ancho en móvil y escritorio
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
