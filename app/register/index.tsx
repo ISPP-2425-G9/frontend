@@ -35,11 +35,11 @@ const RegisterScreen: React.FC = () => {
   const validateData = async (values: Record<string, string | { uri: string; name: string; type: string }>, uType: String | null) => {
     const errors: string[] = [];
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const nifRegex = /^[A-Z0-9]{8,9}$/;
+    const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const nifRegex = /^\[ABCDEFGHJNPQRSUVW]\d{7}[0-9A-J]$/;
     const zipCodeRegex = /^\d{5}$/;
     const phoneRegex = /^\+?\d{9,15}$/;
-    const dniRegex = /^\d{8}[A-Za-z]$/;
+    const dniRegex = /^\\d{8}[A-Z]$/;
 
     if(uType === 'Empresa' ){
 
