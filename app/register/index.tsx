@@ -1,11 +1,12 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, Platform, Dimensions } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CustomModal from '@/components/CustomModal';
 import TextInputArraysForm from '@/components/TextInputArraysForm';
 import { GlobalStyles } from '@/constants/Colors';
 import { InputField } from '@/components/TextInputArraysForm';
 
+const { width } = Dimensions.get('window');
 
 const RegisterScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(true);
@@ -18,7 +19,7 @@ const RegisterScreen: React.FC = () => {
       setModalVisible(true);
     }, [])
   );
-  
+
   const handleUserTypeSelection = (type: 'Empresa' | 'Cliente') => {
     setUserType(type);
     setModalVisible(false);
@@ -218,14 +219,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     shadowColor: '#000',
     shadowOpacity: 0.2,
-    width: '30%',
     shadowRadius: 5,
     elevation: 5,
+    width: width > 600 ? '40%' : '80%', // Responsive modal width
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    width: '65%',
+    width: '100%',
     marginTop: 10,
   },
   button: {
@@ -241,11 +242,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   formStyle: {
-    marginTop: '5%',
+    marginTop: 20,
     backgroundColor: '#fff',
     padding: 20,
     borderRadius: 10,
-    width: '45%',
+    width: width > 600 ? '50%' : '90%', // Ajuste de ancho en móvil y escritorio
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
