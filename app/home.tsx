@@ -1,12 +1,15 @@
-import { View, Text, Image, StyleSheet, TouchableOpacity, Dimensions, ScrollView } from "react-native";
+import { View, Text, Image, StyleSheet, Dimensions, ScrollView } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { GlobalStyles } from "@/constants/Colors";
 import { MaterialIcons } from "@expo/vector-icons";
-
+import CustomButton from "@/components/CustomButton";
 
 const { width } = Dimensions.get("window");
 
 
 export default function HomeScreen() {
+  const navigation = useNavigation();
+
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={[styles.container, width > 800 ? styles.rowLayout : styles.columnLayout]}>
@@ -48,6 +51,22 @@ export default function HomeScreen() {
           </View>
         </View>
       </View>
+      <View style={styles.buttonSection}>
+        <View style={styles.buttonContainer}>
+          <View style={styles.buttonWrapper}>
+            <Text style={styles.buttonText}>Pulsa aquí, si quieres personalizar la esquela para un familiar o amigo que haya fallecido</Text>
+            <CustomButton title="Personalizar esquela" onPress={() => navigation.navigate("obituaries/index" as never)} color="blue" />
+          </View>
+          <View style={styles.buttonWrapper}>
+            <Text style={styles.buttonText}>Pulsa aquí, si quieres poder personalizar tus mensajes o tu esquela para enviársela a familiares, amigos o enemigos😏, una vez que hayas fallecido</Text>
+            <CustomButton title="Suscribirse" onPress={() => navigation.navigate("subscribe/index" as never)} color="blue" />
+          </View>
+          <View style={styles.buttonWrapper}>
+            <Text style={styles.buttonText}>Si quieres ver los servicios que ofrecen empresas del sector funerario, pulsa aquí</Text>
+            <CustomButton title="Ver servicios" onPress={() => navigation.navigate("services/index" as never)} color="blue" />
+          </View>
+        </View>
+      </View>
     </ScrollView>
   );
 }
@@ -58,6 +77,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 110,
+    marginTop: 50,
   },
   container: {
     width: "90%",
@@ -112,6 +132,29 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 12,
     color: GlobalStyles.darkGrey,
+  },
+  buttonSection: {
+    marginTop: 100,
+    width: "100%",
+    alignItems: "center",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 20,
+  },
+  buttonWrapper: {
+    alignItems: "center",
+    width: "30%",
+    minWidth: 250,
+  },
+  buttonText: {
+    fontSize: 16,
+    fontFamily: GlobalStyles.font,
+    textAlign: "center",
+    color: GlobalStyles.darkGrey,
+    marginBottom: 10,
   },
   infoItem: {
     flexDirection: "row",
