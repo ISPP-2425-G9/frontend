@@ -1,8 +1,11 @@
 import { useState } from 'react';
-import { StyleSheet, TextInput, View, Text, Button, Image } from 'react-native';
+import { StyleSheet, TextInput, View, Text, Button, Image, Dimensions } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import CustomButton from '@/components/CustomButton';
 import { CustomTextInput } from '@/components/CustomTextInput';
+
+const width = Dimensions.get('window').width;
+const height = Dimensions.get('window').height;
 
 export default function EsquelaCustomizer() {
   const [formData, setFormData] = useState({
@@ -39,12 +42,13 @@ export default function EsquelaCustomizer() {
       {/* Sección izquierda: Formulario */}
       <View style={styles.formSection}>
 
-        <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 16 }}>Personaliza tu esquela</Text>
+        <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 50 }}>Personaliza tu esquela</Text>
 
         <Text>Nombre del fallecido:</Text>
         <CustomTextInput
           style={styles.input}
           placeholder="Nombre"
+          maxLength={50}
           value={formData.name}
           onChangeText={(text) => handleChange('name', text)}
         />
@@ -54,6 +58,7 @@ export default function EsquelaCustomizer() {
           style={styles.input}
           placeholder="Año de nacimiento"
           value={formData.birthYear}
+          maxLength={4}
           onChangeText={(text) => handleChange('birthYear', text)}
           keyboardType="numeric"
         />
@@ -63,6 +68,7 @@ export default function EsquelaCustomizer() {
           style={styles.input}
           placeholder="Año de fallecimiento"
           value={formData.deathYear}
+          maxLength={4}
           onChangeText={(text) => handleChange('deathYear', text)}
           keyboardType="numeric"
         />
@@ -71,6 +77,7 @@ export default function EsquelaCustomizer() {
         <CustomTextInput
           style={[styles.input, styles.textArea]}
           placeholder="Escribe un mensaje de despedida"
+          maxLength={250}
           value={formData.farewellMessage}
           onChangeText={(text) => handleChange('farewellMessage', text)}
           multiline
@@ -80,6 +87,7 @@ export default function EsquelaCustomizer() {
         <CustomTextInput
           style={styles.input}
           placeholder="Frase de despedida"
+          maxLength={80}
           value={formData.farewellPhrase}
           onChangeText={(text) => handleChange('farewellPhrase', text)}
         />
@@ -93,17 +101,23 @@ export default function EsquelaCustomizer() {
 
       {/* Sección derecha: Previsualización */}
       <View style={styles.previewSection}>
-        <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 16 }}>Vista Previa</Text>
         <View style={styles.overlayContainer}>
           <Image source={require('@/assets/images/esquela-template-2.jpeg')} style={styles.templateImage} />
           <View style={styles.overlayContent}>
-            {formData.customImage && (
-              <Image source={{ uri: formData.customImage }} style={styles.customImage} />
-            )}
-            <Text>En memoria de: {formData.name || 'Nombre aquí'}</Text>
-            <Text>{formData.birthYear || 'Año de nacimiento'} - {formData.deathYear || 'Año de fallecimiento'}</Text>
-            <Text>{formData.farewellMessage || 'Tu mensaje de despedida aparecerá aquí'}</Text>
-            <Text>"{formData.farewellPhrase || 'Frase de despedida aquí'}"</Text>
+            <Image
+              source={
+                formData.customImage
+                  ? { uri: formData.customImage }
+                  : require('@/assets/images/default-dark-image.jpeg')
+              }
+              style={styles.customImage}
+            />
+            <Text style={styles.previewName}>{formData.name || 'Nombre '}</Text>
+            <Text style={styles.previewDate}>{formData.birthYear || 'Año de nacimiento'} - {formData.deathYear || 'Año de fallecimiento'}</Text>
+            <Text style={styles.previewText}>{formData.farewellMessage || 'Tu mensaje de despedida aparecerá aquí'}</Text>
+            <Text style={styles.previewPhrase}>
+              "{formData.farewellPhrase || 'Frase de despedida'}"
+            </Text>
           </View>
         </View>
       </View>
@@ -121,11 +135,35 @@ const styles = StyleSheet.create({
   formSection: {
     flex: 1,
     paddingRight: 16,
+    alignItems: 'center',
   },
   previewSection: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
     position: 'relative',
+  },
+  previewText: {
+    marginBottom: 8,
+    fontSize: 15,
+    maxWidth: 400,
+    marginTop: 8,
+    textAlign: 'justify',
+  },
+  previewName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 8,
+    maxWidth: 400,
+  },
+  previewDate: {
+    fontSize: 18,
+    marginBottom: 8,
+    maxWidth: 400,
+  },
+  previewPhrase: {
+    marginTop: 20,
+    fontSize: 16,
+    fontStyle: 'italic',
+    maxWidth: 400,
   },
   input: {
     borderWidth: 1,
@@ -135,7 +173,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   textArea: {
-    height: 100,
+    height: 160,
   },
   previewTitle: {
     fontSize: 18,
@@ -147,22 +185,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   templateImage: {
-    width: '100%',
-    height: 700,
+    width: width * 0.83,
+    height: height * 0.83,
     resizeMode: 'contain',
   },
   overlayContent: {
     position: 'absolute',
-    top: 20,
-    left: 20,
-    right: 20,
     alignItems: 'center',
-    marginTop: 200,
+    marginTop: 100,
   },
   customImage: {
     width: 100,
     height: 100,
-    borderRadius: 8,
+    borderRadius: 50,
     marginBottom: 8,
   },
 });
