@@ -42,11 +42,11 @@ export default function EsquelaCustomizer() {
       {/* Sección izquierda: Formulario */}
       <View style={styles.formSection}>
 
-        <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 50 }}>Personaliza tu esquela</Text>
+        <Text style={{ fontSize: 30, fontWeight: 'bold', marginBottom: 30 }}>Personaliza tu esquela</Text>
 
         <Text>Nombre del fallecido:</Text>
         <CustomTextInput
-          style={{ width: 500 }}
+          style={{ width: 600 }}
           placeholder="Nombre"
           maxLength={50}
           value={formData.name}
@@ -55,7 +55,7 @@ export default function EsquelaCustomizer() {
 
         <Text>Año de nacimiento:</Text>
         <CustomTextInput
-          style={{ width: 500 }}
+          style={{ width: 600 }}
           placeholder="Año de nacimiento"
           value={formData.birthYear}
           maxLength={4}
@@ -65,7 +65,7 @@ export default function EsquelaCustomizer() {
 
         <Text>Año de fallecimiento:</Text>
         <CustomTextInput
-          style={{ width: 500 }}
+          style={{ width: 600 }}
           placeholder="Año de fallecimiento"
           value={formData.deathYear}
           maxLength={4}
@@ -75,7 +75,7 @@ export default function EsquelaCustomizer() {
 
         <Text>Mensaje de despedida:</Text>
         <CustomTextInput
-          style={[styles.textArea, { width: 500 }]}
+          style={[styles.textArea, { width: 600 }]}
           placeholder="Escribe un mensaje de despedida"
           maxLength={250}
           value={formData.farewellMessage}
@@ -85,16 +85,18 @@ export default function EsquelaCustomizer() {
 
         <Text>Frase de despedida:</Text>
         <CustomTextInput
-          style={{ width: 500 }}
+          style={{ width: 600 }}
           placeholder="Frase de despedida"
           maxLength={80}
           value={formData.farewellPhrase}
           onChangeText={(text) => handleChange('farewellPhrase', text)}
         />
 
-        <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 16 }}>
-          <CustomButton title="Seleccionar Imagen" onPress={pickImage} />
-          <CustomButton title="Exportar a JSON" onPress={exportToJson} />
+        <Text>Imagen:</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-around'}}>
+
+          <CustomButton style={{ marginTop: 8 }} title="Selecciona una imagen" onPress={pickImage} />
+          <CustomButton color="grey" style={{ marginTop: 8, marginLeft: 20, width: 380 }} title="Guardar y seleccionar contactos" onPress={pickImage} />
         </View>
 
       </View>
@@ -134,8 +136,8 @@ const styles = StyleSheet.create({
   },
   formSection: {
     flex: 1,
-    paddingRight: 16,
-    alignItems: 'center',
+    paddingLeft: 100,
+    alignItems: 'flex-start',
   },
   previewSection: {
     flex: 1,
@@ -157,7 +159,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 8,
     maxWidth: 400,
-    marginTop: 8, 
+    marginTop: 8,
   },
   previewPhrase: {
     marginTop: 20,
