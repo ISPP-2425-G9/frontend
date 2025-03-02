@@ -46,7 +46,7 @@ export default function EsquelaCustomizer() {
 
         <Text>Nombre del fallecido:</Text>
         <CustomTextInput
-          style={styles.input}
+          style={{ width: 500 }}
           placeholder="Nombre"
           maxLength={50}
           value={formData.name}
@@ -55,7 +55,7 @@ export default function EsquelaCustomizer() {
 
         <Text>Año de nacimiento:</Text>
         <CustomTextInput
-          style={styles.input}
+          style={{ width: 500 }}
           placeholder="Año de nacimiento"
           value={formData.birthYear}
           maxLength={4}
@@ -65,7 +65,7 @@ export default function EsquelaCustomizer() {
 
         <Text>Año de fallecimiento:</Text>
         <CustomTextInput
-          style={styles.input}
+          style={{ width: 500 }}
           placeholder="Año de fallecimiento"
           value={formData.deathYear}
           maxLength={4}
@@ -75,7 +75,7 @@ export default function EsquelaCustomizer() {
 
         <Text>Mensaje de despedida:</Text>
         <CustomTextInput
-          style={[styles.input, styles.textArea]}
+          style={[styles.textArea, { width: 500 }]}
           placeholder="Escribe un mensaje de despedida"
           maxLength={250}
           value={formData.farewellMessage}
@@ -85,7 +85,7 @@ export default function EsquelaCustomizer() {
 
         <Text>Frase de despedida:</Text>
         <CustomTextInput
-          style={styles.input}
+          style={{ width: 500 }}
           placeholder="Frase de despedida"
           maxLength={80}
           value={formData.farewellPhrase}
@@ -108,7 +108,7 @@ export default function EsquelaCustomizer() {
               source={
                 formData.customImage
                   ? { uri: formData.customImage }
-                  : require('@/assets/images/default-dark-image.jpeg')
+                  : require('@/assets/images/default-dark-image.jpg')
               }
               style={styles.customImage}
             />
@@ -142,7 +142,6 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   previewText: {
-    marginBottom: 8,
     fontSize: 15,
     maxWidth: 400,
     marginTop: 8,
@@ -158,19 +157,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 8,
     maxWidth: 400,
+    marginTop: 8, 
   },
   previewPhrase: {
     marginTop: 20,
     fontSize: 16,
     fontStyle: 'italic',
     maxWidth: 400,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 8,
-    marginVertical: 8,
-    borderRadius: 8,
   },
   textArea: {
     height: 160,
