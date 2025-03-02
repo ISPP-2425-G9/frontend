@@ -1,7 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Alert, FlatList, StyleSheet } from 'react-native';
 import CustomButton from '@/components/CustomButton';
 import { CustomTextInput } from '@/components/CustomTextInput';
+import { useRoute, RouteProp } from '@react-navigation/native';
+
+type RootStackParamList = {
+  'obituaries/selectContacts': { jsonData: string };
+};
+
+type SelectContactsRouteProp = RouteProp<RootStackParamList, 'obituaries/selectContacts'>;
 
 type Contact = {
   id: number;
@@ -10,10 +17,25 @@ type Contact = {
   email: string;
 };
 
-export default function ContactForm() {
+export default function SelectContacts() {
+  const route = useRoute<SelectContactsRouteProp>();
+  const { jsonData } = route.params;
+
   const [contacts, setContacts] = useState<Contact[]>([
     { id: 1, name: '', phone: '', email: '' },
   ]);
+
+  const [combinedData, setCombinedData] = useState<any>({});
+
+  useEffect(() => {
+    const updateData = {
+      ...JSON.parse(jsonData), // Desestructura las propiedades del JSON original
+      contacts,               // Agrega el array de contactos como una nueva propiedad
+    };
+    setCombinedData(updateData);
+  
+    console.log('Datos combinados:', combinedData);
+  }, [contacts, jsonData]);
 
   const handleChange = (id: number, field: keyof Contact, value: string) => {
     setContacts((prevContacts) =>
@@ -35,7 +57,8 @@ export default function ContactForm() {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (is_mine: boolean) => {
+    console.log('Pollita y huevo', combinedData);
     if (contacts.some((contact) => !contact.name || !contact.phone || !contact.email)) {
       Alert.alert('Error', 'Todos los campos son obligatorios en cada contacto.');
       return;
@@ -44,7 +67,7 @@ export default function ContactForm() {
       const response = await fetch('https://tu-backend.com/api/contacts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(contacts),
+        body: JSON.stringify(combinedData),
       });
       await response.json();
       Alert.alert('Éxito', 'Contactos guardados con éxito');
@@ -55,54 +78,80 @@ export default function ContactForm() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Agrega a tus contactos</Text>
+      <View style={styles.dataContainer}>
+        <Text style={styles.title}>Agrega a tus contactos</Text>
 
-      <FlatList
-        data={contacts}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item, index }) => (
-          <View style={styles.contactContainer}>
-            <CustomTextInput
-              placeholder="Nombre"
-              value={item.name}
-              onChangeText={(text) => handleChange(item.id, 'name', text)}
-            />
-            <CustomTextInput
-              placeholder="Teléfono"
-              value={item.phone}
-              keyboardType="phone-pad"
-              onChangeText={(text) => handleChange(item.id, 'phone', text)}
-            />
-            <CustomTextInput
-              placeholder="Email"
-              value={item.email}
-              keyboardType="email-address"
-              onChangeText={(text) => handleChange(item.id, 'email', text)}
-            />
-            {index !== 0 && (  
-              <CustomButton
-                title="Eliminar"
-                color="red"
-                onPress={() => removeContact(item.id)}
-                style={styles.deleteButton}
+        <FlatList
+          data={contacts}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item, index }) => (
+            <View style={styles.contactContainer}>
+              <CustomTextInput
+                placeholder="Nombre"
+                value={item.name}
+                onChangeText={(text) => handleChange(item.id, 'name', text)}
+                style={styles.input}
               />
-            )}
-          </View>
-        )}
-      />
+              <CustomTextInput
+                placeholder="Teléfono"
+                value={item.phone}
+                keyboardType="phone-pad"
+                onChangeText={(text) => handleChange(item.id, 'phone', text)}
+                style={styles.input}
+              />
+              <CustomTextInput
+                placeholder="Email"
+                value={item.email}
+                keyboardType="email-address"
+                onChangeText={(text) => handleChange(item.id, 'email', text)}
+                style={styles.input}
+              />
+              
+              { index === 0 && (
+              <CustomButton title="Añadir" onPress={addContact}style={styles.deleteButton} /> )}
 
-      <View style={styles.buttonContainer}>
-        <CustomButton title="+" onPress={addContact} />
-        <CustomButton title="Guardar" onPress={handleSubmit} />
+              {index !== 0 && (
+                <CustomButton
+                  title="Eliminar"
+                  color="red"
+                  onPress={() => removeContact(item.id)}
+                  style={styles.deleteButton}
+                />
+              )}
+            </View>
+            
+          )}
+        />
+        
+        <View style={styles.saveButtonContainer}>
+       
+          <CustomButton
+            title="Guardar esquela"
+            onPress={() => handleSubmit(true)}
+            style={styles.saveButton}
+          />
+          <CustomButton
+            title="Enviar esquela"
+            onPress={() => handleSubmit(false)}
+            style={styles.saveButton}
+          />
+        </View>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {	
+  container: {
     flex: 1,
     justifyContent: 'center',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  dataContainer: {
+    flex: 1,
+    justifyContent: 'flex-start',
+    flexDirection: 'column',
     alignItems: 'center',
     paddingTop: 120,
   },
@@ -110,23 +159,31 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
+    marginLeft: 10,
   },
-   contactContainer: {
-    marginBottom: 15,
+  contactContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 10,
     borderBottomWidth: 1,
-    paddingBottom: 10,
-    flexDirection: 'row',  
-    alignItems: 'stretch', 
-    width: '100%',  
   },
   deleteButton: {
     marginLeft: 10,
-    alignSelf: 'center',  
-    width: '5%',
+    alignSelf: 'center',
+    width: '10%',
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+  input: {
+    marginLeft: 10,
+    width: '30%',
+  },
+  saveButtonContainer: {
+    marginTop: 20,
     alignItems: 'center',
+    flexDirection: 'row',
+    gap: 4,
+  },
+  saveButton: {
+    width: '60%',
   },
 });

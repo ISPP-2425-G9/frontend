@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Image, View, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, Image, View, Dimensions, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -56,6 +56,7 @@ export default function ObituaryIndex() {
 
   return (
     <ThemedView style={styles.container}>
+      <Text style={{ fontSize: 30, fontWeight: 'bold', marginBottom: 30 }}>Seleccione su esquela</Text>
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.listContainer}>
           {obituaries.map((item) => (

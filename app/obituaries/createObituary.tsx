@@ -3,11 +3,21 @@ import { StyleSheet, TextInput, View, Text, Button, Image, Dimensions } from 're
 import * as ImagePicker from 'expo-image-picker';
 import CustomButton from '@/components/CustomButton';
 import { CustomTextInput } from '@/components/CustomTextInput';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
+type RootStackParamList = {
+  'obituaries/selectContacts': { jsonData: string };
+};
+
+
 export default function EsquelaCustomizer() {
+
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+
   const [formData, setFormData] = useState({
     name: '',
     birthYear: '',
@@ -33,8 +43,9 @@ export default function EsquelaCustomizer() {
     }
   };
 
-  const exportToJson = () => {
-    console.log(JSON.stringify(formData, null, 2));
+  const selectContacts = () => {
+    const jsonData = JSON.stringify(formData, null, 2)
+    navigation.navigate('obituaries/selectContacts' as never, {jsonData: jsonData});
   };
 
   return (
@@ -42,7 +53,7 @@ export default function EsquelaCustomizer() {
       {/* Sección izquierda: Formulario */}
       <View style={styles.formSection}>
 
-        <Text style={{ fontSize: 30, fontWeight: 'bold', marginBottom: 30 }}>Personaliza tu esquela</Text>
+        <Text style={{ fontSize: 30, fontWeight: 'bold', marginBottom: 40 }}>Personaliza tu esquela</Text>
 
         <Text>Nombre del fallecido:</Text>
         <CustomTextInput
@@ -92,13 +103,10 @@ export default function EsquelaCustomizer() {
           onChangeText={(text) => handleChange('farewellPhrase', text)}
         />
 
-        <Text>Imagen:</Text>
         <View style={{ flexDirection: 'row', justifyContent: 'space-around'}}>
-
-          <CustomButton style={{ marginTop: 8 }} title="Selecciona una imagen" onPress={pickImage} />
-          <CustomButton color="grey" style={{ marginTop: 8, marginLeft: 20, width: 380 }} title="Guardar y seleccionar contactos" onPress={pickImage} />
+          <CustomButton style={{ marginTop: 12 }} title="Selecciona una imagen" onPress={pickImage} />
+          <CustomButton color="grey" style={{ marginTop: 12, marginLeft: 20, width: 380 }} title="Guardar y seleccionar contactos" onPress={selectContacts} />
         </View>
-
       </View>
 
       {/* Sección derecha: Previsualización */}
