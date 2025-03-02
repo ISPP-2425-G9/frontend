@@ -80,7 +80,7 @@ export default function TabLayout() {
           title: "",
           tabBarLabel: () => (
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Logo size={20} color="blue" />
+              <Logo size={20} color="blue" typography={false} />
               <Text style={{ marginLeft: 5, fontFamily: GlobalStyles.font, fontSize: 12, fontWeight: "bold", color: theme.tabIconSelected }}>
                 Inicio
               </Text>
