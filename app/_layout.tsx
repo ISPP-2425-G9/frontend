@@ -30,6 +30,7 @@ export default function TabLayout() {
             "subscribe/index": "card",
             "login/index": "log-in",
             "register/index": "person-add",
+            "home": "home"
           };
 
           let iconName: keyof typeof Ionicons.glyphMap = iconsDict[route.name] ?? "home";
@@ -74,6 +75,7 @@ export default function TabLayout() {
         safeAreaInsets: { top: 0 }, // Evita que el navbar se superponga con la barra de estado
       })}
     >
+      <Tabs.Screen name="home" options={{ title: "Inicio" }} />
       <Tabs.Screen name="obituaries/index" options={{ title: "Esquelas" }} />
       <Tabs.Screen name="messages/index" options={{ title: "Mensajes" }} />
       <Tabs.Screen name="contacts/index" options={{ title: "Contactos" }} />
@@ -81,23 +83,10 @@ export default function TabLayout() {
       <Tabs.Screen name="subscribe/index" options={{ title: "Suscribirse" }} />
       <Tabs.Screen name="login/index" options={{ title: "Iniciar sesión" }} />
       <Tabs.Screen name="register/index" options={{ title: "Registrarse" }} />
-      <Tabs.Screen 
-        name="profile/index" 
-        options={{ 
-          title: "Perfil",
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons
-              name="person"
-              size={size}
-              color={color}
-              style={{
-                opacity: focused ? 1 : 0.6,
-                transform: [{ scale: focused ? 1.1 : 1 }],
-              }}
-            />
-          )
-        }} 
-      />
+      <Tabs.Screen name="profile/index" options={{title: "Perfil"}} />
+      <Tabs.Screen name="+not-found" options={{ href: null }} />
+      <Tabs.Screen name="index" options={{ href: null }} />
+
     </Tabs>
   );
 }
