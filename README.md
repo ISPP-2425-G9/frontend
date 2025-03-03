@@ -69,7 +69,7 @@ Caronte es la aplicación frontend desarrollada con Expo y React Native para pro
    Clona el repositorio en tu máquina:
    ```bash
    git clone git@github.com:ISPP-2425-G9/frontend.git
-   cd caronte-frontend
+   cd frontend
    ```
 
 ### Paso 2: Instalar dependencias
