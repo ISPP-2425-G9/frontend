@@ -27,7 +27,7 @@ const LoginScreen: React.FC = () => {
 
   const handleSubmit = async (values: Record<string, string>) => {
     try {
-      const response = await fetch('api/auth/login', {
+      const response = await fetch('http://localhost:8080/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,10 +41,19 @@ const LoginScreen: React.FC = () => {
 
       const data = await response.json();
       await AsyncStorage.setItem('authToken', data.token);
-      Alert.alert('Inicio de sesión exitoso', 'Has iniciado sesión correctamente.');
+      if (Platform.OS === 'web') {
+              window.alert('Inicio de sesión exitoso: Has iniciado sesión correctamente.');
+            } else {
+              Alert.alert('Inicio de sesión exitoso', 'Has iniciado sesión correctamente.');
+            }
+      setModalVisible(false); 
       navigation.navigate('home' as never);
     } catch (error: any) {
-      Alert.alert('Error', error.message);
+      if (Platform.OS === 'web') {
+        window.alert(`Error: ${error.message}`);
+      } else {
+        Alert.alert('Error', error.message);
+      }
     }
   };
 
