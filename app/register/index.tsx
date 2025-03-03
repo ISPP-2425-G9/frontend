@@ -181,6 +181,7 @@ const RegisterScreen: React.FC = () => {
             inputs={companyFields}
             imageFields={['logo']}
             onSubmit={handleSubmit}
+            handleFormClose={ async ()=> { setUserType(null); setModalVisible(true);}}
             buttonText="Registrarse"
             style={styles.formStyle}
           />
@@ -191,6 +192,7 @@ const RegisterScreen: React.FC = () => {
             title="Cuenta de usuario"
             inputs={clientFields}
             onSubmit={handleSubmit}
+            handleFormClose={ async ()=> { setUserType(null); setModalVisible(true); }}
             buttonText="Registrarse"
             style={styles.formStyle}
           />
