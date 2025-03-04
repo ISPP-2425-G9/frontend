@@ -25,22 +25,26 @@ export default function ObituaryIndex() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const simulatedData = [
-      { id: 1, name: 'Juliana Silva', date: '10/02/2024', description: 'Siempre en nuestros corazones.', image: require('@/assets/images/esquela-template.jpg') },
-      { id: 2, name: 'Felipe Saenz', date: '15/03/2024', description: 'Descansa en paz.', image: require('@/assets/images/esquela-template.jpg') },
-      { id: 3, name: 'Carlos Méndez', date: '22/04/2024', description: 'Te recordaremos siempre.', image: require('@/assets/images/esquela-template-2.jpeg') },
-      { id: 4, name: 'Ana López', date: '05/05/2024', description: 'Tu luz brillará por siempre.', image: require('@/assets/images/esquela-template-2.jpeg') },
-      { id: 5, name: 'María Torres', date: '18/06/2024', description: 'Amor eterno.', image: require('@/assets/images/esquela-template.jpg') },
-      { id: 6, name: 'Jorge Ramírez', date: '30/07/2024', description: 'Nunca te olvidaremos.', image: require('@/assets/images/esquela-template-2.jpeg') },
-      { id: 7, name: 'Pedro García', date: '15/08/2024', description: 'Siempre en nuestros recuerdos.', image: require('@/assets/images/esquela-template.jpg') },
-      { id: 8, name: 'Lucía Sánchez', date: '23/09/2024', description: 'Te amaremos por siempre.', image: require('@/assets/images/esquela-template-2.jpeg') },
-    ];
-
-    setTimeout(() => {
-      setObituaries(simulatedData);
-      setLoading(false);
-    }, 1000);
+    setLoading(true);
+    
+    fetch('/api/templates/urls')
+      .then(response => {
+        console.log("hola", response);
+        if (!response.ok) {
+          throw new Error('Error al obtener los datos');
+        }
+        return response.json();
+      })
+      .then(data => {
+        setObituaries(data);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error en la solicitud:', error);
+        setLoading(false);
+      });
   }, []);
+  
 
   const handleObituaryPress = (id: number, imageUrl: string) => {
     navigation.navigate('obituaries/createObituary', { obituaryId: id, imageUrl });

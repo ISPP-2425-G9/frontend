@@ -59,7 +59,7 @@ export default function EsquelaCustomizer() {
         <CustomTextInput
           style={{ width: 600 }}
           placeholder="Nombre"
-          maxLength={50}
+          maxLength={37}
           value={formData.name}
           onChangeText={(text) => handleChange('name', text)}
         />
@@ -69,7 +69,7 @@ export default function EsquelaCustomizer() {
           style={{ width: 600 }}
           placeholder="Año de nacimiento"
           value={formData.birthYear}
-          maxLength={4}
+          maxLength={10}
           onChangeText={(text) => handleChange('birthYear', text)}
           keyboardType="numeric"
         />
@@ -79,7 +79,7 @@ export default function EsquelaCustomizer() {
           style={{ width: 600 }}
           placeholder="Año de fallecimiento"
           value={formData.deathYear}
-          maxLength={4}
+          maxLength={10}
           onChangeText={(text) => handleChange('deathYear', text)}
           keyboardType="numeric"
         />
@@ -88,17 +88,17 @@ export default function EsquelaCustomizer() {
         <CustomTextInput
           style={[styles.textArea, { width: 600 }]}
           placeholder="Escribe un mensaje de despedida"
-          maxLength={250}
+          maxLength={624}
+          multiline
           value={formData.farewellMessage}
           onChangeText={(text) => handleChange('farewellMessage', text)}
-          multiline
         />
 
         <Text>Frase de despedida:</Text>
         <CustomTextInput
-          style={{ width: 600 }}
+          style={{ width: 600, textAlign: 'center' }}
           placeholder="Frase de despedida"
-          maxLength={80}
+          maxLength={90}
           value={formData.farewellPhrase}
           onChangeText={(text) => handleChange('farewellPhrase', text)}
         />
@@ -174,6 +174,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontStyle: 'italic',
     maxWidth: 400,
+    justifyContent: 'center',
+    textAlign: 'center',
   },
   textArea: {
     height: 160,
