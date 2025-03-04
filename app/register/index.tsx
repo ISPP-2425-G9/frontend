@@ -36,10 +36,11 @@ const RegisterScreen: React.FC = () => {
     const errors: string[] = [];
 
     const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const nifRegex = /^\[ABCDEFGHJNPQRSUVW]\d{7}[0-9A-J]$/;
+    const nifRegex = /^[ABCDEFGHJNPQRSUVW]\d{7}[0-9A-J]$/;
     const zipCodeRegex = /^\d{5}$/;
     const phoneRegex = /^\+?\d{9,15}$/;
-    const dniRegex = /^\\d{8}[A-Z]$/;
+    const dniRegex = /^\d{8}[A-Z]$/;
+
 
     if(uType === 'Empresa' ){
 
