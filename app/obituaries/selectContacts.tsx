@@ -58,7 +58,6 @@ export default function SelectContacts() {
   };
 
   const handleSubmit = async (is_mine: boolean) => {
-    console.log('Pollita y huevo', combinedData);
     if (contacts.some((contact) => !contact.name || !contact.phone || !contact.email)) {
       Alert.alert('Error', 'Todos los campos son obligatorios en cada contacto.');
       return;

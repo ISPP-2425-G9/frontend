@@ -3,19 +3,25 @@ import { StyleSheet, TextInput, View, Text, Button, Image, Dimensions } from 're
 import * as ImagePicker from 'expo-image-picker';
 import CustomButton from '@/components/CustomButton';
 import { CustomTextInput } from '@/components/CustomTextInput';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp, useRoute, RouteProp } from '@react-navigation/native';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 type RootStackParamList = {
   'obituaries/selectContacts': { jsonData: string };
+  'obituaries/createObituary': { obituaryId: number; imageUrl: string };
+
 };
 
 
 export default function EsquelaCustomizer() {
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  const route = useRoute<RouteProp<RootStackParamList, 'obituaries/createObituary'>>();
+
+  const imageUrl = route.params?.imageUrl;
 
 
   const [formData, setFormData] = useState({
@@ -112,7 +118,7 @@ export default function EsquelaCustomizer() {
       {/* Sección derecha: Previsualización */}
       <View style={styles.previewSection}>
         <View style={styles.overlayContainer}>
-          <Image source={require('@/assets/images/esquela-template-2.jpeg')} style={styles.templateImage} />
+          <Image source={imageUrl} style={styles.templateImage} />
           <View style={styles.overlayContent}>
             <Image
               source={

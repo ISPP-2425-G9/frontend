@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Image, View, Dimensions, ScrollView, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, Image, View, useWindowDimensions, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-
-const { width, height } = Dimensions.get('window');
 
 type RootStackParamList = {
   'obituaries/createObituary': { obituaryId: number; imageUrl: string };
@@ -12,39 +10,36 @@ type RootStackParamList = {
 
 export default function ObituaryIndex() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const { width, height } = useWindowDimensions(); 
 
   interface Obituary {
-    id: number;
+    imageId: number;
     name: string;
     date: string;
     description: string;
-    image: any;
+    imageUrl: string;
   }
 
   const [obituaries, setObituaries] = useState<Obituary[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    
-    fetch('/api/templates/urls')
-      .then(response => {
-        console.log("hola", response);
-        if (!response.ok) {
-          throw new Error('Error al obtener los datos');
-        }
-        return response.json();
-      })
-      .then(data => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch('http://localhost:8080/api/templates/urls');
+        if (!response.ok) throw new Error('Error al obtener los datos');
+        const data: Obituary[] = await response.json();
         setObituaries(data);
-        setLoading(false);
-      })
-      .catch(error => {
+      } catch (error) {
         console.error('Error en la solicitud:', error);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchData();
   }, []);
-  
 
   const handleObituaryPress = (id: number, imageUrl: string) => {
     navigation.navigate('obituaries/createObituary', { obituaryId: id, imageUrl });
@@ -60,12 +55,16 @@ export default function ObituaryIndex() {
 
   return (
     <ThemedView style={styles.container}>
-      <Text style={{ fontSize: 30, fontWeight: 'bold', marginBottom: 30 }}>Seleccione su esquela</Text>
+      <Text style={styles.title}>Seleccione su esquela</Text>
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.listContainer}>
-          {obituaries.map((item) => (
-            <TouchableOpacity key={item.id} onPress={() => handleObituaryPress(item.id, item.image)} style={styles.obituaryCard}>
-              <Image source={item.image} style={styles.image} />
+          {obituaries.map((item, index) => (
+            <TouchableOpacity
+              key={item.imageId} 
+              onPress={() => handleObituaryPress(item.imageId, item.imageUrl)}
+              style={[styles.obituaryCard, { width: width * 0.20, height: height * 0.65 }]} 
+            >
+              <Image source={{ uri: item.imageUrl }} style={styles.image} />
             </TouchableOpacity>
           ))}
         </View>
@@ -81,6 +80,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 120,
     backgroundColor: '#ffff',
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    marginBottom: 30,
   },
   scrollContainer: {
     flexGrow: 1,
@@ -103,8 +107,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     alignItems: 'center',
-    width: width * 0.20,
-    height: height * 0.65,
     overflow: 'hidden',
   },
   image: {
@@ -118,4 +120,3 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
