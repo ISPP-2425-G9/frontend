@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import CustomTextInput from './CustomTextInput';
+import { AntDesign } from '@expo/vector-icons';
 
 export interface InputField {
   name: string;
@@ -17,11 +18,21 @@ interface CustomFormProps {
   inputs: InputField[];
   imageFields?: string[];
   onSubmit: (values: Record<string, string | { uri: string; name: string; type: string }>) => void;
+  handleFormClose?: () => void;
   style?: object;
   buttonText?: string;
 }
 
-const TextInputArraysForm: React.FC<CustomFormProps> = ({ title, description, inputs, imageFields = [], onSubmit, style, buttonText = 'Enviar' }) => {
+const TextInputArraysForm: React.FC<CustomFormProps> = ({
+  title,
+  description,
+  inputs,
+  imageFields = [],
+  onSubmit,
+  handleFormClose,
+  style,
+  buttonText = 'Enviar',
+}) => {
   const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [images, setImages] = useState<Record<string, string | null>>(
     imageFields.reduce((acc, field) => ({ ...acc, [field]: null }), {})
@@ -64,6 +75,11 @@ const TextInputArraysForm: React.FC<CustomFormProps> = ({ title, description, in
 
   return (
     <View style={[styles.container, style]}>
+      {handleFormClose && (
+        <TouchableOpacity style={styles.closeButton} onPress={handleFormClose}>
+          <AntDesign name="close" size={24} color="#333" />
+        </TouchableOpacity>
+      )}
       <Text style={styles.title}>{title}</Text>
       {description && <Text style={styles.description}>{description}</Text>}
       <View style={styles.inputsWrapper}>
@@ -107,6 +123,13 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
     alignItems: 'center',
+    position: 'relative',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    padding: 5,
   },
   title: {
     fontSize: 18,
