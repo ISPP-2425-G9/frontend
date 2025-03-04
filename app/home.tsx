@@ -3,18 +3,20 @@ import { useNavigation } from "@react-navigation/native";
 import { GlobalStyles } from "@/constants/Colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import CustomButton from "@/components/CustomButton";
+import Logo from "@/components/Logo";
 
 const { width } = Dimensions.get("window");
 
 
 export default function HomeScreen() {
   const navigation = useNavigation();
+  const logoSize = width > 800 ? 225 : 150;
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={[styles.container, width > 800 ? styles.rowLayout : styles.columnLayout]}>
         <View style={styles.logoContainer}>
-          <Image source={require("../assets/images/caronte_azul.svg")} style={styles.logo} resizeMode="contain" />
+          <Logo size={logoSize}/>
           <Text style={styles.tagline}>Honrando memorias, facilitando despedidas.</Text>
         </View>
         
