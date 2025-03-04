@@ -31,11 +31,12 @@ export default function TabLayout() {
             "subscribe/index": "card",
             "login/index": "log-in",
             "register/index": "person-add",
+            "home": "home"
           };
 
           let iconName: keyof typeof Ionicons.glyphMap = iconsDict[route.name] ?? "home";
 
-          return route.name == "home" ? null : (
+          return (
             <Ionicons
               name={iconName}
               size={size}
@@ -74,20 +75,7 @@ export default function TabLayout() {
         safeAreaInsets: { top: 0 },
       })}
     >
-      <Tabs.Screen
-        name="home"
-        options={{
-          title: "",
-          tabBarLabel: () => (
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Logo size={20} color="blue" />
-              <Text style={{ marginLeft: 5, fontFamily: GlobalStyles.font, fontSize: 12, fontWeight: "bold", color: theme.tabIconSelected }}>
-                Inicio
-              </Text>
-            </View>
-          ),
-        }}
-      />
+      <Tabs.Screen name="home" options={{ title: "Inicio" }} />
       <Tabs.Screen name="obituaries/index" options={{ title: "Esquelas" }} />
       <Tabs.Screen name="obituaries/createObituary" options={{ href: null }} />
       <Tabs.Screen name="obituaries/selectContacts" options={{ href: null }} />
