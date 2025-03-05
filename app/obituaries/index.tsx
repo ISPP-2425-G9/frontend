@@ -5,7 +5,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 
 type RootStackParamList = {
-  'obituaries/createObituary': { obituaryId: number; imageUrl: string };
+  'obituaries/createObituary': { imageTemplateId: number; imageUrl: string };
 };
 
 export default function ObituaryIndex() {
@@ -42,7 +42,7 @@ export default function ObituaryIndex() {
   }, []);
 
   const handleObituaryPress = (id: number, imageUrl: string) => {
-    navigation.navigate('obituaries/createObituary', { obituaryId: id, imageUrl });
+    navigation.navigate('obituaries/createObituary', { imageTemplateId: id, imageUrl  });
   };
 
   if (loading) {
@@ -58,10 +58,10 @@ export default function ObituaryIndex() {
       <Text style={styles.title}>Seleccione su esquela</Text>
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.listContainer}>
-          {obituaries.map((item, index) => (
+          {obituaries.map((item) => (
             <TouchableOpacity
               key={item.imageId} 
-              onPress={() => handleObituaryPress(item.imageId, item.imageUrl)}
+              onPress={() => handleObituaryPress(item.imageId, item.imageUrl)} 
               style={[styles.obituaryCard, { width: width * 0.20, height: height * 0.65 }]} 
             >
               <Image source={{ uri: item.imageUrl }} style={styles.image} />

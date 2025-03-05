@@ -3,6 +3,7 @@ import { View, Text, Alert, FlatList, StyleSheet } from 'react-native';
 import CustomButton from '@/components/CustomButton';
 import { CustomTextInput } from '@/components/CustomTextInput';
 import { useRoute, RouteProp } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type RootStackParamList = {
   'obituaries/selectContacts': { jsonData: string };
@@ -33,6 +34,8 @@ export default function SelectContacts() {
       contacts,               // Agrega el array de contactos como una nueva propiedad
     };
     setCombinedData(updateData);
+    console.log("Primer json" + jsonData);
+    console.log("Segundo json" + JSON.stringify(updateData, null, 2));
   
     console.log('Datos combinados:', combinedData);
   }, [contacts, jsonData]);
@@ -58,22 +61,44 @@ export default function SelectContacts() {
   };
 
   const handleSubmit = async (is_mine: boolean) => {
+  
     if (contacts.some((contact) => !contact.name || !contact.phone || !contact.email)) {
       Alert.alert('Error', 'Todos los campos son obligatorios en cada contacto.');
       return;
     }
+  
+    // Añadir la propiedad isMine al combinedData
+    const dataToSend = {
+      ...combinedData,
+      isMine: is_mine,  // Se agrega la propiedad isMine con el valor de is_mine
+    };
+  
     try {
-      const response = await fetch('https://tu-backend.com/api/contacts', {
+      const authToken = await AsyncStorage.getItem('authToken');
+      const header_data = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken?.trim()}`,
+      }
+      const response = await fetch('http://localhost:8080/api/obituary/create', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(combinedData),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken?.trim()}`,
+        },
+        body: JSON.stringify(dataToSend), // Usamos dataToSend que tiene la propiedad isMine
       });
+      console.log(header_data);
+
+      if (response.ok) {
+      }
+  
       await response.json();
       Alert.alert('Éxito', 'Contactos guardados con éxito');
     } catch (error) {
       Alert.alert('Error', 'No se pudieron guardar los contactos');
     }
   };
+  
 
   return (
     <View style={styles.container}>

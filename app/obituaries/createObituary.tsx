@@ -10,7 +10,7 @@ const height = Dimensions.get('window').height;
 
 type RootStackParamList = {
   'obituaries/selectContacts': { jsonData: string };
-  'obituaries/createObituary': { obituaryId: number; imageUrl: string };
+  'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, };
 
 };
 
@@ -21,15 +21,20 @@ export default function EsquelaCustomizer() {
 
   const route = useRoute<RouteProp<RootStackParamList, 'obituaries/createObituary'>>();
 
+  const imageId = route.params?.imageTemplateId;
+
   const imageUrl = route.params?.imageUrl;
+
+
 
 
   const [formData, setFormData] = useState({
     name: '',
-    birthYear: '',
-    deathYear: '',
+    birthDate: '',
+    deathDate: '',
     farewellMessage: '',
     farewellPhrase: '',
+    imageTemplate_id: imageId,
     customImage: null as string | null,
   });
 
@@ -74,9 +79,9 @@ export default function EsquelaCustomizer() {
         <CustomTextInput
           style={{ width: 600 }}
           placeholder="Año de nacimiento"
-          value={formData.birthYear}
+          value={formData.birthDate}
           maxLength={10}
-          onChangeText={(text) => handleChange('birthYear', text)}
+          onChangeText={(text) => handleChange('birthDate', text)}
           keyboardType="numeric"
         />
 
@@ -84,9 +89,9 @@ export default function EsquelaCustomizer() {
         <CustomTextInput
           style={{ width: 600 }}
           placeholder="Año de fallecimiento"
-          value={formData.deathYear}
+          value={formData.deathDate}
           maxLength={10}
-          onChangeText={(text) => handleChange('deathYear', text)}
+          onChangeText={(text) => handleChange('deathDate', text)}
           keyboardType="numeric"
         />
 
@@ -115,10 +120,9 @@ export default function EsquelaCustomizer() {
         </View>
       </View>
 
-      {/* Sección derecha: Previsualización */}
       <View style={styles.previewSection}>
         <View style={styles.overlayContainer}>
-          <Image source={imageUrl} style={styles.templateImage} />
+          <Image source={{ uri: imageUrl }} style={styles.templateImage} />
           <View style={styles.overlayContent}>
             <Image
               source={
@@ -129,7 +133,7 @@ export default function EsquelaCustomizer() {
               style={styles.customImage}
             />
             <Text style={styles.previewName}>{formData.name || 'Nombre '}</Text>
-            <Text style={styles.previewDate}>{formData.birthYear || 'Año de nacimiento'} - {formData.deathYear || 'Año de fallecimiento'}</Text>
+            <Text style={styles.previewDate}>{formData.birthDate || 'Año de nacimiento'} - {formData.deathDate || 'Año de fallecimiento'}</Text>
             <Text style={styles.previewText}>{formData.farewellMessage || 'Tu mensaje de despedida aparecerá aquí'}</Text>
             <Text style={styles.previewPhrase}>
               "{formData.farewellPhrase || 'Frase de despedida'}"
