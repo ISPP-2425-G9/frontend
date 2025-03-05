@@ -9,7 +9,9 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "build": "expo export -p web",
+    "launch": "node server.js"
   },
   "jest": {
     "preset": "jest-expo"
@@ -43,7 +45,8 @@
     "react-native-screens": "~4.4.0",
     "react-native-svg": "^15.11.2",
     "react-native-web": "~0.19.13",
-    "react-native-webview": "13.12.5"
+    "react-native-webview": "13.12.5",
+    "express":"4.18.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
