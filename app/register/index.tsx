@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, Platform, Dimensions } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CustomModal from '@/components/CustomModal';
 import TextInputArraysForm from '@/components/TextInputArraysForm';
@@ -119,6 +120,7 @@ const RegisterScreen: React.FC = () => {
       }
       
       const data = await response.json();
+      await AsyncStorage.setItem('authToken', data.token);
       if (Platform.OS === 'web') {
         window.alert('Registro exitoso: Tu cuenta ha sido creada con éxito.');
       } else {

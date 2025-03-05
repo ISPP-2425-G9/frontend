@@ -4,8 +4,10 @@ import { useColorScheme, View, Text } from "react-native";
 import { GlobalStyles, Colors } from "@/constants/Colors";
 import { useFonts, DMSans_500Medium, DMSans_700Bold } from "@expo-google-fonts/dm-sans";
 import Logo from "@/components/Logo";
+import useAuth from '@/hooks/useAuth';
 
 export default function TabLayout() {
+  const { isAuthenticated } = useAuth();
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme || "light"];
 
@@ -81,11 +83,33 @@ export default function TabLayout() {
       <Tabs.Screen name="contacts/index" options={{ title: "Contactos" }} />
       <Tabs.Screen name="services/index" options={{ title: "Servicios" }} />
       <Tabs.Screen name="subscribe/index" options={{ title: "Suscribirse" }} />
-      <Tabs.Screen name="login/index" options={{ title: "Iniciar sesión" }} />
-      <Tabs.Screen name="register/index" options={{ title: "Registrarse" }} />
-      <Tabs.Screen name="profile/index" options={{ title: "Perfil" }} />
       <Tabs.Screen name="+not-found" options={{ href: null }} />
       <Tabs.Screen name="index" options={{ href: null }} />
+      
+      {!isAuthenticated && (
+        <Tabs.Screen name="login/index" options={{ title: "Iniciar sesión" }} />
+      )}
+      
+      {!isAuthenticated && (
+        <Tabs.Screen name="register/index" options={{ title: "Registrarse" }} />
+      )}
+
+      {!isAuthenticated && (
+        <Tabs.Screen name="profile/index" options={{ href: null }} />
+      )}
+      
+      {isAuthenticated && (
+        <Tabs.Screen name="profile/index" options={{ title: "Perfil" }} />
+      )}
+
+      {isAuthenticated && (
+        <Tabs.Screen name="login/index" options={{ href: null }} />
+      )}
+      
+      {isAuthenticated && (
+        <Tabs.Screen name="register/index" options={{ href: null }} />
+      )}
+
     </Tabs>
   );
 }
