@@ -78,6 +78,7 @@ export default function TabLayout() {
       <Tabs.Screen name="home" options={{ title: "Inicio" }} />
       <Tabs.Screen name="obituaries/index" options={{ title: "Esquelas" }} />
       <Tabs.Screen name="obituaries/createObituary" options={{ href: null }} />
+      <Tabs.Screen name="obituaries/listMyObituaries" options={{ href: null }} />
       <Tabs.Screen name="obituaries/selectContacts" options={{ href: null }} />
       <Tabs.Screen name="messages/index" options={{ title: "Mensajes" }} />
       <Tabs.Screen name="contacts/index" options={{ title: "Contactos" }} />

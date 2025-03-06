@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StyleSheet, TextInput, View, Text, Button, Image, Dimensions } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import CustomButton from '@/components/CustomButton';
@@ -10,7 +11,7 @@ const height = Dimensions.get('window').height;
 
 type RootStackParamList = {
   'obituaries/selectContacts': { jsonData: string };
-  'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, };
+  'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number };
 
 };
 
@@ -21,11 +22,60 @@ export default function EsquelaCustomizer() {
 
   const route = useRoute<RouteProp<RootStackParamList, 'obituaries/createObituary'>>();
 
+  const newObituary = route.params?.is_newObituary;
+  
   const imageId = route.params?.imageTemplateId;
 
   const imageUrl = route.params?.imageUrl;
 
+  const [loading, setLoading] = useState(true);
 
+
+  useEffect(() => {
+    if (!newObituary) {
+      const obituaryId = route.params?.obituaryId;
+      const fetchData = async () => {
+        setLoading(true);
+        try {
+          const authToken = await AsyncStorage.getItem('authToken');
+          if (!authToken) throw new Error('No se encontró un token de autenticación');
+  
+          const response = await fetch(`http://localhost:8080/api/obituary/myObituaries/${obituaryId}`, {  
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authToken.trim()}`,
+            },
+          });
+  
+          if (!response.ok) throw new Error('Error al obtener los datos');
+  
+          const data = await response.json();
+
+          console.log("hola", data);
+
+          setFormData({
+            ...formData,
+            name: data.name || '',
+            birthDate: data.birthDate || '',
+            deathDate: data.deathDate || '',
+            farewellMessage: data.farewellMessage || '',
+            farewellPhrase: data.farewellPhrase || '',
+            customImage: data.customImage || null, // Si hay una imagen personalizada
+          });            
+  
+        } catch (error) {
+          console.error('Error en la solicitud:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchData();
+    }
+  }, []); 
+  
+  
 
 
   const [formData, setFormData] = useState({
@@ -216,3 +266,5 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 });
+
+
