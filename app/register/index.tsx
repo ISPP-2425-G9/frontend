@@ -109,7 +109,7 @@ const RegisterScreen: React.FC = () => {
         throw new Error(`Hay error(es) en su formulario: ${errors}`)
       }
       const reqUrl = userType == 'Empresa' ? 'api/auth/companies/signup' : 'api/auth/customers/signup';
-      const response = await fetch(`${BACKEND_API}/${reqUrl}`, {
+      const response = await fetch(BACKEND_API+ `/${reqUrl}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

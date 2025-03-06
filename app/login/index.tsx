@@ -6,7 +6,7 @@ import CustomModal from '@/components/CustomModal';
 import TextInputArraysForm from '@/components/TextInputArraysForm';
 import { GlobalStyles } from '@/constants/Colors';
 import { InputField } from '@/components/TextInputArraysForm';
-import { BACKEND_API} from '@env'
+import { BACKEND_API } from '@env'
 
 const { width, height } = Dimensions.get('window');
 
@@ -28,7 +28,7 @@ const LoginScreen: React.FC = () => {
 
   const handleSubmit = async (values: Record<string, string>) => {
     try {
-      const response = await fetch(`${BACKEND_API}/api/auth/login`, {
+      const response = await fetch(BACKEND_API + `/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
