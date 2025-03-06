@@ -15,7 +15,6 @@ type RootStackParamList = {
   'obituaries/index': { is_newObituary: boolean, obituaryId: number };
 };
 
-
 export default function EsquelaCustomizer() {
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -24,7 +23,6 @@ export default function EsquelaCustomizer() {
 
   const is_newObituary = route.params?.is_newObituary ?? true;
 
-  console.log(is_newObituary);
 
   const imageId = route.params?.imageTemplateId;
 
@@ -36,7 +34,7 @@ export default function EsquelaCustomizer() {
   const [formData, setFormData] = useState({
     name: '',
     birthDate: '',
-    deathDate: '20XX-XX-XX',
+    deathDate: '',
     farewellMessage: '',
     farewellPhrase: '',
     imageTemplate_id: imageId,
@@ -68,7 +66,7 @@ export default function EsquelaCustomizer() {
             ...formData,
             name: data.name || '',
             birthDate: data.birthDate || '',
-            deathDate: data.deathDate || '20XX-XX-XX',
+            deathDate: data.deathDate || '',
             farewellMessage: data.farewellMessage || '',
             farewellPhrase: data.farewellPhrase || '',
             customImage: data.customImage || null,
@@ -88,7 +86,7 @@ export default function EsquelaCustomizer() {
         ...formData,
         name: '',
         birthDate: '',
-        deathDate: '20XX-XX-XX',
+        deathDate: '',
         farewellMessage: '',
         farewellPhrase: '',
         customImage: null,
@@ -96,6 +94,9 @@ export default function EsquelaCustomizer() {
 
     }
   }, [route.params?.obituaryId, is_newObituary]);
+
+
+  const death = formData.deathDate ?? '';
 
   const changeDesign = async () => {
     const obituaryId = route.params?.obituaryId ?? undefined;
@@ -178,11 +179,20 @@ export default function EsquelaCustomizer() {
           value={formData.farewellPhrase}
           onChangeText={(text) => handleChange('farewellPhrase', text)}
         />
+
+        {!formData.deathDate && (
+          <>
+          
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', gap: 8, width: '75%' }}>
           <CustomButton style={{ marginTop: 12, width: '49%' }} title="Selecciona una imagen" onPress={pickImage} />
-          <CustomButton style={{ marginTop: 12, width: '49%' }} title="Cambia el diseno de tu esquela" onPress={changeDesign} />
+          <CustomButton style={{ marginTop: 12, width: '49%' }} title="Cambia el diseño de tu esquela" onPress={changeDesign} />
         </View>
         <CustomButton color="grey" style={{ marginTop: 12, width: '75%' }} title="Guardar y seleccionar contactos" onPress={selectContacts} />
+        </>
+          
+        )}
+
+
       </View>
 
       <View style={styles.previewSection}>

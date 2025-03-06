@@ -71,7 +71,7 @@ export default function ObituaryIndex() {
 
   return (
     <ThemedView style={styles.container}>
-      <Text style={styles.title}>Cree una esquela</Text>
+      <Text style={styles.title}>Elija el diseño</Text>
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.listContainer}>
           {obituaries.map((item) => (
