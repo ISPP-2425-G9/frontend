@@ -2,17 +2,25 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Image, View, useWindowDimensions, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp, useRoute, RouteProp  } from '@react-navigation/native';
 import CustomButton from '@/components/CustomButton';
 
 type RootStackParamList = {
-  'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean };
+  'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number };
   'obituaries/listMyObituaries': undefined;
+  'obituaries/index': { is_newObituary: boolean, obituaryId: number };
+
 };
 
 export default function ObituaryIndex() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { width, height } = useWindowDimensions(); 
+
+  const route = useRoute<RouteProp<RootStackParamList, 'obituaries/index'>>();
+
+  const is_newObituary = route.params?.is_newObituary ?? true;
+
+  console.log(is_newObituary);
 
   interface Obituary {
     imageId: number;
@@ -41,10 +49,14 @@ export default function ObituaryIndex() {
   }, []);
 
   const handleObituaryPress = (id: number, imageUrl: string) => {
+    const obituaryId = route.params?.obituaryId ?? undefined;
+    
     navigation.navigate('obituaries/createObituary', { 
       imageTemplateId: id, 
       imageUrl,
-      is_newObituary: true,
+      is_newObituary: is_newObituary,
+      obituaryId
+
     });
   };
   

@@ -12,6 +12,7 @@ type RootStackParamList = {
 export default function ObituaryIndex() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { width, height } = useWindowDimensions(); 
+  
 
   interface Obituary {
     obituaryId: number;
