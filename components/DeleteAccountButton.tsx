@@ -12,7 +12,7 @@ export default function DeleteAccountButton() {
 
   const handleDeleteAccount = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const userId = localStorage.getItem('userId');
 
       const response = await fetch(BACKEND_API + `/api/auth/${userId}`, {
