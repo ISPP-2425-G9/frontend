@@ -3,9 +3,11 @@ import { StyleSheet, Image, View, useWindowDimensions, ScrollView, TouchableOpac
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
+import CustomButton from '@/components/CustomButton';
 
 type RootStackParamList = {
   'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean };
+  'obituaries/listMyObituaries': undefined;
 };
 
 export default function ObituaryIndex() {
@@ -58,6 +60,7 @@ export default function ObituaryIndex() {
   return (
     <ThemedView style={styles.container}>
       <Text style={styles.title}>Seleccione su esquela</Text>
+      <CustomButton title="Tus esquelas" onPress={() => navigation.navigate('obituaries/listMyObituaries')} />
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.listContainer}>
           {obituaries.map((item) => (

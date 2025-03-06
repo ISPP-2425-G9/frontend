@@ -38,8 +38,6 @@ export default function ObituaryIndex() {
             'Authorization': `Bearer ${authToken.trim()}`,
           },
         });
-
-        console.log(response);
   
         if (!response.ok) throw new Error('Error al obtener los datos');
   

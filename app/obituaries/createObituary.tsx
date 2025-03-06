@@ -22,7 +22,7 @@ export default function EsquelaCustomizer() {
 
   const route = useRoute<RouteProp<RootStackParamList, 'obituaries/createObituary'>>();
 
-  const newObituary = route.params?.is_newObituary;
+  const is_newObituary = route.params?.is_newObituary;
   
   const imageId = route.params?.imageTemplateId;
 
@@ -30,9 +30,18 @@ export default function EsquelaCustomizer() {
 
   const [loading, setLoading] = useState(true);
 
+  const [formData, setFormData] = useState({
+    name: '',
+    birthDate: '',
+    deathDate: '',
+    farewellMessage: '',
+    farewellPhrase: '',
+    imageTemplate_id: imageId,
+    customImage: null as string | null,
+  });
 
   useEffect(() => {
-    if (!newObituary) {
+    if (!is_newObituary) {
       const obituaryId = route.params?.obituaryId;
       const fetchData = async () => {
         setLoading(true);
@@ -70,22 +79,10 @@ export default function EsquelaCustomizer() {
       };
   
       fetchData();
-    }
-  }, []); 
+    } 
+  }, [route.params?.obituaryId, is_newObituary]); 
   
   
-
-
-  const [formData, setFormData] = useState({
-    name: '',
-    birthDate: '',
-    deathDate: '',
-    farewellMessage: '',
-    farewellPhrase: '',
-    imageTemplate_id: imageId,
-    customImage: null as string | null,
-  });
-
   const handleChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
   };
