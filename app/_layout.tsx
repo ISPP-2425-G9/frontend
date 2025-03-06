@@ -82,6 +82,19 @@ export default function TabLayout() {
       <Tabs.Screen name="contacts/index" options={{ title: "" }} />
       <Tabs.Screen name="services/index" options={{ title: "" }} />
       <Tabs.Screen name="subscribe/index" options={{ title: "" }} />
+      <Tabs.Screen name="home" options={{ title: "Inicio" }} />
+      <Tabs.Screen name="obituaries/index" options={{ title: "Esquelas" }} />
+      <Tabs.Screen name="obituaries/createObituary" options={{ href: null }} />
+      <Tabs.Screen name="obituaries/listMyObituaries" options={{ href: null }} />
+      <Tabs.Screen name="obituaries/selectContacts" options={{ href: null }} />
+      <Tabs.Screen name="obituaries/loadCertificate" options={{ href: null }} />
+      <Tabs.Screen name="messages/index" options={{ title: "Mensajes" }} />
+      <Tabs.Screen name="contacts/index" options={{ title: "Contactos" }} />
+      <Tabs.Screen name="services/index" options={{ title: "Servicios" }} />
+      <Tabs.Screen name="subscribe/index" options={{ title: "Suscribirse" }} />
+      <Tabs.Screen name="login/index" options={{ title: "Iniciar sesión" }} />
+      <Tabs.Screen name="register/index" options={{ title: "Registrarse" }} />
+      <Tabs.Screen name="profile/index" options={{ title: "Perfil" }} />
       <Tabs.Screen name="+not-found" options={{ href: null }} />
       <Tabs.Screen name="index" options={{ href: null }} />
 
