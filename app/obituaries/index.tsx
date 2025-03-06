@@ -12,15 +12,15 @@ type RootStackParamList = {
 
 };
 
+
+
 export default function ObituaryIndex() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { width, height } = useWindowDimensions(); 
 
   const route = useRoute<RouteProp<RootStackParamList, 'obituaries/index'>>();
+  const { width, height } = useWindowDimensions(); 
 
   const is_newObituary = route.params?.is_newObituary ?? true;
-
-  console.log(is_newObituary);
 
   interface Obituary {
     imageId: number;
@@ -71,8 +71,7 @@ export default function ObituaryIndex() {
 
   return (
     <ThemedView style={styles.container}>
-      <Text style={styles.title}>Seleccione su esquela</Text>
-      <CustomButton title="Tus esquelas" onPress={() => navigation.navigate('obituaries/listMyObituaries')} />
+      <Text style={styles.title}>Cree una esquela</Text>
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.listContainer}>
           {obituaries.map((item) => (
@@ -86,7 +85,11 @@ export default function ObituaryIndex() {
           ))}
         </View>
       </ScrollView>
-    </ThemedView>
+      <View style={styles.divider} />
+        <View style={styles.buttonContainer}>
+          <CustomButton title="Sus esquelas" onPress={() => navigation.navigate('obituaries/listMyObituaries')} />
+        </View>   
+      </ThemedView>
   );
 }
 
@@ -135,6 +138,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  divider: {
+    height: 1,
+    width: '100%',
+    backgroundColor: '#ccc',
+    marginVertical: 20,
+  },
+  buttonContainer: {
+    width: '90%',
+    alignItems: 'flex-end', 
+    marginBottom: '0.5%', 
+    marginRight: '6%',
   },
 });
 

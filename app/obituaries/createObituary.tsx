@@ -25,7 +25,7 @@ export default function EsquelaCustomizer() {
   const is_newObituary = route.params?.is_newObituary ?? true;
 
   console.log(is_newObituary);
-  
+
   const imageId = route.params?.imageTemplateId;
 
   const imageUrl = route.params?.imageUrl;
@@ -36,7 +36,7 @@ export default function EsquelaCustomizer() {
   const [formData, setFormData] = useState({
     name: '',
     birthDate: '',
-    deathDate: '',
+    deathDate: '20XX-XX-XX',
     farewellMessage: '',
     farewellPhrase: '',
     imageTemplate_id: imageId,
@@ -51,57 +51,57 @@ export default function EsquelaCustomizer() {
         try {
           const authToken = await AsyncStorage.getItem('authToken');
           if (!authToken) throw new Error('No se encontró un token de autenticación');
-  
-          const response = await fetch(`http://localhost:8080/api/obituary/myObituaries/${obituaryId}`, {  
+
+          const response = await fetch(`http://localhost:8080/api/obituary/myObituaries/${obituaryId}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${authToken.trim()}`,
             },
           });
-  
+
           if (!response.ok) throw new Error('Error al obtener los datos');
-  
+
           const data = await response.json();
 
           setFormData({
             ...formData,
             name: data.name || '',
             birthDate: data.birthDate || '',
-            deathDate: data.deathDate || '',
+            deathDate: data.deathDate || '20XX-XX-XX',
             farewellMessage: data.farewellMessage || '',
             farewellPhrase: data.farewellPhrase || '',
-            customImage: data.customImage || null, 
-          });            
-  
+            customImage: data.customImage || null,
+          });
+
         } catch (error) {
           console.error('Error en la solicitud:', error);
         } finally {
           setLoading(false);
         }
       };
-  
+
       fetchData();
     } else {
-      
+
       setFormData({
         ...formData,
         name: '',
         birthDate: '',
-        deathDate: '',
+        deathDate: '20XX-XX-XX',
         farewellMessage: '',
         farewellPhrase: '',
         customImage: null,
       });
 
     }
-  }, [route.params?.obituaryId, is_newObituary]); 
-  
+  }, [route.params?.obituaryId, is_newObituary]);
+
   const changeDesign = async () => {
     const obituaryId = route.params?.obituaryId ?? undefined;
     navigation.navigate('obituaries/index' as never, { is_newObituary, obituaryId });
   };
-  
+
   const handleChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
   };
@@ -120,18 +120,19 @@ export default function EsquelaCustomizer() {
 
   const selectContacts = () => {
     const jsonData = JSON.stringify(formData, null, 2)
-    navigation.navigate('obituaries/selectContacts' as never, {jsonData: jsonData});
+    navigation.navigate('obituaries/selectContacts' as never, { jsonData: jsonData });
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.formSection}>
 
-        <Text style={{ fontSize: 30, fontWeight: 'bold', marginBottom: 40 }}>Personaliza tu esquela</Text>
-
+      <Text style={{ fontSize: 30, fontWeight: 'bold', marginBottom: 40 }}>
+          {is_newObituary ? 'Crea tu esquela' : 'Edita tu esquela'}
+        </Text>
         <Text>Nombre del fallecido:</Text>
         <CustomTextInput
-          style={{ width: 600 }}
+          style={{ width: '75%' }}
           placeholder="Nombre"
           maxLength={37}
           value={formData.name}
@@ -140,7 +141,7 @@ export default function EsquelaCustomizer() {
 
         <Text>Año de nacimiento:</Text>
         <CustomTextInput
-          style={{ width: 600 }}
+          style={{ width: '75%' }}
           placeholder="Año de nacimiento"
           value={formData.birthDate}
           maxLength={10}
@@ -150,17 +151,18 @@ export default function EsquelaCustomizer() {
 
         <Text>Año de fallecimiento:</Text>
         <CustomTextInput
-          style={{ width: 600 }}
+          style={{ width: '75%' }}
           placeholder="Año de fallecimiento"
           value={formData.deathDate}
           maxLength={10}
+          editable={false}
           onChangeText={(text) => handleChange('deathDate', text)}
           keyboardType="numeric"
         />
 
         <Text>Mensaje de despedida:</Text>
         <CustomTextInput
-          style={[styles.textArea, { width: 600 }]}
+          style={[styles.textArea, { width: '75%' }]}
           placeholder="Escribe un mensaje de despedida"
           maxLength={624}
           multiline
@@ -170,23 +172,21 @@ export default function EsquelaCustomizer() {
 
         <Text>Frase de despedida:</Text>
         <CustomTextInput
-          style={{ width: 600, textAlign: 'center' }}
+          style={{ width: '75%' }}
           placeholder="Frase de despedida"
           maxLength={90}
           value={formData.farewellPhrase}
           onChangeText={(text) => handleChange('farewellPhrase', text)}
         />
-        <View>
-        <CustomButton style={{ marginTop: 12 }} title="Cambia el diseno de tu esquela" onPress={changeDesign} />
-           </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-around'}}>
-          <CustomButton style={{ marginTop: 12 }} title="Selecciona una imagen" onPress={pickImage} />
-          <CustomButton color="grey" style={{ marginTop: 12, marginLeft: 20, width: 380 }} title="Guardar y seleccionar contactos" onPress={selectContacts} />
+        <View style={{ flexDirection: 'row', justifyContent: 'space-around', gap: 8, width: '75%' }}>
+          <CustomButton style={{ marginTop: 12, width: '49%' }} title="Selecciona una imagen" onPress={pickImage} />
+          <CustomButton style={{ marginTop: 12, width: '49%' }} title="Cambia el diseno de tu esquela" onPress={changeDesign} />
         </View>
+        <CustomButton color="grey" style={{ marginTop: 12, width: '75%' }} title="Guardar y seleccionar contactos" onPress={selectContacts} />
       </View>
 
       <View style={styles.previewSection}>
-        <View style={styles.overlayContainer}>
+        <View style={styles.overlayContainer}>  
           <Image source={{ uri: imageUrl }} style={styles.templateImage} />
           <View style={styles.overlayContent}>
             <Image

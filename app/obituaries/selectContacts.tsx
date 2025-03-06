@@ -30,22 +30,56 @@ export default function SelectContacts() {
 
   useEffect(() => {
     const updateData = {
-      ...JSON.parse(jsonData), // Desestructura las propiedades del JSON original
-      contacts,               // Agrega el array de contactos como una nueva propiedad
+      ...JSON.parse(jsonData),
+      contacts,
     };
     setCombinedData(updateData);
     console.log("Primer json" + jsonData);
     console.log("Segundo json" + JSON.stringify(updateData, null, 2));
-  
+
     console.log('Datos combinados:', combinedData);
   }, [contacts, jsonData]);
 
+  const validateName = (name: string) => {
+    const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,}$/;
+    return nameRegex.test(name);
+  };
+
+  const validatePhone = (phone: string) => {
+    const phoneRegex = /^\d{9,9}$/;
+    return phoneRegex.test(phone);
+  };
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    return emailRegex.test(email);
+  };
+
   const handleChange = (id: number, field: keyof Contact, value: string) => {
-    setContacts((prevContacts) =>
-      prevContacts.map((contact) =>
-        contact.id === id ? { ...contact, [field]: value } : contact
-      )
-    );
+    let isValid = true;
+
+    if (field === 'name') {
+      isValid = validateName(value);
+      if (!isValid) Alert.alert('Error', 'El nombre debe tener al menos 2 caracteres y solo letras.');
+    }
+
+    if (field === 'phone') {
+      isValid = validatePhone(value);
+      if (!isValid) Alert.alert('Error', 'El teléfono debe tener al menos 9 dígitos numéricos.');
+    }
+
+    if (field === 'email') {
+      isValid = validateEmail(value);
+      if (!isValid) Alert.alert('Error', 'Por favor, introduce un correo válido.');
+    }
+
+    if (isValid) {
+      setContacts((prevContacts) =>
+        prevContacts.map((contact) =>
+          contact.id === id ? { ...contact, [field]: value } : contact
+        )
+      );
+    }
   };
 
   const addContact = () => {
@@ -61,44 +95,35 @@ export default function SelectContacts() {
   };
 
   const handleSubmit = async (is_mine: boolean) => {
-  
-    if (contacts.some((contact) => !contact.name || !contact.phone || !contact.email)) {
-      Alert.alert('Error', 'Todos los campos son obligatorios en cada contacto.');
+    if (contacts.some((contact) => !validateName(contact.name) || !validatePhone(contact.phone) || !validateEmail(contact.email))) {
+      Alert.alert('Error', 'Por favor, verifica que todos los contactos tengan datos válidos.');
       return;
     }
-  
-    // Añadir la propiedad isMine al combinedData
+
     const dataToSend = {
       ...combinedData,
-      isMine: is_mine,  // Se agrega la propiedad isMine con el valor de is_mine
+      isMine: is_mine,
     };
-  
+
     try {
       const authToken = await AsyncStorage.getItem('authToken');
       const header_data = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${authToken?.trim()}`,
-      }
+      };
       const response = await fetch('http://localhost:8080/api/obituary/create', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken?.trim()}`,
-        },
-        body: JSON.stringify(dataToSend), // Usamos dataToSend que tiene la propiedad isMine
+        headers: header_data,
+        body: JSON.stringify(dataToSend),
       });
-      console.log(header_data);
 
       if (response.ok) {
+        Alert.alert('Éxito', 'Contactos guardados con éxito');
       }
-  
-      await response.json();
-      Alert.alert('Éxito', 'Contactos guardados con éxito');
     } catch (error) {
       Alert.alert('Error', 'No se pudieron guardar los contactos');
     }
   };
-  
 
   return (
     <View style={styles.container}>
@@ -130,9 +155,10 @@ export default function SelectContacts() {
                 onChangeText={(text) => handleChange(item.id, 'email', text)}
                 style={styles.input}
               />
-              
-              { index === 0 && (
-              <CustomButton title="Añadir" onPress={addContact}style={styles.deleteButton} /> )}
+
+              {index === 0 && (
+                <CustomButton title="Añadir" onPress={addContact} style={styles.deleteButton} />
+              )}
 
               {index !== 0 && (
                 <CustomButton
@@ -143,12 +169,10 @@ export default function SelectContacts() {
                 />
               )}
             </View>
-            
           )}
         />
-        
+
         <View style={styles.saveButtonContainer}>
-       
           <CustomButton
             title="Guardar esquela"
             onPress={() => handleSubmit(true)}
