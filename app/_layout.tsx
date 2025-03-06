@@ -80,6 +80,7 @@ export default function TabLayout() {
     >
       <Tabs.Screen name="home" options={{ title: "" }} />
       <Tabs.Screen name="index" options={{ href: null }} />
+      <Tabs.Screen name="+not-found" options={{ href: null }} />
       <Tabs.Screen name="obituaries/index" options={{ title: "" }} />
       <Tabs.Screen name="obituaries/createObituary" options={{ href: null }} />
       <Tabs.Screen name="obituaries/listMyObituaries" options={{ href: null }} />
