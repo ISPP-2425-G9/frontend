@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Alert, FlatList, StyleSheet } from 'react-native';
+import { View, Text, Alert, FlatList, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import CustomButton from '@/components/CustomButton';
 import { CustomTextInput } from '@/components/CustomTextInput';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import CustomModal from '@/components/CustomModal';
+import { create } from 'react-test-renderer';
+import { GlobalStyles } from '@/constants/Colors';
+
+const { width } = Dimensions.get('window');
+
 
 type RootStackParamList = {
   'obituaries/selectContacts': { jsonData: string };
+  'obituaries/listMyObituaries': undefined;
+  'obituaries/loadCertificate': { jsonData: string };
 };
 
 type SelectContactsRouteProp = RouteProp<RootStackParamList, 'obituaries/selectContacts'>;
@@ -18,9 +27,15 @@ type Contact = {
   email: string;
 };
 
+
 export default function SelectContacts() {
+
+  const navigation = useNavigation();
   const route = useRoute<SelectContactsRouteProp>();
   const { jsonData } = route.params;
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
 
   const [contacts, setContacts] = useState<Contact[]>([
     { id: 1, name: '', phone: '', email: '' },
@@ -61,66 +76,92 @@ export default function SelectContacts() {
         contact.id === id ? { ...contact, [field]: value } : contact
       )
     );
-    let isValid = true;
-
-    if (field === 'name') {
-      isValid = validateName(value);
-      if (!isValid) Alert.alert('Error', 'El nombre debe tener al menos 2 caracteres y solo letras.');
-    }
-
-    if (field === 'phone') {
-      isValid = validatePhone(value);
-      if (!isValid) Alert.alert('Error', 'El teléfono debe tener al menos 9 dígitos numéricos.');
-    }
-
-    if (field === 'email') {
-      isValid = validateEmail(value);
-      if (!isValid) Alert.alert('Error', 'Por favor, introduce un correo válido.');
-    }
   };
 
   const addContact = () => {
-    setContacts([...contacts, { id: Date.now(), name: '', phone: '', email: '' }]);
+    const newContacts = [
+      { id: Date.now(), name: '', phone: '', email: '' },
+      ...contacts,
+    ];
+
+    setContacts(newContacts);
   };
+
 
   const removeContact = (id: number) => {
     if (contacts.length > 1) {
       setContacts(contacts.filter((contact) => contact.id !== id));
     } else {
-      Alert.alert('Aviso', 'Debe haber al menos un contacto.');
+      window.alert('Debe haber al menos un contacto.');
     }
   };
 
-  const handleSubmit = async (is_mine: boolean) => {
-    if (contacts.some((contact) => !validateName(contact.name) || !validatePhone(contact.phone) || !validateEmail(contact.email))) {
-      Alert.alert('Error', 'Por favor, verifica que todos los contactos tengan datos válidos.');
-      return;
-    }
+
+  const createObituary = async () => {
 
     const dataToSend = {
       ...combinedData,
-      isMine: is_mine,
+      isMine: false,
     };
 
     try {
       const authToken = await AsyncStorage.getItem('authToken');
-      const header_data = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authToken?.trim()}`,
-      };
+
       const response = await fetch('http://localhost:8080/api/obituary/create', {
         method: 'POST',
-        headers: header_data,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken?.trim()}`,
+        },
         body: JSON.stringify(dataToSend),
       });
 
       if (response.ok) {
-        Alert.alert('Éxito', 'Contactos guardados con éxito');
+        const responseData = await response.json();
+        navigation.navigate('obituaries/listMyObituaries' as never);  
       }
     } catch (error) {
-      Alert.alert('Error', 'No se pudieron guardar los contactos');
+      window.alert('No se pudo crear la esquela. Por favor, inténtelo de nuevo.');
     }
   };
+
+
+  const moveToNextScreen = () => {
+    navigation.navigate('obituaries/loadCertificate' as never);
+  }
+
+
+  const showConfirmationModal = async (is_mine: boolean,) => {
+   
+    if (contacts.some((contact) => !validateName(contact.name) || !validatePhone(contact.phone) || !validateEmail(contact.email))) {
+      window.alert('Por favor, verifica que todos los contactos tengan datos válidos.');
+      return;
+    }
+
+    setModalMessage(
+      is_mine
+        ? '¿Desea guardar su propia esquela?'
+        : '¿Desea crear y enviar una esquela para un ser querido?'
+    );
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+  };
+
+
+  const handleSubmit = async (is_mine: boolean) => {
+
+    if (is_mine) {
+      createObituary();
+    } else {
+      moveToNextScreen();
+    }
+    setModalVisible(false);
+  }
+
+
 
   return (
     <View style={styles.container}>
@@ -169,19 +210,37 @@ export default function SelectContacts() {
           )}
         />
 
-        <View style={styles.saveButtonContainer}>
-          <CustomButton
-            title="Guardar esquela"
-            onPress={() => handleSubmit(true)}
-            style={styles.saveButton}
-          />
-          <CustomButton
-            title="Enviar esquela"
-            onPress={() => handleSubmit(false)}
-            style={styles.saveButton}
-          />
-        </View>
       </View>
+      <View style={styles.divider} />
+      <View style={styles.buttonContainer}>
+        <CustomButton
+          title="Guarde su propia esquela"
+          onPress={() => showConfirmationModal(true)}
+          style={styles.saveButton}
+        />
+        <CustomButton
+          title="Cree y envie su esquela para un ser querido"
+          onPress={() => showConfirmationModal(false)}
+          style={styles.saveButton}
+        />
+      </View>
+      {modalVisible && (
+        <CustomModal
+          visible={modalVisible}
+          onClose={handleCloseModal}
+          title={modalMessage}
+          style={styles.modalStyle}
+        >
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={() => handleSubmit(true)}>
+              <Text style={styles.buttonText}>Aceptar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => handleCloseModal()}>
+              <Text style={styles.buttonText}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </CustomModal>
+      )}
     </View>
   );
 }
@@ -201,16 +260,16 @@ const styles = StyleSheet.create({
     paddingTop: 120,
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 10,
-    marginLeft: 10,
   },
   contactContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
     marginBottom: 10,
+    flex: 1,
   },
   deleteButton: {
     marginLeft: 10,
@@ -221,13 +280,44 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     width: '30%',
   },
-  saveButtonContainer: {
-    marginTop: 20,
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 4,
-  },
   saveButton: {
     width: '60%',
   },
+  divider: {
+    height: 1,
+    width: '100%',
+    backgroundColor: '#ccc',
+    marginVertical: 20,
+  },
+  buttonContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: '1%',
+    flexDirection: 'row',
+    width: '30%',
+    gap: '2%'
+  },
+  modalStyle: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 15,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
+    width: width > 600 ? '40%' : '80%', 
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+   button: {
+      backgroundColor: GlobalStyles.blue,
+      paddingVertical: 12,
+      paddingHorizontal: 25,
+      borderRadius: 8,
+      alignItems: 'center',
+    },
 });
