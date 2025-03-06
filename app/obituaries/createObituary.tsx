@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StyleSheet, TextInput, View, Text, Button, Image, Dimensions } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import CustomButton from '@/components/CustomButton';
@@ -10,8 +11,8 @@ const height = Dimensions.get('window').height;
 
 type RootStackParamList = {
   'obituaries/selectContacts': { jsonData: string };
-  'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, };
-
+  'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number };
+  'obituaries/index': { is_newObituary: boolean, obituaryId: number };
 };
 
 
@@ -21,12 +22,16 @@ export default function EsquelaCustomizer() {
 
   const route = useRoute<RouteProp<RootStackParamList, 'obituaries/createObituary'>>();
 
+  const is_newObituary = route.params?.is_newObituary ?? true;
+
+  console.log(is_newObituary);
+  
   const imageId = route.params?.imageTemplateId;
 
   const imageUrl = route.params?.imageUrl;
 
 
-
+  const [loading, setLoading] = useState(true);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -38,6 +43,65 @@ export default function EsquelaCustomizer() {
     customImage: null as string | null,
   });
 
+  useEffect(() => {
+    if (!is_newObituary) {
+      const obituaryId = route.params?.obituaryId;
+      const fetchData = async () => {
+        setLoading(true);
+        try {
+          const authToken = await AsyncStorage.getItem('authToken');
+          if (!authToken) throw new Error('No se encontró un token de autenticación');
+  
+          const response = await fetch(`http://localhost:8080/api/obituary/myObituaries/${obituaryId}`, {  
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authToken.trim()}`,
+            },
+          });
+  
+          if (!response.ok) throw new Error('Error al obtener los datos');
+  
+          const data = await response.json();
+
+          setFormData({
+            ...formData,
+            name: data.name || '',
+            birthDate: data.birthDate || '',
+            deathDate: data.deathDate || '',
+            farewellMessage: data.farewellMessage || '',
+            farewellPhrase: data.farewellPhrase || '',
+            customImage: data.customImage || null, 
+          });            
+  
+        } catch (error) {
+          console.error('Error en la solicitud:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchData();
+    } else {
+      
+      setFormData({
+        ...formData,
+        name: '',
+        birthDate: '',
+        deathDate: '',
+        farewellMessage: '',
+        farewellPhrase: '',
+        customImage: null,
+      });
+
+    }
+  }, [route.params?.obituaryId, is_newObituary]); 
+  
+  const changeDesign = async () => {
+    const obituaryId = route.params?.obituaryId ?? undefined;
+    navigation.navigate('obituaries/index' as never, { is_newObituary, obituaryId });
+  };
+  
   const handleChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
   };
@@ -61,7 +125,6 @@ export default function EsquelaCustomizer() {
 
   return (
     <View style={styles.container}>
-      {/* Sección izquierda: Formulario */}
       <View style={styles.formSection}>
 
         <Text style={{ fontSize: 30, fontWeight: 'bold', marginBottom: 40 }}>Personaliza tu esquela</Text>
@@ -113,7 +176,9 @@ export default function EsquelaCustomizer() {
           value={formData.farewellPhrase}
           onChangeText={(text) => handleChange('farewellPhrase', text)}
         />
-
+        <View>
+        <CustomButton style={{ marginTop: 12 }} title="Cambia el diseno de tu esquela" onPress={changeDesign} />
+           </View>
         <View style={{ flexDirection: 'row', justifyContent: 'space-around'}}>
           <CustomButton style={{ marginTop: 12 }} title="Selecciona una imagen" onPress={pickImage} />
           <CustomButton color="grey" style={{ marginTop: 12, marginLeft: 20, width: 380 }} title="Guardar y seleccionar contactos" onPress={selectContacts} />
@@ -216,3 +281,5 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 });
+
+
