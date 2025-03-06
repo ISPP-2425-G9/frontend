@@ -52,8 +52,6 @@ export default function EsquelaCustomizer() {
   
           const data = await response.json();
 
-          console.log("hola", data);
-
           setFormData({
             ...formData,
             name: data.name || '',
@@ -61,7 +59,7 @@ export default function EsquelaCustomizer() {
             deathDate: data.deathDate || '',
             farewellMessage: data.farewellMessage || '',
             farewellPhrase: data.farewellPhrase || '',
-            customImage: data.customImage || null, // Si hay una imagen personalizada
+            customImage: data.customImage || null, 
           });            
   
         } catch (error) {
@@ -111,7 +109,6 @@ export default function EsquelaCustomizer() {
 
   return (
     <View style={styles.container}>
-      {/* Sección izquierda: Formulario */}
       <View style={styles.formSection}>
 
         <Text style={{ fontSize: 30, fontWeight: 'bold', marginBottom: 40 }}>Personaliza tu esquela</Text>

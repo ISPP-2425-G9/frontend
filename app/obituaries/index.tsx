@@ -14,9 +14,6 @@ export default function ObituaryIndex() {
 
   interface Obituary {
     imageId: number;
-    name: string;
-    date: string;
-    description: string;
     imageUrl: string;
   }
 
