@@ -1,10 +1,9 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useColorScheme, View, Text } from "react-native";
+import { useColorScheme } from "react-native";
 import { GlobalStyles, Colors } from "@/constants/Colors";
 import { useFonts, DMSans_500Medium, DMSans_700Bold } from "@expo-google-fonts/dm-sans";
-import Logo from "@/components/Logo";
-import useAuth from '@/hooks/useAuth';
+import useAuth from "@/hooks/useAuth";
 
 export default function TabLayout() {
   const { isAuthenticated } = useAuth();
@@ -64,9 +63,9 @@ export default function TabLayout() {
           position: "absolute",
           left: 15,
           right: 15,
-          top: 10, // Lo mueve a la parte superior
+          top: 10,
           paddingTop: 10,
-          zIndex: 10, // Asegura que quede encima del contenido
+          zIndex: 10,
         },
         tabBarLabelStyle: {
           fontFamily: GlobalStyles.font,
@@ -85,7 +84,7 @@ export default function TabLayout() {
       <Tabs.Screen name="subscribe/index" options={{ title: "" }} />
       <Tabs.Screen name="+not-found" options={{ href: null }} />
       <Tabs.Screen name="index" options={{ href: null }} />
-      
+
       {!isAuthenticated && (
         <Tabs.Screen name="login/index" options={{ title: "" }} />
       )}
