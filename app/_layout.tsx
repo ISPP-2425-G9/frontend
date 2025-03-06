@@ -30,7 +30,7 @@ export default function TabLayout() {
             "messages/index": "chatbox",
             "contacts/index": "people",
             "services/index": "briefcase",
-            "subscribe/index": "card",
+            "subscribe/index": "logo-bitcoin",
             "login/index": "log-in",
             "register/index": "person-add",
             "home": "home"
@@ -77,21 +77,21 @@ export default function TabLayout() {
         safeAreaInsets: { top: 0 },
       })}
     >
-      <Tabs.Screen name="home" options={{ title: "Inicio" }} />
-      <Tabs.Screen name="obituaries/index" options={{ title: "Esquelas" }} />
-      <Tabs.Screen name="messages/index" options={{ title: "Mensajes" }} />
-      <Tabs.Screen name="contacts/index" options={{ title: "Contactos" }} />
-      <Tabs.Screen name="services/index" options={{ title: "Servicios" }} />
-      <Tabs.Screen name="subscribe/index" options={{ title: "Suscribirse" }} />
+      <Tabs.Screen name="home" options={{ title: "" }} />
+      <Tabs.Screen name="obituaries/index" options={{ title: "" }} />
+      <Tabs.Screen name="messages/index" options={{ title: "" }} />
+      <Tabs.Screen name="contacts/index" options={{ title: "" }} />
+      <Tabs.Screen name="services/index" options={{ title: "" }} />
+      <Tabs.Screen name="subscribe/index" options={{ title: "" }} />
       <Tabs.Screen name="+not-found" options={{ href: null }} />
       <Tabs.Screen name="index" options={{ href: null }} />
       
       {!isAuthenticated && (
-        <Tabs.Screen name="login/index" options={{ title: "Iniciar sesión" }} />
+        <Tabs.Screen name="login/index" options={{ title: "" }} />
       )}
       
       {!isAuthenticated && (
-        <Tabs.Screen name="register/index" options={{ title: "Registrarse" }} />
+        <Tabs.Screen name="register/index" options={{ title: "" }} />
       )}
 
       {!isAuthenticated && (
