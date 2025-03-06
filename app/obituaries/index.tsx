@@ -122,7 +122,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-function useCallback(arg0: (id: number, imageUrl: string) => void, arg1: NavigationProp<RootStackParamList>[]) {
-  throw new Error('Function not implemented.');
-}
 
