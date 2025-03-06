@@ -56,6 +56,11 @@ export default function SelectContacts() {
   };
 
   const handleChange = (id: number, field: keyof Contact, value: string) => {
+    setContacts((prevContacts) =>
+      prevContacts.map((contact) =>
+        contact.id === id ? { ...contact, [field]: value } : contact
+      )
+    );
     let isValid = true;
 
     if (field === 'name') {
@@ -71,14 +76,6 @@ export default function SelectContacts() {
     if (field === 'email') {
       isValid = validateEmail(value);
       if (!isValid) Alert.alert('Error', 'Por favor, introduce un correo válido.');
-    }
-
-    if (isValid) {
-      setContacts((prevContacts) =>
-        prevContacts.map((contact) =>
-          contact.id === id ? { ...contact, [field]: value } : contact
-        )
-      );
     }
   };
 
@@ -157,7 +154,7 @@ export default function SelectContacts() {
               />
 
               {index === 0 && (
-                <CustomButton title="Añadir" onPress={addContact} style={styles.deleteButton} />
+                <CustomButton title="Añadir otro" onPress={addContact} style={styles.deleteButton} />
               )}
 
               {index !== 0 && (
@@ -214,12 +211,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     marginBottom: 10,
-    borderBottomWidth: 1,
   },
   deleteButton: {
     marginLeft: 10,
     alignSelf: 'center',
-    width: '10%',
+    width: '20%',
   },
   input: {
     marginLeft: 10,
