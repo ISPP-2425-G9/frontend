@@ -85,31 +85,19 @@ export default function TabLayout() {
       <Tabs.Screen name="subscribe/index" options={{ title: "" }} />
       <Tabs.Screen name="+not-found" options={{ href: null }} />
       <Tabs.Screen name="index" options={{ href: null }} />
-      
-      {!isAuthenticated && (
-        <Tabs.Screen name="login/index" options={{ title: "" }} />
-      )}
-      
-      {!isAuthenticated && (
-        <Tabs.Screen name="register/index" options={{ title: "" }} />
-      )}
 
-      {!isAuthenticated && (
-        <Tabs.Screen name="profile/index" options={{ href: null }} />
-      )}
+      {
+        isAuthenticated ? [
+          <Tabs.Screen name="profile/index" options={{ title: "Perfil" }} />,
+          <Tabs.Screen name="login/index" options={{ href: null }} />,
+          <Tabs.Screen name="register/index" options={{ href: null }} />
+        ] : [
+          <Tabs.Screen name="login/index" options={{ title: "" }} />,
+          <Tabs.Screen name="register/index" options={{ title: "" }} />,
+          <Tabs.Screen name="profile/index" options={{ href: null }} />
+        ]
+      }
       
-      {isAuthenticated && (
-        <Tabs.Screen name="profile/index" options={{ title: "Perfil" }} />
-      )}
-
-      {isAuthenticated && (
-        <Tabs.Screen name="login/index" options={{ href: null }} />
-      )}
-      
-      {isAuthenticated && (
-        <Tabs.Screen name="register/index" options={{ href: null }} />
-      )}
-
     </Tabs>
   );
 }
