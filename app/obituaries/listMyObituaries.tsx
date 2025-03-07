@@ -40,7 +40,7 @@ export default function ObituaryIndex() {
           const authToken = await AsyncStorage.getItem('authToken');
           if (!authToken) throw new Error('No se encontró un token de autenticación');
     
-          const response = await fetch('http://localhost:8080/api/obituary/myObituaries', {
+          const response = await fetch('https://backend-sprint1.up.railway.app/api/obituary/myObituaries', {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',

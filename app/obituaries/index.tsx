@@ -36,7 +36,7 @@ export default function ObituaryIndex() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch('http://localhost:8080/api/templates/urls');
+        const response = await fetch('https://backend-sprint1.up.railway.app/api/templates/urls');
         if (!response.ok) throw new Error('Error al obtener los datos');
         const data: Obituary[] = await response.json();
         setObituaries(data);

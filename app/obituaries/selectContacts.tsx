@@ -107,7 +107,7 @@ export default function SelectContacts() {
     try {
       const authToken = await AsyncStorage.getItem('authToken');
 
-      const response = await fetch('http://localhost:8080/api/obituary/create', {
+      const response = await fetch('https://backend-sprint1.up.railway.app/api/obituary/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

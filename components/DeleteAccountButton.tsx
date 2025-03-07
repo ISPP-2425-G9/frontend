@@ -14,7 +14,7 @@ export default function DeleteAccountButton() {
       const token = localStorage.getItem('authToken');
       const userId = localStorage.getItem('userId');
 
-      const response = await fetch(`http://localhost:8080/api/auth/${userId}`, {
+      const response = await fetch(`https://backend-sprint1.up.railway.app/api/auth/${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
