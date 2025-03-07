@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import CustomTextInput from './CustomTextInput';
 import { AntDesign } from '@expo/vector-icons';
+import { GlobalStyles } from '@/constants/Colors';
 
 export interface InputField {
   name: string;
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   uploadButton: {
-    backgroundColor: '#007BFF',
+    backgroundColor: GlobalStyles.blue,
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 12,
@@ -168,7 +169,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   button: {
-    backgroundColor: '#007BFF',
+    backgroundColor: GlobalStyles.blue,
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 12,

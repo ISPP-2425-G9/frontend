@@ -1,31 +1,21 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
 import CustomButton from './CustomButton';
 import CustomModal from './CustomModal';
 import { ThemedText } from './ThemedText';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
 export default function LogoutButton() {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
-  const router = useRouter();
+  const navigation = useNavigation();
+  
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     try {
-      const token = await localStorage.getItem('token');
-      const response = await fetch('api/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        await localStorage.removeItem('token');
-        await localStorage.removeItem('userData');
-        router.replace('/login');
-      }
+        localStorage.removeItem('authToken');
+        navigation.navigate('home' as never);
     } catch (error) {
-      console.error('Error during logout:', error);
+      console.error('Error al cerrar sesión:', error);
     }
     setIsModalVisible(false);
   };

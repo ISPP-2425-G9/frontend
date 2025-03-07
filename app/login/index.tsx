@@ -6,6 +6,7 @@ import CustomModal from '@/components/CustomModal';
 import TextInputArraysForm from '@/components/TextInputArraysForm';
 import { GlobalStyles } from '@/constants/Colors';
 import { InputField } from '@/components/TextInputArraysForm';
+import { BACKEND_API } from '@env'
 
 const { width, height } = Dimensions.get('window');
 
@@ -27,7 +28,7 @@ const LoginScreen: React.FC = () => {
 
   const handleSubmit = async (values: Record<string, string>) => {
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      const response = await fetch(BACKEND_API + `/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -40,6 +41,7 @@ const LoginScreen: React.FC = () => {
       }
 
       const data = await response.json();
+      await AsyncStorage.setItem('userId', data.id);
       await AsyncStorage.setItem('authToken', data.token);
       if (Platform.OS === 'web') {
               window.alert('Inicio de sesión exitoso: Has iniciado sesión correctamente.');
@@ -65,6 +67,7 @@ const LoginScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <CustomModal
+        title='Accede a tu cuenta'
         visible={modalVisible}
         onClose={handleCloseModal}
         style={styles.modalStyle}
@@ -72,7 +75,7 @@ const LoginScreen: React.FC = () => {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.formContainer}>
             <TextInputArraysForm
-              title="Accede a tu cuenta"
+              title=""
               inputs={loginFields}
               onSubmit={(values) => handleSubmit(values as Record<string, string>)}
               buttonText="Iniciar Sesión"
@@ -118,14 +121,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   formStyle: {
-    marginTop: 20,
-    backgroundColor: '#fff',
-    padding: 20,
+    marginTop: 10,
     borderRadius: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
     width: '100%',
     maxWidth: 550,
   },
