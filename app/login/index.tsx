@@ -1,15 +1,13 @@
-import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, Alert, Platform, Dimensions } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CustomModal from '@/components/CustomModal';
-import TextInputArraysForm from '@/components/TextInputArraysForm';
+import TextInputArraysForm, { InputField } from '@/components/TextInputArraysForm';
 import { GlobalStyles } from '@/constants/Colors';
-import { InputField } from '@/components/TextInputArraysForm';
-import { BACKEND_API } from '@env'
+import { BACKEND_API } from '@env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import React, { useCallback, useState } from 'react';
+import { Alert, Dimensions, Platform, ScrollView, StyleSheet, View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
-
 
 const LoginScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(true);
@@ -43,6 +41,7 @@ const LoginScreen: React.FC = () => {
       const data = await response.json();
       await AsyncStorage.setItem('userId', data.id);
       await AsyncStorage.setItem('authToken', data.token);
+      await AsyncStorage.setItem('userRole', data.roles[0]);
       if (Platform.OS === 'web') {
               window.alert('Inicio de sesión exitoso: Has iniciado sesión correctamente.');
             } else {

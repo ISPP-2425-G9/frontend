@@ -1,9 +1,9 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import CustomButton from './CustomButton';
 import CustomModal from './CustomModal';
 import { ThemedText } from './ThemedText';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
 export default function LogoutButton() {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
@@ -13,6 +13,8 @@ export default function LogoutButton() {
   const handleLogout = () => {
     try {
         localStorage.removeItem('authToken');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userRole');
         navigation.navigate('home' as never);
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
