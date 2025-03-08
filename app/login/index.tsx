@@ -1,7 +1,6 @@
 import CustomModal from '@/components/CustomModal';
 import TextInputArraysForm, { InputField } from '@/components/TextInputArraysForm';
 import { GlobalStyles } from '@/constants/Colors';
-import { BACKEND_API } from '@env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useState } from 'react';
@@ -26,7 +25,7 @@ const LoginScreen: React.FC = () => {
 
   const handleSubmit = async (values: Record<string, string>) => {
     try {
-      const response = await fetch(BACKEND_API + `/api/auth/login`, {
+      const response = await fetch(`http://localhost:8080/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
