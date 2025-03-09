@@ -1,10 +1,13 @@
+import CustomButton from '@/components/CustomButton';
 import DeleteAccountButton from '@/components/DeleteAccountButton';
 import LogoutButton from '@/components/LogoutButton';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, Pressable, StyleSheet, TextInput, View } from 'react-native';
+
+const { width, height } = Dimensions.get('window');
 
 export default function ProfileScreen() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -82,20 +85,20 @@ export default function ProfileScreen() {
     try {
       const token = await AsyncStorage.getItem('authToken');
       const userId = await AsyncStorage.getItem('userId');
-  
+
       if (!token || !userId) {
         return;
       }
-  
+
       const updatedData = {
         email: editedProfile.email,
         fullName: editedProfile.name,
         telephone: editedProfile.telephone,
         password: editedProfile.password,
       };
-  
+
       console.log('Datos a enviar:', updatedData);
-  
+
       const response = await fetch(`http://localhost:8080/api/auth/customers/${userId}`, {
         method: 'PUT',
         headers: {
@@ -104,14 +107,14 @@ export default function ProfileScreen() {
         },
         body: JSON.stringify(updatedData),
       });
-  
+
       console.log('Respuesta del servidor:', response);
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Error al actualizar el perfil');
       }
-  
+
       const updatedProfile = await response.json();
       setProfile(updatedProfile);
       setIsEditing(false);
@@ -120,6 +123,23 @@ export default function ProfileScreen() {
       console.error('Error al guardar los cambios:', error);
     }
   };
+
+  const renderEditableField = (label: string, value: string, field: keyof Profile, placeholder: string) => (
+    <>
+      <ThemedText style={styles.label}>{label}</ThemedText>
+      {isEditing ? (
+        <TextInput
+          style={styles.input}
+          value={value}
+          onChangeText={(text) => handleInputChange(field, text)}
+          placeholder={placeholder}
+          placeholderTextColor={'#666'}
+        />
+      ) : (
+        <ThemedText style={styles.value}>{value}</ThemedText>
+      )}
+    </>
+  );
 
   if (loading) {
     return (
@@ -138,57 +158,29 @@ export default function ProfileScreen() {
               <View style={styles.column}>
                 <ThemedText style={styles.title}>Mis Datos</ThemedText>
 
-                <ThemedText style={styles.label}>Nombre</ThemedText>
+                {renderEditableField('Nombre', editedProfile.name, 'name', 'Nombre de usuario')}
+                {renderEditableField('Email', editedProfile.email, 'email', 'Email')}
+                {renderEditableField('Teléfono', editedProfile.telephone, 'telephone', 'Número de teléfono')}
+
                 {isEditing ? (
-                  <TextInput
-                    style={styles.input}
-                    value={editedProfile.name}
-                    onChangeText={(text) => handleInputChange('name', text)}
-                  />
+                  <View style={styles.buttonContainer}>
+                    <CustomButton
+                      title="Guardar"
+                      onPress={handleSave}
+                      color="blue"
+                    />
+                    <DeleteAccountButton />
+                  </View>
                 ) : (
-                  <ThemedText style={styles.value}>{profile.name}</ThemedText>
+                  <View style={styles.buttonContainer}>
+                    <CustomButton
+                      title="Editar usuario"
+                      onPress={() => setIsEditing(true)}
+                      color="blue"
+                    />
+                    <LogoutButton />
+                  </View>
                 )}
-
-                <ThemedText style={styles.label}>Email</ThemedText>
-                {isEditing ? (
-                  <TextInput
-                    style={styles.input}
-                    value={editedProfile.email}
-                    onChangeText={(text) => handleInputChange('email', text)}
-                  />
-                ) : (
-                  <ThemedText style={styles.value}>{profile.email}</ThemedText>
-                )}
-
-                <ThemedText style={styles.label}>Teléfono</ThemedText>
-                {isEditing ? (
-                  <TextInput
-                    style={styles.input}
-                    value={editedProfile.telephone}
-                    onChangeText={(text) => handleInputChange('telephone', text)}
-                  />
-                ) : (
-                  <ThemedText style={styles.value}>{profile.telephone}</ThemedText>
-                )}
-
-                  {isEditing ? (
-                <View style={styles.buttonContainer}>
-                      <Pressable style={styles.editButton} onPress={handleSave}>
-                        <ThemedText style={styles.saveButtonText}>Guardar</ThemedText>
-                      </Pressable>
-                      <DeleteAccountButton />
-
-                    </View>
-
-                  ) : (
-                    <View style={styles.buttonContainer}>
-                      <Pressable style={styles.editButton} onPress={() => setIsEditing(true)}>
-                        <ThemedText style={styles.editButtonText}>Editar usuario</ThemedText>
-                      </Pressable>
-                      <LogoutButton />
-
-                    </View>
-                  )}
 
                 <ThemedText style={styles.changePasswordText}>
                   ¿Desea cambiar su contraseña?{' '}
@@ -249,32 +241,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   twoColumnsContainer: {
-    flexDirection: 'row',
+    flexDirection: width > height ? 'row' : 'column',
     justifyContent: 'space-between',
     width: '100%',
   },
   column: {
-    width: '50%',
+    width: width > height ? '50%' : '100%',
     alignItems: 'center',
   },
   label: {
     fontSize: 16,
     color: '#666',
     marginBottom: 5,
+    textAlign: 'left',
+    width: '50%',
+    marginLeft: '15%',
   },
   value: {
     fontSize: 18,
     color: '#000',
     marginBottom: 15,
     fontWeight: 'bold',
+    textAlign: 'left',
+    width: '50%',
+    marginLeft: '15%',
   },
   input: {
-    fontSize: 18,
-    color: '#000',
-    borderBottomWidth: 1,
-    borderBottomColor: '#42B5FC',
-    marginBottom: 15,
-    width: '100%',
+    width: '40%',
+    backgroundColor: '#f0f0f0',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    fontSize: 16,
+    color: '#333',
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
   text: {
     fontSize: 18,
@@ -282,7 +283,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   title: {
-    fontSize: 32,
+    fontSize: 36,
     color: '#000',
     fontWeight: 'bold',
     marginBottom: 20,
@@ -293,24 +294,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     marginTop: 20,
     marginBottom: 20,
-  },
-  editButton: {
-    backgroundColor: '#42B5FC',
-    padding: 10,
-    borderRadius: 5,
-  },
-  editButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  saveButton: {
-    backgroundColor: '#4CAF50',
-    padding: 10,
-    borderRadius: 5,
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    gap: 20,
   },
   changePasswordText: {
     fontSize: 16,
