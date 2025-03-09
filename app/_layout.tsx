@@ -1,11 +1,13 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useColorScheme, View, Text } from "react-native";
+import { useColorScheme } from "react-native";
 import { GlobalStyles, Colors } from "@/constants/Colors";
 import { useFonts, DMSans_500Medium, DMSans_700Bold } from "@expo-google-fonts/dm-sans";
-import Logo from "@/components/Logo";
+import useAuth from "@/hooks/useAuth";
+
 
 export default function TabLayout() {
+  const { isAuthenticated } = useAuth();
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme || "light"];
 
@@ -28,7 +30,7 @@ export default function TabLayout() {
             "messages/index": "chatbox",
             "contacts/index": "people",
             "services/index": "briefcase",
-            "subscribe/index": "card",
+            "subscribe/index": "logo-bitcoin",
             "login/index": "log-in",
             "register/index": "person-add",
             "home": "home"
@@ -44,6 +46,7 @@ export default function TabLayout() {
               style={{
                 opacity: focused ? 1 : 0.6,
                 transform: [{ scale: focused ? 1.1 : 1 }],
+                marginBottom: -15,
               }}
             />
           );
@@ -62,9 +65,9 @@ export default function TabLayout() {
           position: "absolute",
           left: 15,
           right: 15,
-          top: 10, // Lo mueve a la parte superior
+          top: 10,
           paddingTop: 10,
-          zIndex: 10, // Asegura que quede encima del contenido
+          zIndex: 10,
         },
         tabBarLabelStyle: {
           fontFamily: GlobalStyles.font,
@@ -75,21 +78,31 @@ export default function TabLayout() {
         safeAreaInsets: { top: 0 },
       })}
     >
-      <Tabs.Screen name="home" options={{ title: "Inicio" }} />
-      <Tabs.Screen name="obituaries/index" options={{ title: "Esquelas" }} />
+      <Tabs.Screen name="home" options={{ title: "" }} />
+      <Tabs.Screen name="index" options={{ href: null }} />
+      <Tabs.Screen name="+not-found" options={{ href: null }} />
+      <Tabs.Screen name="obituaries/index" options={{ title: "" }} />
       <Tabs.Screen name="obituaries/createObituary" options={{ href: null }} />
       <Tabs.Screen name="obituaries/listMyObituaries" options={{ href: null }} />
       <Tabs.Screen name="obituaries/selectContacts" options={{ href: null }} />
       <Tabs.Screen name="obituaries/loadCertificate" options={{ href: null }} />
-      <Tabs.Screen name="messages/index" options={{ title: "Mensajes" }} />
-      <Tabs.Screen name="contacts/index" options={{ title: "Contactos" }} />
-      <Tabs.Screen name="services/index" options={{ title: "Servicios" }} />
-      <Tabs.Screen name="subscribe/index" options={{ title: "Suscribirse" }} />
-      <Tabs.Screen name="login/index" options={{ title: "Iniciar sesión" }} />
-      <Tabs.Screen name="register/index" options={{ title: "Registrarse" }} />
-      <Tabs.Screen name="profile/index" options={{ title: "Perfil" }} />
-      <Tabs.Screen name="+not-found" options={{ href: null }} />
-      <Tabs.Screen name="index" options={{ href: null }} />
+      <Tabs.Screen name="messages/index" options={{ title: "" }} />
+      <Tabs.Screen name="contacts/index" options={{ title: "" }} />
+      <Tabs.Screen name="services/index" options={{ title: "" }} />
+      <Tabs.Screen name="subscribe/index" options={{ title: "" }} />
+
+      {
+        isAuthenticated ? [
+          <Tabs.Screen name="profile/index" options={{ title: "" }} />,
+          <Tabs.Screen name="login/index" options={{ href: null }} />,
+          <Tabs.Screen name="register/index" options={{ href: null }} />
+        ] : [
+          <Tabs.Screen name="profile/index" options={{ href: null }} />,
+          <Tabs.Screen name="login/index" options={{ title: "" }} />,
+          <Tabs.Screen name="register/index" options={{ title: "" }} />,
+        ]
+      }
+      
     </Tabs>
   );
 }

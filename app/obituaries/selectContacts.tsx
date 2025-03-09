@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import CustomModal from '@/components/CustomModal';
 import { GlobalStyles } from '@/constants/Colors';
+import { BACKEND_API } from '@/constants/Mysc';
 
 const { width } = Dimensions.get('window');
 
@@ -135,7 +136,8 @@ export default function SelectContacts() {
       const authToken = await AsyncStorage.getItem('authToken');
       console.log('Token:', authToken);
 
-      const response = await fetch(url, {
+      const response = await fetch(BACKEND_API+'/api/obituary/create', {
+
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
