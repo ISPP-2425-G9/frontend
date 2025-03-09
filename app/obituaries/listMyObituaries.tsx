@@ -26,7 +26,7 @@ export default function ObituaryIndex() {
   const [modalMessage, setModalMessage] = useState('');
 
   interface Obituary {
-    obituaryId: number;
+    id: number;
     name: string;
     isMine: boolean;
     deathDate: string;
@@ -101,7 +101,7 @@ export default function ObituaryIndex() {
       });
 
       if (response.ok) {
-        setObituaries(obituaries.filter(ob => ob.obituaryId !== selectedObituaryId));
+        setObituaries(obituaries.filter(ob => ob.id !== selectedObituaryId));
       } else {
         console.error('Error al eliminar la esquela');
       }
@@ -139,9 +139,10 @@ export default function ObituaryIndex() {
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.listContainer}>
           {obituaries.map((item) => (
+            console.log(item),
              <TouchableOpacity
-             key={item.obituaryId} 
-             onPress={() => handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.obituaryId)} 
+             key={item.id} 
+             onPress={() => handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id)} 
              style={[
                styles.obituaryCard, 
                { 
@@ -158,7 +159,7 @@ export default function ObituaryIndex() {
                 <Text style={styles.overlayText}>{item.isMine ? `${item.name} (Su propia esquela)` : item.name}</Text>
                 <View style={{ flex: 1, justifyContent: 'flex-end' }}>
                 { item.deathDate === null ? (
-                  <CustomButton title="Eliminar" color="red" onPress={() => showConfirmationModal(item.obituaryId)} />
+                  <CustomButton title="Eliminar" color="red" onPress={() => showConfirmationModal(item.id)} />
                 ) : (
                   <CustomButton 
                   title="Esquela ya enviada" 
