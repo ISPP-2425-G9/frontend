@@ -83,8 +83,7 @@ jobs:
           PR_STATE=$(gh pr view $PR_NUMBER --json state -q ".state")
           if [ "$PR_STATE" == "MERGED" ]; then
             echo "PR #$PR_NUMBER successfully merged."
-            # Eliminar la rama temporal local
-            git branch -d temp-branch
+
           else
             echo "PR #$PR_NUMBER was not merged successfully. Exiting..."
             exit 1
