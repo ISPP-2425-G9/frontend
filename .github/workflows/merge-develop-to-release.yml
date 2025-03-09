@@ -4,57 +4,39 @@ on:
   push:
     tags:
       - '*'
-
 jobs:
-  create-pr:
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Check out the repository
+      # Paso 1: Clonar el repositorio
+      - name: Checkout repository
         uses: actions/checkout@v3
-        
-      - name: Set up Git
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
+        with:
+          fetch-depth: 0
 
-      - name: Fetch develop and release branches
-        run: |
-          git fetch origin develop
-          git fetch origin release
+      # Paso 2: Asegurarse de que las ramas remotas estén disponibles
+      - name: Fetch all branches
+        run: git fetch --all
 
+      # Paso 3: Crear la rama temporal a partir de develop
       - name: Create PR from develop to release
         run: |
-          PR_TITLE="Merge from develop to release on tag ${GITHUB_REF##*/}"
-          PR_BODY="This PR is automatically created to merge the changes from develop into release triggered by tag ${GITHUB_REF##*/}"
-          
-          # Create a new branch from develop
-          git checkout -b temp-branch develop
-          
-          # Merge develop into release
+          # Obtener el nombre de la etiqueta
+          TAG_NAME="${GITHUB_REF##*/}"
+          PR_TITLE="Merge from develop to release on tag $TAG_NAME"
+          PR_BODY="This PR is automatically created to merge the changes from develop into release triggered by tag $TAG_NAME"
+
+          # Crear una nueva rama a partir de develop
+          git checkout -b temp-branch origin/develop
+
+          # Intentar hacer el merge de develop en release
           git merge origin/release --no-ff --no-edit
 
-          # Push the temporary branch
+          # Empujar la rama temporal
           git push origin temp-branch
 
-          # Create a pull request
+          # Crear un PR usando curl (con autenticación)
           curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          -d '{"title": "'"${PR_TITLE}"'", "body": "'"${PR_BODY}"'", "head": "temp-branch", "base": "release"}' \
-          https://api.github.com/repos/${{ github.repository }}/pulls
-
-      - name: Clean up temporary branch
-        run: |
-          git push origin --delete temp-branch
-          
-  automerge:
-    runs-on: ubuntu-latest
-    needs: create-pr
-    steps:
-      - name: Wait for the workflow to finish
-        uses: peter-evans/workflow-dispatch@v1
-
-      - name: Automate merge
-        run: |
-          # Automate merge once the tests have passed and PR is ready to merge
-          curl -X PATCH -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          -d '{"merge": true}' \
-          https://api.github.com/repos/${{ github.repository }}/pulls/${{ steps.create-pr.outputs.pr_number }}/merge
+            -d '{"title": "'"${PR_TITLE}"'", "body": "'"${PR_BODY}"'", "head": "temp-branch", "base": "release"}' \
+            "https://api.github.com/repos/${{ github.repository }}/pulls"
