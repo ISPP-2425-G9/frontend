@@ -42,11 +42,18 @@ jobs:
             -d '{"title": "'"${PR_TITLE}"'", "body": "'"${PR_BODY}"'", "head": "temp-branch", "base": "release"}' \
             "https://api.github.com/repos/${{ github.repository }}/pulls")
 
-          # Depurar la respuesta para asegurarse de que estamos extrayendo correctamente el número del PR
+          # Mostrar la respuesta completa para depuración
           echo "PR Response: $PR_RESPONSE"
 
           # Extraer el número del PR
           PR_NUMBER=$(echo "$PR_RESPONSE" | jq -r '.number')
+
+          # Verificar si el número del PR es válido
+          if [ "$PR_NUMBER" == "null" ] || [ -z "$PR_NUMBER" ]; then
+            echo "Error: No se pudo obtener el número del PR. Respuesta de la API: $PR_RESPONSE"
+            exit 1
+          fi
+
           echo "Created PR #$PR_NUMBER"
 
           # Establecer el PR número como output para usarlo en el paso de merge
@@ -81,4 +88,4 @@ jobs:
             exit 1
           fi
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Aseguramos que GH_TOKEN esté configurado para el CLI
