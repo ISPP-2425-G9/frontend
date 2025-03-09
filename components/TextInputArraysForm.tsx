@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import CustomTextInput from './CustomTextInput';
 import { AntDesign } from '@expo/vector-icons';
+import { GlobalStyles } from '@/constants/Colors';
 
 export interface InputField {
   name: string;
@@ -18,7 +19,7 @@ interface CustomFormProps {
   inputs: InputField[];
   imageFields?: string[];
   onSubmit: (values: Record<string, string | { uri: string; name: string; type: string }>) => void;
-  handleFormClose: () => void;
+  handleFormClose?: () => void;
   style?: object;
   buttonText?: string;
 }
@@ -75,9 +76,11 @@ const TextInputArraysForm: React.FC<CustomFormProps> = ({
 
   return (
     <View style={[styles.container, style]}>
-      <TouchableOpacity style={styles.closeButton} onPress={handleFormClose}>
-        <AntDesign name="close" size={24} color="#333" />
-      </TouchableOpacity>
+      {handleFormClose && (
+        <TouchableOpacity style={styles.closeButton} onPress={handleFormClose}>
+          <AntDesign name="close" size={24} color="#333" />
+        </TouchableOpacity>
+      )}
       <Text style={styles.title}>{title}</Text>
       {description && <Text style={styles.description}>{description}</Text>}
       <View style={styles.inputsWrapper}>
@@ -157,7 +160,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   uploadButton: {
-    backgroundColor: '#007BFF',
+    backgroundColor: GlobalStyles.blue,
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 12,
@@ -166,7 +169,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   button: {
-    backgroundColor: '#007BFF',
+    backgroundColor: GlobalStyles.blue,
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 12,

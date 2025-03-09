@@ -1,10 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, Platform, Dimensions } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CustomModal from '@/components/CustomModal';
 import TextInputArraysForm from '@/components/TextInputArraysForm';
 import { GlobalStyles } from '@/constants/Colors';
 import { InputField } from '@/components/TextInputArraysForm';
+
 
 const { width } = Dimensions.get('window');
 
@@ -36,10 +38,11 @@ const RegisterScreen: React.FC = () => {
     const errors: string[] = [];
 
     const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const nifRegex = /^\[ABCDEFGHJNPQRSUVW]\d{7}[0-9A-J]$/;
+    const nifRegex = /^[ABCDEFGHJNPQRSUVW]\d{7}[0-9A-J]$/;
     const zipCodeRegex = /^\d{5}$/;
     const phoneRegex = /^\+?\d{9,15}$/;
-    const dniRegex = /^\\d{8}[A-Z]$/;
+    const dniRegex = /^\d{8}[A-Z]$/;
+
 
     if(uType === 'Empresa' ){
 
@@ -105,7 +108,7 @@ const RegisterScreen: React.FC = () => {
         throw new Error(`Hay error(es) en su formulario: ${errors}`)
       }
       const reqUrl = userType == 'Empresa' ? 'api/auth/companies/signup' : 'api/auth/customers/signup';
-      const response = await fetch(reqUrl, {
+      const response = await fetch(`http://localhost:8080/${reqUrl}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -118,6 +121,7 @@ const RegisterScreen: React.FC = () => {
       }
       
       const data = await response.json();
+      await AsyncStorage.setItem('authToken', data.token);
       if (Platform.OS === 'web') {
         window.alert('Registro exitoso: Tu cuenta ha sido creada con éxito.');
       } else {

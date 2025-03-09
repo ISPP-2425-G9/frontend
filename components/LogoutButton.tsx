@@ -1,31 +1,20 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
 import CustomButton from './CustomButton';
 import CustomModal from './CustomModal';
 import { ThemedText } from './ThemedText';
+import { useNavigation } from '@react-navigation/native';
 
 export default function LogoutButton() {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
-  const router = useRouter();
-
-  const handleLogout = async () => {
+  const navigation = useNavigation();
+  
+  const handleLogout = () => {
     try {
-      const token = await localStorage.getItem('token');
-      const response = await fetch('api/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        await localStorage.removeItem('token');
-        await localStorage.removeItem('userData');
-        router.replace('/login');
-      }
+        localStorage.removeItem('authToken');
+        navigation.navigate('home' as never);
     } catch (error) {
-      console.error('Error during logout:', error);
+      console.error('Error al cerrar sesión:', error);
     }
     setIsModalVisible(false);
   };
@@ -35,7 +24,7 @@ export default function LogoutButton() {
       <CustomButton 
         title="Cerrar Sesión" 
         onPress={() => setIsModalVisible(true)}
-        color="grey"
+        color="blue"
         style={styles.button}
       />
 
@@ -52,12 +41,14 @@ export default function LogoutButton() {
             <CustomButton
               title="Cancelar"
               onPress={() => setIsModalVisible(false)}
-              style={[styles.modalButton, styles.cancelButton]}
+              style={styles.modalButton}
+              color="red"
             />
             <CustomButton
               title="Confirmar"
               onPress={handleLogout}
-              style={[styles.modalButton, styles.confirmButton]}
+              style={styles.modalButton}
+              color="blue"
             />
           </View>
         </View>
@@ -88,11 +79,5 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     borderRadius: 8,
-  },
-  cancelButton: {
-    backgroundColor: '#000000',
-  },
-  confirmButton: {
-    backgroundColor: '#E53935',
   }
 }); 
