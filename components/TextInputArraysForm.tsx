@@ -4,12 +4,14 @@ import * as ImagePicker from 'expo-image-picker';
 import CustomTextInput from './CustomTextInput';
 import { AntDesign } from '@expo/vector-icons';
 import { GlobalStyles } from '@/constants/Colors';
+import { ThemedText } from './ThemedText';
 
 export interface InputField {
   name: string;
   placeholder: string;
   style?: object;
   secureTextEntry?: boolean;
+  description?: string;
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'number-pad' | 'decimal-pad';
 }
 
@@ -86,6 +88,7 @@ const TextInputArraysForm: React.FC<CustomFormProps> = ({
       <View style={styles.inputsWrapper}>
         {inputs.map((input) => (
           <View key={input.name} style={styles.inputContainer}>
+            <ThemedText>{input.description}</ThemedText>
             <CustomTextInput
               placeholder={input.placeholder}
               style={[styles.input, input.style]}
