@@ -10,7 +10,7 @@ const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
 
 type RootStackParamList = {
-  'obituaries/selectContacts': { jsonData: string };
+  'obituaries/selectContacts': { jsonData: string, is_newObituary: boolean, obituaryId: number };
   'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number };
   'obituaries/index': { is_newObituary: boolean, obituaryId: number };
 };
@@ -23,6 +23,7 @@ export default function EsquelaCustomizer() {
 
   const is_newObituary = route.params?.is_newObituary ?? true;
 
+  const obituaryId = route.params?.obituaryId ?? undefined;
 
   const imageId = route.params?.imageTemplateId;
 
@@ -83,20 +84,19 @@ export default function EsquelaCustomizer() {
     } else {
 
       setFormData({
-        ...formData,
         name: '',
         birthDate: '',
         deathDate: '',
-        farewellMessage: '',
+        farewellMessage: '', 
         farewellPhrase: '',
         customImage: null,
+        imageTemplate_id: imageId || 0
+
       });
 
     }
   }, [route.params?.obituaryId, is_newObituary]);
 
-
-  const death = formData.deathDate ?? '';
 
   const changeDesign = async () => {
     const obituaryId = route.params?.obituaryId ?? undefined;
@@ -121,7 +121,7 @@ export default function EsquelaCustomizer() {
 
   const selectContacts = () => {
     const jsonData = JSON.stringify(formData, null, 2)
-    navigation.navigate('obituaries/selectContacts' as never, { jsonData: jsonData });
+    navigation.navigate('obituaries/selectContacts' as never, { jsonData: jsonData, is_newObituary, obituaryId });
   };
 
   return (

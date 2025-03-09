@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Image, View, useWindowDimensions, ScrollView, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, Image, View, useWindowDimensions, ScrollView, TouchableOpacity, Text, Dimensions } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
@@ -7,22 +7,29 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomButton from '@/components/CustomButton';
 import { GlobalStyles } from '@/constants/Colors';
 import { useFocusEffect } from '@react-navigation/native';
+import CustomModal from '@/components/CustomModal';
 
+const { width } = Dimensions.get('window');
 
 type RootStackParamList = {
   'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number };
   'obituaries/index': undefined;
 };
 
+
 export default function ObituaryIndex() {
+  
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { width, height } = useWindowDimensions(); 
-  
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
 
   interface Obituary {
     obituaryId: number;
     name: string;
     isMine: boolean;
+    deathDate: string;
     imageTemplate: {
       imageId: number;
       imageUrl: string;
@@ -31,6 +38,7 @@ export default function ObituaryIndex() {
 
   const [obituaries, setObituaries] = useState<Obituary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedObituaryId, setSelectedObituaryId] = useState<number | null>(null);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -65,6 +73,45 @@ export default function ObituaryIndex() {
   );
   
   
+  
+  const showConfirmationModal =  (obituaryId: number) => {
+    setSelectedObituaryId(obituaryId);
+    setModalMessage( '¿Estas seguro que quieres eliminar esta esquela?');
+    setModalVisible(true);
+  };
+
+  
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setSelectedObituaryId(null);
+  };
+
+
+  const handleSubmit = async () => {
+    if (!selectedObituaryId) return;
+
+    try {
+      const authToken = await AsyncStorage.getItem('authToken'); 
+      const response = await fetch(`http://localhost:8080/api/obituary/delete/${selectedObituaryId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+      });
+
+      if (response.ok) {
+        setObituaries(obituaries.filter(ob => ob.obituaryId !== selectedObituaryId));
+      } else {
+        console.error('Error al eliminar la esquela');
+      }
+    } catch (error) {
+      console.error('Error en la solicitud:', error);
+    } finally {
+      handleCloseModal();
+    }
+  };
+  
 
   const handleObituaryPress = (imageTemplateId: number, imageUrl: string, obituaryId: number) => {
     navigation.navigate(
@@ -84,9 +131,7 @@ export default function ObituaryIndex() {
     );
   }
 
-  const handleDeleteObituary = async (obituaryId: number) => {
-    console.log('Eliminando esquela con id:', obituaryId);
-  };
+
 
   return (
     <ThemedView style={styles.container}>
@@ -112,7 +157,18 @@ export default function ObituaryIndex() {
               <View style={styles.overlay}>
                 <Text style={styles.overlayText}>{item.isMine ? `${item.name} (Su propia esquela)` : item.name}</Text>
                 <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-                <CustomButton title="Eliminar" color="red" onPress={() => handleDeleteObituary(item.obituaryId)}/>
+                { item.deathDate === null ? (
+                  <CustomButton title="Eliminar" color="red" onPress={() => showConfirmationModal(item.obituaryId)} />
+                ) : (
+                  <CustomButton 
+                  title="Esquela ya enviada" 
+                  onPress={() => {}} 
+                />
+              )}
+            
+
+
+                
                 </View>
               </View>
             </TouchableOpacity>
@@ -123,6 +179,23 @@ export default function ObituaryIndex() {
       <View style={styles.buttonContainer}>
         <CustomButton title="Crea una esquela" onPress={() => navigation.navigate('obituaries/index')} />
       </View>   
+      {modalVisible && (
+        <CustomModal
+          visible={modalVisible}
+          onClose={handleCloseModal}
+          title={modalMessage}
+          style={styles.modalStyle}
+        >
+          <View style={styles.buttonModalContainer}>
+            <TouchableOpacity style={styles.button} onPress={() => handleSubmit()}>
+              <Text style={styles.buttonText}>Aceptar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => handleCloseModal()}>
+              <Text style={styles.buttonText}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </CustomModal>
+      )}
     </ThemedView>
   );
 }
@@ -183,6 +256,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end', 
     marginBottom: '0.5%', 
     marginRight: '6%',
+    gap: '4%',
   },
   overlay: {
     position: 'absolute',
@@ -202,4 +276,36 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  buttonModalContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: '1%',
+    flexDirection: 'row',
+    width: '20%',
+    gap: '2%'
+
+  },
+   button: {
+      backgroundColor: GlobalStyles.blue,
+      paddingVertical: 12,
+      paddingHorizontal: 25,
+      borderRadius: 8,
+      alignItems: 'center',
+    },
+    modalStyle: {
+      backgroundColor: '#fff',
+      padding: 20,
+      borderRadius: 15,
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOpacity: 0.2,
+      shadowRadius: 5,
+      elevation: 5,
+      width: width > 600 ? '40%' : '80%', 
+    },
 });

@@ -13,7 +13,7 @@ const { width } = Dimensions.get('window');
 
 
 type RootStackParamList = {
-  'obituaries/selectContacts': { jsonData: string };
+  'obituaries/selectContacts': { jsonData: string, is_newObituary: boolean, obituaryId: number };
   'obituaries/listMyObituaries': undefined;
   'obituaries/loadCertificate': { jsonData: string };
 };
@@ -34,6 +34,10 @@ export default function SelectContacts() {
   const route = useRoute<SelectContactsRouteProp>();
   const { jsonData } = route.params;
 
+  const is_newObituary = route.params?.is_newObituary ?? true;
+
+  const obituaryId = route.params?.obituaryId ?? undefined;
+
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
 
@@ -44,15 +48,17 @@ export default function SelectContacts() {
   const [combinedData, setCombinedData] = useState<any>({});
 
   useEffect(() => {
+    if (is_newObituary) {
+      setContacts([{ id: Date.now(), name: '', phone: '', email: '' }]);
+    }
+  }, [is_newObituary]);
+  
+  useEffect(() => {
     const updateData = {
       ...JSON.parse(jsonData),
       contacts,
     };
     setCombinedData(updateData);
-    console.log("Primer json" + jsonData);
-    console.log("Segundo json" + JSON.stringify(updateData, null, 2));
-
-    console.log('Datos combinados:', combinedData);
   }, [contacts, jsonData]);
 
   const validateName = (name: string) => {
@@ -99,30 +105,40 @@ export default function SelectContacts() {
 
   const createObituary = async () => {
 
-    const dataToSend = {
-      ...combinedData,
-      isMine: false,
-    };
+  const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
+
+  const dataToSend = {
+    ...combinedData,
+    contacts: contactsWithoutIds,
+    isMine: false,
+  };
+
+    const url = is_newObituary ? 'http://localhost:8080/api/obituary/create' : `http://localhost:8080/api/obituary/update/${obituaryId}`;
 
     try {
       const authToken = await AsyncStorage.getItem('authToken');
 
-      const response = await fetch('http://localhost:8080/api/obituary/create', {
+      console.log('Token:', authToken);
+
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken?.trim()}`,
+          'Authorization': `Bearer ${authToken}`,
         },
         body: JSON.stringify(dataToSend),
       });
 
+      console.log('Respuesta:', response);
+
       if (response.ok) {
-        const responseData = await response.json();
         navigation.navigate('obituaries/listMyObituaries' as never);  
       }
     } catch (error) {
-      window.alert('No se pudo crear la esquela. Por favor, inténtelo de nuevo.');
+        window.alert('No se pudo crear la esquela. Por favor, inténtelo de nuevo.');
     }
+  
+
   };
 
 
@@ -166,7 +182,12 @@ export default function SelectContacts() {
   return (
     <View style={styles.container}>
       <View style={styles.dataContainer}>
+      
+       { is_newObituary  ? (
         <Text style={styles.title}>Agrega a tus contactos</Text>
+          ) : (
+        <Text style={styles.title}>Edita a tus contactos</Text>
+        )}
 
         <FlatList
           data={contacts}
@@ -213,11 +234,11 @@ export default function SelectContacts() {
       </View>
       <View style={styles.divider} />
       <View style={styles.buttonContainer}>
-        <CustomButton
-          title="Guarde su propia esquela"
-          onPress={() => showConfirmationModal(true)}
-          style={styles.saveButton}
-        />
+      <CustomButton
+        title={is_newObituary ? "Cree su propia esquela" : "Actualice su propia esquela"}
+        onPress={() => showConfirmationModal(true)}
+        style={styles.saveButton}
+      />
         <CustomButton
           title="Cree y envie su esquela para un ser querido"
           onPress={() => showConfirmationModal(false)}
@@ -294,7 +315,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: '1%',
     flexDirection: 'row',
-    width: '30%',
+    width: '35%',
     gap: '2%'
   },
   modalStyle: {
