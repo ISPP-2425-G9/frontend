@@ -192,8 +192,24 @@ export default function ProfileScreen() {
 
               <View style={styles.column}>
                 <ThemedText style={styles.title}>Contactos de Emergencia</ThemedText>
-                <ThemedText style={styles.text}>Teléfono: 123-456-789</ThemedText>
-                <ThemedText style={styles.text}>Email: emergencias@example.com</ThemedText>
+                <ThemedText style={styles.label}>Nombre de contacto</ThemedText>
+                <ThemedText style={styles.value}>Juan Pérez</ThemedText>
+                <ThemedText style={styles.label}>Teléfono de contacto</ThemedText>
+                <ThemedText style={styles.value}>123-456-789</ThemedText>
+                <ThemedText style={styles.label}>Email de contacto</ThemedText>
+                <ThemedText style={styles.value}>juanperes@hotmail.es</ThemedText>
+                <View style={styles.buttonContainer}>
+                  <CustomButton
+                    title="Añadir"
+                    onPress={() => console.log("Añadir contacto")}
+                    color="blue"
+                  />
+                  <CustomButton
+                    title="Eliminar"
+                    onPress={() => console.log("Eliminar contacto")}
+                    color="red"
+                  />
+                </View>
               </View>
             </View>
           ) : (
