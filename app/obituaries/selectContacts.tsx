@@ -49,7 +49,7 @@ export default function SelectContacts() {
           const authToken = await AsyncStorage.getItem('authToken');
           if (!authToken) throw new Error('No se encontró un token de autenticación');
 
-          const response = await fetch(`http://localhost:8080/api/obituary/receivers/${obituaryId}`, {
+          const response = await fetch(BACKEND_API+`/api/obituary/receivers/${obituaryId}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -129,8 +129,8 @@ export default function SelectContacts() {
     };
 
     const url = is_newObituary
-      ? 'http://localhost:8080/api/obituary/create'
-      : `http://localhost:8080/api/obituary/update/${obituaryId}`;
+      ?  BACKEND_API+`/api/obituary/create`
+      :  BACKEND_API+`/api/obituary/update/${obituaryId}`;
 
     try {
       const authToken = await AsyncStorage.getItem('authToken');

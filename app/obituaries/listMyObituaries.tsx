@@ -93,7 +93,7 @@ export default function ObituaryIndex() {
 
     try {
       const authToken = await AsyncStorage.getItem('authToken'); 
-      const response = await fetch(`http://localhost:8080/api/obituary/delete/${selectedObituaryId}`, {
+      const response = await fetch(BACKEND_API+`/api/obituary/delete/${selectedObituaryId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
