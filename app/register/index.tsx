@@ -134,25 +134,25 @@ const RegisterScreen: React.FC = () => {
   };
 
   const companyFields: InputField[] = [
-    { name: 'name', placeholder: 'Nombre de la Empresa', keyboardType: 'default' },
-    { name: 'nif', placeholder: 'NIF', keyboardType: 'default' },
-    { name: 'zipCode', placeholder: 'Código Postal', keyboardType: 'default' },
-    { name: 'telephone', placeholder: 'Teléfono', keyboardType: 'phone-pad' },
-    { name: 'city', placeholder: 'Ciudad', keyboardType: 'default' },
-    { name: 'address', placeholder: 'Dirección', keyboardType: 'default' },
-    { name: 'description', placeholder: 'Descripción', keyboardType: 'default' },
-    { name: 'email', placeholder: 'Email', keyboardType: 'email-address' },
-    { name: 'password1', placeholder: 'Contraseña', keyboardType: 'default', secureTextEntry: true },
-    { name: 'password2', placeholder: 'Repita Contraseña', keyboardType: 'default', secureTextEntry: true },
+    { name: 'name', placeholder: 'Armando Paredes S.L.', keyboardType: 'default', description: 'Introduce el nombre de tu empresa' },
+    { name: 'nif', placeholder: 'F1234567N', keyboardType: 'default', description: 'Introduce el NIF de tu empresa' },
+    { name: 'zipCode', placeholder: '12345', keyboardType: 'default', description: 'Introduce el código postal de tu empresa' },
+    { name: 'telephone', placeholder: '+34123456789', keyboardType: 'phone-pad', description: 'Introduce el teléfono de tu empresa (con prefijo)' },
+    { name: 'city', placeholder: 'Sevilla', keyboardType: 'default', description: 'Introduce la ciudad de tu empresa' },
+    { name: 'address', placeholder: 'C/ Arquimedes 3,14', keyboardType: 'default', description: 'Introduce la dirección de tu empresa' },
+    { name: 'description', placeholder: 'Armamos paredes cuando quieras', keyboardType: 'default', description: 'Introduce una descripción de tu empresa' },
+    { name: 'email', placeholder: 'armando@paredes.es', keyboardType: 'email-address', description: 'Introduce el email de tu empresa' },
+    { name: 'password1', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Introduce una contraseña' },
+    { name: 'password2', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Repite la contraseña' },
   ];
 
   const clientFields: InputField[] = [
-    { name: 'name', placeholder: 'Nombre de usuario', keyboardType: 'default' },
-    { name: 'telephone', placeholder: 'Número de teléfono con prefijo. Por ejemplo: +34000000000', keyboardType: 'phone-pad' },
-    { name: 'dni', placeholder: 'DNI', keyboardType: 'default' },
-    { name: 'email', placeholder: 'Email', keyboardType: 'email-address' },
-    { name: 'password1', placeholder: 'Contraseña', keyboardType: 'default', secureTextEntry: true },
-    { name: 'password2', placeholder: 'Repita Contraseña', keyboardType: 'default', secureTextEntry: true },
+    { name: 'name', placeholder: 'Peter Parker', keyboardType: 'default', description: 'Introduce tu nombre' },
+    { name: 'telephone', placeholder: '+34000000000', keyboardType: 'phone-pad', description: 'Introduce tu teléfono (con prefijo)' },
+    { name: 'dni', placeholder: '12345678P', keyboardType: 'default' , description: 'Introduce tu DNI' },
+    { name: 'email', placeholder: 'peterparker@spider.com', keyboardType: 'email-address', description: 'Introduce tu email' },
+    { name: 'password1', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Introduce una contraseña' },
+    { name: 'password2', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Repite la contraseña' },
   ];
 
 
