@@ -21,6 +21,7 @@ jobs:
 
       # Paso 3: Crear la rama temporal a partir de develop
       - name: Create PR from develop to release
+        id: pr
         run: |
           # Obtener el nombre de la etiqueta
           TAG_NAME="${GITHUB_REF##*/}"
@@ -36,7 +37,23 @@ jobs:
           # Empujar la rama temporal
           git push origin temp-branch
 
-          # Crear un PR usando curl (con autenticación)
-          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          # Crear el PR usando curl
+          PR_RESPONSE=$(curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -d '{"title": "'"${PR_TITLE}"'", "body": "'"${PR_BODY}"'", "head": "temp-branch", "base": "release"}' \
-            "https://api.github.com/repos/${{ github.repository }}/pulls"
+            "https://api.github.com/repos/${{ github.repository }}/pulls")
+
+          # Extraer el número del PR
+          PR_NUMBER=$(echo "$PR_RESPONSE" | jq -r '.number')
+          echo "Created PR #$PR_NUMBER"
+
+          # Establecer el PR número como output para usarlo en el paso de merge
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+
+      # Paso 4: Auto-merge el PR
+      - name: Auto-merge Pull Request
+        run: |
+          PR_NUMBER=${{ env.PR_NUMBER }}
+          echo "Merging PR #$PR_NUMBER"
+
+          # Usar GitHub CLI para hacer el merge automáticamente
+          gh pr merge $PR_NUMBER --merge --admin --delete-branch
