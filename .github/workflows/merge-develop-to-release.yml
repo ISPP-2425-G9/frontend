@@ -67,3 +67,5 @@ jobs:
 
           # Usar GitHub CLI para hacer el merge automáticamente
           gh pr merge $PR_NUMBER --merge --admin --delete-branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Aseguramos que GH_TOKEN esté configurado para el CLI
