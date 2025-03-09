@@ -23,6 +23,10 @@ jobs:
       - name: Create PR from develop to release
         id: pr
         run: |
+          # Configurar la identidad de git usando las credenciales de GitHub Actions
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --global user.name "${{ github.actor }}"
+
           # Obtener el nombre de la etiqueta
           TAG_NAME="${GITHUB_REF##*/}"
           PR_TITLE="Merge from develop to release on tag $TAG_NAME"
