@@ -77,14 +77,12 @@ jobs:
           echo "Merging PR #$PR_NUMBER"
 
           # Usar GitHub CLI para hacer el merge automáticamente
-          gh pr merge $PR_NUMBER --merge --admin
+          gh pr merge $PR_NUMBER --merge --admin --delete-branch
 
           # Verificar si el PR fue mergeado correctamente
           PR_STATE=$(gh pr view $PR_NUMBER --json state -q ".state")
           if [ "$PR_STATE" == "MERGED" ]; then
             echo "PR #$PR_NUMBER successfully merged."
-            # Eliminar la rama temporal remota
-            git push origin --delete temp-branch
             # Eliminar la rama temporal local
             git branch -d temp-branch
           else
@@ -92,4 +90,4 @@ jobs:
             exit 1
           fi
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Aseguramos que GH_TOKEN esté configurado para el CLI
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
