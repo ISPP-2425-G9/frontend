@@ -5,6 +5,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { useNavigation, NavigationProp, useRoute, RouteProp  } from '@react-navigation/native';
 import CustomButton from '@/components/CustomButton';
 import useAuth from "@/hooks/useAuth";
+import { BACKEND_API } from '@/constants/Mysc';
 
 type RootStackParamList = {
   'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number };
@@ -25,6 +26,7 @@ export default function ObituaryIndex() {
   const is_newObituary = route.params?.is_newObituary ?? true;
 
   interface Obituary {
+    id: number
     imageId: number;
     imageUrl: string;
   }
@@ -36,7 +38,7 @@ export default function ObituaryIndex() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch('https://backend-sprint1.up.railway.app/api/templates/urls');
+        const response = await fetch(BACKEND_API+'/api/templates/urls');
         if (!response.ok) throw new Error('Error al obtener los datos');
         const data: Obituary[] = await response.json();
         setObituaries(data);
@@ -57,7 +59,7 @@ export default function ObituaryIndex() {
       imageTemplateId: id, 
       imageUrl,
       is_newObituary: is_newObituary,
-      obituaryId
+      obituaryId: obituaryId,
 
     });
   };
@@ -78,8 +80,8 @@ export default function ObituaryIndex() {
         <View style={styles.listContainer}>
           {obituaries.map((item) => (
             <TouchableOpacity
-              key={item.imageId} 
-              onPress={() => handleObituaryPress(item.imageId, item.imageUrl)} 
+              key={item.id} 
+              onPress={() => handleObituaryPress(item.id, item.imageUrl)} 
               style={[styles.obituaryCard, { width: width * 0.20, height: height * 0.65 }]} 
             >
               <Image source={{ uri: item.imageUrl }} style={styles.image} />
