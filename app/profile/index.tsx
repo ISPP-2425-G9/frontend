@@ -5,7 +5,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 export default function ProfileScreen() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -13,6 +13,9 @@ export default function ProfileScreen() {
   const [role, setRole] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<Profile>({ name: '', email: '', telephone: '' });
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -31,14 +34,16 @@ export default function ProfileScreen() {
 
         let endpoint = 'http://localhost:8080/api/auth/';
 
-        if (userRole == "CUSTOMER") {
+        if (userRole === "CUSTOMER") {
           endpoint += `customers/${userId}`;
-        } else if (userRole == "COMPANY") {
+        } else if (userRole === "COMPANY") {
           endpoint += `companies/${userId}`;
         } else {
           setLoading(false);
           return;
         }
+        console.log('userId:', userId);
+        console.log('role:', userRole);
 
         const response = await fetch(endpoint, {
           method: 'GET',
@@ -55,7 +60,6 @@ export default function ProfileScreen() {
         }
 
         const data = await response.json();
-        console.log('Datos del perfil:', data);
         setProfile(data);
         setEditedProfile(data);
       } catch (error) {
@@ -123,6 +127,20 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleChangePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      Alert.alert('Error', 'Las contraseñas no coinciden');
+      return;
+    }
+
+    //TODO: Lógica para cambiar la contraseña
+
+    Alert.alert('Éxito', 'Contraseña actualizada correctamente');
+    setShowPasswordModal(false);
+    setNewPassword('');
+    setConfirmPassword('');
+  };
+
   const renderEditableField = (label: string, value: string, field: keyof Profile, placeholder: string) => (
     <>
       <ThemedText style={styles.label}>{label}</ThemedText>
@@ -151,91 +169,92 @@ export default function ProfileScreen() {
   return (
     <ThemedView style={styles.container}>
       {profile ? (
-        <View style={styles.profileContainer}>
-          {role === "CUSTOMER" ? (
-            <View style={styles.twoColumnsContainer}>
-              <View style={styles.column}>
-                <ThemedText style={styles.title}>Mis Datos</ThemedText>
+        <>
+          <View style={styles.profileContainer}>
+            {role === "CUSTOMER" ? (
+              <View style={styles.twoColumnsContainer}>
+                <View style={styles.column}>
+                  <ThemedText style={styles.title}>Mis Datos</ThemedText>
 
-                {renderEditableField('Nombre', editedProfile.name, 'name', 'Nombre de usuario')}
-                {renderEditableField('Email', editedProfile.email, 'email', 'Email')}
-                {renderEditableField('Teléfono', editedProfile.telephone, 'telephone', 'Número de teléfono')}
+                  {renderEditableField('Nombre', editedProfile.name, 'name', 'Nombre de usuario')}
+                  {renderEditableField('Email', editedProfile.email, 'email', 'Email')}
+                  {renderEditableField('Teléfono', editedProfile.telephone, 'telephone', 'Número de teléfono')}
+
+                  {isEditing ? (
+                    <View style={styles.buttonContainer}>
+                      <CustomButton
+                        title="Guardar"
+                        onPress={handleSave}
+                        color="blue"
+                      />
+                      <DeleteAccountButton />
+                    </View>
+                  ) : (
+                    <View style={styles.buttonContainer}>
+                      <CustomButton
+                        title="Editar usuario"
+                        onPress={() => setIsEditing(true)}
+                        color="blue"
+                      />
+                      <LogoutButton />
+                    </View>
+                  )}
+
+                  <ThemedText style={styles.changePasswordText}>
+                    ¿Desea cambiar su contraseña?{' '}
+                    <Pressable onPress={() => setShowPasswordModal(true)}>
+                      <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
+                    </Pressable>
+                  </ThemedText>
+                </View>
+
+                <View style={styles.column}>
+                  <ThemedText style={styles.title}>Contactos de Emergencia</ThemedText>
+                  <ThemedText style={styles.label}>Nombre de contacto</ThemedText>
+                  <ThemedText style={styles.value}>Juan Pérez</ThemedText>
+                  <ThemedText style={styles.label}>Teléfono de contacto</ThemedText>
+                  <ThemedText style={styles.value}>123-456-789</ThemedText>
+                  <ThemedText style={styles.label}>Email de contacto</ThemedText>
+                  <ThemedText style={styles.value}>juanperes@hotmail.es</ThemedText>
+                  <View style={styles.buttonContainer}>
+                    <CustomButton
+                      title="Añadir"
+                      onPress={() => console.log("Añadir contacto")}
+                      color="blue"
+                    />
+                    <CustomButton
+                      title="Eliminar"
+                      onPress={() => console.log("Eliminar contacto")}
+                      color="red"
+                    />
+                  </View>
+                </View>
+              </View>
+            ) : (
+              <View style={styles.companyContainer}>
+                <ThemedText style={styles.title}>Información de la Compañía</ThemedText>
+                <View style={styles.companyHeader}>
+                  <Image
+                    source={{ uri: profile.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
+                    style={styles.companyImage}
+                  />
+                  <ThemedText style={styles.companyName}>{profile.name || profile.companyName}</ThemedText>
+                </View>
+
+                <View style={styles.twoColumnsContainerCompany}>
+                  <View style={styles.column}>
+                    {renderEditableField('Email', profile.email, 'email', 'Email')}
+                    {renderEditableField('NIF', profile.nif, 'nif', 'NIF')}
+                    {renderEditableField('Descripción', profile.description, 'description', 'Descripción')}
+                  </View>
+                  <View style={styles.column}>
+                    {renderEditableField('Dirección', profile.address, 'address', 'Dirección')}
+                    {renderEditableField('Ciudad', profile.city, 'city', 'Ciudad')}
+                    {renderEditableField('Código Postal', profile.zipCode, 'zipCode', 'Código Postal')}
+                  </View>
+                </View>
 
                 {isEditing ? (
-                  <View style={styles.buttonContainer}>
-                    <CustomButton
-                      title="Guardar"
-                      onPress={handleSave}
-                      color="blue"
-                    />
-                    <DeleteAccountButton />
-                  </View>
-                ) : (
-                  <View style={styles.buttonContainer}>
-                    <CustomButton
-                      title="Editar usuario"
-                      onPress={() => setIsEditing(true)}
-                      color="blue"
-                    />
-                    <LogoutButton />
-                  </View>
-                )}
-
-                <ThemedText style={styles.changePasswordText}>
-                  ¿Desea cambiar su contraseña?{' '}
-                  <Pressable onPress={() => console.log("Cambiar contraseña")}>
-                    <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
-                  </Pressable>
-                </ThemedText>
-              </View>
-
-              <View style={styles.column}>
-                <ThemedText style={styles.title}>Contactos de Emergencia</ThemedText>
-                <ThemedText style={styles.label}>Nombre de contacto</ThemedText>
-                <ThemedText style={styles.value}>Juan Pérez</ThemedText>
-                <ThemedText style={styles.label}>Teléfono de contacto</ThemedText>
-                <ThemedText style={styles.value}>123-456-789</ThemedText>
-                <ThemedText style={styles.label}>Email de contacto</ThemedText>
-                <ThemedText style={styles.value}>juanperes@hotmail.es</ThemedText>
-                <View style={styles.buttonContainer}>
-                  <CustomButton
-                    title="Añadir"
-                    onPress={() => console.log("Añadir contacto")}
-                    color="blue"
-                  />
-                  <CustomButton
-                    title="Eliminar"
-                    onPress={() => console.log("Eliminar contacto")}
-                    color="red"
-                  />
-                </View>
-              </View>
-            </View>
-          ) : (
-            <View style={styles.companyContainer}>
-              <ThemedText style={styles.title}>Información de la Compañía</ThemedText>
-              <View style={styles.companyHeader}>
-                <Image
-                  source={{ uri: profile.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
-                  style={styles.companyImage}
-                />
-                <ThemedText style={styles.companyName}>{profile.name || profile.companyName}</ThemedText>
-              </View>
-
-              <View style={styles.twoColumnsContainerCompany}>
-                <View style={styles.column}>
-                  {renderEditableField('Email', profile.email, 'email', 'Email')}
-                  {renderEditableField('NIF', profile.nif, 'nif', 'NIF')}
-                  {renderEditableField('Descripción', profile.description, 'description', 'Descripción')}
-                </View>
-                <View style={styles.column}>
-                  {renderEditableField('Dirección', profile.address, 'address', 'Dirección')}
-                  {renderEditableField('Ciudad', profile.city, 'city', 'Ciudad')}
-                  {renderEditableField('Código Postal', profile.zipCode, 'zipCode', 'Código Postal')}
-                </View>
-              </View>
-
-              {isEditing ? (
                   <View style={styles.buttonContainer}>
                     <CustomButton
                       title="Guardar"
@@ -254,10 +273,36 @@ export default function ProfileScreen() {
                     <LogoutButton />
                   </View>
                 )}
+              </View>
+            )}
+          </View>
 
+          <Modal visible={showPasswordModal} transparent animationType="fade">
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <ThemedText style={styles.modalTitle}>Cambiar Contraseña</ThemedText>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Nueva contraseña"
+                  placeholderTextColor="#666"
+                  secureTextEntry
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Confirmar contraseña"
+                  placeholderTextColor="#666"
+                  secureTextEntry
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                />
+                <CustomButton title="Guardar" onPress={handleChangePassword} color="blue" />
+                <CustomButton title="Cancelar" onPress={() => setShowPasswordModal(false)} color="red" />
+              </View>
             </View>
-          )}
-        </View>
+          </Modal>
+        </>
       ) : (
         <ThemedText style={styles.text}>No se pudo cargar el perfil.</ThemedText>
       )}
@@ -330,6 +375,7 @@ const styles = StyleSheet.create({
     color: '#333',
     borderWidth: 1,
     borderColor: '#ccc',
+    marginBottom: 10,
   },
   text: {
     fontSize: 18,
@@ -377,5 +423,26 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: '#000',
     fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    width: '100%',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '40%',
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    gap: 10,
+  },
+  modalTitle: {
+    color: '#000',
+    fontSize: 32,
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
 });
