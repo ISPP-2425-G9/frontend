@@ -50,7 +50,7 @@ const RegisterScreen: React.FC = () => {
         errors.push('El NIF no es válido.');
       }
 
-      if (!values.zip_code || typeof values.zip_code !== 'string' || !zipCodeRegex.test(values.zip_code)) {
+      if (!values.zipCode || typeof values.zipCode !== 'string' || !zipCodeRegex.test(values.zipCode)) {
           errors.push('El código postal debe tener 5 dígitos.');
       }
 
@@ -72,10 +72,6 @@ const RegisterScreen: React.FC = () => {
         errors.push('El DNI debe tener 8 números y una letra mayúscula.');
       }
     }
-    else{
-      errors.push('Debes escoger un tipo de usuario antes de rellenar el formulario')
-    }
-
     if (!values.name || typeof values.name !== 'string' || values.name.trim() === '') {
         errors.push('El nombre es obligatorio.');
     }
@@ -140,7 +136,7 @@ const RegisterScreen: React.FC = () => {
   const companyFields: InputField[] = [
     { name: 'name', placeholder: 'Nombre de la Empresa', keyboardType: 'default' },
     { name: 'nif', placeholder: 'NIF', keyboardType: 'default' },
-    { name: 'zip_code', placeholder: 'Código Postal', keyboardType: 'default' },
+    { name: 'zipCode', placeholder: 'Código Postal', keyboardType: 'default' },
     { name: 'telephone', placeholder: 'Teléfono', keyboardType: 'phone-pad' },
     { name: 'city', placeholder: 'Ciudad', keyboardType: 'default' },
     { name: 'address', placeholder: 'Dirección', keyboardType: 'default' },
