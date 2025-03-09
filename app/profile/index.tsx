@@ -5,9 +5,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Dimensions, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
-
-const { width, height } = Dimensions.get('window');
+import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 export default function ProfileScreen() {
   const [profile, setProfile] = useState<Profile | null>(null);
