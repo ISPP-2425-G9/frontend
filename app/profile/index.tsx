@@ -5,7 +5,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Dimensions, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -57,6 +57,7 @@ export default function ProfileScreen() {
         }
 
         const data = await response.json();
+        console.log('Datos del perfil:', data);
         setProfile(data);
         setEditedProfile(data);
       } catch (error) {
@@ -213,22 +214,49 @@ export default function ProfileScreen() {
               </View>
             </View>
           ) : (
-            <View>
-              <ThemedText style={styles.text}>Nombre: {profile.name || profile.companyName}</ThemedText>
-              <ThemedText style={styles.text}>Email: {profile.email}</ThemedText>
-              {profile.address && <ThemedText style={styles.text}>Dirección: {profile.address}</ThemedText>}
-              {profile.city && <ThemedText style={styles.text}>Ciudad: {profile.city}</ThemedText>}
-              {profile.zipCode && <ThemedText style={styles.text}>Código Postal: {profile.zipCode}</ThemedText>}
-              {profile.description && <ThemedText style={styles.text}>Descripción: {profile.description}</ThemedText>}
-              {profile.nif && <ThemedText style={styles.text}>NIF: {profile.nif}</ThemedText>}
-              {profile.dni && <ThemedText style={styles.text}>DNI: {profile.dni}</ThemedText>}
-              {profile.plan && (
-                <View>
-                  <ThemedText style={styles.text}>Plan ID: {profile.plan.planId}</ThemedText>
-                  <ThemedText style={styles.text}>Tipo de Plan: {profile.plan.planType}</ThemedText>
-                  <ThemedText style={styles.text}>Fecha de Expiración: {profile.plan.expireDate}</ThemedText>
+            <View style={styles.companyContainer}>
+              <ThemedText style={styles.title}>Información de la Compañía</ThemedText>
+              <View style={styles.companyHeader}>
+                <Image
+                  source={{ uri: profile.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
+                  style={styles.companyImage}
+                />
+                <ThemedText style={styles.companyName}>{profile.name || profile.companyName}</ThemedText>
+              </View>
+
+              <View style={styles.twoColumnsContainerCompany}>
+                <View style={styles.column}>
+                  {renderEditableField('Email', profile.email, 'email', 'Email')}
+                  {renderEditableField('NIF', profile.nif, 'nif', 'NIF')}
+                  {renderEditableField('Descripción', profile.description, 'description', 'Descripción')}
                 </View>
-              )}
+                <View style={styles.column}>
+                  {renderEditableField('Dirección', profile.address, 'address', 'Dirección')}
+                  {renderEditableField('Ciudad', profile.city, 'city', 'Ciudad')}
+                  {renderEditableField('Código Postal', profile.zipCode, 'zipCode', 'Código Postal')}
+                </View>
+              </View>
+
+              {isEditing ? (
+                  <View style={styles.buttonContainer}>
+                    <CustomButton
+                      title="Guardar"
+                      onPress={handleSave}
+                      color="blue"
+                    />
+                    <DeleteAccountButton />
+                  </View>
+                ) : (
+                  <View style={styles.buttonContainer}>
+                    <CustomButton
+                      title="Editar información"
+                      onPress={() => setIsEditing(true)}
+                      color="blue"
+                    />
+                    <LogoutButton />
+                  </View>
+                )}
+
             </View>
           )}
         </View>
@@ -248,21 +276,33 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   profileContainer: {
-    backgroundColor: '#fff',
     padding: 20,
-    borderRadius: 10,
     elevation: 5,
     width: '95%',
     height: '80%',
     alignItems: 'center',
   },
+  companyContainer: {
+    padding: 20,
+    elevation: 5,
+    width: '70%',
+    height: '80%',
+    alignItems: 'center',
+  },
   twoColumnsContainer: {
-    flexDirection: width > height ? 'row' : 'column',
+    flexDirection: 'row',
     justifyContent: 'space-between',
+    marginRight: '15%',
+    width: '100%',
+  },
+  twoColumnsContainerCompany: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginRight: '15%',
     width: '100%',
   },
   column: {
-    width: width > height ? '50%' : '100%',
+    width: '60%',
     alignItems: 'center',
   },
   label: {
@@ -322,5 +362,22 @@ const styles = StyleSheet.create({
     color: '#42B5FC',
     fontWeight: 'bold',
     textDecorationLine: 'underline',
+  },
+  companyHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignContent: 'center',
+    marginBottom: 20,
+  },
+  companyImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 10,
+    marginRight: 10,
+  },
+  companyName: {
+    fontSize: 20,
+    color: '#000',
+    fontWeight: 'bold',
   },
 });
