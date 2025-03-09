@@ -139,7 +139,6 @@ export default function ObituaryIndex() {
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.listContainer}>
           {obituaries.map((item) => (
-            console.log(item),
              <TouchableOpacity
              key={item.obituaryId} 
              onPress={() => handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.obituaryId)} 
@@ -152,6 +151,7 @@ export default function ObituaryIndex() {
                  borderWidth: 6,  
                }
              ]} 
+             disabled={item.deathDate !== null}
            >
               <Image source={{ uri: item.imageTemplate.imageUrl }} style={styles.image} />
               <View style={styles.overlay}>
@@ -165,10 +165,6 @@ export default function ObituaryIndex() {
                   onPress={() => {}} 
                 />
               )}
-            
-
-
-                
                 </View>
               </View>
             </TouchableOpacity>

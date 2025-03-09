@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Alert, FlatList, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, Alert, FlatList, StyleSheet, TouchableOpacity, Dimensions, Platform } from 'react-native';
 import CustomButton from '@/components/CustomButton';
 import { CustomTextInput } from '@/components/CustomTextInput';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import CustomModal from '@/components/CustomModal';
-import { create } from 'react-test-renderer';
 import { GlobalStyles } from '@/constants/Colors';
 
 const { width } = Dimensions.get('window');
 
-
 type RootStackParamList = {
-  'obituaries/selectContacts': { jsonData: string, is_newObituary: boolean, obituaryId: number };
+  'obituaries/selectContacts': { jsonData: string; is_newObituary: boolean; obituaryId: number };
   'obituaries/listMyObituaries': undefined;
   'obituaries/loadCertificate': { jsonData: string };
 };
@@ -27,32 +25,52 @@ type Contact = {
   email: string;
 };
 
-
 export default function SelectContacts() {
-
+  
   const navigation = useNavigation();
   const route = useRoute<SelectContactsRouteProp>();
   const { jsonData } = route.params;
 
   const is_newObituary = route.params?.is_newObituary ?? true;
-
   const obituaryId = route.params?.obituaryId ?? undefined;
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
-
-  const [contacts, setContacts] = useState<Contact[]>([
-    { id: 1, name: '', phone: '', email: '' },
-  ]);
-
+  const [contacts, setContacts] = useState<Contact[]>([{ id: Date.now(), name: '', phone: '', email: '' }]);
   const [combinedData, setCombinedData] = useState<any>({});
 
   useEffect(() => {
     if (is_newObituary) {
       setContacts([{ id: Date.now(), name: '', phone: '', email: '' }]);
+    } else {
+      const fetchContactData = async () => {
+        try {
+          const authToken = await AsyncStorage.getItem('authToken');
+          if (!authToken) throw new Error('No se encontró un token de autenticación');
+
+          const response = await fetch(`http://localhost:8080/api/obituary/receivers/${obituaryId}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authToken.trim()}`,
+            },
+          });
+
+          if (!response.ok) throw new Error('Error al obtener los datos');
+
+          const contactData = await response.json();
+
+          setContacts(contactData);
+        } catch (error) {
+          console.error('Error al cargar los contactos:');
+        }
+      };
+
+      fetchContactData();
     }
-  }, [is_newObituary]);
-  
+  }, [is_newObituary, obituaryId]);
+
+
   useEffect(() => {
     const updateData = {
       ...JSON.parse(jsonData),
@@ -60,21 +78,6 @@ export default function SelectContacts() {
     };
     setCombinedData(updateData);
   }, [contacts, jsonData]);
-
-  const validateName = (name: string) => {
-    const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,}$/;
-    return nameRegex.test(name);
-  };
-
-  const validatePhone = (phone: string) => {
-    const phoneRegex = /^\d{9,9}$/;
-    return phoneRegex.test(phone);
-  };
-
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
-    return emailRegex.test(email);
-  };
 
   const handleChange = (id: number, field: keyof Contact, value: string) => {
     setContacts((prevContacts) =>
@@ -84,15 +87,29 @@ export default function SelectContacts() {
     );
   };
 
-  const addContact = () => {
-    const newContacts = [
-      { id: Date.now(), name: '', phone: '', email: '' },
-      ...contacts,
-    ];
+  const validateData = (values: Contact) => {
+    const errors: string[] = [];
+    const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const phoneRegex = /^\+?\d{9,15}$/;
 
-    setContacts(newContacts);
+    if (!values.name || values.name.trim() === '') {
+      errors.push('El nombre es obligatorio para el contacto');
+    }
+
+    if (!values.phone || !phoneRegex.test(values.phone)) {
+      errors.push('Por favor, introduce un teléfono válido (sin prefijo)');
+    }
+
+    if (!values.email || !emailRegex.test(values.email)) {
+      errors.push('El email no es válido.');
+    }
+
+    return errors;
   };
 
+  const addContact = () => {
+    setContacts([{ id: Date.now(), name: '', phone: '', email: '' }, ...contacts]);
+  };
 
   const removeContact = (id: number) => {
     if (contacts.length > 1) {
@@ -102,29 +119,27 @@ export default function SelectContacts() {
     }
   };
 
-
   const createObituary = async () => {
+    const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
+    const dataToSend = {
+      ...combinedData,
+      contacts: contactsWithoutIds,
+      isMine: false,
+    };
 
-  const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
-
-  const dataToSend = {
-    ...combinedData,
-    contacts: contactsWithoutIds,
-    isMine: false,
-  };
-
-    const url = is_newObituary ? 'http://localhost:8080/api/obituary/create' : `http://localhost:8080/api/obituary/update/${obituaryId}`;
+    const url = is_newObituary
+      ? 'http://localhost:8080/api/obituary/create'
+      : `http://localhost:8080/api/obituary/update/${obituaryId}`;
 
     try {
       const authToken = await AsyncStorage.getItem('authToken');
-
       console.log('Token:', authToken);
 
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify(dataToSend),
       });
@@ -132,61 +147,76 @@ export default function SelectContacts() {
       console.log('Respuesta:', response);
 
       if (response.ok) {
-        navigation.navigate('obituaries/listMyObituaries' as never);  
+        navigation.navigate('obituaries/listMyObituaries' as never);
+      } else {
+        throw new Error('Error en la creación de la esquela');
       }
     } catch (error) {
-        window.alert('No se pudo crear la esquela. Por favor, inténtelo de nuevo.');
+      window.alert('No se pudo crear la esquela. Por favor, inténtelo de nuevo.');
     }
-  
-
   };
-
 
   const moveToNextScreen = () => {
     navigation.navigate('obituaries/loadCertificate' as never);
-  }
+  };
 
+  const showConfirmationModal = async (is_mine: boolean) => {
+    const errors: string[] = [];
+    try {
+      for (const contact of contacts) {
+        const contactErrors = validateData(contact);
+        if (contactErrors.length > 0) {
+          errors.push(...contactErrors.slice(0, 3 - errors.length));
+        }
+      }
 
-  const showConfirmationModal = async (is_mine: boolean,) => {
-   
-    if (contacts.some((contact) => !validateName(contact.name) || !validatePhone(contact.phone) || !validateEmail(contact.email))) {
-      window.alert('Por favor, verifica que todos los contactos tengan datos válidos.');
-      return;
+      if (errors.length !== 0) {
+        throw new Error(`Hay error(es) en su formulario: ${errors.join(', ')}`);
+      }
+
+      setModalMessage(
+        is_mine
+          ? '¿Desea guardar su propia esquela?'
+          : '¿Desea crear y enviar una esquela para un ser querido?'
+      );
+      setModalVisible(true);
+    } catch (error: any) {
+      if (Platform.OS === 'web') {
+        window.alert('Error: ' + error.message);
+      } else {
+        Alert.alert('Error', error.message || error);
+      }
     }
-
-    setModalMessage(
-      is_mine
-        ? '¿Desea guardar su propia esquela?'
-        : '¿Desea crear y enviar una esquela para un ser querido?'
-    );
-    setModalVisible(true);
   };
 
   const handleCloseModal = () => {
     setModalVisible(false);
   };
 
-
   const handleSubmit = async (is_mine: boolean) => {
-
-    if (is_mine) {
-      createObituary();
-    } else {
-      moveToNextScreen();
+    try {
+      if (is_mine) {
+        await createObituary();
+      } else {
+        moveToNextScreen();
+      }
+      setModalVisible(false);
+    } catch (error: any) {
+      if (Platform.OS === 'web') {
+        window.alert('Error: ' + error.message);
+      } else {
+        Alert.alert('Error', error.message || error);
+      }
     }
-    setModalVisible(false);
-  }
-
-
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.dataContainer}>
-      
-       { is_newObituary  ? (
-        <Text style={styles.title}>Agrega a tus contactos</Text>
-          ) : (
-        <Text style={styles.title}>Edita a tus contactos</Text>
+        {is_newObituary ? (
+          <Text style={styles.title}>Agrega a tus contactos</Text>
+        ) : (
+          <Text style={styles.title}>Edita a tus contactos</Text>
         )}
 
         <FlatList
@@ -194,6 +224,7 @@ export default function SelectContacts() {
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item, index }) => (
             <View style={styles.contactContainer}>
+              <Text style={styles.contactNumber}>{index + 1}.</Text>
               <CustomTextInput
                 placeholder="Nombre"
                 value={item.name}
@@ -230,28 +261,24 @@ export default function SelectContacts() {
             </View>
           )}
         />
-
       </View>
+
       <View style={styles.divider} />
       <View style={styles.buttonContainer}>
-      <CustomButton
-        title={is_newObituary ? "Cree su propia esquela" : "Actualice su propia esquela"}
-        onPress={() => showConfirmationModal(true)}
-        style={styles.saveButton}
-      />
+        <CustomButton
+          title={is_newObituary ? 'Cree su propia esquela' : 'Actualice su propia esquela'}
+          onPress={() => showConfirmationModal(true)}
+          style={styles.saveButton}
+        />
         <CustomButton
           title="Cree y envie su esquela para un ser querido"
           onPress={() => showConfirmationModal(false)}
           style={styles.saveButton}
         />
       </View>
+
       {modalVisible && (
-        <CustomModal
-          visible={modalVisible}
-          onClose={handleCloseModal}
-          title={modalMessage}
-          style={styles.modalStyle}
-        >
+        <CustomModal visible={modalVisible} onClose={handleCloseModal} title={modalMessage} style={styles.modalStyle}>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={() => handleSubmit(true)}>
               <Text style={styles.buttonText}>Aceptar</Text>
@@ -285,12 +312,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
+  contactNumber: {
+    marginRight: 8,
+    fontWeight: 'bold',
+    fontSize: 20,
+  },
   contactContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
     marginBottom: 10,
     flex: 1,
+ 
   },
   deleteButton: {
     marginLeft: 10,
@@ -316,7 +349,7 @@ const styles = StyleSheet.create({
     marginBottom: '1%',
     flexDirection: 'row',
     width: '35%',
-    gap: '2%'
+    gap: '2%',
   },
   modalStyle: {
     backgroundColor: '#fff',
@@ -327,18 +360,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 5,
-    width: width > 600 ? '40%' : '80%', 
+    width: width > 600 ? '40%' : '80%',
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
   },
-   button: {
-      backgroundColor: GlobalStyles.blue,
-      paddingVertical: 12,
-      paddingHorizontal: 25,
-      borderRadius: 8,
-      alignItems: 'center',
-    },
+  button: {
+    backgroundColor: GlobalStyles.blue,
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
 });
+

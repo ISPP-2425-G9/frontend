@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { StyleSheet, TextInput, View, Text, Button, Image, Dimensions } from 'react-native';
+import { StyleSheet, TextInput, View, Text, Button, Image, Dimensions, Alert, Platform, TouchableOpacity } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import CustomButton from '@/components/CustomButton';
 import { CustomTextInput } from '@/components/CustomTextInput';
 import { useNavigation, NavigationProp, useRoute, RouteProp } from '@react-navigation/native';
+import CustomModal from '@/components/CustomModal';
+import { GlobalStyles } from '@/constants/Colors';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -29,8 +31,13 @@ export default function EsquelaCustomizer() {
 
   const imageUrl = route.params?.imageUrl;
 
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const [modalMessage, setModalMessage] = useState('');
+
 
   const [loading, setLoading] = useState(true);
+
 
   const [formData, setFormData] = useState({
     name: '',
@@ -80,6 +87,7 @@ export default function EsquelaCustomizer() {
         }
       };
 
+
       fetchData();
     } else {
 
@@ -96,6 +104,7 @@ export default function EsquelaCustomizer() {
 
     }
   }, [route.params?.obituaryId, is_newObituary]);
+
 
 
   const changeDesign = async () => {
@@ -119,9 +128,64 @@ export default function EsquelaCustomizer() {
     }
   };
 
-  const selectContacts = () => {
-    const jsonData = JSON.stringify(formData, null, 2)
-    navigation.navigate('obituaries/selectContacts' as never, { jsonData: jsonData, is_newObituary, obituaryId });
+
+    const handleCloseModal = () => {
+      setModalVisible(false);
+    };
+
+  const validateForm = () => {
+    const { name, birthDate, farewellMessage, farewellPhrase, customImage } = formData;
+    const errors: string[] = [];
+
+    const birthDatePattern = /^\d{2}\/\d{2}\/\d{4}$/;
+    if (birthDate && !birthDate.match(birthDatePattern)) {
+      errors.push('El formato de la fecha de nacimiento es incorrecto. Debe ser dd/mm/aaaa');
+      return errors;
+    }
+
+    if (!name || !birthDate || !farewellMessage || !farewellPhrase) {
+      if ( customImage === null) {
+        setModalMessage('No has seleccionado una imagen y hay datos sin completar. ¿Desea continuar?');
+      } else {
+        setModalMessage('Hay datos sin completar. ¿Desea continuar?');
+      }
+    } else if (customImage === null) {
+      setModalMessage('No has seleccionado una imagen. ¿Desea continuar?');
+    } else {
+      setModalMessage('¿Desea continuar?');
+    }
+    setModalVisible(true);
+
+   
+    return errors;
+  }
+
+
+  const showConfirmationModal = () => {
+
+    try {
+      const errors = validateForm();
+      if (errors.length != 0 ) {
+        throw new Error(`Hay error(es) en su formulario: ${errors}`)
+      }
+
+    } catch (error: any) {
+          if (Platform.OS === 'web') {
+            window.alert('Error: ' + error);
+          } else {
+            Alert.alert('Error', error);
+          }
+        }
+  };
+
+  const handleSubmit = () => {
+
+    if (validateForm()) {
+      const jsonData = JSON.stringify(formData, null, 2)
+      navigation.navigate('obituaries/selectContacts' as never, { jsonData: jsonData, is_newObituary, obituaryId });
+    } 
+    setModalVisible(false);
+        
   };
 
   return (
@@ -143,9 +207,9 @@ export default function EsquelaCustomizer() {
         <Text>Año de nacimiento:</Text>
         <CustomTextInput
           style={{ width: '75%' }}
-          placeholder="Año de nacimiento"
+          placeholder="dd/mm/aaaa"
           value={formData.birthDate}
-          maxLength={10}
+          maxLength={12}
           onChangeText={(text) => handleChange('birthDate', text)}
           keyboardType="numeric"
         />
@@ -155,7 +219,7 @@ export default function EsquelaCustomizer() {
           style={{ width: '75%' }}
           placeholder="Año de fallecimiento"
           value={formData.deathDate}
-          maxLength={10}
+          maxLength={12}
           editable={false}
           onChangeText={(text) => handleChange('deathDate', text)}
           keyboardType="numeric"
@@ -187,7 +251,7 @@ export default function EsquelaCustomizer() {
           <CustomButton style={{ marginTop: 12, width: '49%' }} title="Selecciona una imagen" onPress={pickImage} />
           <CustomButton style={{ marginTop: 12, width: '49%' }} title="Cambia el diseño de tu esquela" onPress={changeDesign} />
         </View>
-        <CustomButton color="grey" style={{ marginTop: 12, width: '75%' }} title="Guardar y seleccionar contactos" onPress={selectContacts} />
+        <CustomButton color="grey" style={{ marginTop: 12, width: '75%' }} title="Guardar y seleccionar contactos" onPress={showConfirmationModal} />
         </>
           
         )}
@@ -216,6 +280,18 @@ export default function EsquelaCustomizer() {
           </View>
         </View>
       </View>
+      {modalVisible && (
+        <CustomModal visible={modalVisible} onClose={handleCloseModal} title={modalMessage} style={styles.modalStyle}>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={() => handleSubmit()}>
+              <Text style={styles.buttonText}>Aceptar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => handleCloseModal()}>
+              <Text style={styles.buttonText}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </CustomModal>
+      )}
     </View>
   );
 }
@@ -226,11 +302,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 16,
     paddingTop: 110,
+  
   },
   formSection: {
     flex: 1,
     paddingLeft: 100,
     alignItems: 'flex-start',
+  },
+  modalStyle: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 15,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
+    width: width > 600 ? '40%' : '80%',
   },
   previewSection: {
     flex: 1,
@@ -253,6 +341,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     maxWidth: 400,
     marginTop: 8,
+  },
+  buttonContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: '1%',
+    flexDirection: 'row',
+    width: '35%',
+    gap: '2%',
   },
   previewPhrase: {
     marginTop: 20,
@@ -290,6 +386,18 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     marginBottom: 8,
   },
+    button: {
+      backgroundColor: GlobalStyles.blue,
+      paddingVertical: 12,
+      paddingHorizontal: 25,
+      borderRadius: 8,
+      alignItems: 'center',
+    },
+    buttonText: {
+      color: '#fff',
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
 });
 
 
