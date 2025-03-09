@@ -77,7 +77,7 @@ jobs:
           echo "Merging PR #$PR_NUMBER"
 
           # Usar GitHub CLI para hacer el merge automáticamente
-          gh pr merge $PR_NUMBER --merge --admin --delete-branch
+          gh pr merge $PR_NUMBER --merge --admin
 
           # Verificar si el PR fue mergeado correctamente
           PR_STATE=$(gh pr view $PR_NUMBER --json state -q ".state")
