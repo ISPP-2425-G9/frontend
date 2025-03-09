@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomButton from '@/components/CustomButton';
 import { GlobalStyles } from '@/constants/Colors';
 import { useFocusEffect } from '@react-navigation/native';
+import { BACKEND_API } from '@/constants/Mysc';
 
 
 type RootStackParamList = {
@@ -40,7 +41,7 @@ export default function ObituaryIndex() {
           const authToken = await AsyncStorage.getItem('authToken');
           if (!authToken) throw new Error('No se encontró un token de autenticación');
     
-          const response = await fetch('http://localhost:8080/api/obituary/myObituaries', {
+          const response = await fetch(BACKEND_API+'/api/obituary/myObituaries', {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',

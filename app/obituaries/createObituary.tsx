@@ -5,6 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import CustomButton from '@/components/CustomButton';
 import { CustomTextInput } from '@/components/CustomTextInput';
 import { useNavigation, NavigationProp, useRoute, RouteProp } from '@react-navigation/native';
+import { BACKEND_API } from '@/constants/Mysc';
 
 const width = Dimensions.get('window').width;
 const height = Dimensions.get('window').height;
@@ -50,7 +51,7 @@ export default function EsquelaCustomizer() {
           const authToken = await AsyncStorage.getItem('authToken');
           if (!authToken) throw new Error('No se encontró un token de autenticación');
 
-          const response = await fetch(`http://localhost:8080/api/obituary/myObituaries/${obituaryId}`, {
+          const response = await fetch(BACKEND_API+`/api/obituary/myObituaries/${obituaryId}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',

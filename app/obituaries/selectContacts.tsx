@@ -8,6 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import CustomModal from '@/components/CustomModal';
 import { create } from 'react-test-renderer';
 import { GlobalStyles } from '@/constants/Colors';
+import { BACKEND_API } from '@/constants/Mysc';
 
 const { width } = Dimensions.get('window');
 
@@ -107,7 +108,7 @@ export default function SelectContacts() {
     try {
       const authToken = await AsyncStorage.getItem('authToken');
 
-      const response = await fetch('http://localhost:8080/api/obituary/create', {
+      const response = await fetch(BACKEND_API+'/api/obituary/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
