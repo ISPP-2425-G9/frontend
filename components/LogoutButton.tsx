@@ -5,11 +5,11 @@ import CustomButton from './CustomButton';
 import CustomModal from './CustomModal';
 import { ThemedText } from './ThemedText';
 
+
 export default function LogoutButton() {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const navigation = useNavigation();
   
-
   const handleLogout = () => {
     try {
         localStorage.removeItem('authToken');
@@ -27,7 +27,7 @@ export default function LogoutButton() {
       <CustomButton 
         title="Cerrar Sesión" 
         onPress={() => setIsModalVisible(true)}
-        color="grey"
+        color="blue"
         style={styles.button}
       />
 
@@ -44,12 +44,14 @@ export default function LogoutButton() {
             <CustomButton
               title="Cancelar"
               onPress={() => setIsModalVisible(false)}
-              style={[styles.modalButton, styles.cancelButton]}
+              style={styles.modalButton}
+              color="red"
             />
             <CustomButton
               title="Confirmar"
               onPress={handleLogout}
-              style={[styles.modalButton, styles.confirmButton]}
+              style={styles.modalButton}
+              color="blue"
             />
           </View>
         </View>
@@ -80,11 +82,5 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     borderRadius: 8,
-  },
-  cancelButton: {
-    backgroundColor: '#000000',
-  },
-  confirmButton: {
-    backgroundColor: '#E53935',
   }
 }); 

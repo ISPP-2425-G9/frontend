@@ -7,6 +7,7 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useState } from 'react';
 import { Alert, Dimensions, Platform, ScrollView, StyleSheet, View } from 'react-native';
 
+
 const { width, height } = Dimensions.get('window');
 
 const LoginScreen: React.FC = () => {
@@ -26,7 +27,7 @@ const LoginScreen: React.FC = () => {
 
   const handleSubmit = async (values: Record<string, string>) => {
     try {
-      const response = await fetch(BACKEND_API + `/api/auth/login`, {
+      const response = await fetch(`http://localhost:8080/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
