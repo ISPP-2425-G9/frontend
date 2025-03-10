@@ -84,10 +84,14 @@ export default function EsquelaCustomizer() {
   
           if (!response.ok) throw new Error('Error al obtener los datos');
           const data = await response.json();
+
+          const [year, month, day] = data.birthDate.split('-');
+          const formatBirthDate = `${day}/${month}/${year}`;
+          
   
           setFormData({
             name: data.name || '',
-            birthDate: data.birthDate || '',
+            birthDate: formatBirthDate || '',
             deathDate: data.deathDate || '',
             farewellMessage: data.farewellMessage || '',
             farewellPhrase: data.farewellPhrase || '',
