@@ -1,17 +1,15 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, View, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
+import CustomTable from '@/components/CustomTable';
+import CustomButton from '@/components/CustomButton';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
-import CustomTable from '@/components/CustomTable';
-import CustomButton from '@/components/CustomButton';
+
 
 export default function TabTwoScreen() {
-  const [mostrarClientes, setMostrarClientes] = useState(true);
-
   type Cliente = {
     id: number;
     name: string;
@@ -19,7 +17,6 @@ export default function TabTwoScreen() {
     dni: string;
     telephone: string;
   };
-
   type Empresa = {
     id: number;
     name: string;
@@ -28,6 +25,7 @@ export default function TabTwoScreen() {
     telephone: string;
   };
 
+  const [mostrarClientes, setMostrarClientes] = useState(true);
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [loading, setLoading] = useState(false);
@@ -97,28 +95,37 @@ export default function TabTwoScreen() {
         {loading ? (
           <ActivityIndicator size="large" color={GlobalStyles.blue} />
         ) : (
-          <CustomTable
-            columns={['NOMBRE', 'EMAIL', mostrarClientes ? 'DNI' : 'NIF', 'TELÉFONO', 'ACCIONES']}
-            columnWidths={[1, 0.9, 0.9, 1, 1.2]}
-          >
-            {(mostrarClientes ? clientes : empresas).map((item) => (
-              <View key={item.id} style={styles.row}>
-                <ThemedText style={styles.cell}>{item.name}</ThemedText>
-                <ThemedText style={styles.cell}>{item.email}</ThemedText>
-                <ThemedText style={styles.cell}>{mostrarClientes ? (item as Cliente).dni : (item as Empresa).nif}</ThemedText>
-                <ThemedText style={styles.cell}>{item.telephone}</ThemedText>
-                <View style={styles.actions}>
-                  <CustomButton title="Editar" onPress={() => handleEdit(item.id)} color="blue" />
-                  <CustomButton title="Eliminar" onPress={() => handleDelete(item.id)} color="red" />
-                </View>
-              </View>
-            ))}
-          </CustomTable>
+          <ScrollView horizontal contentContainerStyle={styles.scrollContainer}>
+            <View style={styles.tableWrapper}>
+              <CustomTable
+                columns={['NOMBRE', 'EMAIL', mostrarClientes ? 'DNI' : 'NIF', 'TELÉFONO', 'ACCIONES']}
+                columnWidths={[1, 0.9, 0.9, 1, 1.2]}
+              />
+
+              <ScrollView style={styles.tableBody}>
+                {(mostrarClientes ? clientes : empresas).map((item) => (
+                  <View key={item.id} style={styles.row}>
+                    <ThemedText style={styles.cell}>{item.name}</ThemedText>
+                    <ThemedText style={styles.cell}>{item.email}</ThemedText>
+                    <ThemedText style={styles.cell}>
+                      {'dni' in item ? item.dni : (item as Empresa).nif}
+                    </ThemedText>
+                    <ThemedText style={styles.cell}>{item.telephone}</ThemedText>
+                    <View style={styles.actions}>
+                      <CustomButton title="Editar" onPress={() => handleEdit(item.id)} color="blue" />
+                      <CustomButton title="Eliminar" onPress={() => handleDelete(item.id)} color="red" />
+                    </View>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          </ScrollView>
         )}
       </ThemedView>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -140,6 +147,17 @@ const styles = StyleSheet.create({
     fontFamily: GlobalStyles.fontBold,
     color: GlobalStyles.darkGrey,
   },
+  scrollContainer: {
+    flexGrow: 1,
+    minWidth: Dimensions.get('window').width,
+  },
+  tableWrapper: {
+    width: '100%',
+    minWidth: Dimensions.get('window').width,
+  },
+  tableBody: {
+    maxHeight: 400,
+  },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -160,22 +178,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 5,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: GlobalStyles.darkGrey,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderBottomWidth: 2,
-    borderBottomColor: GlobalStyles.grey,
-  },
-  headerCell: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 16,
-    fontFamily: GlobalStyles.fontBold,
-    color: GlobalStyles.white,
-    textAlignVertical: 'center',
   },
 });
