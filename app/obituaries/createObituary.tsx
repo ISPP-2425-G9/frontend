@@ -334,20 +334,26 @@ export default function EsquelaCustomizer() {
               <CustomButton
                 style={{ marginTop: 12, width: "49%" }}
                 title="Selecciona una imagen"
-                onPress={pickImage}
-              />
+                onPress={() => alert("Esta función no está disponible aún")}
+              />  
               <CustomButton
                 style={{ marginTop: 12, width: "49%" }}
                 title="Cambia el diseño de tu esquela"
                 onPress={changeDesign}
               />
             </View>
-            <CustomButton
+            {is_newObituary ? <CustomButton
               color="grey"
               style={{ marginTop: 12, width: "75%" }}
               title="Guardar y seleccionar contactos"
               onPress={showConfirmationModal}
             />
+          : <CustomButton
+              color="grey"
+              style={{ marginTop: 12, width: "75%" }}
+              title="Actualizar y seleccionar contactos"
+              onPress={() => alert("Esta función no está disponible aún")}
+            />}
           </>
         )}
       </View>

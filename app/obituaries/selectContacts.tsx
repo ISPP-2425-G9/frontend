@@ -306,7 +306,7 @@ export default function SelectContacts() {
               {index === 0 && (
                 <CustomButton
                   title="Añadir otro"
-                  onPress={addContact}
+                  onPress={() => alert("Esta función no está disponible aún")}
                   style={styles.deleteButton}
                 />
               )}
@@ -337,7 +337,7 @@ export default function SelectContacts() {
         />
         <CustomButton
           title="Cree y envie su esquela para un ser querido"
-          onPress={() => showConfirmationModal(false)}
+          onPress={() => alert("Esta función no está disponible aún")}
           style={styles.saveButton}
         />
       </View>
