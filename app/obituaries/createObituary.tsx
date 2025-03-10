@@ -120,7 +120,7 @@ export default function EsquelaCustomizer() {
             deathDate: data.deathDate || "",
             farewellMessage: data.farewellMessage || "",
             farewellPhrase: data.farewellPhrase || "",
-            customImage: data.customImage || null,
+            customImage: data.customImageUrl || null,
             imageTemplate_id: imageId || 1,
           });
         } catch (error) {
