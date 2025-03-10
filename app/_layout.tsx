@@ -95,7 +95,8 @@ export default function TabLayout() {
         isAuthenticated ? [
           <Tabs.Screen name="profile/index" options={{ title: "" }} />,
           <Tabs.Screen name="login/index" options={{ href: null }} />,
-          <Tabs.Screen name="register/index" options={{ href: null }} />
+          <Tabs.Screen name="register/index" options={{ href: null }} />,
+          <Tabs.Screen name="admin/listUsers" options={{ title: "admin:listUsers" }} />,
         ] : [
           <Tabs.Screen name="profile/index" options={{ href: null }} />,
           <Tabs.Screen name="login/index" options={{ title: "" }} />,
