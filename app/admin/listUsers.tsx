@@ -108,11 +108,13 @@ export default function AdminListUsers() {
           title="Clientes"
           onPress={() => setMostrarClientes(true)}
           color={mostrarClientes ? 'blue' : 'grey'}
+          style={styles.smallButton}
         />
         <CustomButton
           title="Empresas"
           onPress={() => setMostrarClientes(false)}
           color={!mostrarClientes ? 'blue' : 'grey'}
+          style={styles.smallButton}
         />
       </ThemedView>
 
@@ -171,7 +173,6 @@ export default function AdminListUsers() {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -182,9 +183,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 30,
-    gap: 10,
+    marginVertical: 20,
+    gap: 8,
     backgroundColor: 'transparent',
+    marginBottom: 50,
+  },
+  smallButton: {
+    width: 140,
+    height: 45,
+    paddingVertical: 6,
   },
   title: {
     textAlign: 'center',
@@ -195,13 +202,16 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     minWidth: Dimensions.get('window').width,
+    backgroundColor: 'transparent',
   },
   tableWrapper: {
     width: '100%',
     minWidth: Dimensions.get('window').width,
+    backgroundColor: 'transparent',
   },
   tableBody: {
     maxHeight: 400,
+    backgroundColor: 'transparent', 
   },
   row: {
     flexDirection: 'row',
@@ -211,13 +221,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: GlobalStyles.grey,
     alignItems: 'center',
+    backgroundColor: 'transparent',
   },
   cell: {
     flex: 1,
     textAlign: 'center',
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: GlobalStyles.font,
     color: GlobalStyles.darkGrey,
+    backgroundColor: 'transparent',
   },
   actions: {
     flexDirection: 'row',
