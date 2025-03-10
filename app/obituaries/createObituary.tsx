@@ -294,7 +294,7 @@ export default function EsquelaCustomizer() {
         <Text>Fecha de fallecimiento:</Text>
         <CustomTextInput
           style={{ width: "75%" }}
-          placeholder="Fecha de fallecimiento (opcional)"
+          placeholder="Fecha de fallecimiento"
           value={formData.deathDate}
           maxLength={12}
           editable={false}
