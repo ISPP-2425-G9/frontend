@@ -40,7 +40,7 @@ export default function TabTwoScreen() {
         if (!authToken) throw new Error('No se encontró un token de autenticación');
 
         const endpoint = mostrarClientes ? 'customers' : 'companies';
-        const response = await fetch(BACKEND_API+'/api/auth/admin/'+endpoint, {
+        const response = await fetch(BACKEND_API + '/api/auth/admin/' + endpoint, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -97,7 +97,10 @@ export default function TabTwoScreen() {
         {loading ? (
           <ActivityIndicator size="large" color={GlobalStyles.blue} />
         ) : (
-          <CustomTable columns={['Nombre', 'Email', mostrarClientes ? 'DNI' : 'NIF', 'Teléfono', 'Acciones']}>
+          <CustomTable
+            columns={['NOMBRE', 'EMAIL', mostrarClientes ? 'DNI' : 'NIF', 'TELÉFONO', 'ACCIONES']}
+            columnWidths={[1, 0.9, 0.9, 1, 1.2]}
+          >
             {(mostrarClientes ? clientes : empresas).map((item) => (
               <View key={item.id} style={styles.row}>
                 <ThemedText style={styles.cell}>{item.name}</ThemedText>
@@ -121,6 +124,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 120,
+    backgroundColor: GlobalStyles.white,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -128,6 +132,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 30,
     gap: 10,
+    backgroundColor: 'transparent',
   },
   title: {
     textAlign: 'center',
@@ -138,7 +143,8 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
     borderBottomWidth: 1,
     borderBottomColor: GlobalStyles.grey,
     alignItems: 'center',
@@ -154,5 +160,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 5,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: GlobalStyles.darkGrey,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderBottomWidth: 2,
+    borderBottomColor: GlobalStyles.grey,
+  },
+  headerCell: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 16,
+    fontFamily: GlobalStyles.fontBold,
+    color: GlobalStyles.white,
+    textAlignVertical: 'center',
   },
 });
