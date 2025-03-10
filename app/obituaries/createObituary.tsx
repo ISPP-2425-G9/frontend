@@ -52,60 +52,74 @@ export default function EsquelaCustomizer() {
   });
 
   useEffect(() => {
-    if (!is_newObituary) {
-      const obituaryId = route.params?.obituaryId;
-      const fetchData = async () => {
-        setLoading(true);
+    const initializeForm = async () => {
+      setLoading(true);
+  
+      if (is_newObituary) {
+        setFormData({
+          name: '',
+          birthDate: '',
+          deathDate: '',
+          farewellMessage: '',
+          farewellPhrase: '',
+          customImage: null,
+          imageTemplate_id: imageId || 1,
+        });
+        setLoading(false);
+        return;
+      }
+  
+      if (!is_newObituary && obituaryId !== undefined) {
         try {
           const authToken = await AsyncStorage.getItem('authToken');
           if (!authToken) throw new Error('No se encontró un token de autenticación');
-
-          const response = await fetch(BACKEND_API+`/api/obituary/myObituaries/${obituaryId}`, {
+  
+          const response = await fetch(`${BACKEND_API}/api/obituary/myObituaries/${obituaryId}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${authToken.trim()}`,
             },
           });
-
+  
           if (!response.ok) throw new Error('Error al obtener los datos');
-
           const data = await response.json();
-
+  
           setFormData({
-            ...formData,
             name: data.name || '',
             birthDate: data.birthDate || '',
             deathDate: data.deathDate || '',
             farewellMessage: data.farewellMessage || '',
             farewellPhrase: data.farewellPhrase || '',
             customImage: data.customImage || null,
+            imageTemplate_id: imageId || 1,
           });
-
+  
         } catch (error) {
-          console.error('Error en la solicitud:', error);
+          console.error('Error al cargar la esquela:', error);
         } finally {
           setLoading(false);
         }
-      };
+      }
+    };
+  
+    initializeForm();
+  }, [is_newObituary, obituaryId, imageId]);
 
-
-      fetchData();
-    } else {
-
+  useEffect(() => {
+    return () => {
       setFormData({
         name: '',
         birthDate: '',
         deathDate: '',
-        farewellMessage: '', 
+        farewellMessage: '',
         farewellPhrase: '',
         customImage: null,
-        imageTemplate_id: imageId || 0
-
+        imageTemplate_id: imageId || 1,
       });
-
-    }
-  }, [route.params?.obituaryId, is_newObituary]);
+    };
+  }, []);
+  
 
 
 
