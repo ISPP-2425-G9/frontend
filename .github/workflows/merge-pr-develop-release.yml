@@ -3,72 +3,72 @@ name: Create PR from develop to release on Tag Creation
 on:
   push:
     tags:
-      - '*'
+      - 'v*'
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Paso 1: Clonar el repositorio
+      # Step 1: Clone the repository
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      # Paso 2: Asegurarse de que las ramas remotas estén disponibles
+      # Step 2: Ensure all remote branches are available
       - name: Fetch all branches
         run: git fetch --all
 
-      # Paso 3: Crear la rama temporal a partir de develop
+      # Step 3: Create a temporary branch from develop
       - name: Create PR from develop to release
         id: pr
         run: |
-          # Configurar la identidad de git usando las credenciales de GitHub Actions
+          # Configure git identity using GitHub Actions credentials
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
 
-          # Obtener el nombre de la etiqueta
+          # Get the tag name
           TAG_NAME="${GITHUB_REF##*/}"
           PR_TITLE="Merge from develop to release on tag $TAG_NAME"
           PR_BODY="This PR is automatically created to merge the changes from develop into release triggered by tag $TAG_NAME"
 
-          # Crear una nueva rama a partir de develop
+          # Create a new branch from develop
           git checkout -b temp-branch origin/develop
 
-          # Intentar hacer el merge de develop en release
+          # Attempt to merge develop into release
           git merge origin/release --no-ff --no-edit
 
-          # Empujar la rama temporal
+          # Push the temporary branch
           git push origin temp-branch
 
-          # Crear el PR usando curl
+          # Create the PR using curl
           PR_RESPONSE=$(curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -d '{"title": "'"${PR_TITLE}"'", "body": "'"${PR_BODY}"'", "head": "temp-branch", "base": "release"}' \
             "https://api.github.com/repos/${{ github.repository }}/pulls")
 
-          # Mostrar la respuesta completa para depuración
+          # Output the full response for debugging
           echo "PR Response: $PR_RESPONSE"
 
-          # Extraer el número del PR
+          # Extract the PR number
           PR_NUMBER=$(echo "$PR_RESPONSE" | jq -r '.number')
 
-          # Verificar si el número del PR es válido
+          # Check if the PR number is valid
           if [ "$PR_NUMBER" == "null" ] || [ -z "$PR_NUMBER" ]; then
-            echo "Error: No se pudo obtener el número del PR. Respuesta de la API: $PR_RESPONSE"
+            echo "Error: Could not retrieve the PR number. API response: $PR_RESPONSE"
             exit 1
           fi
 
           echo "Created PR #$PR_NUMBER"
 
-          # Establecer el PR número como output para usarlo en el paso de merge
+          # Set the PR number as output to use in the merge step
           echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
 
-      # Paso 4: Auto-merge el PR
+      # Step 4: Auto-merge the PR
       - name: Auto-merge Pull Request
         run: |
           PR_NUMBER=${{ env.PR_NUMBER }}
           
-          # Verificar que el PR_NUMBER no sea null
+          # Check that the PR_NUMBER is not null
           if [ "$PR_NUMBER" == "null" ] || [ -z "$PR_NUMBER" ]; then
             echo "PR number is invalid or not set. Exiting..."
             exit 1
@@ -76,10 +76,10 @@ jobs:
 
           echo "Merging PR #$PR_NUMBER"
 
-          # Usar GitHub CLI para hacer el merge automáticamente
+          # Use GitHub CLI to merge the PR automatically
           gh pr merge $PR_NUMBER --merge --admin --delete-branch
 
-          # Verificar si el PR fue mergeado correctamente
+          # Check if the PR was merged successfully
           PR_STATE=$(gh pr view $PR_NUMBER --json state -q ".state")
           if [ "$PR_STATE" == "MERGED" ]; then
             echo "PR #$PR_NUMBER successfully merged."
