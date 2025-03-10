@@ -47,7 +47,15 @@ type Contact = {
 export default function SelectContacts() {
   const navigation = useNavigation();
   const route = useRoute<SelectContactsRouteProp>();
-  const { jsonData } = route.params;
+  const jsonData = route.params?.jsonData ?? '';
+  if (!route.params || !route.params.jsonData) {
+    return (
+      <View style={{ padding: 30 }}>
+        <Text>Error: No se proporcionaron los datos necesarios para continuar.</Text>
+      </View>
+    );
+  }
+  
 
   const is_newObituary = route.params?.is_newObituary ?? true;
   const obituaryId = route.params?.obituaryId ?? undefined;
@@ -100,6 +108,10 @@ export default function SelectContacts() {
           if (!response.ok) throw new Error("Error al obtener los datos");
 
           const contactData = await response.json();
+          contactData.forEach((contact: any) => {
+            contact.phone = contact.telephone;
+            delete contact.telephone;
+          });
 
           setContacts(contactData);
         } catch (error) {
