@@ -1,19 +1,25 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 
-
 export default function EditUserScreen() {
   const route = useRoute();
-  const { userId, isCustomer } = route.params as { userId: number; isCustomer: boolean };
+  const params = route.params as { userId?: number; isCustomer?: boolean } | undefined;
+
+  if (!params || params.userId === undefined || params.isCustomer === undefined) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.error}>Error: No se proporcionaron los datos del usuario.</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Editar {isCustomer ? 'Cliente' : 'Empresa'}</Text>
-      <Text style={styles.info}>ID del usuario: {userId}</Text>
+      <Text style={styles.title}>Editar {params.isCustomer ? 'Cliente' : 'Empresa'}</Text>
+      <Text style={styles.info}>ID del usuario: {params.userId}</Text>
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -28,5 +34,9 @@ const styles = StyleSheet.create({
   },
   info: {
     fontSize: 16,
+  },
+  error: {
+    fontSize: 18,
+    color: 'red',
   },
 });
