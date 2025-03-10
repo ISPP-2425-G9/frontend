@@ -4,13 +4,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import CustomTable from '@/components/CustomTable';
 import CustomButton from '@/components/CustomButton';
+import CustomModal from '@/components/CustomModal';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
 
 
-export default function TabTwoScreen() {
+export default function AdminListUsers() {
   type Cliente = {
     id: number;
     name: string;
@@ -31,47 +32,73 @@ export default function TabTwoScreen() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const authToken = await AsyncStorage.getItem('authToken');
-        if (!authToken) throw new Error('No se encontró un token de autenticación');
-
-        const endpoint = mostrarClientes ? 'customers' : 'companies';
-        const response = await fetch(BACKEND_API + '/api/auth/admin/' + endpoint, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${authToken.trim()}`,
-          },
-        });
-
-        if (!response.ok) throw new Error(`Error en la solicitud: ${response.status}`);
-
-        const data = await response.json();
-        if (mostrarClientes) {
-          setClientes(data);
-        } else {
-          setEmpresas(data);
-        }
-      } catch (error) {
-        console.error('Error en la solicitud:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
   }, [mostrarClientes]);
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const authToken = await AsyncStorage.getItem('authToken');
+      if (!authToken) throw new Error('No se encontró un token de autenticación');
+
+      const endpoint = mostrarClientes ? 'customers' : 'companies';
+      const response = await fetch(BACKEND_API + '/api/auth/admin/' + endpoint, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken.trim()}`,
+        },
+      });
+
+      if (!response.ok) throw new Error(`Error en la solicitud: ${response.status}`);
+
+      const data = await response.json();
+      if (mostrarClientes) {
+        setClientes(data);
+      } else {
+        setEmpresas(data);
+      }
+    } catch (error) {
+      console.error('Error en la solicitud:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleEdit = (id: number) => {
     navigation.navigate('admin/editUser', { userId: id, isCustomer: mostrarClientes });
   };
 
-  const handleDelete = (id: number) => {
-    console.log(`Eliminar ${mostrarClientes ? 'cliente' : 'empresa'} con ID:`, id);
+  const handleDelete = async () => {
+    if (!selectedUserId) return;
+
+    try {
+      const authToken = await AsyncStorage.getItem('authToken');
+      if (!authToken) throw new Error('No se encontró un token de autenticación');
+
+      console.log('Eliminando usuario con ID:', selectedUserId);
+
+      const response = await fetch(BACKEND_API + '/api/auth/admin/users/' + selectedUserId, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${authToken.trim()}`,
+        },
+      });
+
+      if (response.status === 204) {
+        console.log(`Usuario con ID ${selectedUserId} eliminado exitosamente.`);
+        setModalVisible(false);
+        fetchData();
+      } else {
+        console.error('Error al eliminar usuario:', response.status);
+      }
+    } catch (error) {
+      console.error('Error en la solicitud de eliminación:', error);
+    }
   };
 
   return (
@@ -115,7 +142,14 @@ export default function TabTwoScreen() {
                     <ThemedText style={styles.cell}>{item.telephone}</ThemedText>
                     <View style={styles.actions}>
                       <CustomButton title="Editar" onPress={() => handleEdit(item.id)} color="blue" />
-                      <CustomButton title="Eliminar" onPress={() => handleDelete(item.id)} color="red" />
+                      <CustomButton
+                        title="Eliminar"
+                        onPress={() => {
+                          setSelectedUserId(item.id);
+                          setModalVisible(true);
+                        }}
+                        color="red"
+                      />
                     </View>
                   </View>
                 ))}
@@ -124,9 +158,19 @@ export default function TabTwoScreen() {
           </ScrollView>
         )}
       </ThemedView>
+
+      <CustomModal visible={modalVisible} onClose={() => setModalVisible(false)} title="Confirmar Eliminación">
+        <ThemedText>¿Estás seguro de que deseas eliminar este usuario?</ThemedText>
+        <View style={styles.modalButtons}>
+          <CustomButton title="Cancelar" onPress={() => setModalVisible(false)} color="grey" />
+          <CustomButton title="Eliminar" onPress={handleDelete} color="red" />
+        </View>
+      </CustomModal>
+
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -179,5 +223,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 5,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10,
+    marginTop: 20,
   },
 });
