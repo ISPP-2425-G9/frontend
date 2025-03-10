@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, View, TouchableOpacity, Text, FlatList, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
+import CustomTable from '@/components/CustomTable';
+import CustomButton from '@/components/CustomButton';
 
 export default function TabTwoScreen() {
   const [mostrarClientes, setMostrarClientes] = useState(true);
+
   type Cliente = {
     id: number;
     name: string;
@@ -16,6 +19,7 @@ export default function TabTwoScreen() {
     dni: string;
     telephone: string;
   };
+
   type Empresa = {
     id: number;
     name: string;
@@ -60,29 +64,29 @@ export default function TabTwoScreen() {
     };
 
     fetchData();
-  }, [mostrarClientes]); // Se ejecuta cada vez que cambia entre Clientes/Empresas
+  }, [mostrarClientes]);
+
+  const handleEdit = (id: number) => {
+    console.log(`Editar ${mostrarClientes ? 'cliente' : 'empresa'} con ID:`, id);
+  };
+
+  const handleDelete = (id: number) => {
+    console.log(`Eliminar ${mostrarClientes ? 'cliente' : 'empresa'} con ID:`, id);
+  };
 
   return (
-    <ParallaxScrollView headerBackgroundColor={GlobalStyles.white}>
-      {/* Contenedor de botones centrados */}
+    <View style={styles.container}>
       <ThemedView style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[styles.button, mostrarClientes ? styles.activeButton : styles.inactiveButton]}
+        <CustomButton
+          title="Clientes"
           onPress={() => setMostrarClientes(true)}
-        >
-          <Text style={[styles.buttonText, mostrarClientes ? styles.activeButtonText : styles.inactiveButtonText]}>
-            Clientes
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.button, !mostrarClientes ? styles.activeButton : styles.inactiveButton]}
+          color={mostrarClientes ? 'blue' : 'grey'}
+        />
+        <CustomButton
+          title="Empresas"
           onPress={() => setMostrarClientes(false)}
-        >
-          <Text style={[styles.buttonText, !mostrarClientes ? styles.activeButtonText : styles.inactiveButtonText]}>
-            Empresas
-          </Text>
-        </TouchableOpacity>
+          color={!mostrarClientes ? 'blue' : 'grey'}
+        />
       </ThemedView>
 
       <ThemedView>
@@ -93,64 +97,37 @@ export default function TabTwoScreen() {
         {loading ? (
           <ActivityIndicator size="large" color={GlobalStyles.blue} />
         ) : (
-          <FlatList
-            data={mostrarClientes ? clientes : empresas}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.row}>
-                <Text style={styles.cell}>{item.name}</Text>
-                <Text style={styles.cell}>{item.email}</Text>
-                <Text style={styles.cell}>{mostrarClientes ? item.dni : item.nif}</Text>
-                <Text style={styles.cell}>{item.telephone}</Text>
+          <CustomTable columns={['Nombre', 'Email', mostrarClientes ? 'DNI' : 'NIF', 'Teléfono', 'Acciones']}>
+            {(mostrarClientes ? clientes : empresas).map((item) => (
+              <View key={item.id} style={styles.row}>
+                <ThemedText style={styles.cell}>{item.name}</ThemedText>
+                <ThemedText style={styles.cell}>{item.email}</ThemedText>
+                <ThemedText style={styles.cell}>{mostrarClientes ? (item as Cliente).dni : (item as Empresa).nif}</ThemedText>
+                <ThemedText style={styles.cell}>{item.telephone}</ThemedText>
+                <View style={styles.actions}>
+                  <CustomButton title="Editar" onPress={() => handleEdit(item.id)} color="blue" />
+                  <CustomButton title="Eliminar" onPress={() => handleDelete(item.id)} color="red" />
+                </View>
               </View>
-            )}
-            ListHeaderComponent={() => (
-              <View style={styles.headerRow}>
-                <Text style={styles.headerCell}>Nombre</Text>
-                <Text style={styles.headerCell}>Email</Text>
-                <Text style={styles.headerCell}>{mostrarClientes ? 'DNI' : 'NIF'}</Text>
-                <Text style={styles.headerCell}>Teléfono</Text>
-              </View>
-            )}
-          />
+            ))}
+          </CustomTable>
         )}
       </ThemedView>
-    </ParallaxScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    marginTop: 120,
+  },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     marginVertical: 30,
-  },
-  button: {
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 8,
-    marginHorizontal: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 3,
-  },
-  activeButton: {
-    backgroundColor: GlobalStyles.darkGrey,
-  },
-  inactiveButton: {
-    backgroundColor: GlobalStyles.lightGrey,
-  },
-  buttonText: {
-    fontSize: 18,
-    fontFamily: GlobalStyles.fontBold,
-  },
-  activeButtonText: {
-    color: GlobalStyles.white,
-  },
-  inactiveButtonText: {
-    color: GlobalStyles.grey,
+    gap: 10,
   },
   title: {
     textAlign: 'center',
@@ -158,33 +135,24 @@ const styles = StyleSheet.create({
     fontFamily: GlobalStyles.fontBold,
     color: GlobalStyles.darkGrey,
   },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: 12,
-    borderBottomWidth: 2,
-    borderBottomColor: GlobalStyles.darkGrey,
-    backgroundColor: GlobalStyles.lightGrey,
-  },
-  headerCell: {
-    fontSize: 16,
-    fontFamily: GlobalStyles.fontBold,
-    color: GlobalStyles.darkGrey,
-    flex: 1,
-    textAlign: 'center',
-  },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 12,
     borderBottomWidth: 1,
     borderBottomColor: GlobalStyles.grey,
+    alignItems: 'center',
   },
   cell: {
+    flex: 1,
+    textAlign: 'center',
     fontSize: 16,
     fontFamily: GlobalStyles.font,
     color: GlobalStyles.darkGrey,
-    flex: 1,
-    textAlign: 'center',
+  },
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 5,
   },
 });
