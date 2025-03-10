@@ -100,24 +100,24 @@ export default function TabTwoScreen() {
               <CustomTable
                 columns={['NOMBRE', 'EMAIL', mostrarClientes ? 'DNI' : 'NIF', 'TELÉFONO', 'ACCIONES']}
                 columnWidths={[1, 0.9, 0.9, 1, 1.2]}
-              />
-
-              <ScrollView style={styles.tableBody}>
-                {(mostrarClientes ? clientes : empresas).map((item) => (
-                  <View key={item.id} style={styles.row}>
-                    <ThemedText style={styles.cell}>{item.name}</ThemedText>
-                    <ThemedText style={styles.cell}>{item.email}</ThemedText>
-                    <ThemedText style={styles.cell}>
-                      {'dni' in item ? item.dni : (item as Empresa).nif}
-                    </ThemedText>
-                    <ThemedText style={styles.cell}>{item.telephone}</ThemedText>
-                    <View style={styles.actions}>
-                      <CustomButton title="Editar" onPress={() => handleEdit(item.id)} color="blue" />
-                      <CustomButton title="Eliminar" onPress={() => handleDelete(item.id)} color="red" />
+              >
+                <ScrollView style={styles.tableBody}>
+                  {(mostrarClientes ? clientes : empresas).map((item) => (
+                    <View key={item.id} style={styles.row}>
+                      <ThemedText style={styles.cell}>{item.name}</ThemedText>
+                      <ThemedText style={styles.cell}>{item.email}</ThemedText>
+                      <ThemedText style={styles.cell}>
+                        {'dni' in item ? item.dni : (item as Empresa).nif}
+                      </ThemedText>
+                      <ThemedText style={styles.cell}>{item.telephone}</ThemedText>
+                      <View style={styles.actions}>
+                        <CustomButton title="Editar" onPress={() => handleEdit(item.id)} color="blue" />
+                        <CustomButton title="Eliminar" onPress={() => handleDelete(item.id)} color="red" />
+                      </View>
                     </View>
-                  </View>
-                ))}
-              </ScrollView>
+                  ))}
+                </ScrollView>
+              </CustomTable>
             </View>
           </ScrollView>
         )}
