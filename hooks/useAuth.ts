@@ -17,6 +17,9 @@ const useAuth = () => {
           setEmail(userEmail)
         } else {
           localStorage.clear()
+          setRoles(null);
+          setEmail(null);
+          setIsAuthenticated(false);
         }
       } catch (error) {
         console.error("Error al verificar el token:", error);
