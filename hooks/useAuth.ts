@@ -8,12 +8,15 @@ const useAuth = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const token = await AsyncStorage.getItem("authToken");
+        const user = JSON.parse(await AsyncStorage.getItem("user_data"));
+        const token = user.token
         setIsAuthenticated(!!token);
         if(!!token){
-          const userRoles = await AsyncStorage.getItem("roles");
+          const userRoles = user.roles
           setRoles(userRoles)
-          const userEmail = await AsyncStorage.getItem("email");
+
+          // TODO
+          const userEmail = "email";
           setEmail(userEmail)
         } else {
           localStorage.clear()

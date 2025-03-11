@@ -2,6 +2,8 @@ import { StyleSheet, Text } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { withAuth } from '../_util/withAuth';
+import { AUTHORITIES } from '../_util/Authorities';
 
 function TabTwoScreen() {
   return (
@@ -73,4 +75,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TabTwoScreen;
+export default withAuth(TabTwoScreen, [AUTHORITIES.ADMIN, AUTHORITIES.CUSTOMER, AUTHORITIES.COMPANY]);
