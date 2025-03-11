@@ -1,33 +1,77 @@
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+
 import { ThemedView } from '@/components/ThemedView';
-import { ThemedText } from '@/components/ThemedText';
 import LogoutButton from '@/components/LogoutButton';
 import DeleteAccountButton from '@/components/DeleteAccountButton';
 
 export default function ProfileScreen() {
   return (
     <ThemedView style={styles.container}>
-      <ThemedText style={styles.title}>Mi Perfil</ThemedText>
+      <Text style={styles.title}>Mi perfil</Text>
       
-      {/* Contenido del perfil aquí */}
-      
+      {/* Profile content here */}
+      <Text>El contenido del perfil no está disponible aún</Text>
+
       <View style={styles.buttonContainer}>
         <LogoutButton />
         <DeleteAccountButton />
       </View>
     </ThemedView>
   );
+
 }
 
 const styles = StyleSheet.create({
   container: {
+    padding: 8,
     flex: 1,
-    padding: 20,
+    alignItems: 'center',
+    paddingTop: 120,
+    backgroundColor: '#ffff',
   },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 30,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    alignItems: 'center',
+  },
+  listContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    paddingHorizontal: 8,
+  },
+  obituaryCard: {
+    padding: 10,
+    margin: 8,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 3,
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  centeredContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  divider: {
+    height: 1,
+    width: '100%',
+    backgroundColor: '#ccc',
+    marginVertical: 20,
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -36,4 +80,4 @@ const styles = StyleSheet.create({
     marginTop: 'auto',
     marginBottom: 20,
   },
-}); 
+});
