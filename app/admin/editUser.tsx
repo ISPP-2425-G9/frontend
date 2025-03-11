@@ -8,6 +8,7 @@ import { useRoute } from '@react-navigation/native';
 
 interface Profile {
   name: string;
+  password: string;
   email: string;
   telephone: string;
   address?: string;
@@ -15,6 +16,7 @@ interface Profile {
   zipCode?: string;
   nif?: string;
   description?: string;
+  
 }
 
 export default function AdminEditUserScreen() {
@@ -30,6 +32,7 @@ export default function AdminEditUserScreen() {
     zipCode: '',
     nif: '',
     description: '',
+    password: '',
   });
 
   const [loading, setLoading] = useState(true);
@@ -59,8 +62,9 @@ export default function AdminEditUserScreen() {
           const errorData = await response.json();
           throw new Error(`Error ${response.status}: No se pudo obtener los datos del perfil.`);
         }
-
+        
         const data = await response.json();
+        console.log(data)
         setEditedProfile(data);
       } catch (error: any) {
         console.error('Error al obtener el perfil:', error.message);
@@ -83,6 +87,8 @@ export default function AdminEditUserScreen() {
       if (!token) {
         throw new Error('No se encontró el token de autenticación.');
       }
+
+      console.log(JSON.stringify(editedProfile))
 
       const endpoint = isCustomer
         ? `http://localhost:8080/api/auth/admin/customers/${userId}`
@@ -155,11 +161,13 @@ export default function AdminEditUserScreen() {
           ) : (
             <View style={styles.twoColumnsContainer}>
               <View style={styles.column}>
+                {renderEditableField('Nombre', editedProfile.name, 'name', 'Nombre')}
                 {renderEditableField('Email', editedProfile.email, 'email', 'Email')}
                 {renderEditableField('NIF', editedProfile.nif ?? '', 'nif', 'NIF')}
                 {renderEditableField('Descripción', editedProfile.description ?? '', 'description', 'Descripción')}
               </View>
               <View style={styles.column}>
+                {renderEditableField('Contraseña', editedProfile.password, 'password', 'Contraseña')}
                 {renderEditableField('Dirección', editedProfile.address ?? '', 'address', 'Dirección')}
                 {renderEditableField('Ciudad', editedProfile.city ?? '', 'city', 'Ciudad')}
                 {renderEditableField('Código Postal', editedProfile.zipCode ?? '', 'zipCode', 'Código Postal')}
