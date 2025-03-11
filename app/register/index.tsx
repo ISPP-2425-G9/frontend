@@ -165,7 +165,7 @@ const RegisterScreen: React.FC = () => {
         style={styles.modalStyle}
       >
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={() => handleUserTypeSelection('Empresa')}>
+          <TouchableOpacity style={styles.button} onPress={() => alert('Esta función no está disponible aún')}>
             <Text style={styles.buttonText}>Empresa</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={() => handleUserTypeSelection('Cliente')}>
