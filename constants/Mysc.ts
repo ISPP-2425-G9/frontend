@@ -1,1 +1,1 @@
-export const BACKEND_API = 'http://localhost:8080'//'https://backend-sprint1.up.railway.app';
+export const BACKEND_API = 'https://backend-sprint1.up.railway.app';
