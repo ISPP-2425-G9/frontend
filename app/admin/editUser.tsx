@@ -1,7 +1,7 @@
 import CustomButton from '@/components/CustomButton';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, TextInput, View, ScrollView } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 
@@ -20,24 +20,37 @@ export default function AdminEditUserScreen() {
   const route = useRoute();
   const { isCustomer } = (route.params as { isCustomer?: boolean }) || { isCustomer: true };
 
-  const [editedProfile, setEditedProfile] = useState<Profile>(
-    isCustomer
-      ? {
-          name: 'Cliente Ejemplo',
-          email: 'cliente@example.com',
-          telephone: '123456789',
-        }
-      : {
-          name: 'Empresa Ejemplo',
-          email: 'empresa@example.com',
-          telephone: '987654321',
-          address: 'Calle Falsa 123',
-          city: 'Madrid',
-          zipCode: '28001',
-          nif: 'B12345678',
-          description: 'Empresa líder en el sector.',
-        }
-  );
+  const [editedProfile, setEditedProfile] = useState<Profile>({
+    name: '',
+    email: '',
+    telephone: '',
+    address: '',
+    city: '',
+    zipCode: '',
+    nif: '',
+    description: '',
+  });
+
+  useEffect(() => {
+    setEditedProfile(
+      isCustomer
+        ? {
+            name: 'Cliente Ejemplo',
+            email: 'cliente@example.com',
+            telephone: '123456789',
+          }
+        : {
+            name: 'Empresa Ejemplo',
+            email: 'empresa@example.com',
+            telephone: '987654321',
+            address: 'Calle Falsa 123',
+            city: 'Madrid',
+            zipCode: '28001',
+            nif: 'B12345678',
+            description: 'Empresa líder en el sector.',
+          }
+    );
+  }, [isCustomer]);
 
   const handleInputChange = (field: keyof Profile, value: string) => {
     setEditedProfile({ ...editedProfile, [field]: value });
@@ -52,7 +65,7 @@ export default function AdminEditUserScreen() {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.profileContainer}>
           <ThemedText style={styles.title}>{isCustomer ? 'Editar Cliente' : 'Editar Empresa'}</ThemedText>
-          
+
           {!isCustomer && (
             <View style={styles.companyHeader}>
               <Image
@@ -104,7 +117,7 @@ const renderEditableField = (
 ) => (
   <View style={styles.inputContainer} key={field}>
     <ThemedText style={styles.label}>{label}</ThemedText>
-    <TextInput style={styles.input} value={value} onChangeText={(text) => handleInputChange(field, text)} placeholder={placeholder} placeholderTextColor={'#666'} />
+    <TextInput style={styles.input} value={value ?? ''} onChangeText={(text) => handleInputChange(field, text)} placeholder={placeholder} placeholderTextColor={'#666'} />
   </View>
 );
 
