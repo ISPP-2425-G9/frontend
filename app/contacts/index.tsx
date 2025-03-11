@@ -5,6 +5,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from "../_util/Authorities";
 
+
 function TabTwoScreen() {
   return (
     <ThemedView style={styles.container}>
