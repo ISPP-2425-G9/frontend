@@ -7,6 +7,7 @@ import TextInputArraysForm from '@/components/TextInputArraysForm';
 import { GlobalStyles } from '@/constants/Colors';
 import { InputField } from '@/components/TextInputArraysForm';
 import { BACKEND_API } from '@/constants/Mysc';
+import { useAuth } from '../_util/useAuth';
 
 const { width, height } = Dimensions.get('window');
 
@@ -41,8 +42,10 @@ const LoginScreen: React.FC = () => {
       }
 
       const data = await response.json();
-      await AsyncStorage.setItem('userId', data.id);
-      await AsyncStorage.setItem('authToken', data.token);
+      const { login } = useAuth();
+      login(data.id, data.token, data.roles)
+      // await AsyncStorage.setItem('userId', data.id);
+      // await AsyncStorage.setItem('authToken', data.token);
       if (Platform.OS === 'web') {
               window.alert('Inicio de sesión exitoso: Has iniciado sesión correctamente.');
             } else {

@@ -1,0 +1,73 @@
+import { useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AUTHORITIES, AuthorityType } from "./Authorities";
+
+const USER_STORAGE_KEY = "user_data"; // Clave de almacenamiento
+
+type UserType = {
+  id: string;
+  token: string;
+  roles: AuthorityType[];
+};
+
+export const useAuth = () => {
+  const [user, setUser] = useState<UserType | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadUser = async () => {
+      try {
+        const storedUser = await AsyncStorage.getItem(USER_STORAGE_KEY);
+        if (isMounted && storedUser) {
+          setUser(JSON.parse(storedUser));
+        }
+      } catch (error) {
+        console.error("Error cargando usuario:", error);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    loadUser();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // ✅ Función para iniciar sesión y guardar en AsyncStorage
+  const login = async ( id: string, token: string, roles: AuthorityType[]) => {
+    const userData = { id, token, roles };
+    setUser(userData);
+    await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+  };
+
+  // ✅ Función para cerrar sesión y eliminar datos del usuario
+  const logout = async () => {
+    setUser(null);
+    await AsyncStorage.removeItem(USER_STORAGE_KEY);
+  };
+
+  // ✅ Función para actualizar datos del usuario (ej: cambiar nombre o rol)
+  const updateUser = async (newUserData: Partial<UserType>) => {
+    if (!user) return;
+    const updatedUser = { ...user, ...newUserData };
+    setUser(updatedUser);
+    await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
+  };
+
+  // ✅ Función para obtener los datos del usuario en cualquier momento
+  const getUserFromStorage = async () => {
+    try {
+      const storedUser = await AsyncStorage.getItem(USER_STORAGE_KEY);
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch (error) {
+      console.error("Error obteniendo usuario:", error);
+      return null;
+    }
+  };
+
+  return { user, getUserFromStorage, login, logout, updateUser, loading };
+};
