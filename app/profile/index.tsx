@@ -308,6 +308,7 @@ export default function ProfileScreen() {
       )}
     </ThemedView>
   );
+
 }
 
 const styles = StyleSheet.create({

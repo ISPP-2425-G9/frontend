@@ -41,6 +41,8 @@ const LoginScreen: React.FC = () => {
 
       const data = await response.json();
       await AsyncStorage.setItem('userId', data.id);
+      await AsyncStorage.setItem('email', data.username);
+      await AsyncStorage.setItem('roles', JSON.stringify(data.roles));
       await AsyncStorage.setItem('authToken', data.token);
       await AsyncStorage.setItem('userRole', data.roles[0]);
       if (Platform.OS === 'web') {
@@ -60,8 +62,8 @@ const LoginScreen: React.FC = () => {
   };
 
   const loginFields: InputField[] = [
-    { name: 'identifier', placeholder: 'NIF, DNI o Email', keyboardType: 'default' },
-    { name: 'password', placeholder: 'Contraseña', keyboardType: 'default', secureTextEntry: true },
+    { name: 'identifier', placeholder: 'NIF, DNI o Email', keyboardType: 'default', description: 'Introduce tu NIF, DNI o Email' },
+    { name: 'password', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Introduce tu contraseña' },
   ];
 
   return (
