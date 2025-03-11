@@ -141,21 +141,26 @@ export default function AdminEditUserScreen() {
         <View style={styles.profileContainer}>
           <ThemedText style={styles.title}>{isCustomer ? 'Editar Cliente' : 'Editar Empresa'}</ThemedText>
 
-          <View style={styles.formContainer}>
-            {renderEditableField('Nombre', editedProfile.name, 'name', 'Nombre')}
-            {renderEditableField('Email', editedProfile.email, 'email', 'Correo electrónico')}
-            {renderEditableField('Teléfono', editedProfile.telephone, 'telephone', 'Teléfono')}
-
-            {!isCustomer && (
-              <>
+          {isCustomer ? (
+            <View style={styles.formContainer}>
+              {renderEditableField('Nombre', editedProfile.name, 'name', 'Nombre')}
+              {renderEditableField('Email', editedProfile.email, 'email', 'Correo electrónico')}
+              {renderEditableField('Teléfono', editedProfile.telephone, 'telephone', 'Teléfono')}
+            </View>
+          ) : (
+            <View style={styles.twoColumnsContainer}>
+              <View style={styles.column}>
+                {renderEditableField('Email', editedProfile.email, 'email', 'Email')}
                 {renderEditableField('NIF', editedProfile.nif ?? '', 'nif', 'NIF')}
+                {renderEditableField('Descripción', editedProfile.description ?? '', 'description', 'Descripción')}
+              </View>
+              <View style={styles.column}>
                 {renderEditableField('Dirección', editedProfile.address ?? '', 'address', 'Dirección')}
                 {renderEditableField('Ciudad', editedProfile.city ?? '', 'city', 'Ciudad')}
                 {renderEditableField('Código Postal', editedProfile.zipCode ?? '', 'zipCode', 'Código Postal')}
-                {renderEditableField('Descripción', editedProfile.description ?? '', 'description', 'Descripción')}
-              </>
-            )}
-          </View>
+              </View>
+            </View>
+          )}
 
           <View style={styles.buttonContainer}>
             {isEditing ? (
@@ -174,6 +179,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  twoColumnsContainer: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    marginBottom: 20 
   },
   scrollContainer: {
     flexGrow: 1,
