@@ -7,7 +7,7 @@ import { ActivityIndicator, Alert, ScrollView, TextInput, View, StyleSheet, Plat
 import { useRoute } from '@react-navigation/native';
 
 interface Profile {
-  name: string;
+  fullName: string;
   password: string;
   email: string;
   telephone: string;
@@ -24,7 +24,7 @@ export default function AdminEditUserScreen() {
   const { userId, isCustomer } = route.params as { userId: string; isCustomer: boolean };
 
   const [editedProfile, setEditedProfile] = useState<Profile>({
-    name: '',
+    fullName: '',
     email: '',
     telephone: '',
     address: '',
@@ -154,14 +154,14 @@ export default function AdminEditUserScreen() {
 
           {isCustomer ? (
             <View style={styles.formContainer}>
-              {renderEditableField('Nombre', editedProfile.name, 'name', 'Nombre')}
+              {renderEditableField('Nombre', editedProfile.fullName, 'fullName', 'Nombre')}
               {renderEditableField('Email', editedProfile.email, 'email', 'Correo electrónico')}
               {renderEditableField('Teléfono', editedProfile.telephone, 'telephone', 'Teléfono')}
             </View>
           ) : (
             <View style={styles.twoColumnsContainer}>
               <View style={styles.column}>
-                {renderEditableField('Nombre', editedProfile.name, 'name', 'Nombre')}
+                {renderEditableField('Nombre', editedProfile.fullName, 'fullName', 'Nombre')}
                 {renderEditableField('Email', editedProfile.email, 'email', 'Email')}
                 {renderEditableField('NIF', editedProfile.nif ?? '', 'nif', 'NIF')}
                 {renderEditableField('Descripción', editedProfile.description ?? '', 'description', 'Descripción')}
