@@ -1,8 +1,9 @@
 import CustomButton from '@/components/CustomButton';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, TextInput, View, ScrollView } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, TextInput, View, StyleSheet } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 
 interface Profile {
@@ -18,7 +19,7 @@ interface Profile {
 
 export default function AdminEditUserScreen() {
   const route = useRoute();
-  const { isCustomer } = (route.params as { isCustomer?: boolean }) || { isCustomer: true };
+  const { userId, isCustomer } = route.params as { userId: string; isCustomer: boolean };
 
   const [editedProfile, setEditedProfile] = useState<Profile>({
     name: '',
@@ -31,34 +32,108 @@ export default function AdminEditUserScreen() {
     description: '',
   });
 
+  const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+
   useEffect(() => {
-    setEditedProfile(
-      isCustomer
-        ? {
-            name: 'Cliente Ejemplo',
-            email: 'cliente@example.com',
-            telephone: '123456789',
-          }
-        : {
-            name: 'Empresa Ejemplo',
-            email: 'empresa@example.com',
-            telephone: '987654321',
-            address: 'Calle Falsa 123',
-            city: 'Madrid',
-            zipCode: '28001',
-            nif: 'B12345678',
-            description: 'Empresa líder en el sector.',
-          }
-    );
-  }, [isCustomer]);
+    const fetchProfile = async () => {
+      try {
+        const token = await AsyncStorage.getItem('authToken');
+        if (!token) {
+          console.error('No se encontró el token de autenticación');
+          setLoading(false);
+          return;
+        }
+
+        const endpoint = isCustomer
+          ? `http://localhost:8080/api/auth/admin/customers/${userId}`
+          : `http://localhost:8080/api/auth/admin/companies/${userId}`;
+
+        const response = await fetch(endpoint, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          console.error('Error al obtener los datos del perfil');
+          setLoading(false);
+          return;
+        }
+
+        const data = await response.json();
+        setEditedProfile(data);
+      } catch (error) {
+        console.error('Error al cargar el perfil:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [userId, isCustomer]);
 
   const handleInputChange = (field: keyof Profile, value: string) => {
     setEditedProfile({ ...editedProfile, [field]: value });
   };
 
-  const handleSave = () => {
-    console.log('✅ Datos guardados:', editedProfile);
+  const handleSave = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) {
+        console.error('No se encontró el token de autenticación');
+        return;
+      }
+
+      const endpoint = isCustomer
+        ? `http://localhost:8080/api/auth/admin/customers/${userId}`
+        : `http://localhost:8080/api/auth/admin/companies/${userId}`;
+
+      const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(editedProfile),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al actualizar el perfil');
+      }
+
+      Alert.alert('Éxito', 'Perfil actualizado correctamente');
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error al guardar los cambios:', error);
+      Alert.alert('Error', 'No se pudo actualizar el perfil');
+    }
   };
+
+  const renderEditableField = (label: string, value: string, field: keyof Profile, placeholder: string) => (
+    <View key={field} style={styles.inputContainer}>
+      <ThemedText style={styles.label}>{label}</ThemedText>
+      <TextInput
+        style={styles.input}
+        value={value ?? ''}
+        onChangeText={(text) => handleInputChange(field, text)}
+        placeholder={placeholder}
+        placeholderTextColor={'#666'}
+        editable={isEditing}
+      />
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <ThemedView style={styles.container}>
+        <ActivityIndicator size="large" />
+      </ThemedView>
+    );
+  }
 
   return (
     <ThemedView style={styles.container}>
@@ -66,60 +141,34 @@ export default function AdminEditUserScreen() {
         <View style={styles.profileContainer}>
           <ThemedText style={styles.title}>{isCustomer ? 'Editar Cliente' : 'Editar Empresa'}</ThemedText>
 
-          {!isCustomer && (
-            <View style={styles.companyHeader}>
-              <Image
-                source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
-                style={styles.companyImage}
-              />
-              <ThemedText style={styles.companyName}>{editedProfile.name}</ThemedText>
-            </View>
-          )}
+          <View style={styles.formContainer}>
+            {renderEditableField('Nombre', editedProfile.name, 'name', 'Nombre')}
+            {renderEditableField('Email', editedProfile.email, 'email', 'Correo electrónico')}
+            {renderEditableField('Teléfono', editedProfile.telephone, 'telephone', 'Teléfono')}
 
-          <View style={isCustomer ? styles.formContainer : styles.twoColumnsContainerCompany}>
-            {isCustomer ? (
+            {!isCustomer && (
               <>
-                {renderEditableField('Nombre', editedProfile.name, 'name', 'Nombre de usuario', handleInputChange)}
-                {renderEditableField('Email', editedProfile.email, 'email', 'Email', handleInputChange)}
-                {renderEditableField('Teléfono', editedProfile.telephone, 'telephone', 'Número de teléfono', handleInputChange)}
-              </>
-            ) : (
-              <>
-                <View style={styles.column}>
-                  {renderEditableField('Email', editedProfile.email, 'email', 'Email', handleInputChange)}
-                  {renderEditableField('NIF', editedProfile.nif || '', 'nif', 'NIF', handleInputChange)}
-                  {renderEditableField('Descripción', editedProfile.description || '', 'description', 'Descripción', handleInputChange)}
-                </View>
-                <View style={styles.column}>
-                  {renderEditableField('Dirección', editedProfile.address || '', 'address', 'Dirección', handleInputChange)}
-                  {renderEditableField('Ciudad', editedProfile.city || '', 'city', 'Ciudad', handleInputChange)}
-                  {renderEditableField('Código Postal', editedProfile.zipCode || '', 'zipCode', 'Código Postal', handleInputChange)}
-                </View>
+                {renderEditableField('NIF', editedProfile.nif ?? '', 'nif', 'NIF')}
+                {renderEditableField('Dirección', editedProfile.address ?? '', 'address', 'Dirección')}
+                {renderEditableField('Ciudad', editedProfile.city ?? '', 'city', 'Ciudad')}
+                {renderEditableField('Código Postal', editedProfile.zipCode ?? '', 'zipCode', 'Código Postal')}
+                {renderEditableField('Descripción', editedProfile.description ?? '', 'description', 'Descripción')}
               </>
             )}
           </View>
 
           <View style={styles.buttonContainer}>
-            <CustomButton title="Guardar" onPress={handleSave} color="blue" />
+            {isEditing ? (
+              <CustomButton title="Guardar" onPress={handleSave} color="blue" />
+            ) : (
+              <CustomButton title="Editar" onPress={() => setIsEditing(true)} color="blue" />
+            )}
           </View>
         </View>
       </ScrollView>
     </ThemedView>
   );
 }
-
-const renderEditableField = (
-  label: string,
-  value: string,
-  field: keyof Profile,
-  placeholder: string,
-  handleInputChange: (field: keyof Profile, value: string) => void
-) => (
-  <View style={styles.inputContainer} key={field}>
-    <ThemedText style={styles.label}>{label}</ThemedText>
-    <TextInput style={styles.input} value={value ?? ''} onChangeText={(text) => handleInputChange(field, text)} placeholder={placeholder} placeholderTextColor={'#666'} />
-  </View>
-);
 
 const styles = StyleSheet.create({
   container: {
