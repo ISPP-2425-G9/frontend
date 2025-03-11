@@ -3,7 +3,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, TextInput, View, StyleSheet } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, TextInput, View, StyleSheet, Platform } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 
 interface Profile {
@@ -40,9 +40,7 @@ export default function AdminEditUserScreen() {
       try {
         const token = await AsyncStorage.getItem('authToken');
         if (!token) {
-          console.error('No se encontró el token de autenticación');
-          setLoading(false);
-          return;
+          throw new Error('No se encontró el token de autenticación.');
         }
 
         const endpoint = isCustomer
@@ -58,15 +56,15 @@ export default function AdminEditUserScreen() {
         });
 
         if (!response.ok) {
-          console.error('Error al obtener los datos del perfil');
-          setLoading(false);
-          return;
+          const errorData = await response.json();
+          throw new Error(`Error ${response.status}: No se pudo obtener los datos del perfil.`);
         }
 
         const data = await response.json();
         setEditedProfile(data);
-      } catch (error) {
-        console.error('Error al cargar el perfil:', error);
+      } catch (error: any) {
+        console.error('Error al obtener el perfil:', error.message);
+        showAlert('Error', error.message);
       } finally {
         setLoading(false);
       }
@@ -83,8 +81,7 @@ export default function AdminEditUserScreen() {
     try {
       const token = await AsyncStorage.getItem('authToken');
       if (!token) {
-        console.error('No se encontró el token de autenticación');
-        return;
+        throw new Error('No se encontró el token de autenticación.');
       }
 
       const endpoint = isCustomer
@@ -102,14 +99,22 @@ export default function AdminEditUserScreen() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Error al actualizar el perfil');
+        throw new Error(`Error ${response.status}: No se pudo actualizar el perfil.`);
       }
 
-      Alert.alert('Éxito', 'Perfil actualizado correctamente');
+      showAlert('Éxito', 'Perfil actualizado correctamente.');
       setIsEditing(false);
-    } catch (error) {
-      console.error('Error al guardar los cambios:', error);
-      Alert.alert('Error', 'No se pudo actualizar el perfil');
+    } catch (error: any) {
+      console.error('Error al guardar los cambios:', error.message);
+      showAlert('Error', error.message);
+    }
+  };
+
+  const showAlert = (title: string, message: string) => {
+    if (Platform.OS === 'web') {
+      window.alert(`${title}: ${message}`);
+    } else {
+      Alert.alert(title, message);
     }
   };
 
