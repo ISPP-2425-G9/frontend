@@ -9,9 +9,11 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
+import { AUTHORITIES } from '../_util/Authorities';
+import { withAuth } from '../_util/withAuth';
 
 
-export default function AdminListUsers() {
+function AdminListUsers() {
   type Cliente = {
     id: number;
     name: string;
@@ -245,3 +247,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 });
+
+
+export default withAuth(AdminListUsers, [AUTHORITIES.ADMIN]);

@@ -9,11 +9,11 @@ import { useAuth } from '@/app/_util/useAuth';
 export default function LogoutButton() {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const navigation = useNavigation();
-  
+  const { logout } = useAuth();
+
   const handleLogout = () => {
     try {
         // localStorage.removeItem('authToken');
-        const { logout } = useAuth();
         logout()
         navigation.navigate('home' as never);
     } catch (error) {

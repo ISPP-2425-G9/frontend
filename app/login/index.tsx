@@ -8,6 +8,8 @@ import { GlobalStyles } from '@/constants/Colors';
 import { InputField } from '@/components/TextInputArraysForm';
 import { BACKEND_API } from '@/constants/Mysc';
 import { useAuth } from '../_util/useAuth';
+import { withAuth } from '../_util/withAuth';
+import { AUTHORITIES } from '../_util/Authorities';
 
 const { width, height } = Dimensions.get('window');
 
@@ -15,7 +17,8 @@ const { width, height } = Dimensions.get('window');
 const LoginScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(true);
   const navigation = useNavigation();
-
+  const { login } = useAuth();
+  
   useFocusEffect(
     useCallback(() => {
       setModalVisible(true);
@@ -44,8 +47,9 @@ const LoginScreen: React.FC = () => {
       const data = await response.json();
 
       // TODO
-      const { login } = useAuth();
+      console.log(1)
       login(data.id, data.token, data.roles)
+      console.log(2)
       // await AsyncStorage.setItem('userId', data.id);
       // await AsyncStorage.setItem('authToken', data.token);
       await AsyncStorage.setItem('userId', data.id);
@@ -137,4 +141,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default withAuth(LoginScreen, [AUTHORITIES.ANONYMOUS]);

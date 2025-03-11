@@ -15,8 +15,6 @@ function TabTwoScreen() {
 
 }
 
-export default withAuth(TabTwoScreen)
-
 const styles = StyleSheet.create({
   container: {
     padding: 8,
@@ -76,3 +74,5 @@ const styles = StyleSheet.create({
     marginRight: '6%',
   },
 });
+
+export default withAuth(TabTwoScreen, [AUTHORITIES.CUSTOMER, AUTHORITIES.ADMIN])

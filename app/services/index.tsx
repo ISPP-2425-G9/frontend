@@ -3,7 +3,7 @@ import { StyleSheet, Text } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
-export default function TabTwoScreen() {
+function TabTwoScreen() {
   return (
     <ThemedView style={styles.container}>
       <Text style={styles.title}>Página en construcción</Text>
@@ -72,3 +72,5 @@ const styles = StyleSheet.create({
     marginRight: '6%',
   },
 });
+
+export default TabTwoScreen;

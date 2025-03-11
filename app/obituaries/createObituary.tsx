@@ -24,6 +24,8 @@ import {
 import CustomModal from "@/components/CustomModal";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
+import { withAuth } from "../_util/withAuth";
+import { AUTHORITIES } from "../_util/Authorities";
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
@@ -43,7 +45,7 @@ type RootStackParamList = {
   "obituaries/index": { is_newObituary: boolean; obituaryId: number };
 };
 
-export default function EsquelaCustomizer() {
+function EsquelaCustomizer() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const route =
@@ -508,3 +510,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
+
+export default withAuth(EsquelaCustomizer, [AUTHORITIES.CUSTOMER, AUTHORITIES.ADMIN])
