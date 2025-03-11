@@ -11,7 +11,7 @@ export default function LogoutButton() {
   
   const handleLogout = () => {
     try {
-        localStorage.removeItem('authToken');
+        localStorage.clear();
         navigation.navigate('home' as never);
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
