@@ -2,8 +2,8 @@ name: Create releases
 
 on:
   push:
-    tags:
-      - 'develop/*'
+    branches:
+      - deploy
 
 permissions:
   contents: write
@@ -94,67 +94,10 @@ jobs:
 
       - name: Create release
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG_NAME="${GITHUB_REF#refs/tags/}"
           gh release create "$TAG_NAME" \
             --title "$TAG_NAME" \
             --notes-file release_notes.md \
-            --target develop
-
-      - name: Create Pull Request to release branch
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          echo "Creating pull request from develop to release branch..."
-          gh pr create \
-            --base release \
-            --head develop \
-            --title "Release ${TAG_NAME}" \
-            --body "Auto-generated PR for release ${TAG_NAME}" \
-            --label "release" \
-            --assignee "@me"  # Ajusta esto a quien debe ser asignado
-
-      - name: Wait for PR checks and merge
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          PR_NUMBER=$(gh pr list --state open --head develop --base release --json number -q '.[0].number')
-          echo "Waiting for PR #$PR_NUMBER to be mergeable..."
-
-          # Wait for checks to pass and PR to be mergeable
-          while true; do
-            pr_status=$(gh pr view "$PR_NUMBER" --json statusCheckRollup,mergeable)
-            if [ $? -ne 0 ]; then
-              echo "Error fetching PR details. Retrying..."
-              sleep 10
-              continue
-            fi
-
-            FAILED_COUNT=$(echo "$pr_status" | jq -r '[.statusCheckRollup[] | select(.conclusion != "SUCCESS")] | length')
-            FAILURE_COUNT=$(echo "$pr_status" | jq -r '[.statusCheckRollup[] | select(.conclusion == "FAILURE")] | length')
-            MERGEABLE=$(echo "$pr_status" | jq -r '.mergeable')
-
-            echo "Total failed checks: $FAILURE_COUNT, Total failed or incomplete checks: $FAILED_COUNT, Mergeable: $MERGEABLE"
-
-            if [ "$FAILURE_COUNT" -ge 1 ]; then
-              echo "PR has failed checks. Retrying..."
-              sleep 10
-              continue
-            fi
-
-            if [ "$MERGEABLE" = "MERGEABLE" ]; then
-              echo "PR is mergeable, merging now..."
-              gh pr merge "$PR_NUMBER" --merge --auto
-              if [ $? -eq 0 ]; then
-                echo "PR #$PR_NUMBER merged successfully."
-                break
-              else
-                echo "Failed to merge PR #$PR_NUMBER. Exiting."
-                exit 1
-              fi
-            else
-              echo "PR is not mergeable yet. Retrying..."
-              sleep 10
-            fi
-          done
+            --target main
