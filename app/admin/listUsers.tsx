@@ -195,9 +195,11 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 0,
     fontFamily: GlobalStyles.fontBold,
-    color: GlobalStyles.darkGrey,
+    color: GlobalStyles.white,
+    backgroundColor: GlobalStyles.blue,
+    padding: 15
   },
   scrollContainer: {
     flexGrow: 1,
@@ -221,7 +223,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: GlobalStyles.grey,
     alignItems: 'center',
-    backgroundColor: 'transparent',
+    backgroundColor: GlobalStyles.lightGrey,
   },
   cell: {
     flex: 1,
