@@ -3,8 +3,10 @@ import { StyleSheet, Text, View } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import LogoutButton from '@/components/LogoutButton';
 import DeleteAccountButton from '@/components/DeleteAccountButton';
+import { withAuth } from '../_util/withAuth';
+import { AUTHORITIES } from '../_util/Authorities';
 
-export default function ProfileScreen() {
+function ProfileScreen() {
   return (
     <ThemedView style={styles.container}>
       <Text style={styles.title}>Mi perfil</Text>
@@ -81,3 +83,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 });
+
+export default withAuth(ProfileScreen, [AUTHORITIES.CUSTOMER, AUTHORITIES.COMPANY, AUTHORITIES.ADMIN])
+

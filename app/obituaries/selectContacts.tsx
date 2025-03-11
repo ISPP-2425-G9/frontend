@@ -19,6 +19,8 @@ import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
+import { withAuth } from "../_util/withAuth";
+import { AUTHORITIES } from "../_util/Authorities";
 
 const { width } = Dimensions.get("window");
 
@@ -44,7 +46,7 @@ type Contact = {
   email: string;
 };
 
-export default function SelectContacts() {
+function SelectContacts() {
   const navigation = useNavigation();
   const route = useRoute<SelectContactsRouteProp>();
   const jsonData = route.params?.jsonData ?? '';
@@ -450,3 +452,5 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
+
+export default withAuth(SelectContacts, [AUTHORITIES.CUSTOMER, AUTHORITIES.ADMIN])

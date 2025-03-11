@@ -2,8 +2,11 @@ import { StyleSheet, Text } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { AUTHORITIES } from '../_util/Authorities';
+import { withAuth } from '../_util/withAuth';
 
-export default function TabTwoScreen() {
+
+function TabTwoScreen() {
   return (
     <ThemedView style={styles.container}>
       <Text style={styles.title}>Página en construcción</Text>
@@ -72,3 +75,5 @@ const styles = StyleSheet.create({
     marginRight: '6%',
   },
 });
+
+export default withAuth(TabTwoScreen, [AUTHORITIES.ADMIN, AUTHORITIES.CUSTOMER, AUTHORITIES.COMPANY]);
