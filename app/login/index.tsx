@@ -42,10 +42,16 @@ const LoginScreen: React.FC = () => {
       }
 
       const data = await response.json();
+
+      // TODO
       const { login } = useAuth();
       login(data.id, data.token, data.roles)
       // await AsyncStorage.setItem('userId', data.id);
       // await AsyncStorage.setItem('authToken', data.token);
+      await AsyncStorage.setItem('userId', data.id);
+      await AsyncStorage.setItem('email', data.username);
+      await AsyncStorage.setItem('roles', JSON.stringify(data.roles));
+      await AsyncStorage.setItem('authToken', data.token);
       if (Platform.OS === 'web') {
               window.alert('Inicio de sesión exitoso: Has iniciado sesión correctamente.');
             } else {

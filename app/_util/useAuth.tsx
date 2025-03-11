@@ -48,6 +48,7 @@ export const useAuth = () => {
   const logout = async () => {
     setUser(null);
     await AsyncStorage.removeItem(USER_STORAGE_KEY);
+    await AsyncStorage.clear();
   };
 
   // ✅ Función para actualizar datos del usuario (ej: cambiar nombre o rol)
