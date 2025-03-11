@@ -19,61 +19,62 @@ export default function ProfileScreen() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const token = await AsyncStorage.getItem('authToken');
-        const userId = await AsyncStorage.getItem('userId');
-        const userRole = await AsyncStorage.getItem('userRole');
+  const fetchProfile = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const userId = await AsyncStorage.getItem('userId');
+      const userRole = await AsyncStorage.getItem('userRole');
 
-        if (!token || !userId || !userRole) {
-          console.error('Faltan datos de autenticación');
-          setLoading(false);
-          return;
-        }
-
-        setRole(userRole);
-
-        let endpoint = 'http://localhost:8080/api/auth/';
-
-        if (userRole === "CUSTOMER") {
-          endpoint += `customers/${userId}`;
-        } else if (userRole === "COMPANY") {
-          endpoint += `companies/${userId}`;
-        } else {
-          setLoading(false);
-          return;
-        }
-
-        const response = await fetch(endpoint, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          console.error('Error al obtener los datos del perfil');
-          setLoading(false);
-          return;
-        }
-
-        const data = await response.json();
-        if (userRole === "CUSTOMER") {
-          setCustomer(data);
-          setEditedCustomer(data);
-        } else if (userRole === "COMPANY") {
-          setCompany(data);
-          setEditedCompany(data);
-        }
-      } catch (error) {
-        console.error('Error al cargar el perfil:', error);
-      } finally {
+      if (!token || !userId || !userRole) {
+        console.error('Faltan datos de autenticación');
         setLoading(false);
+        return;
       }
-    };
 
+      setRole(userRole);
+
+      let endpoint = 'http://localhost:8080/api/auth/';
+
+      if (userRole === "CUSTOMER") {
+        endpoint += `customers/${userId}`;
+      } else if (userRole === "COMPANY") {
+        endpoint += `companies/${userId}`;
+      } else {
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        console.error('Error al obtener los datos del perfil');
+        setLoading(false);
+        return;
+      }
+
+      const data = await response.json();
+      if (userRole === "CUSTOMER") {
+        setCustomer(data);
+        setEditedCustomer(data);
+      } else if (userRole === "COMPANY") {
+        setCompany(data);
+        setEditedCompany(data);
+      }
+    } catch (error) {
+      console.error('Error al cargar el perfil:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
     fetchProfile();
   }, []);
 
@@ -141,8 +142,14 @@ export default function ProfileScreen() {
         throw new Error(errorData.message || 'Error al actualizar el perfil');
       }
 
-      const updatedProfile = await response.json();
-      setCustomer(updatedProfile);
+      const data = await response.json();
+      await AsyncStorage.setItem('userId', data.id);
+      await AsyncStorage.setItem('email', data.username);
+      await AsyncStorage.setItem('roles', JSON.stringify(data.roles));
+      await AsyncStorage.setItem('authToken', data.token);
+      await AsyncStorage.setItem('userRole', data.roles[0]);
+
+      fetchProfile();
       setIsEditing(false);
       Alert.alert('Éxito', 'Perfil actualizado correctamente');
     } catch (error) {
