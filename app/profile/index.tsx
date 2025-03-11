@@ -143,11 +143,7 @@ export default function ProfileScreen() {
       }
 
       const data = await response.json();
-      await AsyncStorage.setItem('userId', data.id);
-      await AsyncStorage.setItem('email', data.username);
-      await AsyncStorage.setItem('roles', JSON.stringify(data.roles));
       await AsyncStorage.setItem('authToken', data.token);
-      await AsyncStorage.setItem('userRole', data.roles[0]);
 
       fetchProfile();
       setIsEditing(false);
@@ -197,8 +193,9 @@ export default function ProfileScreen() {
         throw new Error(errorData.message || 'Error al actualizar el perfil');
       }
 
-      const updatedProfile = await response.json();
-      setCompany(updatedProfile);
+      const data = await response.json();
+      await AsyncStorage.setItem('authToken', data.token);
+      fetchProfile();
       setIsEditing(false);
       Alert.alert('Éxito', 'Perfil actualizado correctamente');
     } catch (error) {
@@ -333,23 +330,23 @@ export default function ProfileScreen() {
                 <ThemedText style={styles.title}>Información de la Compañía</ThemedText>
                 <View style={styles.companyHeader}>
                   <Image
-                    source={{ uri: customer.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
+                    source={{ uri: editedCompany.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
                     style={styles.companyImage}
                   />
-                  <ThemedText style={styles.companyName}>{customer.name || customer.companyName}</ThemedText>
+                  <ThemedText style={styles.companyName}>{editedCompany.name || editedCompany.companyName}</ThemedText>
                 </View>
 
                 <View style={styles.twoColumnsContainerCompany}>
                   <View style={styles.column}>
-                    {renderEditableFieldCompany('Email', customer.email, 'email', 'Email')}
-                    {renderEditableFieldCompany('Teléfono', customer.telephone, 'telephone', 'Teléfono')}
-                    {renderEditableFieldCompany('NIF', customer.nif, 'nif', 'NIF')}
-                    {renderEditableFieldCompany('Descripción', customer.description, 'description', 'Descripción')}
+                    {renderEditableFieldCompany('Email', editedCompany.email, 'email', 'Email')}
+                    {renderEditableFieldCompany('Teléfono', editedCompany.telephone, 'telephone', 'Teléfono')}
+                    {renderEditableFieldCompany('NIF', editedCompany.nif, 'nif', 'NIF')}
+                    {renderEditableFieldCompany('Descripción', editedCompany.description, 'description', 'Descripción')}
                   </View>
                   <View style={styles.column}>
-                    {renderEditableFieldCompany('Dirección', customer.address, 'address', 'Dirección')}
-                    {renderEditableFieldCompany('Ciudad', customer.city, 'city', 'Ciudad')}
-                    {renderEditableFieldCompany('Código Postal', customer.zipCode, 'zipCode', 'Código Postal')}
+                    {renderEditableFieldCompany('Dirección', editedCompany.address, 'address', 'Dirección')}
+                    {renderEditableFieldCompany('Ciudad', editedCompany.city, 'city', 'Ciudad')}
+                    {renderEditableFieldCompany('Código Postal', editedCompany.zipCode, 'zipCode', 'Código Postal')}
                   </View>
                 </View>
 
