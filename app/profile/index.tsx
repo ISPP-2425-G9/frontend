@@ -8,11 +8,13 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 export default function ProfileScreen() {
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [customer, setCustomer] = useState<CustomerProfile | null>(null);
+  const [company, setCompany] = useState<CompanyProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [editedProfile, setEditedProfile] = useState<Profile>({ name: '', email: '', telephone: '' });
+  const [editedCustomer, setEditedCustomer] = useState<CustomerProfile>({ name: '', email: '', telephone: '' });
+  const [editedCompany, setEditedCompany] = useState<CompanyProfile>({ name: '', email: '', telephone: '', address: '', city: '', zipCode: '', nif: '', description: '', imageUrl: '' });
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -42,8 +44,6 @@ export default function ProfileScreen() {
           setLoading(false);
           return;
         }
-        console.log('userId:', userId);
-        console.log('role:', userRole);
 
         const response = await fetch(endpoint, {
           method: 'GET',
@@ -60,8 +60,13 @@ export default function ProfileScreen() {
         }
 
         const data = await response.json();
-        setProfile(data);
-        setEditedProfile(data);
+        if (userRole === "CUSTOMER") {
+          setCustomer(data);
+          setEditedCustomer(data);
+        } else if (userRole === "COMPANY") {
+          setCompany(data);
+          setEditedCompany(data);
+        }
       } catch (error) {
         console.error('Error al cargar el perfil:', error);
       } finally {
@@ -72,7 +77,7 @@ export default function ProfileScreen() {
     fetchProfile();
   }, []);
 
-  interface Profile {
+  interface CustomerProfile {
     name: string;
     email: string;
     telephone: string;
@@ -80,8 +85,26 @@ export default function ProfileScreen() {
     [key: string]: any;
   }
 
-  const handleInputChange = (field: keyof Profile, value: string) => {
-    setEditedProfile({ ...editedProfile, [field]: value });
+  interface CompanyProfile {
+    name: string;
+    email: string;
+    telephone: string;
+    password?: string;
+    address: string;
+    city: string;
+    zipCode: string;
+    nif: string;
+    description: string;
+    imageUrl: string;
+    [key: string]: any;
+  }
+
+  const handleInputChange = (field: keyof CustomerProfile, value: string) => {
+    setEditedCustomer({ ...editedCustomer, [field]: value });
+  };
+
+  const handleInputChangeCompany = (field: keyof CompanyProfile, value: string) => {
+    setEditedCompany({ ...editedCompany, [field]: value });
   };
 
   const handleSave = async () => {
@@ -94,10 +117,10 @@ export default function ProfileScreen() {
       }
 
       const updatedData = {
-        email: editedProfile.email,
-        fullName: editedProfile.name,
-        telephone: editedProfile.telephone,
-        password: editedProfile.password,
+        email: editedCustomer.email,
+        fullName: editedCustomer.name,
+        telephone: editedCustomer.telephone,
+        password: editedCustomer.password,
       };
 
       console.log('Datos a enviar:', updatedData);
@@ -119,13 +142,64 @@ export default function ProfileScreen() {
       }
 
       const updatedProfile = await response.json();
-      setProfile(updatedProfile);
+      setCustomer(updatedProfile);
       setIsEditing(false);
       Alert.alert('Éxito', 'Perfil actualizado correctamente');
     } catch (error) {
       console.error('Error al guardar los cambios:', error);
     }
   };
+
+  const handleSaveCompany = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      const userId = await AsyncStorage.getItem('userId');
+
+      if (!token || !userId) {
+        return;
+      }
+
+      const updatedData = {
+        name: editedCompany.name,
+        email: editedCompany.email,
+        telephone: editedCompany.telephone,
+        password: editedCompany.password,
+        address: editedCompany.address,
+        city: editedCompany.city,
+        zipCode: editedCompany.zipCode,
+        nif: editedCompany.nif,
+        description: editedCompany.description,
+        imageUrl: editedCompany.imageUrl,
+      };
+
+      console.log('Datos a enviar:', updatedData);
+
+      const response = await fetch(`http://localhost:8080/api/auth/companies/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      console.log('Respuesta del servidor:', response);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al actualizar el perfil');
+      }
+
+      const updatedProfile = await response.json();
+      setCompany(updatedProfile);
+      setIsEditing(false);
+      Alert.alert('Éxito', 'Perfil actualizado correctamente');
+    } catch (error) {
+      console.error('Error al guardar los cambios:', error);
+    }
+  }
+
+
 
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
@@ -141,7 +215,7 @@ export default function ProfileScreen() {
     setConfirmPassword('');
   };
 
-  const renderEditableField = (label: string, value: string, field: keyof Profile, placeholder: string) => (
+  const renderEditableField = (label: string, value: string, field: keyof CustomerProfile, placeholder: string) => (
     <>
       <ThemedText style={styles.label}>{label}</ThemedText>
       {isEditing ? (
@@ -149,6 +223,23 @@ export default function ProfileScreen() {
           style={styles.input}
           value={value}
           onChangeText={(text) => handleInputChange(field, text)}
+          placeholder={placeholder}
+          placeholderTextColor={'#666'}
+        />
+      ) : (
+        <ThemedText style={styles.value}>{value}</ThemedText>
+      )}
+    </>
+  );
+
+  const renderEditableFieldCompany = (label: string, value: string, field: keyof CompanyProfile, placeholder: string) => (
+    <>
+      <ThemedText style={styles.label}>{label}</ThemedText>
+      {isEditing ? (
+        <TextInput
+          style={styles.inputCompany}
+          value={value}
+          onChangeText={(text) => handleInputChangeCompany(field, text)}
           placeholder={placeholder}
           placeholderTextColor={'#666'}
         />
@@ -168,7 +259,7 @@ export default function ProfileScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      {profile ? (
+      {(customer || company) ? (
         <>
           <View style={styles.profileContainer}>
             {role === "CUSTOMER" ? (
@@ -176,9 +267,9 @@ export default function ProfileScreen() {
                 <View style={styles.column}>
                   <ThemedText style={styles.title}>Mis Datos</ThemedText>
 
-                  {renderEditableField('Nombre', editedProfile.name, 'name', 'Nombre de usuario')}
-                  {renderEditableField('Email', editedProfile.email, 'email', 'Email')}
-                  {renderEditableField('Teléfono', editedProfile.telephone, 'telephone', 'Número de teléfono')}
+                  {renderEditableField('Nombre', editedCustomer.name, 'name', 'Nombre de usuario')}
+                  {renderEditableField('Email', editedCustomer.email, 'email', 'Email')}
+                  {renderEditableField('Teléfono', editedCustomer.telephone, 'telephone', 'Número de teléfono')}
 
                   {isEditing ? (
                     <View style={styles.buttonContainer}>
@@ -235,22 +326,23 @@ export default function ProfileScreen() {
                 <ThemedText style={styles.title}>Información de la Compañía</ThemedText>
                 <View style={styles.companyHeader}>
                   <Image
-                    source={{ uri: profile.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
+                    source={{ uri: customer.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
                     style={styles.companyImage}
                   />
-                  <ThemedText style={styles.companyName}>{profile.name || profile.companyName}</ThemedText>
+                  <ThemedText style={styles.companyName}>{customer.name || customer.companyName}</ThemedText>
                 </View>
 
                 <View style={styles.twoColumnsContainerCompany}>
                   <View style={styles.column}>
-                    {renderEditableField('Email', profile.email, 'email', 'Email')}
-                    {renderEditableField('NIF', profile.nif, 'nif', 'NIF')}
-                    {renderEditableField('Descripción', profile.description, 'description', 'Descripción')}
+                    {renderEditableFieldCompany('Email', customer.email, 'email', 'Email')}
+                    {renderEditableFieldCompany('Teléfono', customer.telephone, 'telephone', 'Teléfono')}
+                    {renderEditableFieldCompany('NIF', customer.nif, 'nif', 'NIF')}
+                    {renderEditableFieldCompany('Descripción', customer.description, 'description', 'Descripción')}
                   </View>
                   <View style={styles.column}>
-                    {renderEditableField('Dirección', profile.address, 'address', 'Dirección')}
-                    {renderEditableField('Ciudad', profile.city, 'city', 'Ciudad')}
-                    {renderEditableField('Código Postal', profile.zipCode, 'zipCode', 'Código Postal')}
+                    {renderEditableFieldCompany('Dirección', customer.address, 'address', 'Dirección')}
+                    {renderEditableFieldCompany('Ciudad', customer.city, 'city', 'Ciudad')}
+                    {renderEditableFieldCompany('Código Postal', customer.zipCode, 'zipCode', 'Código Postal')}
                   </View>
                 </View>
 
@@ -258,7 +350,7 @@ export default function ProfileScreen() {
                   <View style={styles.buttonContainer}>
                     <CustomButton
                       title="Guardar"
-                      onPress={handleSave}
+                      onPress={handleSaveCompany}
                       color="blue"
                     />
                     <DeleteAccountButton />
@@ -368,6 +460,18 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '40%',
+    backgroundColor: '#f0f0f0',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    fontSize: 16,
+    color: '#333',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginBottom: 10,
+  },
+  inputCompany: {
+    width: '80%',
     backgroundColor: '#f0f0f0',
     paddingVertical: 12,
     paddingHorizontal: 16,
