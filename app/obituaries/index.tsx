@@ -96,7 +96,8 @@ export default function ObituaryIndex() {
       </ThemedView>
   ) : (
     <ThemedView style={styles.container}>
-    <Text style={styles.title}>Debes iniciar sesión para poder acceder a esta sección</Text>  
+    <Text style={styles.title}>Esquelas</Text>
+    <ThemedText type="default">Para poder crear una esquela, debe iniciar sesión.</ThemedText>  
     </ThemedView>
   );
 }
