@@ -5,6 +5,8 @@ import CustomButton from './CustomButton';
 import CustomModal from './CustomModal';
 import { ThemedText } from './ThemedText';
 import { BACKEND_API } from '@/constants/Mysc';
+import { customFetch } from '@/app/_util/customFetch';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function DeleteAccountButton() {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
@@ -12,14 +14,10 @@ export default function DeleteAccountButton() {
 
   const handleDeleteAccount = async () => {
     try {
-      const token = localStorage.getItem('authToken');
-      const userId = localStorage.getItem('userId');
-
-      const response = await fetch(BACKEND_API+`/api/auth/${userId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const userId = await AsyncStorage.getItem('userId');
+      
+      const response = await customFetch(`/api/auth/${userId}`, {
+        method: 'DELETE'
       });
 
       if (response.status === 204) {

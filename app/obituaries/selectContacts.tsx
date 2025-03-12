@@ -21,6 +21,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
 import { withAuth } from "../_util/withAuth";
 import { AUTHORITIES } from "../_util/Authorities";
+import { customFetch } from "../_util/customFetch";
 
 const { width } = Dimensions.get("window");
 
@@ -92,17 +93,13 @@ function SelectContacts() {
     } else {
       const fetchContactData = async () => {
         try {
-          const authToken = await AsyncStorage.getItem("authToken");
-          if (!authToken)
-            throw new Error("No se encontró un token de autenticación");
 
-          const response = await fetch(
-            BACKEND_API + `/api/obituary/receivers/${obituaryId}`,
+          const response = await customFetch(
+            `/api/obituary/receivers/${obituaryId}`,
             {
               method: "GET",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${authToken.trim()}`,
               },
             }
           );
@@ -185,18 +182,15 @@ function SelectContacts() {
     };
 
     const url = is_newObituary
-      ? BACKEND_API + `/api/obituary/create`
-      : BACKEND_API + `/api/obituary/update/${obituaryId}`;
+      ? `/api/obituary/create`
+      : `/api/obituary/update/${obituaryId}`;
 
     try {
-      const authToken = await AsyncStorage.getItem("authToken");
-      console.log("Token:", authToken);
-
-      const response = await fetch(BACKEND_API + "/api/obituary/create", {
+      
+      const response = await customFetch("/api/obituary/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify(dataToSend),
       });

@@ -11,6 +11,7 @@ import CustomModal from '@/components/CustomModal';
 import { BACKEND_API } from '@/constants/Mysc';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
+import { customFetch } from '../_util/customFetch';
 
 const { width } = Dimensions.get('window');
 
@@ -48,20 +49,19 @@ function ObituaryIndex() {
       const fetchData = async () => {
         setLoading(true);
         try {
-          const authToken = await AsyncStorage.getItem('authToken');
-          if (!authToken) throw new Error('No se encontró un token de autenticación');
-    
-          const response = await fetch(BACKEND_API+'/api/obituary/myObituaries', {
+          
+          const response = await customFetch('/api/obituary/myObituaries', {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${authToken.trim()}`,
             },
           });
     
           if (response.ok) {
             const data: Obituary[] = await response.json();
             setObituaries(data);
+          } else {
+            throw Error("Fallo en obtencion de tus esquelas")
           }
   
         } catch (error) {
@@ -94,12 +94,10 @@ function ObituaryIndex() {
     if (!selectedObituaryId) return;
 
     try {
-      const authToken = await AsyncStorage.getItem('authToken'); 
-      const response = await fetch(BACKEND_API+`/api/obituary/delete/${selectedObituaryId}`, {
+      const response = await customFetch(`/api/obituary/delete/${selectedObituaryId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
         },
       });
 

@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AUTHORITIES, AuthorityType } from "./Authorities";
 
-const USER_STORAGE_KEY = "user_data"; // Clave de almacenamiento
+export const USER_STORAGE_KEY = "user_data"; // Clave de almacenamiento
 
-type UserType = {
+export type UserType = {
   id: string;
   token: string;
   roles: AuthorityType[];
@@ -41,13 +41,14 @@ export const useAuth = () => {
   const login = async ( id: string, token: string, roles: AuthorityType[]) => {
     const userData = { id, token, roles };
     setUser(userData);
+    await AsyncStorage.setItem("userId", id);
+    await AsyncStorage.setItem("authToken", token);
     await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
   };
 
   // ✅ Función para cerrar sesión y eliminar datos del usuario
   const logout = async () => {
     setUser(null);
-    await AsyncStorage.removeItem(USER_STORAGE_KEY);
     await AsyncStorage.clear();
   };
 
@@ -56,6 +57,8 @@ export const useAuth = () => {
     if (!user) return;
     const updatedUser = { ...user, ...newUserData };
     setUser(updatedUser);
+    await AsyncStorage.setItem("userId", user.id);
+    await AsyncStorage.setItem("authToken", user.token);
     await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
   };
 

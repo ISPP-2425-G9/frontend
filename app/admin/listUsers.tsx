@@ -11,7 +11,7 @@ import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
-
+import { customFetch } from '../_util/customFetch';
 
 function AdminListUsers() {
   type Cliente = {
@@ -44,15 +44,13 @@ function AdminListUsers() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const authToken = await AsyncStorage.getItem('authToken');
-      if (!authToken) throw new Error('No se encontró un token de autenticación');
 
       const endpoint = mostrarClientes ? 'customers' : 'companies';
-      const response = await fetch(BACKEND_API + '/api/auth/admin/' + endpoint, {
+      
+      const response = await customFetch('/api/auth/admin/' + endpoint, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken.trim()}`,
         },
       });
 
@@ -79,16 +77,9 @@ function AdminListUsers() {
     if (!selectedUserId) return;
 
     try {
-      const authToken = await AsyncStorage.getItem('authToken');
-      if (!authToken) throw new Error('No se encontró un token de autenticación');
-
       console.log('Eliminando usuario con ID:', selectedUserId);
-
-      const response = await fetch(BACKEND_API + '/api/auth/admin/users/' + selectedUserId, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${authToken.trim()}`,
-        },
+      const response = await customFetch('/api/auth/admin/users/' + selectedUserId, {
+        method: 'DELETE'
       });
 
       if (response.status === 204) {

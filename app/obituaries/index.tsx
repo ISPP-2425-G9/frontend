@@ -8,6 +8,7 @@ import useAuth from "@/hooks/useAuth";
 import { BACKEND_API } from '@/constants/Mysc';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
+import { customFetch } from '../_util/customFetch';
 
 type RootStackParamList = {
   'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number };
@@ -40,7 +41,7 @@ function ObituaryIndex() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch(BACKEND_API+'/api/templates/urls');
+        const response = await customFetch('/api/templates/urls');
         if (!response.ok) throw new Error('Error al obtener los datos');
         const data: Obituary[] = await response.json();
         setObituaries(data);

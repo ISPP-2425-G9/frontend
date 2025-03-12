@@ -26,6 +26,7 @@ import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
 import { withAuth } from "../_util/withAuth";
 import { AUTHORITIES } from "../_util/Authorities";
+import { customFetch } from "../_util/customFetch";
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
@@ -95,17 +96,12 @@ function EsquelaCustomizer() {
 
       if (!is_newObituary && obituaryId !== undefined) {
         try {
-          const authToken = await AsyncStorage.getItem("authToken");
-          if (!authToken)
-            throw new Error("No se encontró un token de autenticación");
-
-          const response = await fetch(
-            `${BACKEND_API}/api/obituary/myObituaries/${obituaryId}`,
+          const response = await customFetch(
+            `/api/obituary/myObituaries/${obituaryId}`,
             {
               method: "GET",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${authToken.trim()}`,
               },
             }
           );

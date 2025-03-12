@@ -9,6 +9,8 @@ import { InputField } from '@/components/TextInputArraysForm';
 import { BACKEND_API } from '@/constants/Mysc';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
+import { customFetch } from '../_util/customFetch';
+import { useAuth } from '../_util/useAuth';
 
 const { width } = Dimensions.get('window');
 
@@ -97,7 +99,7 @@ const RegisterScreen: React.FC = () => {
 
     return errors;
 };
-
+  const {login} = useAuth();
 
   const handleSubmit = async (values: Record<string, string | { uri: string; name: string; type: string }>) => {
     try {
@@ -106,7 +108,8 @@ const RegisterScreen: React.FC = () => {
         throw new Error(`Hay error(es) en su formulario: ${errors}`)
       }
       const reqUrl = userType == 'Empresa' ? 'api/auth/companies/signup' : 'api/auth/customers/signup';
-      const response = await fetch(BACKEND_API+`/${reqUrl}`, {
+      
+      const response = await customFetch(`/${reqUrl}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -119,11 +122,8 @@ const RegisterScreen: React.FC = () => {
       }
       
       const data = await response.json();
-      await AsyncStorage.setItem('authToken', data.token);
-      await AsyncStorage.setItem('userId', data.id);
-      await AsyncStorage.setItem('email', data.username);
-      await AsyncStorage.setItem('roles', JSON.stringify(data.roles));
-      await AsyncStorage.setItem('authToken', data.token);
+      login(data.id, data.token, data.roles);
+
       if (Platform.OS === 'web') {
         window.alert('Registro exitoso: Tu cuenta ha sido creada con éxito.');
       } else {

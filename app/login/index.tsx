@@ -10,6 +10,7 @@ import { BACKEND_API } from '@/constants/Mysc';
 import { useAuth } from '../_util/useAuth';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
+import { customFetch } from '../_util/customFetch';
 
 const { width, height } = Dimensions.get('window');
 
@@ -32,7 +33,7 @@ const LoginScreen: React.FC = () => {
 
   const handleSubmit = async (values: Record<string, string>) => {
     try {
-      const response = await fetch(BACKEND_API+`/api/auth/login`, {
+      const response = await customFetch("/api/auth/login", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
