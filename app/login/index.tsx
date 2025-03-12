@@ -47,7 +47,7 @@ const LoginScreen: React.FC = () => {
       const data = await response.json();
 
       login(data.id, data.token, data.roles)
-
+      await AsyncStorage.setItem('authToken', data.token);
       if (Platform.OS === 'web') {
               window.alert('Inicio de sesión exitoso: Has iniciado sesión correctamente.');
             } else {
