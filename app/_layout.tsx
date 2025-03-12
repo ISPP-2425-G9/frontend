@@ -4,7 +4,6 @@ import { useColorScheme } from "react-native";
 import { GlobalStyles, Colors } from "@/constants/Colors";
 import { useFonts, DMSans_500Medium, DMSans_700Bold } from "@expo-google-fonts/dm-sans";
 import useAuth from "@/hooks/useAuth";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 export default function TabLayout() {
@@ -121,31 +120,31 @@ export default function TabLayout() {
       }
 
       { 
-      isAuthenticated && userRoles?.includes("CUSTOMER_FREE") ? [
-        <Tabs.Screen name="obituaries/index" options={{ title: "" }} />,
-        <Tabs.Screen name="obituaries/createObituary" options={{ href: null }} />,
-        <Tabs.Screen name="obituaries/listMyObituaries" options={{ href: null }} />,
-        <Tabs.Screen name="obituaries/selectContacts" options={{ href: null }} />,
-        <Tabs.Screen name="obituaries/loadCertificate" options={{ href: null }} />,
-        <Tabs.Screen name="messages/index" options={{ title: "" }} />,
-        <Tabs.Screen name="contacts/index" options={{ title: "" }} />,
-      ] : [
-        <Tabs.Screen name="obituaries/index" options={{ href: null }} />,
-        <Tabs.Screen name="obituaries/createObituary" options={{ href: null }} />,
-        <Tabs.Screen name="obituaries/listMyObituaries" options={{ href: null }} />,
-        <Tabs.Screen name="obituaries/selectContacts" options={{ href: null }} />,
-        <Tabs.Screen name="obituaries/loadCertificate" options={{ href: null }} />,
-        <Tabs.Screen name="messages/index" options={{ href: null }} />,
-        <Tabs.Screen name="contacts/index" options={{ href: null }} />,,
-      ]
+        isAuthenticated && userRoles?.includes("CUSTOMER_FREE") ? [
+          <Tabs.Screen name="obituaries/index" options={{ title: "" }} />,
+          <Tabs.Screen name="obituaries/createObituary" options={{ href: null }} />,
+          <Tabs.Screen name="obituaries/listMyObituaries" options={{ href: null }} />,
+          <Tabs.Screen name="obituaries/selectContacts" options={{ href: null }} />,
+          <Tabs.Screen name="obituaries/loadCertificate" options={{ href: null }} />,
+          <Tabs.Screen name="messages/index" options={{ title: "" }} />,
+          <Tabs.Screen name="contacts/index" options={{ title: "" }} />,
+        ] : [
+          <Tabs.Screen name="obituaries/index" options={{ href: null }} />,
+          <Tabs.Screen name="obituaries/createObituary" options={{ href: null }} />,
+          <Tabs.Screen name="obituaries/listMyObituaries" options={{ href: null }} />,
+          <Tabs.Screen name="obituaries/selectContacts" options={{ href: null }} />,
+          <Tabs.Screen name="obituaries/loadCertificate" options={{ href: null }} />,
+          <Tabs.Screen name="messages/index" options={{ href: null }} />,
+          <Tabs.Screen name="contacts/index" options={{ href: null }} />,,
+        ]
       }
 
       { 
-      isAuthenticated && userRoles?.includes("COMPANY_FREE") ? [
+        isAuthenticated && userRoles?.includes("COMPANY_FREE") ? [
 
-      ] : [
+        ] : [
 
-      ]
+        ]
       }
       
     </Tabs>
