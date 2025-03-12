@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, Image, useWindowDimensions } from 'react-native';
 import { GlobalStyles } from '@/constants/Colors';
 
+
 type SponsorProps = {
   sponsor: {
     name: string;
@@ -28,7 +29,6 @@ const AdvertisementSponsor: React.FC<SponsorProps> = ({ sponsor }) => {
         <Text style={styles.sponsorText}>📞 {sponsor.telephone}</Text>
         <Text style={styles.sponsorText}>📍 {sponsor.address}, {sponsor.city}, {sponsor.zipCode}</Text>
         <Text style={styles.sponsorText}>🆔 NIF: {sponsor.nif}</Text>
-        {/* Descripción con ajuste automático */}
         <Text style={styles.sponsorDescription}>{sponsor.description}</Text>
       </View>
     </View>
@@ -46,8 +46,8 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     backgroundColor: GlobalStyles.lightGrey,
-    width: '100%',
-    maxWidth: 600,
+    width: '90%',
+    alignSelf: 'stretch',
     minHeight: 200,
     display: 'flex',
     justifyContent: 'center',
@@ -55,6 +55,7 @@ const styles = StyleSheet.create({
   desktopLayout: {
     flexDirection: 'row',
     alignItems: 'center',
+    maxWidth: 600,
   },
   mobileLayout: {
     flexDirection: 'column',
@@ -72,7 +73,6 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     marginBottom: 10,
-    alignSelf: 'center',
   },
   infoContainer: {
     flex: 1,
@@ -102,11 +102,9 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     width: '100%',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
+    flexDirection: 'column',
     alignItems: 'center',
-    paddingHorizontal: 8,
+    paddingHorizontal: 16,
   },
 });
 
