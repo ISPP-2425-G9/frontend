@@ -6,6 +6,8 @@ import { useNavigation, NavigationProp, useRoute, RouteProp  } from '@react-navi
 import CustomButton from '@/components/CustomButton';
 import useAuth from "@/hooks/useAuth";
 import { BACKEND_API } from '@/constants/Mysc';
+import { withAuth } from '../_util/withAuth';
+import { AUTHORITIES } from '../_util/Authorities';
 
 type RootStackParamList = {
   'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number };
@@ -16,7 +18,7 @@ type RootStackParamList = {
 
 
 
-export default function ObituaryIndex() {
+function ObituaryIndex() {
   const { isAuthenticated } = useAuth();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
@@ -161,3 +163,4 @@ const styles = StyleSheet.create({
   },
 });
 
+export default withAuth(ObituaryIndex, [AUTHORITIES.CUSTOMER, AUTHORITIES.ADMIN])

@@ -6,8 +6,10 @@ import { ThemedView } from '@/components/ThemedView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { AUTHORITIES } from '../_util/Authorities';
+import { withAuth } from '../_util/withAuth';
 
-export default function ProfileScreen() {
+function ProfileScreen() {
   const [customer, setCustomer] = useState<CustomerProfile | null>(null);
   const [company, setCompany] = useState<CompanyProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -686,3 +688,5 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 });
+
+export default withAuth(ProfileScreen, [AUTHORITIES.CUSTOMER, AUTHORITIES.COMPANY, AUTHORITIES.ADMIN]);

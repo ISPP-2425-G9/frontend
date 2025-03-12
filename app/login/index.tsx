@@ -6,6 +6,9 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useState } from 'react';
 import { Alert, Dimensions, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { BACKEND_API } from '@/constants/Mysc';
+import { useAuth } from '../_util/useAuth';
+import { withAuth } from '../_util/withAuth';
+import { AUTHORITIES } from '../_util/Authorities';
 
 
 const { width, height } = Dimensions.get('window');
@@ -13,7 +16,8 @@ const { width, height } = Dimensions.get('window');
 const LoginScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(true);
   const navigation = useNavigation();
-
+  const { login } = useAuth();
+  
   useFocusEffect(
     useCallback(() => {
       setModalVisible(true);
@@ -40,9 +44,8 @@ const LoginScreen: React.FC = () => {
       }
 
       const data = await response.json();
-      await AsyncStorage.setItem('userId', data.id);
-      await AsyncStorage.setItem('email', data.username);
-      await AsyncStorage.setItem('roles', JSON.stringify(data.roles));
+
+      login(data.id, data.token, data.roles)
       await AsyncStorage.setItem('authToken', data.token);
       await AsyncStorage.setItem('userRole', data.roles[0]);
       if (Platform.OS === 'web') {
@@ -130,4 +133,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default withAuth(LoginScreen, [AUTHORITIES.ANONYMOUS]);

@@ -1,7 +1,9 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { useRoute } from '@react-navigation/native';
+import { withAuth } from '../_util/withAuth';
+import { AUTHORITIES } from '../_util/Authorities';
 
-export default function EditUserScreen() {
+function EditUserScreen() {
   const route = useRoute();
   const params = route.params as { userId?: number; isCustomer?: boolean } | undefined;
 
@@ -40,3 +42,5 @@ const styles = StyleSheet.create({
     color: 'red',
   },
 });
+
+export default withAuth(EditUserScreen, [AUTHORITIES.ADMIN])
