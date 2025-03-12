@@ -247,7 +247,7 @@ export default function ProfileScreen() {
 
   const renderEditableFieldCompany = (label: string, value: string, field: keyof CompanyProfile, placeholder: string) => (
     <>
-      <ThemedText style={styles.label}>{label}</ThemedText>
+      <ThemedText style={styles.labelCompany}>{label}</ThemedText>
       {isEditing ? (
         <TextInput
           style={styles.inputCompany}
@@ -257,8 +257,7 @@ export default function ProfileScreen() {
           placeholderTextColor={'#666'}
         />
       ) : (
-        <ThemedText style={styles.value}>{value}</ThemedText>
-      )}
+        <ThemedText style={field === 'name' ? styles.valueName : styles.valueCompany}>{value}</ThemedText>)}
     </>
   );
 
@@ -278,7 +277,7 @@ export default function ProfileScreen() {
             {role === "CUSTOMER" ? (
               <View style={styles.twoColumnsContainer}>
                 <View style={styles.column}>
-                  <ThemedText style={styles.title}>Mis Datos</ThemedText>
+                  <ThemedText style={styles.title}>Mis datos</ThemedText>
 
                   {renderEditableField('Nombre', editedCustomer.name, 'name', 'Nombre de usuario')}
                   {renderEditableField('Email', editedCustomer.email, 'email', 'Email')}
@@ -313,7 +312,7 @@ export default function ProfileScreen() {
                 </View>
 
                 <View style={styles.column}>
-                  <ThemedText style={styles.title}>Contactos de Emergencia</ThemedText>
+                  <ThemedText style={styles.title}>Contactos de emergencia</ThemedText>
                   <ThemedText style={styles.label}>Nombre de contacto</ThemedText>
                   <ThemedText style={styles.value}>Juan Pérez</ThemedText>
                   <ThemedText style={styles.label}>Teléfono de contacto</ThemedText>
@@ -336,29 +335,33 @@ export default function ProfileScreen() {
               </View>
             ) : (
               <View style={styles.companyContainer}>
-                <ThemedText style={styles.title}>Información de la Compañía</ThemedText>
                 <View style={styles.companyHeader}>
-                  <Image
-                    source={{ uri: editedCompany.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
-                    style={styles.companyImage}
-                  />
+                  {renderEditableFieldCompany('', editedCompany.name, 'name', 'Name')}
                   {isEditing ?
-                    <View>
+                    <View style={styles.imageHeaderContainer}>
+
+                      <Image
+                        source={{ uri: editedCompany.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
+                        style={styles.companyImage}
+                      />
                       <TextInput
-                        style={styles.input}
+                        style={styles.inputImage}
                         value={customImageUrl}
                         onChangeText={setCustomImageUrl}
                         placeholder="Ingresa URL de imagen"
                         placeholderTextColor="#666"
                       />
                       <CustomButton
-                        title="Actualizar Imagen"
+                        title="Actualizar imagen"
                         onPress={handleUpdateImageUrl}
                         color="blue"
                       />
                     </View>
-                    : null}
-                  {renderEditableFieldCompany('', editedCompany.name, 'name', 'Name')}
+                    :
+                    <Image
+                      source={{ uri: editedCompany.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
+                      style={styles.companyImage}
+                    />}
                 </View>
 
                 <View style={styles.twoColumnsContainerCompany}>
@@ -442,7 +445,6 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: '5%',
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
@@ -471,12 +473,11 @@ const styles = StyleSheet.create({
   twoColumnsContainerCompany: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginRight: '15%',
-    width: '100%',
+    width: '70%',
   },
   column: {
     width: '60%',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   label: {
     fontSize: 16,
@@ -486,6 +487,13 @@ const styles = StyleSheet.create({
     width: '50%',
     marginLeft: '15%',
   },
+  labelCompany: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 5,
+    textAlign: 'left',
+    width: '70%',
+  },
   value: {
     fontSize: 18,
     color: '#000',
@@ -494,6 +502,29 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     width: '50%',
     marginLeft: '15%',
+  },
+  valueCompany: {
+    fontSize: 18,
+    color: '#000',
+    marginBottom: 15,
+    fontWeight: 'bold',
+    textAlign: 'left',
+    width: '70%',
+  },
+  valueName: {
+    fontSize: 24,
+    color: '#000',
+    marginBottom: 15,
+    fontWeight: 'bold',
+    textAlign: 'left',
+    width: '70%',
+  },
+  imageHeaderContainer: {
+    flexDirection: 'row',
+    gap: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
   },
   input: {
     width: '40%',
@@ -507,8 +538,21 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     marginBottom: 10,
   },
+  inputImage: {
+    width: '50%',
+    alignSelf: 'center',
+    backgroundColor: '#f0f0f0',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    fontSize: 16,
+    color: '#333',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginBottom: 10,
+  },
   inputCompany: {
-    width: '40%',
+    width: '70%',
     backgroundColor: '#f0f0f0',
     paddingVertical: 12,
     paddingHorizontal: 16,
@@ -550,17 +594,17 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
   companyHeader: {
-    width: '80%',
+    width: '70%',
     flexDirection: 'column',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     alignContent: 'center',
     marginBottom: 20,
   },
   companyImage: {
-    width: 50,
-    height: 50,
+    width: 120,
+    height: 120,
     borderRadius: 10,
-    marginRight: 10,
+    marginBottom: 10,
   },
   companyName: {
     fontSize: 20,
