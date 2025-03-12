@@ -6,7 +6,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { BACKEND_API } from '@/constants/Mysc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
 
@@ -22,6 +22,7 @@ function ProfileScreen() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [customImageUrl, setCustomImageUrl] = useState('');
+  
 
   const fetchProfile = async () => {
     try {
@@ -152,6 +153,11 @@ function ProfileScreen() {
 
       if (!response.ok) {
         const errorData = await response.json();
+        if (Platform.OS === 'web') {
+          window.alert('Error al actualizar el perfil, comprueba los datos');
+        } else {
+          Alert.alert('Error al actualizar el perfil, comprueba los datos');
+        }
         throw new Error(errorData.message || 'Error al actualizar el perfil');
       }
 
@@ -210,6 +216,11 @@ function ProfileScreen() {
 
       if (!response.ok) {
         const errorData = await response.json();
+        if (Platform.OS === 'web') {
+          window.alert('Error al actualizar el perfil, comprueba los datos');
+        } else {
+          Alert.alert('Error al actualizar el perfil, comprueba los datos');
+        }
         throw new Error(errorData.message || 'Error al actualizar el perfil');
       }
 
@@ -459,7 +470,7 @@ function ProfileScreen() {
           <Modal visible={showPasswordModal} transparent animationType="fade">
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
-                <ThemedText style={styles.modalTitle}>Cambiar Contraseña</ThemedText>
+                <ThemedText style={styles.modalTitle}>Cambiar contraseña</ThemedText>
                 <TextInput
                   style={styles.input}
                   placeholder="Nueva contraseña"
