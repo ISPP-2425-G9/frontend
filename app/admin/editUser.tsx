@@ -21,7 +21,6 @@ function EditUserScreen() {
     zipCode?: string;
     nif?: string;
     description?: string;
-    
   }
 
   const route = useRoute();
@@ -49,8 +48,8 @@ function EditUserScreen() {
         }
 
         const endpoint = isCustomer
-          ? BACKEND_API+`/api/auth/admin/customers/${userId}`
-          : BACKEND_API+`/api/auth/admin/companies/${userId}`;
+          ? BACKEND_API + `/api/auth/admin/customers/${userId}`
+          : BACKEND_API + `/api/auth/admin/companies/${userId}`;
 
         const response = await fetch(endpoint, {
           method: 'GET',
@@ -61,12 +60,10 @@ function EditUserScreen() {
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
           throw new Error(`Error ${response.status}: No se pudo obtener los datos del perfil.`);
         }
-        
+
         const data = await response.json();
-        console.log(data)
         setEditedProfile(data);
       } catch (error: any) {
         console.error('Error al obtener el perfil:', error.message);
@@ -89,12 +86,9 @@ function EditUserScreen() {
       if (!token) {
         throw new Error('No se encontró el token de autenticación.');
       }
-
-      console.log(JSON.stringify(editedProfile))
-
       const endpoint = isCustomer
-        ? BACKEND_API+`/api/auth/admin/customers/${userId}`
-        : BACKEND_API+`/api/auth/admin/companies/${userId}`;
+        ? BACKEND_API + `/api/auth/admin/customers/${userId}`
+        : BACKEND_API + `/api/auth/admin/companies/${userId}`;
 
       const response = await fetch(endpoint, {
         method: 'PUT',
@@ -106,7 +100,6 @@ function EditUserScreen() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
         throw new Error(`Error ${response.status}: No se pudo actualizar el perfil.`);
       }
 
@@ -126,7 +119,13 @@ function EditUserScreen() {
     }
   };
 
-  const renderEditableField = (label: string, value: string, field: keyof Profile, placeholder: string) => (
+  const renderEditableField = (
+    label: string,
+    value: string,
+    field: keyof Profile,
+    placeholder: string,
+    secureTextEntry?: boolean
+  ) => (
     <View key={field} style={styles.inputContainer}>
       <ThemedText style={styles.label}>{label}</ThemedText>
       <TextInput
@@ -136,6 +135,7 @@ function EditUserScreen() {
         placeholder={placeholder}
         placeholderTextColor={'#666'}
         editable={isEditing}
+        secureTextEntry={secureTextEntry} // Oculta la contraseña con puntitos
       />
     </View>
   );
@@ -169,7 +169,7 @@ function EditUserScreen() {
                 {renderEditableField('Descripción', editedProfile.description ?? '', 'description', 'Descripción')}
               </View>
               <View style={styles.column}>
-                {renderEditableField('Contraseña', editedProfile.password, 'password', 'Contraseña')}
+                {renderEditableField('Contraseña', editedProfile.password, 'password', 'Contraseña', true)}
                 {renderEditableField('Dirección', editedProfile.address ?? '', 'address', 'Dirección')}
                 {renderEditableField('Ciudad', editedProfile.city ?? '', 'city', 'Ciudad')}
                 {renderEditableField('Código Postal', editedProfile.zipCode ?? '', 'zipCode', 'Código Postal')}
@@ -189,6 +189,7 @@ function EditUserScreen() {
     </ThemedView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
