@@ -7,6 +7,8 @@ import TextInputArraysForm from '@/components/TextInputArraysForm';
 import { GlobalStyles } from '@/constants/Colors';
 import { InputField } from '@/components/TextInputArraysForm';
 import { BACKEND_API } from '@/constants/Mysc';
+import { withAuth } from '../_util/withAuth';
+import { AUTHORITIES } from '../_util/Authorities';
 
 const { width } = Dimensions.get('window');
 
@@ -117,6 +119,10 @@ const RegisterScreen: React.FC = () => {
       }
       
       const data = await response.json();
+      await AsyncStorage.setItem('authToken', data.token);
+      await AsyncStorage.setItem('userId', data.id);
+      await AsyncStorage.setItem('email', data.username);
+      await AsyncStorage.setItem('roles', JSON.stringify(data.roles));
       await AsyncStorage.setItem('authToken', data.token);
       if (Platform.OS === 'web') {
         window.alert('Registro exitoso: Tu cuenta ha sido creada con éxito.');
@@ -256,4 +262,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RegisterScreen;
+export default withAuth(RegisterScreen, [AUTHORITIES.ANONYMOUS])

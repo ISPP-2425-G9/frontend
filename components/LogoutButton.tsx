@@ -4,14 +4,17 @@ import CustomButton from './CustomButton';
 import CustomModal from './CustomModal';
 import { ThemedText } from './ThemedText';
 import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '@/app/_util/useAuth';
 
 export default function LogoutButton() {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const navigation = useNavigation();
-  
+  const { logout } = useAuth();
+
   const handleLogout = () => {
     try {
-        localStorage.removeItem('authToken');
+        // localStorage.removeItem('authToken');
+        logout()
         navigation.navigate('home' as never);
     } catch (error) {
       console.error('Error al cerrar sesión:', error);

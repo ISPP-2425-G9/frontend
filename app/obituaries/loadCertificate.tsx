@@ -1,10 +1,12 @@
 import { useNavigation, NavigationProp, useRoute, RouteProp } from '@react-navigation/native';
+import { AUTHORITIES } from '../_util/Authorities';
+import { withAuth } from '../_util/withAuth';
 
 type RootStackParamList = {
     'obituaries/loadCertificate': { jsonData: string };
 };
 
-export default function LoadCertificate() {
+function LoadCertificate() {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const route = useRoute<RouteProp<RootStackParamList, 'obituaries/loadCertificate'>>();
 
@@ -14,3 +16,5 @@ export default function LoadCertificate() {
         </div>
     );
 }
+
+export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER, AUTHORITIES.ADMIN])
