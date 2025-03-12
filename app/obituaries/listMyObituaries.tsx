@@ -9,6 +9,8 @@ import { GlobalStyles } from '@/constants/Colors';
 import { useFocusEffect } from '@react-navigation/native';
 import CustomModal from '@/components/CustomModal';
 import { BACKEND_API } from '@/constants/Mysc';
+import { withAuth } from '../_util/withAuth';
+import { AUTHORITIES } from '../_util/Authorities';
 
 const { width } = Dimensions.get('window');
 
@@ -18,7 +20,7 @@ type RootStackParamList = {
 };
 
 
-export default function ObituaryIndex() {
+function ObituaryIndex() {
   
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { width, height } = useWindowDimensions(); 
@@ -140,7 +142,6 @@ export default function ObituaryIndex() {
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.listContainer}>
           {obituaries.map((item) => (
-            console.log(item),
              <TouchableOpacity
              key={item.id} 
              onPress={() => handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id)} 
@@ -153,7 +154,6 @@ export default function ObituaryIndex() {
                  borderWidth: 6,  
                }
              ]} 
-             disabled={item.deathDate !== null}
            >
               <Image source={{ uri: item.imageTemplate.imageUrl }} style={styles.image} />
               <View style={styles.overlay}>
@@ -307,3 +307,5 @@ const styles = StyleSheet.create({
       width: width > 600 ? '40%' : '80%', 
     },
 });
+
+export default withAuth(ObituaryIndex, [AUTHORITIES.CUSTOMER, AUTHORITIES.ADMIN])

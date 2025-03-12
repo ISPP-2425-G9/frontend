@@ -5,24 +5,27 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, TextInput, View, StyleSheet, Platform } from 'react-native';
 import { useRoute } from '@react-navigation/native';
+import { withAuth } from '../_util/withAuth';
+import { AUTHORITIES } from '../_util/Authorities';
 
-interface Profile {
-  fullName: string;
-  password: string;
-  email: string;
-  telephone: string;
-  address?: string;
-  city?: string;
-  zipCode?: string;
-  nif?: string;
-  description?: string;
-  
-}
 
-export default function AdminEditUserScreen() {
+function EditUserScreen() {
+
+  interface Profile {
+    fullName: string;
+    password: string;
+    email: string;
+    telephone: string;
+    address?: string;
+    city?: string;
+    zipCode?: string;
+    nif?: string;
+    description?: string;
+    
+  }
+
   const route = useRoute();
   const { userId, isCustomer } = route.params as { userId: string; isCustomer: boolean };
-
   const [editedProfile, setEditedProfile] = useState<Profile>({
     fullName: '',
     email: '',
@@ -34,7 +37,6 @@ export default function AdminEditUserScreen() {
     description: '',
     password: '',
   });
-
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -275,3 +277,4 @@ const styles = StyleSheet.create({
   },
 });
 
+export default withAuth(EditUserScreen, [AUTHORITIES.ADMIN]);

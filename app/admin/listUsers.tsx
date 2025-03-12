@@ -9,9 +9,11 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
+import { AUTHORITIES } from '../_util/Authorities';
+import { withAuth } from '../_util/withAuth';
 
 
-export default function AdminListUsers() {
+function AdminListUsers() {
   type Cliente = {
     id: number;
     name: string;
@@ -195,9 +197,11 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 0,
     fontFamily: GlobalStyles.fontBold,
-    color: GlobalStyles.darkGrey,
+    color: GlobalStyles.white,
+    backgroundColor: GlobalStyles.blue,
+    padding: 15
   },
   scrollContainer: {
     flexGrow: 1,
@@ -221,7 +225,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: GlobalStyles.grey,
     alignItems: 'center',
-    backgroundColor: 'transparent',
+    backgroundColor: GlobalStyles.lightGrey,
   },
   cell: {
     flex: 1,
@@ -243,3 +247,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 });
+
+
+export default withAuth(AdminListUsers, [AUTHORITIES.ADMIN]);

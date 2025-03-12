@@ -24,6 +24,8 @@ import {
 import CustomModal from "@/components/CustomModal";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
+import { withAuth } from "../_util/withAuth";
+import { AUTHORITIES } from "../_util/Authorities";
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
@@ -43,7 +45,7 @@ type RootStackParamList = {
   "obituaries/index": { is_newObituary: boolean; obituaryId: number };
 };
 
-export default function EsquelaCustomizer() {
+function EsquelaCustomizer() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const route =
@@ -120,7 +122,7 @@ export default function EsquelaCustomizer() {
             deathDate: data.deathDate || "",
             farewellMessage: data.farewellMessage || "",
             farewellPhrase: data.farewellPhrase || "",
-            customImage: data.customImage || null,
+            customImage: data.customImageUrl || null,
             imageTemplate_id: imageId || 1,
           });
         } catch (error) {
@@ -294,7 +296,7 @@ export default function EsquelaCustomizer() {
         <Text>Fecha de fallecimiento:</Text>
         <CustomTextInput
           style={{ width: "75%" }}
-          placeholder="Fecha de fallecimiento (opcional)"
+          placeholder="La fecha de fallecimiento se llenará automáticamente"
           value={formData.deathDate}
           maxLength={12}
           editable={false}
@@ -345,7 +347,7 @@ export default function EsquelaCustomizer() {
             <CustomButton
               color="grey"
               style={{ marginTop: 12, width: "75%" }}
-              title="Guardar y seleccionar contactos"
+              title={is_newObituary ? "Guardar y seleccionar contactos" : "Actualice sus contactos"}
               onPress={showConfirmationModal}
             />
           </>
@@ -508,3 +510,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
+
+export default withAuth(EsquelaCustomizer, [AUTHORITIES.CUSTOMER, AUTHORITIES.ADMIN])

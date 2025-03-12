@@ -7,6 +7,8 @@ import TextInputArraysForm from '@/components/TextInputArraysForm';
 import { GlobalStyles } from '@/constants/Colors';
 import { InputField } from '@/components/TextInputArraysForm';
 import { BACKEND_API } from '@/constants/Mysc';
+import { withAuth } from '../_util/withAuth';
+import { AUTHORITIES } from '../_util/Authorities';
 
 const { width } = Dimensions.get('window');
 
@@ -260,4 +262,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RegisterScreen;
+export default withAuth(RegisterScreen, [AUTHORITIES.ANONYMOUS])

@@ -7,7 +7,6 @@ import Logo from "@/components/Logo";
 
 const { width } = Dimensions.get("window");
 
-
 export default function HomeScreen() {
   const navigation = useNavigation();
   const logoSize = width > 800 ? 225 : 150;
