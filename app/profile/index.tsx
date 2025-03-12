@@ -85,3 +85,4 @@ const styles = StyleSheet.create({
 });
 
 export default withAuth(ProfileScreen, [AUTHORITIES.CUSTOMER, AUTHORITIES.COMPANY, AUTHORITIES.ADMIN])
+
