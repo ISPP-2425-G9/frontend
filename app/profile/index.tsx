@@ -276,7 +276,7 @@ export default function ProfileScreen() {
           <View style={styles.profileContainer}>
             {role === "CUSTOMER" ? (
               <View style={styles.twoColumnsContainer}>
-                <View style={styles.column}>
+                <View style={styles.columnData}>
                   <ThemedText style={styles.title}>Mis datos</ThemedText>
 
                   {renderEditableField('Nombre', editedCustomer.name, 'name', 'Nombre de usuario')}
@@ -321,14 +321,14 @@ export default function ProfileScreen() {
                   <ThemedText style={styles.value}>juanperes@hotmail.es</ThemedText>
                   <View style={styles.buttonContainer}>
                     <CustomButton
-                      title="Añadir"
-                      onPress={() => console.log("Añadir contacto")}
-                      color="blue"
-                    />
-                    <CustomButton
                       title="Eliminar"
                       onPress={() => console.log("Eliminar contacto")}
                       color="red"
+                    />
+                    <CustomButton
+                      title="Añadir"
+                      onPress={() => console.log("Añadir contacto")}
+                      color="blue"
                     />
                   </View>
                 </View>
@@ -460,23 +460,31 @@ const styles = StyleSheet.create({
   companyContainer: {
     padding: 20,
     elevation: 5,
-    width: '70%',
+    width: '100%',
     height: '80%',
     alignItems: 'center',
   },
   twoColumnsContainer: {
+    alignSelf: 'center',
+    marginTop: '5%',
+    alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginRight: '15%',
-    width: '100%',
+    width: '90%',
   },
   twoColumnsContainerCompany: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '70%',
   },
+  columnData: {
+    width: '50%',
+    alignItems: 'center',
+    height: '100%',
+  },
   column: {
-    width: '60%',
+    width: '50%',
+    height: '100%',
     alignItems: 'flex-start',
   },
   label: {
