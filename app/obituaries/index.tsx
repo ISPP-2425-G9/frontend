@@ -80,15 +80,15 @@ function ObituaryIndex() {
       <Text style={styles.title}>Elija el diseño</Text>
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.listContainer}>
-          {obituaries.map((item) => (
-            <TouchableOpacity
-              key={item.id} 
-              onPress={() => handleObituaryPress(item.id, item.imageUrl)} 
-              style={[styles.obituaryCard, { width: width * 0.20, height: height * 0.65 }]} 
-            >
-              <Image source={{ uri: item.imageUrl }} style={styles.image} />
-            </TouchableOpacity>
-          ))}
+        {obituaries.map((item) => (
+          <TouchableOpacity
+            key={item.id}  // Usa item.id en lugar de index
+            onPress={() => handleObituaryPress(item.id, item.imageUrl)} 
+            style={[styles.obituaryCard, { width: width * 0.20, height: height * 0.65 }]} 
+          >
+            <Image source={{ uri: item.imageUrl }} style={styles.image} />
+          </TouchableOpacity>
+        ))}
         </View>
       </ScrollView>
       <View style={styles.divider} />
