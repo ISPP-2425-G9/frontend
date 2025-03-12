@@ -88,11 +88,7 @@ function EsquelaCustomizer() {
     const initializeForm = async () => {
       setLoading(true);
 
-      console.log("HOLA", jsonData);
-      console.log(jsonData !== undefined);
-
       if (jsonData !== undefined) {
-        console.log("adios")
         try {
           const parsedData = JSON.parse(jsonData);
           setFormData((prev) => ({
