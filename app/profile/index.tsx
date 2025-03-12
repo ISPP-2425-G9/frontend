@@ -24,9 +24,16 @@ function ProfileScreen() {
 
   const fetchProfile = async () => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
-      const userId = await AsyncStorage.getItem('userId');
-      const userRole = await AsyncStorage.getItem('userRole');
+      const userDataStr = await AsyncStorage.getItem('user_data');
+      if (!userDataStr) {
+        console.error('Faltan datos de autenticación');
+        setLoading(false);
+        return;
+      }
+      const userData = JSON.parse(userDataStr);
+      const token = userData.token;
+      const userId = userData.id;
+      const userRole = userData.roles[0];
 
       if (!token || !userId || !userRole) {
         console.error('Faltan datos de autenticación');
@@ -113,8 +120,14 @@ function ProfileScreen() {
 
   const handleSave = async () => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
-      const userId = await AsyncStorage.getItem('userId');
+      const userDataStr = await AsyncStorage.getItem('user_data');
+      if (!userDataStr) {
+        console.error('Faltan datos de autenticación');
+        return;
+      }
+      const userData = JSON.parse(userDataStr);
+      const token = userData.token;
+      const userId = userData.id;
 
       if (!token || !userId) {
         return;
@@ -127,8 +140,6 @@ function ProfileScreen() {
         password: editedCustomer.password,
       };
 
-      console.log('Datos a enviar:', updatedData);
-
       const response = await fetch(`http://localhost:8080/api/auth/customers/${userId}`, {
         method: 'PUT',
         headers: {
@@ -138,15 +149,18 @@ function ProfileScreen() {
         body: JSON.stringify(updatedData),
       });
 
-      console.log('Respuesta del servidor:', response);
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Error al actualizar el perfil');
       }
 
       const data = await response.json();
-      await AsyncStorage.setItem('authToken', data.token);
+
+      await AsyncStorage.setItem('user_data', JSON.stringify({
+        ...userData,
+        email: editedCustomer.email,
+        token: data.token || userData.token,
+      }));
 
       fetchProfile();
       setIsEditing(false);
@@ -158,8 +172,14 @@ function ProfileScreen() {
 
   const handleSaveCompany = async () => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
-      const userId = await AsyncStorage.getItem('userId');
+      const userDataStr = await AsyncStorage.getItem('user_data');
+      if (!userDataStr) {
+        console.error('Faltan datos de autenticación');
+        return;
+      }
+      const userData = JSON.parse(userDataStr);
+      const token = userData.token;
+      const userId = userData.id;
 
       if (!token || !userId) {
         return;
@@ -178,8 +198,6 @@ function ProfileScreen() {
         imageUrl: editedCompany.imageUrl,
       };
 
-      console.log('Datos a enviar:', updatedData);
-
       const response = await fetch(`http://localhost:8080/api/auth/companies/${userId}`, {
         method: 'PUT',
         headers: {
@@ -189,15 +207,19 @@ function ProfileScreen() {
         body: JSON.stringify(updatedData),
       });
 
-      console.log('Respuesta del servidor:', response);
-
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Error al actualizar el perfil');
       }
 
       const data = await response.json();
-      await AsyncStorage.setItem('authToken', data.token);
+
+      await AsyncStorage.setItem('user_data', JSON.stringify({
+        ...userData,
+        email: editedCustomer.email,
+        token: data.token || userData.token,
+      }));
+
       fetchProfile();
       setIsEditing(false);
       Alert.alert('Éxito', 'Perfil actualizado correctamente');
@@ -209,7 +231,6 @@ function ProfileScreen() {
   const handleUpdateImageUrl = () => {
     if (customImageUrl.trim()) {
       setEditedCompany({ ...editedCompany, imageUrl: customImageUrl.trim() });
-      console.log("Imagen actualizada por URL:", customImageUrl.trim());
       setCustomImageUrl('');
     } else {
       Alert.alert("Error", "Por favor ingresa un URL válido");
@@ -248,9 +269,9 @@ function ProfileScreen() {
   );
 
   const renderEditableFieldCompany = (
-    label: string, 
-    value: string, 
-    field: keyof CompanyProfile, 
+    label: string,
+    value: string,
+    field: keyof CompanyProfile,
     placeholder: string
   ) => (
     <>
@@ -274,8 +295,8 @@ function ProfileScreen() {
             field === 'name'
               ? styles.valueName
               : field === 'description'
-              ? styles.valueDescription
-              : styles.valueCompany
+                ? styles.valueDescription
+                : styles.valueCompany
           }
         >
           {value}
