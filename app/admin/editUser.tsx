@@ -7,10 +7,10 @@ import { ActivityIndicator, Alert, ScrollView, TextInput, View, StyleSheet, Plat
 import { useRoute } from '@react-navigation/native';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
+import { BACKEND_API } from '@/constants/Mysc';
 
 
 function EditUserScreen() {
-
   interface Profile {
     fullName: string;
     password: string;
@@ -49,8 +49,8 @@ function EditUserScreen() {
         }
 
         const endpoint = isCustomer
-          ? `http://localhost:8080/api/auth/admin/customers/${userId}`
-          : `http://localhost:8080/api/auth/admin/companies/${userId}`;
+          ? BACKEND_API+`/api/auth/admin/customers/${userId}`
+          : BACKEND_API+`/api/auth/admin/companies/${userId}`;
 
         const response = await fetch(endpoint, {
           method: 'GET',
@@ -93,8 +93,8 @@ function EditUserScreen() {
       console.log(JSON.stringify(editedProfile))
 
       const endpoint = isCustomer
-        ? `http://localhost:8080/api/auth/admin/customers/${userId}`
-        : `http://localhost:8080/api/auth/admin/companies/${userId}`;
+        ? BACKEND_API+`/api/auth/admin/customers/${userId}`
+        : BACKEND_API+`/api/auth/admin/companies/${userId}`;
 
       const response = await fetch(endpoint, {
         method: 'PUT',
