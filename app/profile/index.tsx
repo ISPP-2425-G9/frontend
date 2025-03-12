@@ -254,13 +254,52 @@ function ProfileScreen() {
       Alert.alert('Error', 'Las contraseñas no coinciden');
       return;
     }
-
-    //TODO: Lógica para cambiar la contraseña
-
-    Alert.alert('Éxito', 'Contraseña actualizada correctamente');
-    setShowPasswordModal(false);
-    setNewPassword('');
-    setConfirmPassword('');
+    
+    try {
+      const userDataStr = await AsyncStorage.getItem('user_data');
+      if (!userDataStr) {
+        Alert.alert('Error', 'No hay datos de autenticación');
+        return;
+      }
+      const userData = JSON.parse(userDataStr);
+      const token = userData.token;
+      const userId = userData.id;
+  
+      const requestBody = {
+        newPassword: newPassword,
+        confirmPassword: confirmPassword,
+      };
+  
+      const response = await fetch(`${BACKEND_API}/api/auth/password/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.text();
+        Alert.alert('Error', errorData || 'Error mientras se actualizaba la contraseña');
+        return;
+      }
+  
+      const data = await response.json();
+  
+      await AsyncStorage.setItem('user_data', JSON.stringify({
+        ...userData,
+        token: data.token || userData.token,
+      }));
+  
+      Alert.alert('Éxito', 'Contraseña actualizada correctamente');
+      setShowPasswordModal(false);
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      Alert.alert('Error', errorMessage);
+    }
   };
 
   const renderEditableField = (label: string, value: string, field: keyof CustomerProfile, placeholder: string) => (
