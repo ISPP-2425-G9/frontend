@@ -110,7 +110,7 @@ export default function TabLayout() {
       }
 
       { 
-        isAuthenticated && (userRoles?.includes("CUSTOMER_FREE") || userRoles?.includes("COMPANY_FREE")) ? [
+        isAuthenticated && (userRoles?.includes("CUSTOMER") || userRoles?.includes("COMPANY")) ? [
           <Tabs.Screen name="services/index" options={{ title: "" }} />,
           <Tabs.Screen name="subscribe/index" options={{ title: "" }} />,
         ] : [
@@ -120,7 +120,7 @@ export default function TabLayout() {
       }
 
       { 
-        isAuthenticated && userRoles?.includes("CUSTOMER_FREE") ? [
+        isAuthenticated && userRoles?.includes("CUSTOMER") ? [
           <Tabs.Screen name="obituaries/index" options={{ title: "" }} />,
           <Tabs.Screen name="obituaries/createObituary" options={{ href: null }} />,
           <Tabs.Screen name="obituaries/listMyObituaries" options={{ href: null }} />,
@@ -140,7 +140,7 @@ export default function TabLayout() {
       }
 
       { 
-        isAuthenticated && userRoles?.includes("COMPANY_FREE") ? [
+        isAuthenticated && userRoles?.includes("COMPANY")  ? [
 
         ] : [
 
