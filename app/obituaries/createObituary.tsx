@@ -345,7 +345,7 @@ export default function EsquelaCustomizer() {
             <CustomButton
               color="grey"
               style={{ marginTop: 12, width: "75%" }}
-              title="Guardar y seleccionar contactos"
+              title={is_newObituary ? "Guardar y seleccionar contactos" : "Actualice sus contactos"}
               onPress={showConfirmationModal}
             />
           </>

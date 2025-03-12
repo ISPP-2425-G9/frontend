@@ -186,12 +186,13 @@ export default function SelectContacts() {
       ? BACKEND_API + `/api/obituary/create`
       : BACKEND_API + `/api/obituary/update/${obituaryId}`;
 
-    try {
-      const authToken = await AsyncStorage.getItem("authToken");
-      console.log("Token:", authToken);
+    const method_type = is_newObituary ? "POST" : "PUT";
 
-      const response = await fetch(BACKEND_API + "/api/obituary/create", {
-        method: "POST",
+    try {
+
+      const authToken = await AsyncStorage.getItem("authToken");
+      const response = await fetch(url, {
+        method: method_type,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
@@ -207,9 +208,10 @@ export default function SelectContacts() {
         throw new Error("Error en la creación de la esquela");
       }
     } catch (error) {
-      window.alert(
-        "No se pudo crear la esquela. Por favor, inténtelo de nuevo."
-      );
+      const errormssg = is_newObituary
+        ? "Error al crear la esquela.Por favor, inténtelo de nuevo."
+        : "Error al actualizar la esquela.Por favor, inténtelo de nuevo.";
+      window.alert(errormssg);
     }
   };
 
