@@ -9,10 +9,10 @@ import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
 import { BACKEND_API } from '@/constants/Mysc';
 
-
 function EditUserScreen() {
   interface Profile {
-    fullName: string;
+    name: string;  // Lo que llega del backend
+    fullName: string; // Lo que se usará internamente y se enviará al backend
     password: string;
     email: string;
     telephone: string;
@@ -21,11 +21,13 @@ function EditUserScreen() {
     zipCode?: string;
     nif?: string;
     description?: string;
+    dni?: string;  // Se añade el campo DNI solo para clientes
   }
 
   const route = useRoute();
   const { userId, isCustomer } = route.params as { userId: string; isCustomer: boolean };
   const [editedProfile, setEditedProfile] = useState<Profile>({
+    name: '',
     fullName: '',
     email: '',
     telephone: '',
@@ -34,6 +36,7 @@ function EditUserScreen() {
     zipCode: '',
     nif: '',
     description: '',
+    dni: '',
     password: '',
   });
   const [loading, setLoading] = useState(true);
@@ -64,10 +67,12 @@ function EditUserScreen() {
         }
 
         const data = await response.json();
+        console.log(data);
 
         // Convertir "name" a "fullName"
         setEditedProfile({
-          fullName: data.name || '',
+          name: data.name || '', // Lo que llega del backend
+          fullName: data.name || '', // Lo que usamos internamente y enviamos
           email: data.email || '',
           telephone: data.telephone || '',
           address: data.address || '',
@@ -75,7 +80,8 @@ function EditUserScreen() {
           zipCode: data.zipCode || '',
           nif: data.nif || '',
           description: data.description || '',
-          password: 'Contraseña', // No queremos mostrar la contraseña real, valor para que se vean los puntitos
+          dni: isCustomer ? data.dni || '' : '',
+          password: 'Contraseña', // Para que se vean los puntitos en la UI
         });
       } catch (error: any) {
         console.error('Error al obtener el perfil:', error.message);
@@ -104,8 +110,10 @@ function EditUserScreen() {
         : BACKEND_API + `/api/auth/admin/companies/${userId}`;
 
       // Convertir "fullName" a "name" antes de enviarlo al backend
-      const profileToSend = {
-        name: editedProfile.fullName,
+      const profileToSend: any = {
+
+        fullName: isCustomer ? editedProfile.fullName : undefined, // Si es cliente, se envía como "fullName"
+        name: !isCustomer ? editedProfile.fullName : undefined, // Si es empresa, se envía como "name"
         email: editedProfile.email,
         telephone: editedProfile.telephone,
         address: editedProfile.address,
@@ -115,6 +123,11 @@ function EditUserScreen() {
         description: editedProfile.description,
         password: editedProfile.password, // Solo se enviará si se modifica
       };
+
+      // Agregar dni solo si es un cliente
+      if (isCustomer) {
+        profileToSend.dni = editedProfile.dni;
+      }
 
       const response = await fetch(endpoint, {
         method: 'PUT',
@@ -183,8 +196,10 @@ function EditUserScreen() {
           {isCustomer ? (
             <View style={styles.formContainer}>
               {renderEditableField('Nombre', editedProfile.fullName, 'fullName', 'Nombre')}
+              {renderEditableField('Contraseña', editedProfile.password, 'password', 'Contraseña', true)}
               {renderEditableField('Email', editedProfile.email, 'email', 'Correo electrónico')}
               {renderEditableField('Teléfono', editedProfile.telephone, 'telephone', 'Teléfono')}
+              {renderEditableField('DNI', editedProfile.dni ?? '', 'dni', 'DNI')}
             </View>
           ) : (
             <View style={styles.twoColumnsContainer}>
@@ -215,7 +230,6 @@ function EditUserScreen() {
     </ThemedView>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
