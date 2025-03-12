@@ -120,7 +120,7 @@ export default function ProfileScreen() {
 
       const updatedData = {
         email: editedCustomer.email,
-        name: editedCustomer.name,
+        fullName: editedCustomer.name,
         telephone: editedCustomer.telephone,
         password: editedCustomer.password,
       };
@@ -245,19 +245,40 @@ export default function ProfileScreen() {
     </>
   );
 
-  const renderEditableFieldCompany = (label: string, value: string, field: keyof CompanyProfile, placeholder: string) => (
+  const renderEditableFieldCompany = (
+    label: string, 
+    value: string, 
+    field: keyof CompanyProfile, 
+    placeholder: string
+  ) => (
     <>
       <ThemedText style={styles.labelCompany}>{label}</ThemedText>
       {isEditing ? (
         <TextInput
-          style={styles.inputCompany}
+          style={
+            field === 'description'
+              ? styles.inputCompanyDescription
+              : styles.inputCompany
+          }
           value={value}
           onChangeText={(text) => handleInputChangeCompany(field, text)}
           placeholder={placeholder}
           placeholderTextColor={'#666'}
+          multiline={field === 'description'}
         />
       ) : (
-        <ThemedText style={field === 'name' ? styles.valueName : styles.valueCompany}>{value}</ThemedText>)}
+        <ThemedText
+          style={
+            field === 'name'
+              ? styles.valueName
+              : field === 'description'
+              ? styles.valueDescription
+              : styles.valueCompany
+          }
+        >
+          {value}
+        </ThemedText>
+      )}
     </>
   );
 
@@ -282,7 +303,8 @@ export default function ProfileScreen() {
                   {renderEditableField('Nombre', editedCustomer.name, 'name', 'Nombre de usuario')}
                   {renderEditableField('Email', editedCustomer.email, 'email', 'Email')}
                   {renderEditableField('Teléfono', editedCustomer.telephone, 'telephone', 'Número de teléfono')}
-
+                  <ThemedText style={styles.label}>DNI</ThemedText>
+                  <ThemedText style={styles.value}>{editedCustomer.dni}</ThemedText>
                   {isEditing ? (
                     <View style={styles.buttonContainer}>
                       <DeleteAccountButton />
@@ -366,11 +388,13 @@ export default function ProfileScreen() {
 
                 <View style={styles.twoColumnsContainerCompany}>
                   <View style={styles.column}>
+                    {renderEditableFieldCompany('Descripción', editedCompany.description, 'description', 'Descripción')}
                     {renderEditableFieldCompany('Email', editedCompany.email, 'email', 'Email')}
                     {renderEditableFieldCompany('Teléfono', editedCompany.telephone, 'telephone', 'Teléfono')}
-                    {renderEditableFieldCompany('Descripción', editedCompany.description, 'description', 'Descripción')}
                   </View>
                   <View style={styles.column}>
+                    <ThemedText style={styles.labelCompany}>NIF</ThemedText>
+                    <ThemedText style={styles.valueCompany}>{editedCompany.nif}</ThemedText>
                     {renderEditableFieldCompany('Dirección', editedCompany.address, 'address', 'Dirección')}
                     {renderEditableFieldCompany('Ciudad', editedCompany.city, 'city', 'Ciudad')}
                     {renderEditableFieldCompany('Código Postal', editedCompany.zipCode, 'zipCode', 'Código Postal')}
@@ -485,7 +509,7 @@ const styles = StyleSheet.create({
   column: {
     width: '50%',
     height: '100%',
-    alignItems: 'flex-start',
+    alignItems: 'center',
   },
   label: {
     fontSize: 16,
@@ -525,13 +549,12 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     fontWeight: 'bold',
     textAlign: 'left',
-    width: '70%',
+    width: '40%',
   },
   imageHeaderContainer: {
     flexDirection: 'row',
     gap: 20,
     alignItems: 'center',
-    justifyContent: 'center',
     width: '100%',
   },
   input: {
@@ -571,6 +594,28 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     marginBottom: 10,
   },
+  inputCompanyDescription: {
+    width: '70%',
+    height: '50%',
+    backgroundColor: '#f0f0f0',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    fontSize: 16,
+    color: '#333',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginBottom: 10,
+  },
+  valueDescription: {
+    fontSize: 18,
+    height: '50%',
+    color: '#000',
+    marginBottom: 15,
+    fontWeight: 'bold',
+    textAlign: 'left',
+    width: '70%',
+  },
   text: {
     fontSize: 18,
     color: '#000',
@@ -602,7 +647,7 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
   companyHeader: {
-    width: '70%',
+    width: '60%',
     flexDirection: 'column',
     alignItems: 'flex-start',
     alignContent: 'center',
