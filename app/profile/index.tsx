@@ -13,11 +13,12 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [editedCustomer, setEditedCustomer] = useState<CustomerProfile>({ name: '', email: '', telephone: '' });
-  const [editedCompany, setEditedCompany] = useState<CompanyProfile>({ name: '', email: '', telephone: '', address: '', city: '', zipCode: '', nif: '', description: '', imageUrl: '' });
+  const [editedCustomer, setEditedCustomer] = useState<CustomerProfile>({ name: '', email: '', telephone: '', password: '' });
+  const [editedCompany, setEditedCompany] = useState<CompanyProfile>({ name: '', email: '', telephone: '', address: '', city: '', zipCode: '', nif: '', description: '', imageUrl: '', password: '' });
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [customImageUrl, setCustomImageUrl] = useState('');
 
   const fetchProfile = async () => {
     try {
@@ -119,7 +120,7 @@ export default function ProfileScreen() {
 
       const updatedData = {
         email: editedCustomer.email,
-        fullName: editedCustomer.name,
+        name: editedCustomer.name,
         telephone: editedCustomer.telephone,
         password: editedCustomer.password,
       };
@@ -203,7 +204,15 @@ export default function ProfileScreen() {
     }
   }
 
-
+  const handleUpdateImageUrl = () => {
+    if (customImageUrl.trim()) {
+      setEditedCompany({ ...editedCompany, imageUrl: customImageUrl.trim() });
+      console.log("Imagen actualizada por URL:", customImageUrl.trim());
+      setCustomImageUrl('');
+    } else {
+      Alert.alert("Error", "Por favor ingresa un URL válido");
+    }
+  };
 
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
@@ -277,21 +286,21 @@ export default function ProfileScreen() {
 
                   {isEditing ? (
                     <View style={styles.buttonContainer}>
+                      <DeleteAccountButton />
                       <CustomButton
                         title="Guardar"
                         onPress={handleSave}
                         color="blue"
                       />
-                      <DeleteAccountButton />
                     </View>
                   ) : (
                     <View style={styles.buttonContainer}>
+                      <LogoutButton />
                       <CustomButton
                         title="Editar usuario"
                         onPress={() => setIsEditing(true)}
                         color="blue"
                       />
-                      <LogoutButton />
                     </View>
                   )}
 
@@ -333,7 +342,23 @@ export default function ProfileScreen() {
                     source={{ uri: editedCompany.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
                     style={styles.companyImage}
                   />
-                  {renderEditableField('', editedCompany.name, 'name', 'Name')}
+                  {isEditing ?
+                    <View>
+                      <TextInput
+                        style={styles.input}
+                        value={customImageUrl}
+                        onChangeText={setCustomImageUrl}
+                        placeholder="Ingresa URL de imagen"
+                        placeholderTextColor="#666"
+                      />
+                      <CustomButton
+                        title="Actualizar Imagen"
+                        onPress={handleUpdateImageUrl}
+                        color="blue"
+                      />
+                    </View>
+                    : null}
+                  {renderEditableFieldCompany('', editedCompany.name, 'name', 'Name')}
                 </View>
 
                 <View style={styles.twoColumnsContainerCompany}>
@@ -351,21 +376,29 @@ export default function ProfileScreen() {
 
                 {isEditing ? (
                   <View style={styles.buttonContainer}>
+                    <DeleteAccountButton />
                     <CustomButton
                       title="Guardar"
                       onPress={handleSaveCompany}
                       color="blue"
                     />
-                    <DeleteAccountButton />
                   </View>
                 ) : (
-                  <View style={styles.buttonContainer}>
-                    <CustomButton
-                      title="Editar información"
-                      onPress={() => setIsEditing(true)}
-                      color="blue"
-                    />
-                    <LogoutButton />
+                  <View>
+                    <View style={styles.buttonContainer}>
+                      <LogoutButton />
+                      <CustomButton
+                        title="Editar información"
+                        onPress={() => setIsEditing(true)}
+                        color="blue"
+                      />
+                    </View>
+                    <ThemedText style={styles.changePasswordText}>
+                      ¿Desea cambiar su contraseña?{' '}
+                      <Pressable onPress={() => setShowPasswordModal(true)}>
+                        <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
+                      </Pressable>
+                    </ThemedText>
                   </View>
                 )}
               </View>
@@ -400,8 +433,9 @@ export default function ProfileScreen() {
         </>
       ) : (
         <ThemedText style={styles.text}>No se pudo cargar el perfil.</ThemedText>
-      )}
-    </ThemedView>
+      )
+      }
+    </ThemedView >
   );
 
 }
@@ -474,7 +508,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   inputCompany: {
-    width: '80%',
+    width: '40%',
     backgroundColor: '#f0f0f0',
     paddingVertical: 12,
     paddingHorizontal: 16,
@@ -517,7 +551,7 @@ const styles = StyleSheet.create({
   },
   companyHeader: {
     width: '80%',
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
     alignContent: 'center',
     marginBottom: 20,
