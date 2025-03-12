@@ -3,6 +3,7 @@ import DeleteAccountButton from '@/components/DeleteAccountButton';
 import LogoutButton from '@/components/LogoutButton';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { BACKEND_API } from '@/constants/Mysc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Modal, Pressable, StyleSheet, TextInput, View } from 'react-native';
@@ -43,7 +44,7 @@ function ProfileScreen() {
 
       setRole(userRole);
 
-      let endpoint = 'http://localhost:8080/api/auth/';
+      let endpoint = BACKEND_API + `/api/auth/`;
 
       if (userRole === "CUSTOMER") {
         endpoint += `customers/${userId}`;
@@ -140,7 +141,7 @@ function ProfileScreen() {
         password: editedCustomer.password,
       };
 
-      const response = await fetch(`http://localhost:8080/api/auth/customers/${userId}`, {
+      const response = await fetch(BACKEND_API + `/api/auth/customers/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -198,7 +199,7 @@ function ProfileScreen() {
         imageUrl: editedCompany.imageUrl,
       };
 
-      const response = await fetch(`http://localhost:8080/api/auth/companies/${userId}`, {
+      const response = await fetch(BACKEND_API + `/api/auth/companies/${userId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
