@@ -14,9 +14,18 @@ const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
 type RootStackParamList = {
-  'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number };
+  'obituaries/createObituary': { imageTemplateId: number,
+     imageUrl: string, 
+     is_newObituary: boolean, 
+     obituaryId: number,
+     jsonData: string
+    };
   'obituaries/listMyObituaries': undefined;
-  'obituaries/index': { is_newObituary: boolean, obituaryId: number };
+  'obituaries/index': { 
+    is_newObituary: boolean,
+     obituaryId: number, 
+     jsonData: string 
+    };
 
 };
 
@@ -60,12 +69,13 @@ function ObituaryIndex() {
 
   const handleObituaryPress = (id: number, imageUrl: string) => {
     const obituaryId = route.params?.obituaryId ?? undefined;
-    
+    const jsonData = route.params?.jsonData ?? undefined;    
     navigation.navigate('obituaries/createObituary', { 
       imageTemplateId: id, 
       imageUrl,
-      is_newObituary: is_newObituary,
-      obituaryId: obituaryId,
+      is_newObituary,
+      obituaryId,
+      jsonData
 
     });
   };

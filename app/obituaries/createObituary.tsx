@@ -43,15 +43,19 @@ type RootStackParamList = {
     imageUrl: string;
     is_newObituary: boolean;
     obituaryId: number;
+    jsonData: string;
   };
-  "obituaries/index": { is_newObituary: boolean; obituaryId: number };
+  "obituaries/index": { 
+    is_newObituary: boolean,
+     obituaryId: number, 
+      jsonData: string
+    };
 };
 
 function EsquelaCustomizer() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const route =
-    useRoute<RouteProp<RootStackParamList, "obituaries/createObituary">>();
+  const route = useRoute<RouteProp<RootStackParamList, "obituaries/createObituary">>();
 
   const is_newObituary = route.params?.is_newObituary ?? true;
 
@@ -67,6 +71,9 @@ function EsquelaCustomizer() {
 
   const [loading, setLoading] = useState(true);
 
+  const jsonData = route.params?.jsonData ?? undefined;
+
+
   const [formData, setFormData] = useState({
     name: "",
     birthDate: "",
@@ -80,6 +87,25 @@ function EsquelaCustomizer() {
   useEffect(() => {
     const initializeForm = async () => {
       setLoading(true);
+
+      console.log("HOLA", jsonData);
+      console.log(jsonData !== undefined);
+
+      if (jsonData !== undefined) {
+        console.log("adios")
+        try {
+          const parsedData = JSON.parse(jsonData);
+          setFormData((prev) => ({
+            ...prev,
+            ...parsedData,
+          }));
+        } catch (error) {
+          console.error("Error al parsear jsonData:", error);
+        } finally {
+          setLoading(false);
+        }
+        return;
+      }
 
       if (is_newObituary) {
         setFormData({
@@ -132,7 +158,7 @@ function EsquelaCustomizer() {
         } finally {
           setLoading(false);
         }
-      }
+      } 
     };
 
     initializeForm();
@@ -154,9 +180,12 @@ function EsquelaCustomizer() {
 
   const changeDesign = async () => {
     const obituaryId = route.params?.obituaryId ?? undefined;
+    const jsonData = JSON.stringify(formData, null, 2);
+
     navigation.navigate("obituaries/index" as never, {
       is_newObituary,
       obituaryId,
+      jsonData,
     });
   };
 
@@ -299,7 +328,7 @@ function EsquelaCustomizer() {
           <Text>Fecha de fallecimiento:</Text>
           <CustomTextInput
             style={{ width: "75%" }}
-            placeholder="La fecha de fallecimiento se añadirá automáticamente"
+            placeholder="La fecha de fallecimiento(se añadirá automáticamente)"
             value={formData.deathDate}
             maxLength={12}
             editable={false}
