@@ -64,7 +64,19 @@ function EditUserScreen() {
         }
 
         const data = await response.json();
-        setEditedProfile(data);
+
+        // Convertir "name" a "fullName"
+        setEditedProfile({
+          fullName: data.name || '',
+          email: data.email || '',
+          telephone: data.telephone || '',
+          address: data.address || '',
+          city: data.city || '',
+          zipCode: data.zipCode || '',
+          nif: data.nif || '',
+          description: data.description || '',
+          password: 'Contraseña', // No queremos mostrar la contraseña real, valor para que se vean los puntitos
+        });
       } catch (error: any) {
         console.error('Error al obtener el perfil:', error.message);
         showAlert('Error', error.message);
@@ -86,9 +98,23 @@ function EditUserScreen() {
       if (!token) {
         throw new Error('No se encontró el token de autenticación.');
       }
+
       const endpoint = isCustomer
         ? BACKEND_API + `/api/auth/admin/customers/${userId}`
         : BACKEND_API + `/api/auth/admin/companies/${userId}`;
+
+      // Convertir "fullName" a "name" antes de enviarlo al backend
+      const profileToSend = {
+        name: editedProfile.fullName,
+        email: editedProfile.email,
+        telephone: editedProfile.telephone,
+        address: editedProfile.address,
+        city: editedProfile.city,
+        zipCode: editedProfile.zipCode,
+        nif: editedProfile.nif,
+        description: editedProfile.description,
+        password: editedProfile.password, // Solo se enviará si se modifica
+      };
 
       const response = await fetch(endpoint, {
         method: 'PUT',
@@ -96,7 +122,7 @@ function EditUserScreen() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(editedProfile),
+        body: JSON.stringify(profileToSend),
       });
 
       if (!response.ok) {
