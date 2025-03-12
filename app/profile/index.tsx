@@ -82,7 +82,7 @@ export default function ProfileScreen() {
     name: string;
     email: string;
     telephone: string;
-    password?: string;
+    password: string;
     [key: string]: any;
   }
 
@@ -90,7 +90,7 @@ export default function ProfileScreen() {
     name: string;
     email: string;
     telephone: string;
-    password?: string;
+    password: string;
     address: string;
     city: string;
     zipCode: string;
@@ -333,14 +333,13 @@ export default function ProfileScreen() {
                     source={{ uri: editedCompany.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
                     style={styles.companyImage}
                   />
-                  <ThemedText style={styles.companyName}>{editedCompany.name || editedCompany.companyName}</ThemedText>
+                  {renderEditableField('', editedCompany.name, 'name', 'Name')}
                 </View>
 
                 <View style={styles.twoColumnsContainerCompany}>
                   <View style={styles.column}>
                     {renderEditableFieldCompany('Email', editedCompany.email, 'email', 'Email')}
                     {renderEditableFieldCompany('Teléfono', editedCompany.telephone, 'telephone', 'Teléfono')}
-                    {renderEditableFieldCompany('NIF', editedCompany.nif, 'nif', 'NIF')}
                     {renderEditableFieldCompany('Descripción', editedCompany.description, 'description', 'Descripción')}
                   </View>
                   <View style={styles.column}>
@@ -517,6 +516,7 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
   companyHeader: {
+    width: '80%',
     flexDirection: 'row',
     alignItems: 'center',
     alignContent: 'center',
