@@ -86,6 +86,12 @@ export default function TabLayout() {
       <Tabs.Screen name="home" options={{ title: "" }} />
       <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen name="+not-found" options={{ href: null }} />
+      <Tabs.Screen name="_util/Authorities" options={{ href: null }} />
+      <Tabs.Screen name="_util/useAuth" options={{ href: null }} />
+      <Tabs.Screen name="_util/utils" options={{ href: null }} />
+      <Tabs.Screen name="_util/withAuth" options={{ href: null }} />
+      
+      
 
       {
         isAuthenticated ? [
