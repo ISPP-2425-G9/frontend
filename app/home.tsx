@@ -52,6 +52,8 @@ export default function HomeScreen() {
           </View>
         </View>
       </View>
+
+{/* ====== Temporally Deactivated ============
       <View style={styles.buttonSection}>
         <View style={styles.buttonContainer}>
           <View style={styles.buttonWrapper}>
@@ -68,6 +70,7 @@ export default function HomeScreen() {
           </View>
         </View>
       </View>
+*/}
     </ScrollView>
   );
 }
