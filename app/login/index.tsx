@@ -1,14 +1,13 @@
 import CustomModal from '@/components/CustomModal';
 import TextInputArraysForm, { InputField } from '@/components/TextInputArraysForm';
 import { GlobalStyles } from '@/constants/Colors';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BACKEND_API } from '@/constants/Mysc';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useState } from 'react';
 import { Alert, Dimensions, Platform, ScrollView, StyleSheet, View } from 'react-native';
-import { BACKEND_API } from '@/constants/Mysc';
+import { AUTHORITIES } from '../_util/Authorities';
 import { useAuth } from '../_util/useAuth';
 import { withAuth } from '../_util/withAuth';
-import { AUTHORITIES } from '../_util/Authorities';
 
 
 const { width, height } = Dimensions.get('window');
@@ -45,9 +44,7 @@ const LoginScreen: React.FC = () => {
 
       const data = await response.json();
 
-      login(data.id, data.token, data.roles)
-      await AsyncStorage.setItem('authToken', data.token);
-      await AsyncStorage.setItem('userRole', data.roles[0]);
+      login(data.id, data.token, data.roles);
       if (Platform.OS === 'web') {
               window.alert('Inicio de sesión exitoso: Has iniciado sesión correctamente.');
             } else {

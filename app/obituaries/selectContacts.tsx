@@ -97,7 +97,7 @@ function SelectContacts() {
             throw new Error("No se encontró un token de autenticación");
 
           const response = await fetch(
-            BACKEND_API + `/api/obituary/receivers/${obituaryId}`,
+            BACKEND_API + `/api/receiver/getReceivers/obituary/${obituaryId}`,
             {
               method: "GET",
               headers: {
@@ -188,12 +188,13 @@ function SelectContacts() {
       ? BACKEND_API + `/api/obituary/create`
       : BACKEND_API + `/api/obituary/update/${obituaryId}`;
 
-    try {
-      const authToken = await AsyncStorage.getItem("authToken");
-      console.log("Token:", authToken);
+    const method_type = is_newObituary ? "POST" : "PUT";
 
-      const response = await fetch(BACKEND_API + "/api/obituary/create", {
-        method: "POST",
+    try {
+
+      const authToken = await AsyncStorage.getItem("authToken");
+      const response = await fetch(url, {
+        method: method_type,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
@@ -201,17 +202,16 @@ function SelectContacts() {
         body: JSON.stringify(dataToSend),
       });
 
-      console.log("Respuesta:", response);
-
       if (response.ok) {
         navigation.navigate("obituaries/listMyObituaries" as never);
       } else {
         throw new Error("Error en la creación de la esquela");
       }
     } catch (error) {
-      window.alert(
-        "No se pudo crear la esquela. Por favor, inténtelo de nuevo."
-      );
+      const errormssg = is_newObituary
+        ? "Error al crear la esquela.Por favor, inténtelo de nuevo."
+        : "Error al actualizar la esquela.Por favor, inténtelo de nuevo.";
+      window.alert(errormssg);
     }
   };
 
@@ -221,9 +221,25 @@ function SelectContacts() {
 
   const showConfirmationModal = async (is_mine: boolean) => {
     const errors: string[] = [];
+
+    const phoneSet = new Set();
+    const emailSet = new Set();
+  
     try {
       for (const contact of contacts) {
         const contactErrors = validateData(contact);
+        if (emailSet.has(contact.email)) {
+          errors.push("No se pueden repetir los correos electrónicos");
+        } else {
+          emailSet.add(contact.email);
+        }
+
+        if (phoneSet.has(contact.phone)) {
+          errors.push("No se pueden repetir los números de teléfono");
+        } else {
+          phoneSet.add(contact.phone);
+        }
+
         if (contactErrors.length > 0) {
           errors.push(...contactErrors.slice(0, 3 - errors.length));
         }
@@ -293,8 +309,12 @@ function SelectContacts() {
               <CustomTextInput
                 placeholder="Teléfono"
                 value={item.phone}
+                maxLength={9}
                 keyboardType="phone-pad"
-                onChangeText={(text) => handleChange(item.id, "phone", text)}
+                onChangeText={(text) => {
+                  const numericText = text.replace(/\D/g, ""); 
+                  handleChange(item.id, "phone", numericText);
+                }}
                 style={styles.input}
               />
               <CustomTextInput

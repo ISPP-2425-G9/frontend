@@ -296,7 +296,7 @@ function EsquelaCustomizer() {
         <Text>Fecha de fallecimiento:</Text>
         <CustomTextInput
           style={{ width: "75%" }}
-          placeholder="Fecha de fallecimiento"
+          placeholder="La fecha de fallecimiento se llenará automáticamente"
           value={formData.deathDate}
           maxLength={12}
           editable={false}
@@ -347,7 +347,7 @@ function EsquelaCustomizer() {
             <CustomButton
               color="grey"
               style={{ marginTop: 12, width: "75%" }}
-              title="Guardar y seleccionar contactos"
+              title={is_newObituary ? "Guardar y seleccionar contactos" : "Actualice sus contactos"}
               onPress={showConfirmationModal}
             />
           </>
