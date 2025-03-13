@@ -13,7 +13,7 @@ export default function TabLayout() {
     userRoles = roles
   }
   const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme || "light"];
+  const theme = Colors["light"];
 
   const [fontsLoaded] = useFonts({
     DMSans_500Medium,
