@@ -140,23 +140,23 @@ const RegisterScreen: React.FC = () => {
   };
 
   const companyFields: InputField[] = [
-    { name: 'name', placeholder: 'Armando Paredes S.L.', keyboardType: 'default', description: 'Introduce el nombre de tu empresa' },
-    { name: 'nif', placeholder: 'F1234567N', keyboardType: 'default', description: 'Introduce el NIF de tu empresa' },
+    { name: 'name', placeholder: 'Floristería Loli S.L.', keyboardType: 'default', description: 'Introduce el nombre de tu empresa' },
+    { name: 'nif', placeholder: 'F12345678', keyboardType: 'default', description: 'Introduce el NIF de tu empresa' },
     { name: 'zipCode', placeholder: '12345', keyboardType: 'default', description: 'Introduce el código postal de tu empresa' },
-    { name: 'telephone', placeholder: '+34123456789', keyboardType: 'phone-pad', description: 'Introduce el teléfono de tu empresa (con prefijo)' },
+    { name: 'telephone', placeholder: '123456789', keyboardType: 'phone-pad', description: 'Introduce el teléfono de tu empresa' },
     { name: 'city', placeholder: 'Sevilla', keyboardType: 'default', description: 'Introduce la ciudad de tu empresa' },
-    { name: 'address', placeholder: 'C/ Arquimedes 3,14', keyboardType: 'default', description: 'Introduce la dirección de tu empresa' },
-    { name: 'description', placeholder: 'Armamos paredes cuando quieras', keyboardType: 'default', description: 'Introduce una descripción de tu empresa' },
-    { name: 'email', placeholder: 'armando@paredes.es', keyboardType: 'email-address', description: 'Introduce el email de tu empresa' },
+    { name: 'address', placeholder: 'C/ Arquimedes, 3', keyboardType: 'default', description: 'Introduce la dirección de tu empresa' },
+    { name: 'description', placeholder: 'Lo mejor para tí', keyboardType: 'default', description: 'Introduce una descripción de tu empresa' },
+    { name: 'email', placeholder: 'floresloli@gmail.com', keyboardType: 'email-address', description: 'Introduce el email de tu empresa' },
     { name: 'password1', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Introduce una contraseña' },
     { name: 'password2', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Repite la contraseña' },
   ];
 
   const clientFields: InputField[] = [
-    { name: 'name', placeholder: 'Peter Parker', keyboardType: 'default', description: 'Introduce tu nombre' },
-    { name: 'telephone', placeholder: '+34000000000', keyboardType: 'phone-pad', description: 'Introduce tu teléfono (con prefijo)' },
+    { name: 'name', placeholder: 'Jesús García', keyboardType: 'default', description: 'Introduce tu nombre' },
+    { name: 'telephone', placeholder: '123456789', keyboardType: 'phone-pad', description: 'Introduce tu teléfono' },
     { name: 'dni', placeholder: '12345678P', keyboardType: 'default' , description: 'Introduce tu DNI' },
-    { name: 'email', placeholder: 'peterparker@spider.com', keyboardType: 'email-address', description: 'Introduce tu email' },
+    { name: 'email', placeholder: 'jesusgar@gmail.com', keyboardType: 'email-address', description: 'Introduce tu email' },
     { name: 'password1', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Introduce una contraseña' },
     { name: 'password2', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Repite la contraseña' },
   ];
@@ -185,7 +185,7 @@ const RegisterScreen: React.FC = () => {
           <TextInputArraysForm
             title="Cuenta de empresa"
             inputs={companyFields}
-            imageFields={['logo']}
+            //imageFields={['logo']} Deactivate Temporally
             onSubmit={handleSubmit}
             handleFormClose={ async ()=> { setUserType(null); setModalVisible(true);}}
             buttonText="Registrarse"
