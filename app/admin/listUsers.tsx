@@ -145,7 +145,8 @@ function AdminListUsers() {
                     </ThemedText>
                     <ThemedText style={styles.cell}>{item.telephone}</ThemedText>
                     <View style={styles.actions}>
-                      <CustomButton title="Editar" onPress={() => handleEdit(item.id)} color="blue" />
+                      {/*<CustomButton title="Editar" onPress={() => handleEdit(item.id)} color="blue" /> */}
+                      <CustomButton title="Editar" onPress={() => alert("Esta función estará disponible en el futuro")} color="blue" />  
                       <CustomButton
                         title="Eliminar"
                         onPress={() => {
