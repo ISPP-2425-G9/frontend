@@ -355,7 +355,7 @@ function EsquelaCustomizer() {
               color="grey"
               style={{ marginTop: 12, width: "75%" }}
               title="Actualizar y seleccionar contactos"
-              onPress={() => alert("Esta función no está disponible aún")}
+              onPress={showConfirmationModal}
             />}
           </>
         )}
