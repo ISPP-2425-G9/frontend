@@ -7,6 +7,10 @@ import TextInputArraysForm from '@/components/TextInputArraysForm';
 import { GlobalStyles } from '@/constants/Colors';
 import { InputField } from '@/components/TextInputArraysForm';
 import { BACKEND_API } from '@/constants/Mysc';
+import { withAuth } from '../_util/withAuth';
+import { AUTHORITIES } from '../_util/Authorities';
+import { parseErrors} from '../_util/utils'
+import { useAuth } from '../_util/useAuth';
 
 const { width } = Dimensions.get('window');
 
@@ -14,6 +18,7 @@ const RegisterScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(true);
   const [userType, setUserType] = useState<'Empresa' | 'Cliente' | null>(null);
   const navigation = useNavigation();
+  const { login } = useAuth();
 
   useFocusEffect(
     useCallback(() => {
@@ -38,7 +43,7 @@ const RegisterScreen: React.FC = () => {
     const errors: string[] = [];
 
     const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const nifRegex = /^[ABCDEFGHJNPQRSUVW]\d{7}[0-9A-J]$/;
+    const nifRegex = /^[A-Z]\d{7}[A-J0-9]$/;
     const zipCodeRegex = /^\d{5}$/;
     const phoneRegex = /^\+?\d{9,15}$/;
     const dniRegex = /^\d{8}[A-Z]$/;
@@ -77,7 +82,7 @@ const RegisterScreen: React.FC = () => {
     }
 
     if (!values.telephone || typeof values.telephone !== 'string' || !phoneRegex.test(values.telephone)) {
-        errors.push('Por favor, introduce un teléfono válido incluyendo el prefijo.');
+        errors.push('Por favor, introduce un teléfono válido.');
     }
 
 
@@ -113,16 +118,18 @@ const RegisterScreen: React.FC = () => {
       });
       
       if (!response.ok) {
-        throw new Error(`Hubo un problema al registrarse`);
+        const errors = await response.json()
+        const errorList = parseErrors(errors)
+        throw new Error(`Hubo un problema al registrarse: \n ${errorList}`);
       }
       
       const data = await response.json();
       await AsyncStorage.setItem('authToken', data.token);
-      if (Platform.OS === 'web') {
-        window.alert('Registro exitoso: Tu cuenta ha sido creada con éxito.');
-      } else {
-        Alert.alert('Registro exitoso', 'Tu cuenta ha sido creada con éxito.');
-      }
+      await AsyncStorage.setItem('userId', data.id);
+      await AsyncStorage.setItem('email', data.username);
+      await AsyncStorage.setItem('roles', JSON.stringify(data.roles));
+      await AsyncStorage.setItem('authToken', data.token);
+      login(data.id, data.token, data.roles);
       navigation.navigate('home' as never);
     } catch (error: any) {
       if (Platform.OS === 'web') {
@@ -134,23 +141,23 @@ const RegisterScreen: React.FC = () => {
   };
 
   const companyFields: InputField[] = [
-    { name: 'name', placeholder: 'Armando Paredes S.L.', keyboardType: 'default', description: 'Introduce el nombre de tu empresa' },
-    { name: 'nif', placeholder: 'F1234567N', keyboardType: 'default', description: 'Introduce el NIF de tu empresa' },
+    { name: 'name', placeholder: 'Floristería Loli S.L.', keyboardType: 'default', description: 'Introduce el nombre de tu empresa' },
+    { name: 'nif', placeholder: 'F12345678', keyboardType: 'default', description: 'Introduce el NIF de tu empresa' },
     { name: 'zipCode', placeholder: '12345', keyboardType: 'default', description: 'Introduce el código postal de tu empresa' },
-    { name: 'telephone', placeholder: '+34123456789', keyboardType: 'phone-pad', description: 'Introduce el teléfono de tu empresa (con prefijo)' },
+    { name: 'telephone', placeholder: '123456789', keyboardType: 'phone-pad', description: 'Introduce el teléfono de tu empresa' },
     { name: 'city', placeholder: 'Sevilla', keyboardType: 'default', description: 'Introduce la ciudad de tu empresa' },
-    { name: 'address', placeholder: 'C/ Arquimedes 3,14', keyboardType: 'default', description: 'Introduce la dirección de tu empresa' },
-    { name: 'description', placeholder: 'Armamos paredes cuando quieras', keyboardType: 'default', description: 'Introduce una descripción de tu empresa' },
-    { name: 'email', placeholder: 'armando@paredes.es', keyboardType: 'email-address', description: 'Introduce el email de tu empresa' },
+    { name: 'address', placeholder: 'C/ Arquimedes, 3', keyboardType: 'default', description: 'Introduce la dirección de tu empresa' },
+    { name: 'description', placeholder: 'Lo mejor para tí', keyboardType: 'default', description: 'Introduce una descripción de tu empresa' },
+    { name: 'email', placeholder: 'floresloli@gmail.com', keyboardType: 'email-address', description: 'Introduce el email de tu empresa' },
     { name: 'password1', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Introduce una contraseña' },
     { name: 'password2', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Repite la contraseña' },
   ];
 
   const clientFields: InputField[] = [
-    { name: 'name', placeholder: 'Peter Parker', keyboardType: 'default', description: 'Introduce tu nombre' },
-    { name: 'telephone', placeholder: '+34000000000', keyboardType: 'phone-pad', description: 'Introduce tu teléfono (con prefijo)' },
+    { name: 'name', placeholder: 'Jesús García', keyboardType: 'default', description: 'Introduce tu nombre' },
+    { name: 'telephone', placeholder: '123456789', keyboardType: 'phone-pad', description: 'Introduce tu teléfono' },
     { name: 'dni', placeholder: '12345678P', keyboardType: 'default' , description: 'Introduce tu DNI' },
-    { name: 'email', placeholder: 'peterparker@spider.com', keyboardType: 'email-address', description: 'Introduce tu email' },
+    { name: 'email', placeholder: 'jesusgar@gmail.com', keyboardType: 'email-address', description: 'Introduce tu email' },
     { name: 'password1', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Introduce una contraseña' },
     { name: 'password2', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Repite la contraseña' },
   ];
@@ -179,7 +186,7 @@ const RegisterScreen: React.FC = () => {
           <TextInputArraysForm
             title="Cuenta de empresa"
             inputs={companyFields}
-            imageFields={['logo']}
+            //imageFields={['logo']} Deactivate Temporally
             onSubmit={handleSubmit}
             handleFormClose={ async ()=> { setUserType(null); setModalVisible(true);}}
             buttonText="Registrarse"
@@ -256,4 +263,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RegisterScreen;
+export default withAuth(RegisterScreen, [AUTHORITIES.ANONYMOUS])
