@@ -4,7 +4,7 @@ import { ThemedView } from '@/components/ThemedView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState, useCallback } from 'react';
 import { ActivityIndicator, Alert, ScrollView, TextInput, View, StyleSheet, Platform } from 'react-native';
-import { useRoute,useFocusEffect } from '@react-navigation/native';
+import { useRoute,useFocusEffect, useNavigation } from '@react-navigation/native';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
 import { BACKEND_API } from '@/constants/Mysc';
@@ -24,6 +24,7 @@ function EditUserScreen() {
     dni?: string;
   }
 
+  const navigation = useNavigation();
   const route = useRoute();
   const { userId, isCustomer } = route.params as { userId: string; isCustomer: boolean };
 
@@ -107,48 +108,55 @@ function EditUserScreen() {
     });
   };
 
-  const handleSave = async () => {
-    try {
-      const token = await AsyncStorage.getItem('authToken');
-      if (!token) throw new Error('No se encontró el token de autenticación.');
+const handleSave = async () => {
+  try {
+    const token = await AsyncStorage.getItem('authToken');
+    if (!token) throw new Error('No se encontró el token de autenticación.');
 
-      const endpoint = isCustomer
-        ? `${BACKEND_API}/api/auth/admin/customers/${userId}`
-        : `${BACKEND_API}/api/auth/admin/companies/${userId}`;
+    const endpoint = isCustomer
+      ? `${BACKEND_API}/api/auth/admin/customers/${userId}`
+      : `${BACKEND_API}/api/auth/admin/companies/${userId}`;
 
-      const profileToSend: any = {
-        fullName: isCustomer ? editedProfile.fullName : undefined,
-        name: !isCustomer ? editedProfile.fullName : undefined,
-        email: editedProfile.email,
-        telephone: editedProfile.telephone,
-        address: editedProfile.address,
-        city: editedProfile.city,
-        zipCode: editedProfile.zipCode,
-        nif: editedProfile.nif,
-        description: editedProfile.description,
-        password: editedProfile.password,
-      };
+    const profileToSend: any = {
+      fullName: isCustomer ? editedProfile.fullName : undefined,
+      name: !isCustomer ? editedProfile.fullName : undefined,
+      email: editedProfile.email,
+      telephone: editedProfile.telephone,
+      address: editedProfile.address,
+      city: editedProfile.city,
+      zipCode: editedProfile.zipCode,
+      nif: editedProfile.nif,
+      description: editedProfile.description,
+      password: editedProfile.password,
+    };
 
-      if (isCustomer) {
-        profileToSend.dni = editedProfile.dni;
-      }
-
-      const response = await fetch(endpoint, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify(profileToSend),
-      });
-
-      if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar el perfil.`);
-
-      showAlert('Éxito', 'Perfil actualizado correctamente.');
-      setHasChanges(false);
-      setOriginalProfile(editedProfile);
-    } catch (error: any) {
-      console.error('Error al guardar los cambios:', error.message);
-      showAlert('Error', error.message);
+    if (isCustomer) {
+      profileToSend.dni = editedProfile.dni;
     }
-  };
+
+    const response = await fetch(endpoint, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(profileToSend),
+    });
+
+    if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar el perfil.`);
+
+    showAlert('Éxito', 'Perfil actualizado correctamente.');
+    setHasChanges(false);
+    setOriginalProfile(editedProfile);
+
+    // Redirección según el tipo de usuario
+    // Dentro del handleSave en EditUserScreen
+    navigation.navigate('admin/listUsers');
+
+    
+  } catch (error: any) {
+    console.error('Error al guardar los cambios:', error.message);
+    showAlert('Error', error.message);
+  }
+};
+
 
   const showAlert = (title: string, message: string) => {
     if (Platform.OS === 'web') {
