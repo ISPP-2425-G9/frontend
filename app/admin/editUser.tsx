@@ -11,8 +11,8 @@ import { BACKEND_API } from '@/constants/Mysc';
 
 function EditUserScreen() {
   interface Profile {
-    name: string;  // Lo que llega del backend
-    fullName: string; // Lo que se usará internamente y se enviará al backend
+    name: string;
+    fullName: string;
     password: string;
     email: string;
     telephone: string;
@@ -21,11 +21,13 @@ function EditUserScreen() {
     zipCode?: string;
     nif?: string;
     description?: string;
-    dni?: string;  // Se añade el campo DNI solo para clientes
+    dni?: string;
   }
 
   const route = useRoute();
   const { userId, isCustomer } = route.params as { userId: string; isCustomer: boolean };
+
+  const [originalProfile, setOriginalProfile] = useState<Profile | null>(null);
   const [editedProfile, setEditedProfile] = useState<Profile>({
     name: '',
     fullName: '',
@@ -39,40 +41,32 @@ function EditUserScreen() {
     dni: '',
     password: '',
   });
+
   const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const token = await AsyncStorage.getItem('authToken');
-        if (!token) {
-          throw new Error('No se encontró el token de autenticación.');
-        }
+        if (!token) throw new Error('No se encontró el token de autenticación.');
 
         const endpoint = isCustomer
-          ? BACKEND_API + `/api/auth/admin/customers/${userId}`
-          : BACKEND_API + `/api/auth/admin/companies/${userId}`;
+          ? `${BACKEND_API}/api/auth/admin/customers/${userId}`
+          : `${BACKEND_API}/api/auth/admin/companies/${userId}`;
 
         const response = await fetch(endpoint, {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         });
 
-        if (!response.ok) {
-          throw new Error(`Error ${response.status}: No se pudo obtener los datos del perfil.`);
-        }
+        if (!response.ok) throw new Error(`Error ${response.status}: No se pudo obtener los datos del perfil.`);
 
         const data = await response.json();
-        console.log(data);
-
-        // Convertir "name" a "fullName"
-        setEditedProfile({
-          name: data.name || '', // Lo que llega del backend
-          fullName: data.name || '', // Lo que usamos internamente y enviamos
+        
+        const profileData: Profile = {
+          name: data.name || '',
+          fullName: data.name || '',
           email: data.email || '',
           telephone: data.telephone || '',
           address: data.address || '',
@@ -81,8 +75,11 @@ function EditUserScreen() {
           nif: data.nif || '',
           description: data.description || '',
           dni: isCustomer ? data.dni || '' : '',
-          password: 'Contraseña', // Para que se vean los puntitos en la UI
-        });
+          password: 'Contraseña',
+        };
+
+        setEditedProfile(profileData);
+        setOriginalProfile(profileData);
       } catch (error: any) {
         console.error('Error al obtener el perfil:', error.message);
         showAlert('Error', error.message);
@@ -95,25 +92,25 @@ function EditUserScreen() {
   }, [userId, isCustomer]);
 
   const handleInputChange = (field: keyof Profile, value: string) => {
-    setEditedProfile({ ...editedProfile, [field]: value });
+    setEditedProfile((prev) => {
+      const updatedProfile = { ...prev, [field]: value };
+      setHasChanges(JSON.stringify(updatedProfile) !== JSON.stringify(originalProfile));
+      return updatedProfile;
+    });
   };
 
   const handleSave = async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
-      if (!token) {
-        throw new Error('No se encontró el token de autenticación.');
-      }
+      if (!token) throw new Error('No se encontró el token de autenticación.');
 
       const endpoint = isCustomer
-        ? BACKEND_API + `/api/auth/admin/customers/${userId}`
-        : BACKEND_API + `/api/auth/admin/companies/${userId}`;
+        ? `${BACKEND_API}/api/auth/admin/customers/${userId}`
+        : `${BACKEND_API}/api/auth/admin/companies/${userId}`;
 
-      // Convertir "fullName" a "name" antes de enviarlo al backend
       const profileToSend: any = {
-
-        fullName: isCustomer ? editedProfile.fullName : undefined, // Si es cliente, se envía como "fullName"
-        name: !isCustomer ? editedProfile.fullName : undefined, // Si es empresa, se envía como "name"
+        fullName: isCustomer ? editedProfile.fullName : undefined,
+        name: !isCustomer ? editedProfile.fullName : undefined,
         email: editedProfile.email,
         telephone: editedProfile.telephone,
         address: editedProfile.address,
@@ -121,29 +118,24 @@ function EditUserScreen() {
         zipCode: editedProfile.zipCode,
         nif: editedProfile.nif,
         description: editedProfile.description,
-        password: editedProfile.password, // Solo se enviará si se modifica
+        password: editedProfile.password,
       };
 
-      // Agregar dni solo si es un cliente
       if (isCustomer) {
         profileToSend.dni = editedProfile.dni;
       }
 
       const response = await fetch(endpoint, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(profileToSend),
       });
 
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: No se pudo actualizar el perfil.`);
-      }
+      if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar el perfil.`);
 
       showAlert('Éxito', 'Perfil actualizado correctamente.');
-      setIsEditing(false);
+      setHasChanges(false);
+      setOriginalProfile(editedProfile);
     } catch (error: any) {
       console.error('Error al guardar los cambios:', error.message);
       showAlert('Error', error.message);
@@ -173,8 +165,7 @@ function EditUserScreen() {
         onChangeText={(text) => handleInputChange(field, text)}
         placeholder={placeholder}
         placeholderTextColor={'#666'}
-        editable={isEditing}
-        secureTextEntry={secureTextEntry} // Oculta la contraseña con puntitos
+        secureTextEntry={secureTextEntry}
       />
     </View>
   );
@@ -217,13 +208,18 @@ function EditUserScreen() {
               </View>
             </View>
           )}
-
           <View style={styles.buttonContainer}>
-            {isEditing ? (
-              <CustomButton title="Guardar" onPress={handleSave} color="blue" />
-            ) : (
-              <CustomButton title="Editar" onPress={() => setIsEditing(true)} color="blue" />
-            )}
+            <CustomButton 
+              title="Guardar" 
+              onPress={() => {
+                if (!hasChanges) {
+                  showAlert('Aviso', 'Es necesario modificar alguno de los campos antes de guardar.');
+                } else {
+                  handleSave();
+                }
+              }} 
+              color={hasChanges ? 'blue' : 'red'} 
+            />
           </View>
         </View>
       </ScrollView>
