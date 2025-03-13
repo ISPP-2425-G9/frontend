@@ -9,6 +9,8 @@ import { InputField } from '@/components/TextInputArraysForm';
 import { BACKEND_API } from '@/constants/Mysc';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
+import { parseErrors} from '../_util/utils'
+import { useAuth } from '../_util/useAuth';
 
 const { width } = Dimensions.get('window');
 
@@ -16,6 +18,7 @@ const RegisterScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(true);
   const [userType, setUserType] = useState<'Empresa' | 'Cliente' | null>(null);
   const navigation = useNavigation();
+  const { login } = useAuth();
 
   useFocusEffect(
     useCallback(() => {
@@ -40,7 +43,7 @@ const RegisterScreen: React.FC = () => {
     const errors: string[] = [];
 
     const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const nifRegex = /^[ABCDEFGHJNPQRSUVW]\d{7}[0-9A-J]$/;
+    const nifRegex = /^[A-Z]\d{7}[A-J0-9]$/;
     const zipCodeRegex = /^\d{5}$/;
     const phoneRegex = /^\+?\d{9,15}$/;
     const dniRegex = /^\d{8}[A-Z]$/;
@@ -79,7 +82,7 @@ const RegisterScreen: React.FC = () => {
     }
 
     if (!values.telephone || typeof values.telephone !== 'string' || !phoneRegex.test(values.telephone)) {
-        errors.push('Por favor, introduce un teléfono válido incluyendo el prefijo.');
+        errors.push('Por favor, introduce un teléfono válido.');
     }
 
 
@@ -115,7 +118,9 @@ const RegisterScreen: React.FC = () => {
       });
       
       if (!response.ok) {
-        throw new Error(`Hubo un problema al registrarse`);
+        const errors = await response.json()
+        const errorList = parseErrors(errors)
+        throw new Error(`Hubo un problema al registrarse: \n ${errorList}`);
       }
       
       const data = await response.json();
@@ -124,11 +129,7 @@ const RegisterScreen: React.FC = () => {
       await AsyncStorage.setItem('email', data.username);
       await AsyncStorage.setItem('roles', JSON.stringify(data.roles));
       await AsyncStorage.setItem('authToken', data.token);
-      if (Platform.OS === 'web') {
-        window.alert('Registro exitoso: Tu cuenta ha sido creada con éxito.');
-      } else {
-        Alert.alert('Registro exitoso', 'Tu cuenta ha sido creada con éxito.');
-      }
+      login(data.id, data.token, data.roles);
       navigation.navigate('home' as never);
     } catch (error: any) {
       if (Platform.OS === 'web') {
