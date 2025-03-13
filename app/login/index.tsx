@@ -6,6 +6,10 @@ import CustomModal from '@/components/CustomModal';
 import TextInputArraysForm from '@/components/TextInputArraysForm';
 import { GlobalStyles } from '@/constants/Colors';
 import { InputField } from '@/components/TextInputArraysForm';
+import { BACKEND_API } from '@/constants/Mysc';
+import { useAuth } from '../_util/useAuth';
+import { withAuth } from '../_util/withAuth';
+import { AUTHORITIES } from '../_util/Authorities';
 
 const { width, height } = Dimensions.get('window');
 
@@ -13,7 +17,8 @@ const { width, height } = Dimensions.get('window');
 const LoginScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(true);
   const navigation = useNavigation();
-
+  const { login } = useAuth();
+  
   useFocusEffect(
     useCallback(() => {
       setModalVisible(true);
@@ -27,7 +32,7 @@ const LoginScreen: React.FC = () => {
 
   const handleSubmit = async (values: Record<string, string>) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/auth/login`, {
+      const response = await fetch(BACKEND_API+`/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -40,13 +45,8 @@ const LoginScreen: React.FC = () => {
       }
 
       const data = await response.json();
-      await AsyncStorage.setItem('userId', data.id);
-      await AsyncStorage.setItem('authToken', data.token);
-      if (Platform.OS === 'web') {
-              window.alert('Inicio de sesión exitoso: Has iniciado sesión correctamente.');
-            } else {
-              Alert.alert('Inicio de sesión exitoso', 'Has iniciado sesión correctamente.');
-            }
+
+      login(data.id, data.token, data.roles);      
       setModalVisible(false); 
       navigation.navigate('home' as never);
     } catch (error: any) {
@@ -59,8 +59,8 @@ const LoginScreen: React.FC = () => {
   };
 
   const loginFields: InputField[] = [
-    { name: 'identifier', placeholder: 'NIF, DNI o Email', keyboardType: 'default' },
-    { name: 'password', placeholder: 'Contraseña', keyboardType: 'default', secureTextEntry: true },
+    { name: 'identifier', placeholder: 'NIF, DNI o Email', keyboardType: 'default', description: 'Introduce tu NIF, DNI o Email' },
+    { name: 'password', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Introduce tu contraseña' },
   ];
 
   return (
@@ -127,4 +127,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default withAuth(LoginScreen, [AUTHORITIES.ANONYMOUS]);

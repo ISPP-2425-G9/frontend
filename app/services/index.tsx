@@ -1,41 +1,96 @@
-import { StyleSheet, Image, Platform } from 'react-native';
-
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
+import { StyleSheet, Text, FlatList, ActivityIndicator } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import { AUTHORITIES } from '../_util/Authorities';
+import { withAuth } from '../_util/withAuth';
+import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GlobalStyles } from '@/constants/Colors';
+import AdvertisementSponsor from '@/components/AdvertisementSponsor';
+import { BACKEND_API } from '@/constants/Mysc';
 
-export default function TabTwoScreen() {
+
+type Sponsor = {
+  name: string;
+  email: string;
+  telephone: string;
+  address: string;
+  city: string;
+  zipCode: string;
+  imageUrl: string;
+  description: string;
+  nif: string;
+};
+
+const ListServiceScreen: React.FC = () => {
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSponsors = async () => {
+      try {
+        const authToken = await AsyncStorage.getItem('authToken');
+        if (!authToken) throw new Error('No se encontró un token de autenticación');
+        AsyncStorage.getItem('authToken').then(token => console.log('Token almacenado:', token));
+
+        const response = await fetch(BACKEND_API + '/api/companies/premium', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${authToken.trim()}`
+          }
+        });
+
+        if (!response.ok) throw new Error(`Error en la solicitud: ${response.status}`);
+
+        const data = await response.json();
+        setSponsors(data);
+      } catch (error) {
+        console.error('Error fetching sponsors:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSponsors();
+  }, []);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
+    <ThemedView style={styles.container}>
+      <Text style={styles.title}>Empresas destacadas del sector</Text>
+      {loading ? (
+        <ActivityIndicator size="large" color={GlobalStyles.blue} />
+      ) : (
+        <FlatList
+          data={sponsors}
+          keyExtractor={(item) => item.nif}
+          renderItem={({ item }) => <AdvertisementSponsor sponsor={item} />}
+          contentContainerStyle={styles.listContainer}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Page Under Construction</ThemedText>
-      </ThemedView>
-      <ThemedText>This page is under construction and is not available yet.</ThemedText>
-    </ParallaxScrollView>
+      )}
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    padding: 8,
+    flex: 1,
+    alignItems: 'center',
+    paddingTop: 120,
+    backgroundColor: GlobalStyles.white,
   },
-  titleContainer: {
+  title: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    marginBottom: 30,
+    color: GlobalStyles.darkGrey,
+  },
+  listContainer: {
+    width: '100%',
     flexDirection: 'row',
-    gap: 8,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    paddingHorizontal: 8,
   },
 });
+
+export default withAuth(ListServiceScreen, [AUTHORITIES.ADMIN, AUTHORITIES.CUSTOMER, AUTHORITIES.COMPANY]);

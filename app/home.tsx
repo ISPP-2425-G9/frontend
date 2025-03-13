@@ -7,7 +7,6 @@ import Logo from "@/components/Logo";
 
 const { width } = Dimensions.get("window");
 
-
 export default function HomeScreen() {
   const navigation = useNavigation();
   const logoSize = width > 800 ? 225 : 150;
@@ -53,6 +52,8 @@ export default function HomeScreen() {
           </View>
         </View>
       </View>
+
+{/* ====== Temporally Deactivated ============
       <View style={styles.buttonSection}>
         <View style={styles.buttonContainer}>
           <View style={styles.buttonWrapper}>
@@ -69,6 +70,7 @@ export default function HomeScreen() {
           </View>
         </View>
       </View>
+*/}
     </ScrollView>
   );
 }
