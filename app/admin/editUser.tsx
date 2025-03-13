@@ -23,10 +23,15 @@ function EditUserScreen() {
     description?: string;
     dni?: string;
   }
+  // Definir el tipo de los parámetros esperados
+  type RouteParams = {
+    userId?: string;
+    isCustomer?: boolean;
+  };
 
   const navigation = useNavigation();
   const route = useRoute();
-  const { userId, isCustomer } = route.params as { userId: string; isCustomer: boolean };
+  const { userId = '', isCustomer = false } = (route.params as RouteParams) ?? {};
 
   const [originalProfile, setOriginalProfile] = useState<Profile | null>(null);
   const [editedProfile, setEditedProfile] = useState<Profile>({
@@ -90,8 +95,9 @@ function EditUserScreen() {
   }, [userId, isCustomer]);
 
   useEffect(() => {
+    if (!userId) return; // Evita ejecutar la lógica si userId es undefined o vacío
     fetchProfile();
-  }, [fetchProfile]);
+  }, [userId, isCustomer]);
 
   useFocusEffect(
     useCallback(() => {
