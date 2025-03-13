@@ -2,9 +2,9 @@ import CustomButton from '@/components/CustomButton';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { ActivityIndicator, Alert, ScrollView, TextInput, View, StyleSheet, Platform } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { useRoute,useFocusEffect } from '@react-navigation/native';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
 import { BACKEND_API } from '@/constants/Mysc';
@@ -45,51 +45,59 @@ function EditUserScreen() {
   const [loading, setLoading] = useState(true);
   const [hasChanges, setHasChanges] = useState(false);
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const token = await AsyncStorage.getItem('authToken');
-        if (!token) throw new Error('No se encontró el token de autenticación.');
+  const fetchProfile = useCallback(async () => {
+    setLoading(true);
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) throw new Error('No se encontró el token de autenticación.');
 
-        const endpoint = isCustomer
-          ? `${BACKEND_API}/api/auth/admin/customers/${userId}`
-          : `${BACKEND_API}/api/auth/admin/companies/${userId}`;
+      const endpoint = isCustomer
+        ? `${BACKEND_API}/api/auth/admin/customers/${userId}`
+        : `${BACKEND_API}/api/auth/admin/companies/${userId}`;
 
-        const response = await fetch(endpoint, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        });
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      });
 
-        if (!response.ok) throw new Error(`Error ${response.status}: No se pudo obtener los datos del perfil.`);
+      if (!response.ok) throw new Error(`Error ${response.status}: No se pudo obtener los datos del perfil.`);
 
-        const data = await response.json();
-        
-        const profileData: Profile = {
-          name: data.name || '',
-          fullName: data.name || '',
-          email: data.email || '',
-          telephone: data.telephone || '',
-          address: data.address || '',
-          city: data.city || '',
-          zipCode: data.zipCode || '',
-          nif: data.nif || '',
-          description: data.description || '',
-          dni: isCustomer ? data.dni || '' : '',
-          password: 'Contraseña',
-        };
+      const data = await response.json();
+      
+      const profileData: Profile = {
+        name: data.name || '',
+        fullName: data.name || '',
+        email: data.email || '',
+        telephone: data.telephone || '',
+        address: data.address || '',
+        city: data.city || '',
+        zipCode: data.zipCode || '',
+        nif: data.nif || '',
+        description: data.description || '',
+        dni: isCustomer ? data.dni || '' : '',
+        password: 'Contraseña',
+      };
 
-        setEditedProfile(profileData);
-        setOriginalProfile(profileData);
-      } catch (error: any) {
-        console.error('Error al obtener el perfil:', error.message);
-        showAlert('Error', error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
+      setEditedProfile(profileData);
+      setOriginalProfile(profileData);
+    } catch (error: any) {
+      console.error('Error al obtener el perfil:', error.message);
+      showAlert('Error', error.message);
+    } finally {
+      setLoading(false);
+    }
   }, [userId, isCustomer]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setHasChanges(false); // Restablecer cambios al entrar en la pestaña
+      fetchProfile();
+    }, [fetchProfile])
+  );
 
   const handleInputChange = (field: keyof Profile, value: string) => {
     setEditedProfile((prev) => {
