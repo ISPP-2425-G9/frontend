@@ -336,7 +336,8 @@ function EsquelaCustomizer() {
               <CustomButton
                 style={{ marginTop: 12, width: "49%" }}
                 title="Selecciona una imagen"
-                onPress={pickImage}
+                //onPress={pickImage}
+                onPress={()=>alert("Esta función estará disponible en el futuro")}
               />
               <CustomButton
                 style={{ marginTop: 12, width: "49%" }}
