@@ -24,6 +24,7 @@ import { AUTHORITIES } from "../_util/Authorities";
 
 const { width } = Dimensions.get("window");
 
+
 type RootStackParamList = {
   "obituaries/selectContacts": {
     jsonData: string;
@@ -399,10 +400,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   dataContainer: {
-    flex: 1,
-    justifyContent: "flex-start",
-    flexDirection: "column",
-    alignItems: "center",
+    flex: 1,               
+    justifyContent: "center",
+    alignItems: "center",      
     paddingTop: 120,
   },
   title: {
@@ -416,11 +416,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   contactContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: "100%",
-    marginBottom: 10,
+    alignSelf: "center",  
     flex: 1,
+    justifyContent: "center", 
+    alignItems: "center",
+    width: width > 600 ? "100%" : "80%",   
+    marginBottom: 10,
+    flexDirection: "row", 
   },
   deleteButton: {
     marginLeft: 10,
@@ -432,7 +434,12 @@ const styles = StyleSheet.create({
     width: "30%",
   },
   saveButton: {
-    width: "60%",
+    width: width > 600 ? "60%" : 160,
+    height: width > 600 ? "100%" : 70,
+    textAlign: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
   },
   divider: {
     height: 1,
@@ -463,6 +470,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+    textAlign: "center", 
   },
   button: {
     backgroundColor: GlobalStyles.blue,

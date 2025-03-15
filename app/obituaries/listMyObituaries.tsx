@@ -13,6 +13,7 @@ import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
 
 const { width } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 type RootStackParamList = {
   'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number };
@@ -223,15 +224,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   obituaryCard: {
+    padding: 10,
     margin: 8,
-    borderRadius: 16,
+    borderRadius: 20,
     shadowColor: '#000',
     shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
     elevation: 3,
     alignItems: 'center',
     overflow: 'hidden',
+    width: width * 0.20, 
+    height: height * 0.65 
   },
   image: {
     width: '100%',
@@ -265,7 +269,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)', 
-    borderRadius: 8,
+    borderRadius: 10,
     padding: '20%',
   },
   overlayText: {
