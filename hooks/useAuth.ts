@@ -8,18 +8,24 @@ const useAuth = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const user = JSON.parse(await AsyncStorage.getItem("user_data"));
-        const token = user.token
+        const userData: string | null = await AsyncStorage.getItem("user_data");
+        let user = null;
+        let token = null;
+        if(userData !== null) {
+          user = JSON.parse(userData);
+          token = user.token;
+        }
+
         setIsAuthenticated(!!token);
         if(!!token){
           const userRoles = user.roles
           setRoles(userRoles)
 
           // TODO
-          const userEmail = "email";
+          const userEmail = "email_test";
           setEmail(userEmail)
         } else {
-          localStorage.clear()
+          await AsyncStorage.clear();
           setRoles(null);
           setEmail(null);
           setIsAuthenticated(false);
