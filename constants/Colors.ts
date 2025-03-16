@@ -37,4 +37,5 @@ export const GlobalStyles = {
   red: '#E53E3E',
   font: 'DMSans_500Medium',
   fontBold: 'DMSans_700Bold',
+  green: '#29ba68',
 }
