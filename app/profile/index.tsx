@@ -402,7 +402,7 @@ function ProfileScreen() {
 
                   <ThemedText style={styles.changePasswordText}>
                     ¿Desea cambiar su contraseña?{' '}
-                    <Pressable onPress={() => setShowPasswordModal(true)}>
+                    <Pressable onPress={() => alert('Esta función estará disponible en el futuro')}>
                       <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
                     </Pressable>
                   </ThemedText>
