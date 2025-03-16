@@ -58,7 +58,7 @@ function SelectContacts() {
       </View>
     );
   }
-  
+
 
   const is_newObituary = route.params?.is_newObituary ?? true;
   const obituaryId = route.params?.obituaryId ?? undefined;
@@ -87,9 +87,9 @@ function SelectContacts() {
         const userData = await AsyncStorage.getItem("user_data");
         if (userData !== null) {
           const parsedData = JSON.parse(userData);
-          const roles = parsedData.roles; 
+          const roles = parsedData.roles;
           if (roles && roles.includes("CUSTOMER_FREE")) {
-            setUserRole("CUSTOMER_FREE"); 
+            setUserRole("CUSTOMER_FREE");
           }
         }
       } catch (error) {
@@ -103,8 +103,8 @@ function SelectContacts() {
       setContacts([{ id: Date.now(), name: '', phone: '', email: '' }]);
       setCombinedData({});
     };
-  }, []); 
-  
+  }, []);
+
 
   useEffect(() => {
     if (is_newObituary) {
@@ -244,7 +244,7 @@ function SelectContacts() {
 
     const phoneSet = new Set();
     const emailSet = new Set();
-  
+
     try {
       for (const contact of contacts) {
         const contactErrors = validateData(contact);
@@ -271,15 +271,15 @@ function SelectContacts() {
 
       if (is_mine) {
         if (userRole === 'CUSTOMER_FREE') {
-          
-            setModalMessage("¿Desea guardar su propia esquela?\n ⚠️¡Recuerde que debe contratar nuestro plan para que su esquela sea enviada!");
+
+          setModalMessage("¿Desea guardar su propia esquela?\n ⚠️¡Recuerde que debe contratar nuestro plan para que su esquela sea enviada!");
         } else {
           setModalMessage("¿Desea guardar su propia esquela?");
         }
       } else {
         setModalMessage("¿Desea crear y enviar una esquela para un ser querido?");
       }
-      
+
       setModalVisible(true);
     } catch (error: any) {
       if (Platform.OS === "web") {
@@ -333,12 +333,12 @@ function SelectContacts() {
                 style={styles.input}
               />
               <CustomTextInput
-                placeholder="Teléfono"
+                placeholder="Teléfono (sin prefijo)"
                 value={item.phone}
                 maxLength={9}
                 keyboardType="phone-pad"
                 onChangeText={(text) => {
-                  const numericText = text.replace(/\D/g, ""); 
+                  const numericText = text.replace(/\D/g, "");
                   handleChange(item.id, "phone", numericText);
                 }}
                 style={styles.input}
@@ -374,6 +374,7 @@ function SelectContacts() {
 
       <View style={styles.divider} />
       <View style={styles.buttonContainer}>
+
         <CustomButton
           title={
             is_newObituary
@@ -383,12 +384,16 @@ function SelectContacts() {
           onPress={() => showConfirmationModal(true)}
           style={styles.saveButton}
         />
-        <CustomButton
-          title="Cree y envie su esquela para un ser querido"
-          //onPress={() => showConfirmationModal(false)}
-          onPress={()=>alert("Esta función estará disponible en el futuro")}
-          style={styles.saveButton}
-        />
+        {is_newObituary && (
+          <CustomButton
+            title="Cree y envie su esquela para un ser querido"
+            //onPress={() => showConfirmationModal(false)}
+            onPress={() => alert("Esta función estará disponible en el futuro")}
+            style={styles.saveButton}
+          />
+        )
+        }
+
       </View>
 
       {modalVisible && (
@@ -426,9 +431,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   dataContainer: {
-    flex: 1,               
+    flex: 1,
     justifyContent: "center",
-    alignItems: "center",      
+    alignItems: "center",
     paddingTop: 120,
   },
   title: {
@@ -442,13 +447,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   contactContainer: {
-    alignSelf: "center",  
+    alignSelf: "center",
     flex: 1,
-    justifyContent: "center", 
+    justifyContent: "center",
     alignItems: "center",
-    width: width > 600 ? "100%" : "80%",   
+    width: width > 600 ? "100%" : "80%",
     marginBottom: 10,
-    flexDirection: "row", 
+    flexDirection: "row",
   },
   deleteButton: {
     marginLeft: 10,
@@ -496,7 +501,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
-    textAlign: "center", 
+    textAlign: "center",
   },
   button: {
     backgroundColor: GlobalStyles.blue,

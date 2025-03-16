@@ -308,7 +308,7 @@ function EsquelaCustomizer() {
               }
               if (year.length === 4) {
                 let yearNum = parseInt(year, 10);
-                if (yearNum < 1900) year = "1900";
+                if (yearNum < 1800) year = "1800";
                 else if (yearNum > 2025) year = "2025";
                 else year = yearNum.toString();
               }
