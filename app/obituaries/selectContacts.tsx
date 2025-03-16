@@ -21,8 +21,12 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
 import { withAuth } from "../_util/withAuth";
 import { AUTHORITIES } from "../_util/Authorities";
+import useAuth from "@/hooks/useAuth";
+import { ThemedView } from "@/components/ThemedView";
 
 const { width } = Dimensions.get("window");
+
+
 
 type RootStackParamList = {
   "obituaries/selectContacts": {
@@ -47,6 +51,7 @@ type Contact = {
 };
 
 function SelectContacts() {
+  const { isAuthenticated } = useAuth();
   const navigation = useNavigation();
   const route = useRoute<SelectContactsRouteProp>();
   const jsonData = route.params?.jsonData ?? '';
@@ -57,7 +62,7 @@ function SelectContacts() {
       </View>
     );
   }
-  
+
 
   const is_newObituary = route.params?.is_newObituary ?? true;
   const obituaryId = route.params?.obituaryId ?? undefined;
@@ -69,6 +74,8 @@ function SelectContacts() {
   ]);
   const [combinedData, setCombinedData] = useState<any>({});
 
+  const [userRole, setUserRole] = useState<string | null>(null);
+
   useFocusEffect(
     useCallback(() => {
       if (is_newObituary) {
@@ -79,12 +86,29 @@ function SelectContacts() {
   );
 
   useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const userData = await AsyncStorage.getItem("user_data");
+        if (userData !== null) {
+          const parsedData = JSON.parse(userData);
+          const roles = parsedData.roles;
+          if (roles && roles.includes("CUSTOMER_FREE")) {
+            setUserRole("CUSTOMER_FREE");
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserRole();
+
     return () => {
       setContacts([{ id: Date.now(), name: '', phone: '', email: '' }]);
       setCombinedData({});
     };
   }, []);
-  
+
 
   useEffect(() => {
     if (is_newObituary) {
@@ -224,7 +248,7 @@ function SelectContacts() {
 
     const phoneSet = new Set();
     const emailSet = new Set();
-  
+
     try {
       for (const contact of contacts) {
         const contactErrors = validateData(contact);
@@ -249,11 +273,17 @@ function SelectContacts() {
         throw new Error(`Hay error(es) en su formulario: ${errors.join(", ")}`);
       }
 
-      setModalMessage(
-        is_mine
-          ? "¿Desea guardar su propia esquela?"
-          : "¿Desea crear y enviar una esquela para un ser querido?"
-      );
+      if (is_mine) {
+        if (userRole === 'CUSTOMER_FREE') {
+
+          setModalMessage("¿Desea guardar su propia esquela?\n ⚠️¡Recuerde que debe contratar nuestro plan para que su esquela sea enviada!");
+        } else {
+          setModalMessage("¿Desea guardar su propia esquela?");
+        }
+      } else {
+        setModalMessage("¿Desea crear y enviar una esquela para un ser querido?");
+      }
+
       setModalVisible(true);
     } catch (error: any) {
       if (Platform.OS === "web") {
@@ -285,7 +315,7 @@ function SelectContacts() {
     }
   };
 
-  return (
+  return isAuthenticated ? (
     <View style={styles.container}>
       <View style={styles.dataContainer}>
         {is_newObituary ? (
@@ -307,12 +337,12 @@ function SelectContacts() {
                 style={styles.input}
               />
               <CustomTextInput
-                placeholder="Teléfono"
+                placeholder="Teléfono (sin prefijo)"
                 value={item.phone}
                 maxLength={9}
                 keyboardType="phone-pad"
                 onChangeText={(text) => {
-                  const numericText = text.replace(/\D/g, ""); 
+                  const numericText = text.replace(/\D/g, "");
                   handleChange(item.id, "phone", numericText);
                 }}
                 style={styles.input}
@@ -348,6 +378,7 @@ function SelectContacts() {
 
       <View style={styles.divider} />
       <View style={styles.buttonContainer}>
+
         <CustomButton
           title={
             is_newObituary
@@ -357,12 +388,16 @@ function SelectContacts() {
           onPress={() => showConfirmationModal(true)}
           style={styles.saveButton}
         />
-        <CustomButton
-          title="Cree y envie su esquela para un ser querido"
-          //onPress={() => showConfirmationModal(false)}
-          onPress={()=>alert("Esta función estará disponible en el futuro")}
-          style={styles.saveButton}
-        />
+        {is_newObituary && (
+          <CustomButton
+            title="Cree y envie su esquela para un ser querido"
+            //onPress={() => showConfirmationModal(false)}
+            onPress={() => alert("Esta función estará disponible en el futuro")}
+            style={styles.saveButton}
+          />
+        )
+        }
+
       </View>
 
       {modalVisible && (
@@ -389,7 +424,11 @@ function SelectContacts() {
         </CustomModal>
       )}
     </View>
-  );
+  ) : (
+      <ThemedView style={styles.container}>
+        <Text style={styles.title}>Debes iniciar sesión para poder acceder a esta sección</Text>
+      </ThemedView>
+    );
 }
 
 const styles = StyleSheet.create({
@@ -401,8 +440,7 @@ const styles = StyleSheet.create({
   },
   dataContainer: {
     flex: 1,
-    justifyContent: "flex-start",
-    flexDirection: "column",
+    justifyContent: "center",
     alignItems: "center",
     paddingTop: 120,
   },
@@ -417,11 +455,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   contactContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: "100%",
-    marginBottom: 10,
+    alignSelf: "center",
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    width: width > 600 ? "100%" : "80%",
+    marginBottom: 10,
+    flexDirection: "row",
   },
   deleteButton: {
     marginLeft: 10,
@@ -433,7 +473,12 @@ const styles = StyleSheet.create({
     width: "30%",
   },
   saveButton: {
-    width: "60%",
+    width: width > 600 ? "60%" : 160,
+    height: width > 600 ? "100%" : 70,
+    textAlign: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
   },
   divider: {
     height: 1,
@@ -464,6 +509,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+    textAlign: "center",
   },
   button: {
     backgroundColor: GlobalStyles.blue,
