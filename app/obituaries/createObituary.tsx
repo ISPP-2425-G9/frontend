@@ -27,7 +27,7 @@ import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
 import { withAuth } from "../_util/withAuth";
 import { AUTHORITIES } from "../_util/Authorities";
-import { green } from "react-native-reanimated/lib/typescript/Colors";
+import { RFPercentage, RFValue,  } from "react-native-responsive-fontsize";
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
@@ -466,8 +466,8 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   previewText: {
-    fontSize: width > 600 ? 16 : 12,
-    maxWidth: width > 600 ? 400 : "62%",
+    fontSize: width > 600 ? RFValue(6): RFValue(8.5),
+    maxWidth: width > 600 ? 400 : "80%",
     marginTop: 8,
     textAlign: "justify",
   },
@@ -493,27 +493,33 @@ const styles = StyleSheet.create({
   },
   previewPhrase: {
     marginTop: 15,
-    fontSize: width > 600 ? 16 : 13,
+    fontSize: width > 600 ? RFValue(6): RFValue(8),
     fontStyle: "italic",
-    maxWidth: width > 600 ? 400 : "62%",
+    maxWidth: width > 600 ? 400 : "80%",
     justifyContent: "center",
     textAlign: "center",
   },
   overlayContainer: {
     position: "relative",
     alignItems: "center",
-    //backgroundColor: "#ff0000", 
+    justifyContent: "center",
+    width: "100%",
+    height: "100%",
   },
   templateImage: {
-    width: width * 0.83,
-    height: height * 0.83,
+    width: width > 600 ? width * 0.86 : width * 0.90,
+    height: width > 600 ? height * 0.86 : height * 0.90,
     resizeMode: "contain",
   },
   overlayContent: {
     position: "absolute",
+    top: width > 600 ? "35%":"43%",
+    left: "50%",
+    transform: [{ translateX: -width * 0.4 }, { translateY: -height * 0.2 }],
+    width: width * 0.8,
     alignItems: "center",
-    marginTop: 100,
-    //backgroundColor: "#00ff00",
+    justifyContent: "center",
+    padding: 10,
   },
   customImage: {
     width: width > 600 ? 100 : 60,
