@@ -11,6 +11,8 @@ import CustomModal from '@/components/CustomModal';
 import { BACKEND_API } from '@/constants/Mysc';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
+import useAuth from "@/hooks/useAuth";
+
 
 const { width } = Dimensions.get('window');
 const { height } = Dimensions.get('window');
@@ -22,7 +24,9 @@ type RootStackParamList = {
 
 
 function ObituaryIndex() {
-  
+
+
+  const { isAuthenticated } = useAuth();  
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { width, height } = useWindowDimensions(); 
 
@@ -136,7 +140,7 @@ function ObituaryIndex() {
   }
 
 
-  return (
+  return isAuthenticated ? (
     <ThemedView style={styles.container}>
       <Text style={styles.title}>Sus esquelas</Text>
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
@@ -147,16 +151,13 @@ function ObituaryIndex() {
               style={[
                 styles.obituaryCard,
                 {
-                  width: width * 0.2,
-                  height: height * 0.65,
-                  borderColor: item.isMine ? GlobalStyles.blue : GlobalStyles.grey,
-                  borderWidth: 6,
+                  borderColor: item.isMine ? GlobalStyles.green : GlobalStyles.blue,
                 },
               ]}
             >
               <Image source={{ uri: item.imageTemplate?.imageUrl }} style={styles.image} />
               <View style={styles.overlay}>
-                <Text style={styles.overlayText}>
+              <Text style={styles.overlayText}>
                   {item.isMine ? `${item.name} (Su propia esquela)` : item.name}
                 </Text>
                 <View style={{ flex: 1, justifyContent: 'flex-end' }}>
@@ -171,14 +172,15 @@ function ObituaryIndex() {
                         <CustomButton title="Esquela ya enviada" onPress={() => {}} />
                         <CustomButton
                           title="Visualiza la esquela"
+                          color = "green"
                           onPress={() =>
                             handleObituaryPress(item.imageTemplate?.imageId, item.imageTemplate?.imageUrl, item.id)
                           }
                         />
                       </>
                     )}
+                    </View>
                   </View>
-                </View>
               </View>
             </View>
           ))}
@@ -207,7 +209,11 @@ function ObituaryIndex() {
         </CustomModal>
       )}
     </ThemedView>
-  );
+  ) : (
+      <ThemedView style={styles.container}>
+      <Text style={styles.title}>Debes iniciar sesión para poder acceder a esta sección</Text>  
+      </ThemedView>
+    );
 }
 
 const styles = StyleSheet.create({
@@ -246,7 +252,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     overflow: 'hidden',
     width: width * 0.20, 
-    height: height * 0.65 
+    height: height * 0.65,
+    borderWidth: 6,
   },
   image: {
     width: '100%',
@@ -264,6 +271,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#ccc',
     marginVertical: 20,
   },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+    borderRadius: 10,
+    padding: '20%',
+  },
   buttonContainer: {
     width: '90%',
     alignItems: 'flex-end', 
@@ -276,19 +295,6 @@ const styles = StyleSheet.create({
     gap:  10,
     width: '100%',
     alignItems: 'center',
-  },
-
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
-    borderRadius: 10,
-    padding: '20%',
   },
   overlayText: {
     color: '#fff',
