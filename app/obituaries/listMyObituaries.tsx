@@ -141,25 +141,26 @@ function ObituaryIndex() {
     <ThemedView style={styles.container}>
       <Text style={styles.title}>Sus esquelas</Text>
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-        <View style={styles.listContainer}>
-          {obituaries.map((item) => (
-             <TouchableOpacity
-             key={item.id} 
-             onPress={() => handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id)} 
-             style={[
-               styles.obituaryCard, 
-               { 
-                 width: width * 0.20, 
-                 height: height * 0.65, 
-                 borderColor: item.isMine ? GlobalStyles.blue : GlobalStyles.grey,  
-                 borderWidth: 6,  
-               }
-             ]} 
-           >
+      <View style={styles.listContainer}>
+        {obituaries.map((item) => (
+          <View
+            key={item.id}
+            style={[
+              styles.obituaryCard,
+              { 
+                width: width * 0.20, 
+                height: height * 0.65, 
+                borderColor: item.isMine ? GlobalStyles.blue : GlobalStyles.grey,  
+                borderWidth: 6,  
+              }
+            ]}
+          >
               <Image source={{ uri: item.imageTemplate.imageUrl }} style={styles.image} />
               <View style={styles.overlay}>
                 <Text style={styles.overlayText}>{item.isMine ? `${item.name} (Su propia esquela)` : item.name}</Text>
                 <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+                  
+                <View style={styles.buttonsContainer}>
                 { item.deathDate === null ? (
                   <CustomButton title="Eliminar" color="red" onPress={() => showConfirmationModal(item.id)} />
                 ) : (
@@ -168,6 +169,19 @@ function ObituaryIndex() {
                   onPress={() => {}} 
                 />
               )}
+              { item.deathDate === null ? (
+               <CustomButton 
+                  title="Edita la esquela" 
+                  onPress={() => {}} 
+                />
+              ) : (
+                <CustomButton 
+                  title="Visualiza la esquela" 
+                  onPress={() => handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id)} 
+                />
+              )}
+                </View>
+
                 </View>
               </View>
             </TouchableOpacity>
@@ -260,6 +274,13 @@ const styles = StyleSheet.create({
     marginRight: '6%',
     gap: '4%',
   },
+  buttonsContainer: {
+    flexDirection: 'column',
+    gap:  10,
+    width: '100%',
+    alignItems: 'center',
+  },
+
   overlay: {
     position: 'absolute',
     top: 0,
@@ -299,6 +320,8 @@ const styles = StyleSheet.create({
       borderRadius: 8,
       alignItems: 'center',
     },
+   
+
     modalStyle: {
       backgroundColor: '#fff',
       padding: 20,
