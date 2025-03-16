@@ -23,7 +23,11 @@ export default function HomeScreen() {
       <View style={[styles.container, width > 800 ? styles.rowLayout : styles.columnLayout]}>
         <View style={styles.logoContainer}>
           <Logo size={logoSize}/>
-          <Text style={styles.tagline}>Honrando memorias, facilitando despedidas.</Text>
+          <br/>
+          <Text style={styles.tagline}>Honrando memorias,</Text>
+          <Text style={styles.tagline}>facilitando despedidas</Text>
+          <br/>
+          <br/>
         </View>
         
         <View style={styles.spacer} />
@@ -88,8 +92,9 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 110,
-    marginTop: 50,
+    paddingVertical: 120,
+    paddingBottom: 300,
+    marginTop: 30,
   },
   container: {
     width: "90%",
@@ -98,7 +103,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   rowLayout: {
-    flexDirection: "row",
+    flexDirection: width > 800 ? "row" : "column",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -110,12 +115,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 10,
-  },
-  logo: {
-    width: width > 800 ? width * 0.4 : width * 0.7,
-    height: width > 800 ? 220 : 180,
-    marginBottom: 15,
+    marginBottom: 0,
   },
   tagline: {
     fontSize: 28,
@@ -128,25 +128,27 @@ const styles = StyleSheet.create({
     width: width > 800 ? 100 : 0,
   },
   infoBox: {
-    flex: 1.2,
+    flex: 1,
     backgroundColor: GlobalStyles.lightGrey,
-    padding: 40,
+    padding: width > 800 ? 40 : 20,
     borderRadius: 20,
     shadowColor: "#000",
     shadowOpacity: 0.15,
     shadowRadius: 6,
-    maxWidth: width > 800 ? 900 : "90%",
+    width: width > 800 ? 900 : "100%",
     alignSelf: "center",
+    minHeight: "auto",
+    marginBottom: 30,
   },
   title: {
-    fontSize: 28,
+    fontSize: width > 800 ? 28 : 22,
     fontFamily: GlobalStyles.fontBold,
     textAlign: "center",
     marginBottom: 12,
     color: GlobalStyles.darkGrey,
   },
   buttonSection: {
-    marginTop: 100,
+    marginTop: 40,
     width: "100%",
     alignItems: "center",
   },
@@ -154,7 +156,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
-    gap: 20,
+    gap: 15,
   },
   buttonWrapper: {
     alignItems: "center",
@@ -166,23 +168,25 @@ const styles = StyleSheet.create({
     fontFamily: GlobalStyles.font,
     textAlign: "center",
     color: GlobalStyles.darkGrey,
-    marginBottom: 10,
+    marginBottom: 5,
   },
   infoItem: {
     flexDirection: "row",
     alignItems: "flex-start",
     marginBottom: 8,
+    flexWrap: "nowrap",
   },
   icon: {
     marginRight: 10,
-    marginTop: 4,
+    alignSelf: "flex-start",
   },
   description: {
-    fontSize: 20,
+    fontSize: width > 800 ? 20 : 16,
     fontFamily: GlobalStyles.font,
     textAlign: "left",
     color: GlobalStyles.grey,
     maxWidth: "100%",
+    flex: 1,
   },
   bold: {
     fontFamily: GlobalStyles.fontBold,
