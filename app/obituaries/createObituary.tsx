@@ -372,7 +372,7 @@ function EsquelaCustomizer() {
                   onPress={pickImage}
                 />
                 <CustomButton
-                  style={{ marginTop: 12, width: "49%" }}
+                  style={{ marginTop: 12, width: "55%" }}
                   title="Cambia el diseño de tu esquela"
                   onPress={changeDesign}
                 />
