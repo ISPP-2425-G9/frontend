@@ -10,8 +10,8 @@ type CustomButtonProps = {
 };
 
 const CustomButton: React.FC<CustomButtonProps> = ({ title, onPress, style, color = 'blue' }) => {
+  const textStyles = [styles.text, color === 'white' ? styles.textGrey : styles.textWhite];
   const buttonStyles = [styles.button, styles[color], style];
-  const textStyles = [styles.textWhite, color === 'white' ? styles.textGrey : styles.textWhite];
 
   return (
     <Pressable style={buttonStyles} onPress={onPress}>
@@ -42,16 +42,18 @@ const styles = StyleSheet.create({
   white: {
     backgroundColor: GlobalStyles.white,
   },
-  green : {
+  green: {
     backgroundColor: GlobalStyles.green,
+  },
+  text: {
+    textAlign: 'center', 
+    fontWeight: 'bold',
   },
   textWhite: {
     color: GlobalStyles.white,
-    fontWeight: 'bold',
   },
   textGrey: {
     color: GlobalStyles.darkGrey,
-    fontWeight: 'bold',
   },
 });
 
