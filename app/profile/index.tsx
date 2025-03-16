@@ -410,6 +410,9 @@ function ProfileScreen() {
 
                 <View style={styles.column}>
                   <ThemedText style={styles.title}>Contactos de emergencia</ThemedText>
+                  <ThemedText style={styles.text}>Esta función estará disponible en futuras versiones</ThemedText>
+                  
+                  {/*
                   <ThemedText style={styles.label}>Nombre de contacto</ThemedText>
                   <ThemedText style={styles.value}>Juan Pérez</ThemedText>
                   <ThemedText style={styles.label}>Teléfono de contacto</ThemedText>
@@ -428,6 +431,7 @@ function ProfileScreen() {
                       color="blue"
                     />
                   </View>
+                  */}
                 </View>
               </View>
             ) : (

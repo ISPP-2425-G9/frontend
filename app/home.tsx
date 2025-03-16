@@ -63,8 +63,8 @@ export default function HomeScreen() {
           </View>
         </View>
       </View>
-
-      { isAuthenticated && userRoles?.includes("CUSTOMER") &&
+      
+      { false && isAuthenticated && userRoles?.includes("CUSTOMER") &&
         <View style={styles.buttonSection}>
           <View style={styles.buttonContainer}>
             <View style={styles.buttonWrapper}>
