@@ -308,4 +308,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default withAuth(ObituaryIndex, [AUTHORITIES.CUSTOMER, AUTHORITIES.ADMIN])
+export default withAuth(ObituaryIndex, [AUTHORITIES.CUSTOMER])

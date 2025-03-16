@@ -474,4 +474,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withAuth(SelectContacts, [AUTHORITIES.CUSTOMER, AUTHORITIES.ADMIN])
+export default withAuth(SelectContacts, [AUTHORITIES.CUSTOMER])
