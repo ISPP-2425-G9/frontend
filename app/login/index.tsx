@@ -1,18 +1,16 @@
-import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, Alert, Platform, Dimensions } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import CustomModal from '@/components/CustomModal';
-import TextInputArraysForm from '@/components/TextInputArraysForm';
+import TextInputArraysForm, { InputField } from '@/components/TextInputArraysForm';
 import { GlobalStyles } from '@/constants/Colors';
-import { InputField } from '@/components/TextInputArraysForm';
 import { BACKEND_API } from '@/constants/Mysc';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import React, { useCallback, useState } from 'react';
+import { Alert, Dimensions, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { AUTHORITIES } from '../_util/Authorities';
 import { useAuth } from '../_util/useAuth';
 import { withAuth } from '../_util/withAuth';
-import { AUTHORITIES } from '../_util/Authorities';
+
 
 const { width, height } = Dimensions.get('window');
-
 
 const LoginScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(true);

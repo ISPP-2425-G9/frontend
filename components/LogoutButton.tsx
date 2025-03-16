@@ -1,10 +1,10 @@
+import { useAuth } from '@/app/_util/useAuth';
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import CustomButton from './CustomButton';
 import CustomModal from './CustomModal';
 import { ThemedText } from './ThemedText';
-import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '@/app/_util/useAuth';
 
 export default function LogoutButton() {
   const [isModalVisible, setIsModalVisible] = React.useState(false);

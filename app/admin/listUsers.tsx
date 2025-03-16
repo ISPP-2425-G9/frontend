@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect,useCallback } from 'react';
 import { StyleSheet, View, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation,useFocusEffect } from '@react-navigation/native';
 import CustomTable from '@/components/CustomTable';
 import CustomButton from '@/components/CustomButton';
 import CustomModal from '@/components/CustomModal';
@@ -11,7 +11,6 @@ import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
-
 
 function AdminListUsers() {
   type Cliente = {
@@ -36,10 +35,6 @@ function AdminListUsers() {
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
-
-  useEffect(() => {
-    fetchData();
-  }, [mostrarClientes]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -70,6 +65,13 @@ function AdminListUsers() {
       setLoading(false);
     }
   };
+
+  // Ejecutar fetchData cuando se entra en la pantalla
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [mostrarClientes])
+  );
 
   const handleEdit = (id: number) => {
     navigation.navigate('admin/editUser', { userId: id, isCustomer: mostrarClientes });
