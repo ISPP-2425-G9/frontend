@@ -557,4 +557,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withAuth(EsquelaCustomizer, [AUTHORITIES.CUSTOMER, AUTHORITIES.ADMIN])
+export default withAuth(EsquelaCustomizer, [AUTHORITIES.CUSTOMER])

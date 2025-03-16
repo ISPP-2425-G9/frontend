@@ -83,17 +83,16 @@ export default function TabLayout() {
         safeAreaInsets: { top: 0 },
       })}
     >
+
       <Tabs.Screen name="home" options={{ title: "" }} />
       <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen name="+not-found" options={{ href: null }} />
 
       {
         isAuthenticated ? [
-          <Tabs.Screen name="profile/index" options={{ title: "" }} />,
           <Tabs.Screen name="login/index" options={{ href: null }} />,
           <Tabs.Screen name="register/index" options={{ href: null }} />,
         ] : [
-          <Tabs.Screen name="profile/index" options={{ href: null }} />,
           <Tabs.Screen name="login/index" options={{ title: "" }} />,
           <Tabs.Screen name="register/index" options={{ title: "" }} />,
         ]
@@ -110,40 +109,72 @@ export default function TabLayout() {
       }
 
       { 
-        isAuthenticated && (userRoles?.includes("CUSTOMER") || userRoles?.includes("COMPANY")) ? [
-          <Tabs.Screen name="services/index" options={{ title: "" }} />,
-          <Tabs.Screen name="subscribe/index" options={{ title: "" }} />,
-        ] : [
-          <Tabs.Screen name="services/index" options={{ href: null }} />,
-          <Tabs.Screen name="subscribe/index" options={{ href: null }} />,
-        ]
-      }
-
-      { 
         isAuthenticated && userRoles?.includes("CUSTOMER") ? [
           <Tabs.Screen name="obituaries/index" options={{ title: "" }} />,
           <Tabs.Screen name="obituaries/createObituary" options={{ href: null }} />,
           <Tabs.Screen name="obituaries/listMyObituaries" options={{ href: null }} />,
           <Tabs.Screen name="obituaries/selectContacts" options={{ href: null }} />,
           <Tabs.Screen name="obituaries/loadCertificate" options={{ href: null }} />,
-          <Tabs.Screen name="messages/index" options={{ title: "" }} />,
-          <Tabs.Screen name="contacts/index" options={{ title: "" }} />,
         ] : [
           <Tabs.Screen name="obituaries/index" options={{ href: null }} />,
           <Tabs.Screen name="obituaries/createObituary" options={{ href: null }} />,
           <Tabs.Screen name="obituaries/listMyObituaries" options={{ href: null }} />,
           <Tabs.Screen name="obituaries/selectContacts" options={{ href: null }} />,
           <Tabs.Screen name="obituaries/loadCertificate" options={{ href: null }} />,
-          <Tabs.Screen name="messages/index" options={{ href: null }} />,
-          <Tabs.Screen name="contacts/index" options={{ href: null }} />,,
         ]
       }
 
       { 
-        isAuthenticated && userRoles?.includes("COMPANY")  ? [
+        isAuthenticated && userRoles?.includes("CUSTOMER_FREE") ? [
+          
+        ] : [
+          
+        ]
+      }
+
+      { 
+        isAuthenticated && userRoles?.includes("CUSTOMER_PREMIUM") ? [
+          <Tabs.Screen name="messages/index" options={{ title: "" }} />,
+          <Tabs.Screen name="contacts/index" options={{ title: "" }} />,
+        ] : [
+          <Tabs.Screen name="messages/index" options={{ href: null }} />,
+          <Tabs.Screen name="contacts/index" options={{ href: null }} />,
+        ]
+      }
+
+      { 
+        isAuthenticated && userRoles?.includes("COMPANY") ? [
+          
+        ] : [
+          
+        ]
+      }
+
+      { 
+        isAuthenticated && userRoles?.includes("COMPANY_FREE")  ? [
 
         ] : [
 
+        ]
+      }
+
+      { 
+        isAuthenticated && userRoles?.includes("COMPANY_PREMIUM")  ? [
+
+        ] : [
+
+        ]
+      }
+      
+      { 
+        isAuthenticated && (userRoles?.includes("CUSTOMER") || userRoles?.includes("COMPANY")) ? [
+          <Tabs.Screen name="services/index" options={{ title: "" }} />,
+          <Tabs.Screen name="subscribe/index" options={{ title: "" }} />,
+          <Tabs.Screen name="profile/index" options={{ title: "" }} />,
+        ] : [
+          <Tabs.Screen name="services/index" options={{ href: null }} />,
+          <Tabs.Screen name="subscribe/index" options={{ href: null }} />,
+          <Tabs.Screen name="profile/index" options={{ href: null }} />,
         ]
       }
       

@@ -4,10 +4,17 @@ import { GlobalStyles } from "@/constants/Colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import CustomButton from "@/components/CustomButton";
 import Logo from "@/components/Logo";
+import useAuth from "@/hooks/useAuth";
+
 
 const { width } = Dimensions.get("window");
 
 export default function HomeScreen() {
+  const { isAuthenticated, roles } = useAuth();
+  let userRoles: string[] | null = null
+  if(isAuthenticated){
+    userRoles = roles
+  }
   const navigation = useNavigation();
   const logoSize = width > 800 ? 225 : 150;
 
@@ -16,7 +23,11 @@ export default function HomeScreen() {
       <View style={[styles.container, width > 800 ? styles.rowLayout : styles.columnLayout]}>
         <View style={styles.logoContainer}>
           <Logo size={logoSize}/>
-          <Text style={styles.tagline}>Honrando memorias, facilitando despedidas.</Text>
+          <br/>
+          <Text style={styles.tagline}>Honrando memorias,</Text>
+          <Text style={styles.tagline}>facilitando despedidas</Text>
+          <br/>
+          <br/>
         </View>
         
         <View style={styles.spacer} />
@@ -53,24 +64,25 @@ export default function HomeScreen() {
         </View>
       </View>
 
-{/* ====== Temporally Deactivated ============
-      <View style={styles.buttonSection}>
-        <View style={styles.buttonContainer}>
-          <View style={styles.buttonWrapper}>
-            <Text style={styles.buttonText}>Pulsa aquí, si quieres personalizar la esquela para un familiar o amigo que haya fallecido</Text>
-            <CustomButton title="Personalizar esquela" onPress={() => navigation.navigate("obituaries/index" as never)} color="blue" />
-          </View>
-          <View style={styles.buttonWrapper}>
-            <Text style={styles.buttonText}>Pulsa aquí, si quieres poder personalizar tus mensajes o tu esquela para enviársela a familiares, amigos o enemigos😏, una vez que hayas fallecido</Text>
-            <CustomButton title="Suscribirse" onPress={() => navigation.navigate("subscribe/index" as never)} color="blue" />
-          </View>
-          <View style={styles.buttonWrapper}>
-            <Text style={styles.buttonText}>Si quieres ver los servicios que ofrecen empresas del sector funerario, pulsa aquí</Text>
-            <CustomButton title="Ver servicios" onPress={() => navigation.navigate("services/index" as never)} color="blue" />
+      { isAuthenticated && userRoles?.includes("CUSTOMER") &&
+        <View style={styles.buttonSection}>
+          <View style={styles.buttonContainer}>
+            <View style={styles.buttonWrapper}>
+              <Text style={styles.buttonText}>Pulsa aquí, si quieres personalizar la esquela para un familiar o amigo que haya fallecido</Text>
+              <CustomButton title="Personalizar esquela" onPress={() => navigation.navigate("obituaries/index" as never)} color="blue" />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <Text style={styles.buttonText}>Pulsa aquí, si quieres pagar el plan para personalizar mensajes para familiares o amigos una vez que haya fallecido o para promocionar tu empresa relacionada con el sector funerario.</Text>
+              <CustomButton title="Suscribirse" onPress={() => navigation.navigate("subscribe/index" as never)} color="blue" />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <Text style={styles.buttonText}>Si quieres ver los servicios que ofrecen empresas del sector funerario, pulsa aquí</Text>
+              <CustomButton title="Ver servicios" onPress={() => navigation.navigate("services/index" as never)} color="blue" />
+            </View>
           </View>
         </View>
-      </View>
-*/}
+      }
+      
     </ScrollView>
   );
 }
@@ -80,8 +92,9 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 110,
-    marginTop: 50,
+    paddingVertical: 120,
+    paddingBottom: 300,
+    marginTop: 30,
   },
   container: {
     width: "90%",
@@ -90,7 +103,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   rowLayout: {
-    flexDirection: "row",
+    flexDirection: width > 800 ? "row" : "column",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -102,12 +115,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 10,
-  },
-  logo: {
-    width: width > 800 ? width * 0.4 : width * 0.7,
-    height: width > 800 ? 220 : 180,
-    marginBottom: 15,
+    marginBottom: 0,
   },
   tagline: {
     fontSize: 28,
@@ -120,25 +128,27 @@ const styles = StyleSheet.create({
     width: width > 800 ? 100 : 0,
   },
   infoBox: {
-    flex: 1.2,
+    flex: 1,
     backgroundColor: GlobalStyles.lightGrey,
-    padding: 40,
+    padding: width > 800 ? 40 : 20,
     borderRadius: 20,
     shadowColor: "#000",
     shadowOpacity: 0.15,
     shadowRadius: 6,
-    maxWidth: width > 800 ? 900 : "90%",
+    width: width > 800 ? 900 : "100%",
     alignSelf: "center",
+    minHeight: "auto",
+    marginBottom: 30,
   },
   title: {
-    fontSize: 28,
+    fontSize: width > 800 ? 28 : 22,
     fontFamily: GlobalStyles.fontBold,
     textAlign: "center",
     marginBottom: 12,
     color: GlobalStyles.darkGrey,
   },
   buttonSection: {
-    marginTop: 100,
+    marginTop: 40,
     width: "100%",
     alignItems: "center",
   },
@@ -146,7 +156,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
-    gap: 20,
+    gap: 15,
   },
   buttonWrapper: {
     alignItems: "center",
@@ -158,23 +168,25 @@ const styles = StyleSheet.create({
     fontFamily: GlobalStyles.font,
     textAlign: "center",
     color: GlobalStyles.darkGrey,
-    marginBottom: 10,
+    marginBottom: 5,
   },
   infoItem: {
     flexDirection: "row",
     alignItems: "flex-start",
     marginBottom: 8,
+    flexWrap: "nowrap",
   },
   icon: {
     marginRight: 10,
-    marginTop: 4,
+    alignSelf: "flex-start",
   },
   description: {
-    fontSize: 20,
+    fontSize: width > 800 ? 20 : 16,
     fontFamily: GlobalStyles.font,
     textAlign: "left",
     color: GlobalStyles.grey,
     maxWidth: "100%",
+    flex: 1,
   },
   bold: {
     fontFamily: GlobalStyles.fontBold,

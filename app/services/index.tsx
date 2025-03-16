@@ -93,4 +93,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withAuth(ListServiceScreen, [AUTHORITIES.ADMIN, AUTHORITIES.CUSTOMER, AUTHORITIES.COMPANY]);
+export default withAuth(ListServiceScreen, [AUTHORITIES.CUSTOMER, AUTHORITIES.COMPANY]);
