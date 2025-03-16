@@ -362,6 +362,7 @@ function SelectContacts() {
           title="Cree y envie su esquela para un ser querido"
           //onPress={() => showConfirmationModal(false)}
           onPress={()=>alert("Esta función estará disponible en el futuro")}
+          style={styles.saveButton}
         />
       </View>
 
