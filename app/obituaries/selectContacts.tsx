@@ -70,6 +70,8 @@ function SelectContacts() {
   ]);
   const [combinedData, setCombinedData] = useState<any>({});
 
+  const [userRole, setUserRole] = useState<string | null>(null);
+
   useFocusEffect(
     useCallback(() => {
       if (is_newObituary) {
@@ -80,11 +82,28 @@ function SelectContacts() {
   );
 
   useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const userData = await AsyncStorage.getItem("user_data");
+        if (userData !== null) {
+          const parsedData = JSON.parse(userData);
+          const roles = parsedData.roles; 
+          if (roles && roles.includes("CUSTOMER_FREE")) {
+            setUserRole("CUSTOMER_FREE"); 
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserRole();
+
     return () => {
       setContacts([{ id: Date.now(), name: '', phone: '', email: '' }]);
       setCombinedData({});
     };
-  }, []);
+  }, []); 
   
 
   useEffect(() => {
@@ -250,11 +269,17 @@ function SelectContacts() {
         throw new Error(`Hay error(es) en su formulario: ${errors.join(", ")}`);
       }
 
-      setModalMessage(
-        is_mine
-          ? "¿Desea guardar su propia esquela?"
-          : "¿Desea crear y enviar una esquela para un ser querido?"
-      );
+      if (is_mine) {
+        if (userRole === 'CUSTOMER_FREE') {
+          
+            setModalMessage("¿Desea guardar su propia esquela?\n ⚠️¡Recuerde que debe contratar nuestro plan para que su esquela sea enviada!");
+        } else {
+          setModalMessage("¿Desea guardar su propia esquela?");
+        }
+      } else {
+        setModalMessage("¿Desea crear y enviar una esquela para un ser querido?");
+      }
+      
       setModalVisible(true);
     } catch (error: any) {
       if (Platform.OS === "web") {
@@ -362,6 +387,7 @@ function SelectContacts() {
           title="Cree y envie su esquela para un ser querido"
           //onPress={() => showConfirmationModal(false)}
           onPress={()=>alert("Esta función estará disponible en el futuro")}
+          style={styles.saveButton}
         />
       </View>
 
