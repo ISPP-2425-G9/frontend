@@ -367,12 +367,12 @@ function EsquelaCustomizer() {
                 }}
               >
                 <CustomButton
-                  style={{ marginTop: 12, width: "49%" }}
+                  style={styles.customButtonStyle}
                   title="Selecciona una imagen"
                   onPress={pickImage}
                 />
                 <CustomButton
-                  style={{ marginTop: 12, width: "55%" }}
+                  style={styles.customButtonStyle}
                   title="Cambia el diseño de tu esquela"
                   onPress={changeDesign}
                 />
@@ -555,6 +555,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
+  customButtonStyle: {
+    marginTop: 12, 
+    width: "49%", 
+    height: width > 600 ? 40 : 60
+  }
 });
 
-export default withAuth(EsquelaCustomizer, [AUTHORITIES.CUSTOMER, AUTHORITIES.ADMIN])
+export default withAuth(EsquelaCustomizer, [AUTHORITIES.CUSTOMER])
