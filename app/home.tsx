@@ -4,10 +4,17 @@ import { GlobalStyles } from "@/constants/Colors";
 import { MaterialIcons } from "@expo/vector-icons";
 import CustomButton from "@/components/CustomButton";
 import Logo from "@/components/Logo";
+import useAuth from "@/hooks/useAuth";
+
 
 const { width } = Dimensions.get("window");
 
 export default function HomeScreen() {
+  const { isAuthenticated, roles } = useAuth();
+  let userRoles: string[] | null = null
+  if(isAuthenticated){
+    userRoles = roles
+  }
   const navigation = useNavigation();
   const logoSize = width > 800 ? 225 : 150;
 
@@ -53,24 +60,25 @@ export default function HomeScreen() {
         </View>
       </View>
 
-{/* ====== Temporally Deactivated ============
-      <View style={styles.buttonSection}>
-        <View style={styles.buttonContainer}>
-          <View style={styles.buttonWrapper}>
-            <Text style={styles.buttonText}>Pulsa aquí, si quieres personalizar la esquela para un familiar o amigo que haya fallecido</Text>
-            <CustomButton title="Personalizar esquela" onPress={() => navigation.navigate("obituaries/index" as never)} color="blue" />
-          </View>
-          <View style={styles.buttonWrapper}>
-            <Text style={styles.buttonText}>Pulsa aquí, si quieres poder personalizar tus mensajes o tu esquela para enviársela a familiares, amigos o enemigos😏, una vez que hayas fallecido</Text>
-            <CustomButton title="Suscribirse" onPress={() => navigation.navigate("subscribe/index" as never)} color="blue" />
-          </View>
-          <View style={styles.buttonWrapper}>
-            <Text style={styles.buttonText}>Si quieres ver los servicios que ofrecen empresas del sector funerario, pulsa aquí</Text>
-            <CustomButton title="Ver servicios" onPress={() => navigation.navigate("services/index" as never)} color="blue" />
+      { isAuthenticated && userRoles?.includes("CUSTOMER") &&
+        <View style={styles.buttonSection}>
+          <View style={styles.buttonContainer}>
+            <View style={styles.buttonWrapper}>
+              <Text style={styles.buttonText}>Pulsa aquí, si quieres personalizar la esquela para un familiar o amigo que haya fallecido</Text>
+              <CustomButton title="Personalizar esquela" onPress={() => navigation.navigate("obituaries/index" as never)} color="blue" />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <Text style={styles.buttonText}>Pulsa aquí, si quieres pagar el plan para personalizar mensajes para familiares o amigos una vez que haya fallecido o para promocionar tu empresa relacionada con el sector funerario.</Text>
+              <CustomButton title="Suscribirse" onPress={() => navigation.navigate("subscribe/index" as never)} color="blue" />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <Text style={styles.buttonText}>Si quieres ver los servicios que ofrecen empresas del sector funerario, pulsa aquí</Text>
+              <CustomButton title="Ver servicios" onPress={() => navigation.navigate("services/index" as never)} color="blue" />
+            </View>
           </View>
         </View>
-      </View>
-*/}
+      }
+      
     </ScrollView>
   );
 }
