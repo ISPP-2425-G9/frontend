@@ -90,11 +90,9 @@ export default function TabLayout() {
 
       {
         isAuthenticated ? [
-          <Tabs.Screen name="profile/index" options={{ title: "" }} />,
           <Tabs.Screen name="login/index" options={{ href: null }} />,
           <Tabs.Screen name="register/index" options={{ href: null }} />,
         ] : [
-          <Tabs.Screen name="profile/index" options={{ href: null }} />,
           <Tabs.Screen name="login/index" options={{ title: "" }} />,
           <Tabs.Screen name="register/index" options={{ title: "" }} />,
         ]
@@ -172,9 +170,11 @@ export default function TabLayout() {
         isAuthenticated && (userRoles?.includes("CUSTOMER") || userRoles?.includes("COMPANY")) ? [
           <Tabs.Screen name="services/index" options={{ title: "" }} />,
           <Tabs.Screen name="subscribe/index" options={{ title: "" }} />,
+          <Tabs.Screen name="profile/index" options={{ title: "" }} />,
         ] : [
           <Tabs.Screen name="services/index" options={{ href: null }} />,
           <Tabs.Screen name="subscribe/index" options={{ href: null }} />,
+          <Tabs.Screen name="profile/index" options={{ href: null }} />,
         ]
       }
       
