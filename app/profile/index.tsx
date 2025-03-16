@@ -10,6 +10,7 @@ import { ActivityIndicator, Alert, Image, Modal, Platform, Pressable, StyleSheet
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
 
+
 function ProfileScreen() {
   const [customer, setCustomer] = useState<CustomerProfile | null>(null);
   const [company, setCompany] = useState<CompanyProfile | null>(null);
@@ -761,4 +762,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withAuth(ProfileScreen, [AUTHORITIES.CUSTOMER, AUTHORITIES.COMPANY, AUTHORITIES.ADMIN]);
+export default withAuth(ProfileScreen, [AUTHORITIES.CUSTOMER, AUTHORITIES.COMPANY]);

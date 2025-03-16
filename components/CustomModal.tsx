@@ -55,10 +55,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: GlobalStyles.darkGrey,
     marginBottom: 15,
+    textAlign: 'center'
   },
   content: {
     width: '100%',
     alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

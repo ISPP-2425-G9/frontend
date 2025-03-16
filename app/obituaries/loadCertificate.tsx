@@ -17,4 +17,4 @@ function LoadCertificate() {
     );
 }
 
-export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER, AUTHORITIES.ADMIN])
+export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER])

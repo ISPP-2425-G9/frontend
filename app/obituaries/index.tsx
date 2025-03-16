@@ -2,17 +2,30 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Image, View, useWindowDimensions, ScrollView, TouchableOpacity, Text } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { useNavigation, NavigationProp, useRoute, RouteProp  } from '@react-navigation/native';
+import { useNavigation, NavigationProp, useRoute, RouteProp } from '@react-navigation/native';
+import { Dimensions } from 'react-native';
 import CustomButton from '@/components/CustomButton';
 import useAuth from "@/hooks/useAuth";
 import { BACKEND_API } from '@/constants/Mysc';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
 
+const width = Dimensions.get("window").width;
+const height = Dimensions.get("window").height;
+
 type RootStackParamList = {
-  'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number };
+  'obituaries/createObituary': { imageTemplateId: number,
+     imageUrl: string, 
+     is_newObituary: boolean, 
+     obituaryId: number,
+     jsonData: string
+    };
   'obituaries/listMyObituaries': undefined;
-  'obituaries/index': { is_newObituary: boolean, obituaryId: number };
+  'obituaries/index': { 
+    is_newObituary: boolean,
+     obituaryId: number, 
+     jsonData: string 
+    };
 
 };
 
@@ -56,12 +69,13 @@ function ObituaryIndex() {
 
   const handleObituaryPress = (id: number, imageUrl: string) => {
     const obituaryId = route.params?.obituaryId ?? undefined;
-    
+    const jsonData = route.params?.jsonData ?? undefined;    
     navigation.navigate('obituaries/createObituary', { 
       imageTemplateId: id, 
       imageUrl,
-      is_newObituary: is_newObituary,
-      obituaryId: obituaryId,
+      is_newObituary,
+      obituaryId,
+      jsonData
 
     });
   };
@@ -82,9 +96,9 @@ function ObituaryIndex() {
         <View style={styles.listContainer}>
         {obituaries.map((item) => (
           <TouchableOpacity
-            key={item.id}  // Usa item.id en lugar de index
+            key={item.id}  
             onPress={() => handleObituaryPress(item.id, item.imageUrl)} 
-            style={[styles.obituaryCard, { width: width * 0.20, height: height * 0.65 }]} 
+            style={[styles.obituaryCard]} 
           >
             <Image source={{ uri: item.imageUrl }} style={styles.image} />
           </TouchableOpacity>
@@ -139,6 +153,8 @@ const styles = StyleSheet.create({
     elevation: 3,
     alignItems: 'center',
     overflow: 'hidden',
+    width: width * 0.20, 
+    height: height * 0.65 
   },
   image: {
     width: '100%',
@@ -164,4 +180,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withAuth(ObituaryIndex, [AUTHORITIES.CUSTOMER, AUTHORITIES.ADMIN])
+export default withAuth(ObituaryIndex, [AUTHORITIES.CUSTOMER])
