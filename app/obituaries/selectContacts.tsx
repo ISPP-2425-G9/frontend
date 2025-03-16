@@ -21,8 +21,11 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
 import { withAuth } from "../_util/withAuth";
 import { AUTHORITIES } from "../_util/Authorities";
+import useAuth from "@/hooks/useAuth";
+import { ThemedView } from "@/components/ThemedView";
 
 const { width } = Dimensions.get("window");
+
 
 
 type RootStackParamList = {
@@ -48,6 +51,7 @@ type Contact = {
 };
 
 function SelectContacts() {
+  const { isAuthenticated } = useAuth();
   const navigation = useNavigation();
   const route = useRoute<SelectContactsRouteProp>();
   const jsonData = route.params?.jsonData ?? '';
@@ -311,7 +315,7 @@ function SelectContacts() {
     }
   };
 
-  return (
+  return isAuthenticated ? (
     <View style={styles.container}>
       <View style={styles.dataContainer}>
         {is_newObituary ? (
@@ -420,7 +424,11 @@ function SelectContacts() {
         </CustomModal>
       )}
     </View>
-  );
+  ) : (
+      <ThemedView style={styles.container}>
+        <Text style={styles.title}>Debes iniciar sesión para poder acceder a esta sección</Text>
+      </ThemedView>
+    );
 }
 
 const styles = StyleSheet.create({

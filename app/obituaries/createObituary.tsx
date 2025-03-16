@@ -27,7 +27,9 @@ import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
 import { withAuth } from "../_util/withAuth";
 import { AUTHORITIES } from "../_util/Authorities";
-import { RFPercentage, RFValue,  } from "react-native-responsive-fontsize";
+import { RFPercentage, RFValue, } from "react-native-responsive-fontsize";
+import useAuth from "@/hooks/useAuth";
+import { ThemedView } from "@/components/ThemedView";
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
@@ -45,14 +47,17 @@ type RootStackParamList = {
     obituaryId: number;
     jsonData: string;
   };
-  "obituaries/index": { 
+  "obituaries/index": {
     is_newObituary: boolean,
-     obituaryId: number, 
-      jsonData: string
-    };
+    obituaryId: number,
+    jsonData: string
+  };
 };
 
 function EsquelaCustomizer() {
+
+  const { isAuthenticated } = useAuth();
+
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const route = useRoute<RouteProp<RootStackParamList, "obituaries/createObituary">>();
@@ -154,7 +159,7 @@ function EsquelaCustomizer() {
         } finally {
           setLoading(false);
         }
-      } 
+      }
     };
 
     initializeForm();
@@ -263,7 +268,7 @@ function EsquelaCustomizer() {
     setModalVisible(false);
   };
 
-  return (
+  return isAuthenticated ? (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <View style={styles.container}>
         <View style={styles.formSection}>
@@ -434,7 +439,12 @@ function EsquelaCustomizer() {
         )}
       </View>
     </ScrollView>
+  ) : (
+    <ThemedView style={styles.container}>
+      <Text style={styles.title}>Debes iniciar sesión para poder acceder a esta sección</Text>
+    </ThemedView>
   );
+
 }
 
 const styles = StyleSheet.create({
@@ -445,7 +455,7 @@ const styles = StyleSheet.create({
   },
   formSection: {
     flex: 1,
-    paddingLeft: width > 600 ? 80 : 0, 
+    paddingLeft: width > 600 ? 80 : 0,
     alignItems: width > 600 ? "flex-start" : "center",
     width: "100%",
     gap: "1%",
@@ -466,7 +476,7 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   previewText: {
-    fontSize: width > 600 ? RFValue(6): RFValue(8.5),
+    fontSize: width > 600 ? RFValue(6) : RFValue(8.5),
     maxWidth: width > 600 ? 400 : "80%",
     marginTop: 8,
     textAlign: "justify",
@@ -493,7 +503,7 @@ const styles = StyleSheet.create({
   },
   previewPhrase: {
     marginTop: 15,
-    fontSize: width > 600 ? RFValue(6): RFValue(8),
+    fontSize: width > 600 ? RFValue(6) : RFValue(8),
     fontStyle: "italic",
     maxWidth: width > 600 ? 400 : "80%",
     justifyContent: "center",
@@ -513,7 +523,7 @@ const styles = StyleSheet.create({
   },
   overlayContent: {
     position: "absolute",
-    top: width > 600 ? "35%":"43%",
+    top: width > 600 ? "35%" : "43%",
     left: "50%",
     transform: [{ translateX: -width * 0.4 }, { translateY: -height * 0.2 }],
     width: width * 0.8,
@@ -539,6 +549,11 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
 });
 
