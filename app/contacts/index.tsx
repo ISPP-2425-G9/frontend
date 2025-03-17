@@ -76,4 +76,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withAuth(TabTwoScreen, [AUTHORITIES.CUSTOMER, AUTHORITIES.ADMIN])
+export default withAuth(TabTwoScreen, [AUTHORITIES.CUSTOMER_PREMIUM])

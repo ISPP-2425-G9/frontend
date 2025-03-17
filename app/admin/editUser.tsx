@@ -1,46 +1,339 @@
-import { View, Text, StyleSheet } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import CustomButton from '@/components/CustomButton';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useEffect, useState, useCallback } from 'react';
+import { ActivityIndicator, Alert, ScrollView, TextInput, View, StyleSheet, Platform } from 'react-native';
+import { useRoute,useFocusEffect, useNavigation } from '@react-navigation/native';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
+import { BACKEND_API } from '@/constants/Mysc';
 
 function EditUserScreen() {
-  const route = useRoute();
-  const params = route.params as { userId?: number; isCustomer?: boolean } | undefined;
+  interface Profile {
+    name: string;
+    fullName: string;
+    password: string;
+    email: string;
+    telephone: string;
+    address?: string;
+    city?: string;
+    zipCode?: string;
+    nif?: string;
+    description?: string;
+    dni?: string;
+  }
+  // Definir el tipo de los parámetros esperados
+  type RouteParams = {
+    userId?: string;
+    isCustomer?: boolean;
+  };
 
-  if (!params || params.userId === undefined || params.isCustomer === undefined) {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { userId = '', isCustomer = false } = (route.params as RouteParams) ?? {};
+
+  const [originalProfile, setOriginalProfile] = useState<Profile | null>(null);
+  const [editedProfile, setEditedProfile] = useState<Profile>({
+    name: '',
+    fullName: '',
+    email: '',
+    telephone: '',
+    address: '',
+    city: '',
+    zipCode: '',
+    nif: '',
+    description: '',
+    dni: '',
+    password: '',
+  });
+
+  const [loading, setLoading] = useState(true);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  const fetchProfile = useCallback(async () => {
+    setLoading(true);
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) throw new Error('No se encontró el token de autenticación.');
+
+      const endpoint = isCustomer
+        ? `${BACKEND_API}/api/auth/admin/customers/${userId}`
+        : `${BACKEND_API}/api/auth/admin/companies/${userId}`;
+
+      const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) throw new Error(`Error ${response.status}: No se pudo obtener los datos del perfil.`);
+
+      const data = await response.json();
+      
+      const profileData: Profile = {
+        name: data.name || '',
+        fullName: data.name || '',
+        email: data.email || '',
+        telephone: data.telephone || '',
+        address: data.address || '',
+        city: data.city || '',
+        zipCode: data.zipCode || '',
+        nif: data.nif || '',
+        description: data.description || '',
+        dni: isCustomer ? data.dni || '' : '',
+        password: 'Contraseña',
+      };
+
+      setEditedProfile(profileData);
+      setOriginalProfile(profileData);
+    } catch (error: any) {
+      console.error('Error al obtener el perfil:', error.message);
+      showAlert('Error', error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId, isCustomer]);
+
+  useEffect(() => {
+    if (!userId) return; // Evita ejecutar la lógica si userId es undefined o vacío
+    fetchProfile();
+  }, [userId, isCustomer]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setHasChanges(false); // Restablecer cambios al entrar en la pestaña
+      fetchProfile();
+    }, [fetchProfile])
+  );
+
+  const handleInputChange = (field: keyof Profile, value: string) => {
+    setEditedProfile((prev) => {
+      const updatedProfile = { ...prev, [field]: value };
+      setHasChanges(JSON.stringify(updatedProfile) !== JSON.stringify(originalProfile));
+      return updatedProfile;
+    });
+  };
+
+const handleSave = async () => {
+  try {
+    const token = await AsyncStorage.getItem('authToken');
+    if (!token) throw new Error('No se encontró el token de autenticación.');
+
+    const endpoint = isCustomer
+      ? `${BACKEND_API}/api/auth/admin/customers/${userId}`
+      : `${BACKEND_API}/api/auth/admin/companies/${userId}`;
+
+    const profileToSend: any = {
+      fullName: isCustomer ? editedProfile.fullName : undefined,
+      name: !isCustomer ? editedProfile.fullName : undefined,
+      email: editedProfile.email,
+      telephone: editedProfile.telephone,
+      address: editedProfile.address,
+      city: editedProfile.city,
+      zipCode: editedProfile.zipCode,
+      nif: editedProfile.nif,
+      description: editedProfile.description,
+      password: editedProfile.password,
+    };
+
+    if (isCustomer) {
+      profileToSend.dni = editedProfile.dni;
+    }
+
+    const response = await fetch(endpoint, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(profileToSend),
+    });
+
+    if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar el perfil.`);
+
+    showAlert('Éxito', 'Perfil actualizado correctamente.');
+    setHasChanges(false);
+    setOriginalProfile(editedProfile);
+
+    // Redirección según el tipo de usuario
+    // Dentro del handleSave en EditUserScreen
+    navigation.navigate('admin/listUsers');
+
+    
+  } catch (error: any) {
+    console.error('Error al guardar los cambios:', error.message);
+    showAlert('Error', error.message);
+  }
+};
+
+
+  const showAlert = (title: string, message: string) => {
+    if (Platform.OS === 'web') {
+      window.alert(`${title}: ${message}`);
+    } else {
+      Alert.alert(title, message);
+    }
+  };
+
+  const renderEditableField = (
+    label: string,
+    value: string,
+    field: keyof Profile,
+    placeholder: string,
+    secureTextEntry?: boolean
+  ) => (
+    <View key={field} style={styles.inputContainer}>
+      <ThemedText style={styles.label}>{label}</ThemedText>
+      <TextInput
+        style={styles.input}
+        value={value ?? ''}
+        onChangeText={(text) => handleInputChange(field, text)}
+        placeholder={placeholder}
+        placeholderTextColor={'#666'}
+        secureTextEntry={secureTextEntry}
+      />
+    </View>
+  );
+
+  if (loading) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.error}>Error: No se proporcionaron los datos del usuario.</Text>
-      </View>
+      <ThemedView style={styles.container}>
+        <ActivityIndicator size="large" />
+      </ThemedView>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Editar {params.isCustomer ? 'Cliente' : 'Empresa'}</Text>
-      <Text style={styles.info}>ID del usuario: {params.userId}</Text>
-    </View>
+    <ThemedView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.profileContainer}>
+          <ThemedText style={styles.title}>{isCustomer ? 'Editar Cliente' : 'Editar Empresa'}</ThemedText>
+
+          {isCustomer ? (
+            <View style={styles.formContainer}>
+              {renderEditableField('Nombre', editedProfile.fullName, 'fullName', 'Nombre')}
+              {renderEditableField('Contraseña', editedProfile.password, 'password', 'Contraseña', true)}
+              {renderEditableField('Email', editedProfile.email, 'email', 'Correo electrónico')}
+              {renderEditableField('Teléfono', editedProfile.telephone, 'telephone', 'Teléfono')}
+              {renderEditableField('DNI', editedProfile.dni ?? '', 'dni', 'DNI')}
+            </View>
+          ) : (
+            <View style={styles.twoColumnsContainer}>
+              <View style={styles.column}>
+                {renderEditableField('Nombre', editedProfile.fullName, 'fullName', 'Nombre')}
+                {renderEditableField('Email', editedProfile.email, 'email', 'Email')}
+                {renderEditableField('NIF', editedProfile.nif ?? '', 'nif', 'NIF')}
+                {renderEditableField('Descripción', editedProfile.description ?? '', 'description', 'Descripción')}
+              </View>
+              <View style={styles.column}>
+                {renderEditableField('Contraseña', editedProfile.password, 'password', 'Contraseña', true)}
+                {renderEditableField('Dirección', editedProfile.address ?? '', 'address', 'Dirección')}
+                {renderEditableField('Ciudad', editedProfile.city ?? '', 'city', 'Ciudad')}
+                {renderEditableField('Código Postal', editedProfile.zipCode ?? '', 'zipCode', 'Código Postal')}
+              </View>
+            </View>
+          )}
+          <View style={styles.buttonContainer}>
+            <CustomButton 
+              title="Guardar" 
+              onPress={() => {
+                if (!hasChanges) {
+                  showAlert('Aviso', 'Es necesario modificar alguno de los campos antes de guardar.');
+                } else {
+                  handleSave();
+                }
+              }} 
+              color={hasChanges ? 'blue' : 'red'} 
+            />
+          </View>
+        </View>
+      </ScrollView>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
+  },
+  twoColumnsContainer: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    marginBottom: 20 
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    alignItems: 'center',
     justifyContent: 'center',
+  },
+  profileContainer: {
+    width: '90%',
+    maxWidth: 500,
+    padding: 20,
     alignItems: 'center',
   },
   title: {
-    fontSize: 20,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 20,
+    textAlign: 'center',
   },
-  info: {
+  formContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  twoColumnsContainerCompany: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  column: {
+    width: '48%',
+    alignItems: 'center',
+  },
+  inputContainer: {
+    marginBottom: 15,
+    width: '100%',
+    alignItems: 'center',
+  },
+  label: {
     fontSize: 16,
+    color: '#666',
+    marginBottom: 5,
   },
-  error: {
-    fontSize: 18,
-    color: 'red',
+  input: {
+    width: '100%',
+    backgroundColor: '#f0f0f0',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    fontSize: 16,
+    color: '#333',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    textAlign: 'center',
+  },
+  buttonContainer: {
+    marginTop: 20,
+    width: '100%',
+    alignItems: 'center',
+  },
+  companyHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignContent: 'center',
+    marginBottom: 20,
+  },
+  companyImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 10,
+    marginRight: 10,
+  },
+  companyName: {
+    fontSize: 20,
+    color: '#000',
+    fontWeight: 'bold',
   },
 });
 
-export default withAuth(EditUserScreen, [AUTHORITIES.ADMIN])
+export default withAuth(EditUserScreen, [AUTHORITIES.ADMIN]);
