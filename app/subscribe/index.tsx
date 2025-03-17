@@ -44,9 +44,9 @@ function PlanManagementView() {
 
   return (
     <ThemedView style={styles.container}>
-      <Text style={styles.title}>Gestión de Planes</Text>
+      <Text style={styles.title}>Gestión de planes</Text>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {role && <PlanCard role={role} />}
+        {role && <PlanCard role={role} />} {/* PASAR LA FECHA DE PAGO */}	
       </ScrollView>
     </ThemedView>
   );

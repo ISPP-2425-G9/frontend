@@ -5,12 +5,17 @@ import { GlobalStyles } from '@/constants/Colors';
 
 interface PlanCardProps {
   role: 'CUSTOMER_FREE' | 'CUSTOMER_PREMIUM' | 'COMPANY_FREE' | 'COMPANY_PREMIUM';
+  fechaExpiracion?: string;
 }
 
-const PlanCard: React.FC<PlanCardProps> = ({ role }) => {
+const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
   const plan = role.split('_')[1].toLowerCase();
   const isPremium = plan === 'premium';
   const isCustomer = role.includes('CUSTOMER');
+  let expirationDate = null;
+  if (fechaExpiracion) {
+    expirationDate = fechaExpiracion;
+  }
 
   const getPlanDetails = () => {
     if (isPremium && !isCustomer) {
@@ -24,6 +29,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role }) => {
         - Soporte prioritario.
         `,
         price: '9.99€/mes',
+        nextPayment: expirationDate,
         borderColor: GlobalStyles.red,
         backgroundColor: GlobalStyles.lightGrey,
       };
@@ -39,6 +45,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role }) => {
         - Soporte prioritario.
         `,
         price: '9.99€/mes',
+        nextPayment: expirationDate,
         borderColor: GlobalStyles.red,
         backgroundColor: GlobalStyles.white,
       };
@@ -54,6 +61,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role }) => {
         - Tranquilidad y seguridad garantizadas.
         `,
         price: '0.99€/mes',
+        nextPayment: expirationDate,
         borderColor: GlobalStyles.blue,
         backgroundColor: GlobalStyles.lightGrey,
       };
@@ -69,13 +77,14 @@ const PlanCard: React.FC<PlanCardProps> = ({ role }) => {
         - Tranquilidad y seguridad garantizadas.
         `,
         price: '0.99€/mes',
+        nextPayment: expirationDate,
         borderColor: GlobalStyles.blue,
         backgroundColor: GlobalStyles.white,
       };
     }
   };
 
-  const { title, description, price, borderColor, backgroundColor } = getPlanDetails() || {};
+  const { title, description, price, nextPayment, borderColor, backgroundColor } = getPlanDetails() || {};
   
   const esquelasDetails = {
     title: 'ESQUELAS DIGITALES',
@@ -98,6 +107,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role }) => {
         <View style={[styles.card, { borderColor, backgroundColor }]}>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.description}>{description}</Text>
+          {nextPayment && <Text style={styles.payment}>Próximo pago: {nextPayment}</Text>}
           <Text style={styles.price}>{price}</Text>
           {isPremium ? (
             <TouchableOpacity style={styles.buttonCancel}>
@@ -146,6 +156,11 @@ const styles = StyleSheet.create({
     color: GlobalStyles.grey,
     textAlign: 'center',
     marginBottom: 8,
+  },
+  payment: {
+    fontSize: 16,
+    fontFamily: GlobalStyles.fontBold,
+    color: GlobalStyles.darkGrey,
   },
   price: {
     fontSize: 16,
