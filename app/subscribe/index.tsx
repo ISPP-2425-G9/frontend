@@ -1,18 +1,55 @@
-import { StyleSheet, Text } from 'react-native';
-
-import { ThemedText } from '@/components/ThemedText';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, ScrollView } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { withAuth } from '../_util/withAuth';
-import { AUTHORITIES } from '../_util/Authorities';
+import { AUTHORITIES, AuthorityType } from '../_util/Authorities';
+import { useAuth } from '../_util/useAuth';
+import PlanCard from '@/components/PlanCard';
 
-function TabTwoScreen() {
+
+const VALID_ROLES: AuthorityType[] = ['CUSTOMER_FREE', 'CUSTOMER_PREMIUM', 'COMPANY_FREE', 'COMPANY_PREMIUM'];
+
+function PlanManagementView() {
+  const { user, getUserFromStorage } = useAuth();
+  const [storedUser, setStoredUser] = useState(user);
+  const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState<'CUSTOMER_FREE' | 'CUSTOMER_PREMIUM' | 'COMPANY_FREE' | 'COMPANY_PREMIUM' | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (!user) {
+        const storedData = await getUserFromStorage();
+        setStoredUser(storedData || { roles: [AUTHORITIES.ANONYMOUS] });
+      } else {
+        setStoredUser(user);
+      }
+      setLoading(false);
+    };
+
+    fetchUser();
+  }, [user]);
+
+  useEffect(() => {
+    if (storedUser && storedUser.roles) {
+      const foundRole = storedUser.roles.find((r: AuthorityType) => VALID_ROLES.includes(r));
+      if (foundRole) {
+        setRole(foundRole as 'CUSTOMER_FREE' | 'CUSTOMER_PREMIUM' | 'COMPANY_FREE' | 'COMPANY_PREMIUM');
+      }
+    }
+  }, [storedUser]);
+
+  if (loading) {
+    return <Text>Cargando...</Text>;
+  }
+
   return (
     <ThemedView style={styles.container}>
-      <Text style={styles.title}>Página en construcción</Text>
-      <ThemedText type="default">Esta página aún no está disponible.</ThemedText>
+      <Text style={styles.title}>Gestión de Planes</Text>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {role && <PlanCard role={role} />}
+      </ScrollView>
     </ThemedView>
   );
-
 }
 
 const styles = StyleSheet.create({
@@ -75,4 +112,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withAuth(TabTwoScreen, [AUTHORITIES.CUSTOMER, AUTHORITIES.COMPANY]);
+export default withAuth(PlanManagementView, [AUTHORITIES.CUSTOMER, AUTHORITIES.COMPANY]);
