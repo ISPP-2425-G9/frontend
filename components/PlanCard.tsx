@@ -22,11 +22,9 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
       return {
         title: 'PLAN PREMIUM - PUBLICITA TU EMPRESA',
         description: `
-        Este plan premium está diseñado para empresas del sector funerario que buscan visibilidad y más clientes. Beneficios:
-        - Mayor exposición en la plataforma.
-        - Acceso a estadísticas y métricas de visualización.
+        Este plan premium está diseñado para empresas del sector funerario que buscan publicitarse en nuestra plataforma. Beneficios:
+        - Exposición en la plataforma en el apartado de empresas destacadas del sector.
         - Publicidad destacada en búsquedas.
-        - Soporte prioritario.
         `,
         price: '9.99€/mes',
         nextPayment: expirationDate,
@@ -38,11 +36,9 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
       return {
         title: 'PLAN PREMIUM - PUBLICITA TU EMPRESA',
         description: `
-        Este plan está diseñado para empresas del sector funerario que buscan visibilidad y más clientes. Beneficios:
-        - Mayor exposición en la plataforma.
-        - Acceso a estadísticas y métricas de visualización.
+        Este plan premium está diseñado para empresas del sector funerario que buscan publicitarse en nuestra plataforma. Beneficios:
+        - Exposición en la plataforma en el apartado de empresas destacadas del sector.
         - Publicidad destacada en búsquedas.
-        - Soporte prioritario.
         `,
         price: '9.99€/mes',
         nextPayment: expirationDate,
@@ -55,7 +51,8 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
         title: 'PLAN MENSUAL - PROGRAMA TUS MENSAJES DE DESPEDIDA',
         description: `
         Este plan mensual permite programar mensajes personalizados que serán enviados tras la confirmación de tu fallecimiento. Beneficios:
-        - Personalización total de mensajes.
+        - Personalización total de mensajes (vídeos, fotos, mensaje de texto).
+        - Personalizacion gratuita de tu esquela digital.
         - Envío automatizado tras verificación.
         - Notificación a los destinatarios elegidos.
         - Tranquilidad y seguridad garantizadas.
@@ -71,7 +68,8 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
         title: 'PLAN MENSUAL - PROGRAMA TUS MENSAJES DE DESPEDIDA',
         description: `
         Este plan mensual permite programar mensajes personalizados que serán enviados tras la confirmación de tu fallecimiento. Beneficios:
-        - Personalización total de mensajes.
+        - Personalización total de mensajes (vídeos, fotos, mensaje de texto).
+        - Personalizacion gratuita de tu esquela digital.
         - Envío automatizado tras verificación.
         - Notificación a los destinatarios elegidos.
         - Tranquilidad y seguridad garantizadas.
