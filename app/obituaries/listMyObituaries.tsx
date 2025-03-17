@@ -14,8 +14,8 @@ import { AUTHORITIES } from '../_util/Authorities';
 import useAuth from "@/hooks/useAuth";
 
 
-const { width } = Dimensions.get('window');
-const { height } = Dimensions.get('window');
+const width = Dimensions.get("window").width;
+const height = Dimensions.get("window").height;
 
 type RootStackParamList = {
   'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number };
@@ -28,7 +28,6 @@ function ObituaryIndex() {
 
   const { isAuthenticated } = useAuth();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { width, height } = useWindowDimensions();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
@@ -244,7 +243,7 @@ const styles = StyleSheet.create({
   obituaryCard: {
     padding: 10,
     margin: 8,
-    borderRadius: 20,
+    borderRadius: 8,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
@@ -252,9 +251,8 @@ const styles = StyleSheet.create({
     elevation: 3,
     alignItems: 'center',
     overflow: 'hidden',
-    width: width * 0.20,
-    height: height * 0.65,
-    borderWidth: 6,
+    width: width > 600 ?  width* 0.20 : width * 0.95, 
+    height: height * 0.65 
   },
   image: {
     width: '100%',

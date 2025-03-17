@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Image, View, useWindowDimensions, ScrollView, TouchableOpacity, Text } from 'react-native';
+import { StyleSheet, Image, View, ScrollView, TouchableOpacity, Text, Dimensions } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useNavigation, NavigationProp, useRoute, RouteProp } from '@react-navigation/native';
-import { Dimensions } from 'react-native';
 import CustomButton from '@/components/CustomButton';
 import useAuth from "@/hooks/useAuth";
 import { BACKEND_API } from '@/constants/Mysc';
@@ -36,7 +35,6 @@ function ObituaryIndex() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const route = useRoute<RouteProp<RootStackParamList, 'obituaries/index'>>();
-  const { width, height } = useWindowDimensions(); 
 
   const is_newObituary = route.params?.is_newObituary ?? true;
 
@@ -119,8 +117,8 @@ function ObituaryIndex() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 8,
     flex: 1,
+    padding: 8,
     alignItems: 'center',
     paddingTop: 120,
     backgroundColor: '#ffff',
@@ -135,7 +133,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   listContainer: {
-    width: '100%',
+    width: width > 600 ? '100%' : '60%',
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
@@ -152,7 +150,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     alignItems: 'center',
     overflow: 'hidden',
-    width: width * 0.20, 
+    width: width > 600 ?  width* 0.20 : width * 0.95, 
     height: height * 0.65 
   },
   image: {
@@ -176,7 +174,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end', 
     marginBottom: '0.5%', 
     marginRight: '6%',
-  },
+  }
 });
 
 export default withAuth(ObituaryIndex, [AUTHORITIES.CUSTOMER, AUTHORITIES.ADMIN])
