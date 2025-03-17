@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, ScrollView } from 'react-native';
+import { StyleSheet, Text, ScrollView, View, Dimensions } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES, AuthorityType } from '../_util/Authorities';
 import { useAuth } from '../_util/useAuth';
 import PlanCard from '@/components/PlanCard';
-
 
 const VALID_ROLES: AuthorityType[] = ['CUSTOMER_FREE', 'CUSTOMER_PREMIUM', 'COMPANY_FREE', 'COMPANY_PREMIUM'];
 
@@ -36,7 +35,7 @@ function PlanManagementView() {
       if (foundRole) {
         setRole(foundRole as 'CUSTOMER_FREE' | 'CUSTOMER_PREMIUM' | 'COMPANY_FREE' | 'COMPANY_PREMIUM');
         if (foundRole.includes('PREMIUM')) {
-          setFechaExpiracion('2024-04-15');   // TODO: pasar la fecha de pago desde el backend
+          setFechaExpiracion('2024-04-15');   // TODO: Pasar la fecha de pago desde el backend
         }
       }
     }
@@ -50,12 +49,13 @@ function PlanManagementView() {
     <ThemedView style={styles.container}>
       <Text style={styles.title}>Gestión de planes</Text>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {role && <PlanCard role={role} fechaExpiracion={fechaExpiracion || undefined} />}
+        <View style={[styles.planContainer]}>
+          {role && <PlanCard role={role} fechaExpiracion={fechaExpiracion || undefined} />}
+        </View>
       </ScrollView>
     </ThemedView>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -73,47 +73,11 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     alignItems: 'center',
+    paddingBottom: 20,
   },
-  listContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-  },
-  obituaryCard: {
-    padding: 10,
-    margin: 8,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
+  planContainer: {
     alignItems: 'center',
-    overflow: 'hidden',
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  centeredContainer: {
-    flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
-  divider: {
-    height: 1,
-    width: '100%',
-    backgroundColor: '#ccc',
-    marginVertical: 20,
-  },
-  buttonContainer: {
-    width: '90%',
-    alignItems: 'flex-end', 
-    marginBottom: '0.5%', 
-    marginRight: '6%',
   },
 });
 

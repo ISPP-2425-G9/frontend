@@ -100,7 +100,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
   };
 
   return (
-    <View>
+    <View style={{ width: '100%' }}>
       {/* plan específico según el rol */}
       {title && (
         <View style={[styles.card, { borderColor, backgroundColor }]}>
@@ -120,11 +120,13 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
         </View>
       )}
       {/* esquelas digitales (siempre visible) */}
-      <View style={[styles.card, { borderColor: esquelasDetails.borderColor, backgroundColor: esquelasDetails.backgroundColor }]}>
-        <Text style={styles.title}>{esquelasDetails.title}</Text>
-        <Text style={styles.description}>{esquelasDetails.description}</Text>
-        <Text style={styles.price}>{esquelasDetails.price}</Text>
-      </View>
+      { isCustomer &&
+        <View style={[styles.card, { borderColor: esquelasDetails.borderColor, backgroundColor: esquelasDetails.backgroundColor }]}>
+            <Text style={styles.title}>{esquelasDetails.title}</Text>
+            <Text style={styles.description}>{esquelasDetails.description}</Text>
+            <Text style={styles.price}>{esquelasDetails.price}</Text>
+        </View>
+       }
     </View>
   );
 };
