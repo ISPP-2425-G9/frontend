@@ -30,6 +30,7 @@ export default function TabLayout() {
         tabBarIcon: ({ color, size, focused }) => {
           const iconsDict: Record<string, keyof typeof Ionicons.glyphMap> = {
             "profile/index": "person",
+            "certificate/index": "document",
             "obituaries/index": "document",
             "messages/index": "chatbox",
             "contacts/index": "book-sharp",
@@ -87,6 +88,8 @@ export default function TabLayout() {
       <Tabs.Screen name="home" options={{ title: "" }} />
       <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen name="+not-found" options={{ href: null }} />
+      <Tabs.Screen name="certificate/index" options={{ title: "Cargar certificado" }} />,
+
 
       {
         isAuthenticated ? [

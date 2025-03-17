@@ -11,7 +11,6 @@ import CustomButton from "@/components/CustomButton";
 import { CustomTextInput } from "@/components/CustomTextInput";
 import { GlobalStyles } from "@/constants/Colors";
 import { ThemedView } from "@/components/ThemedView";
-import useAuth from "@/hooks/useAuth";
 import CustomModal from "@/components/CustomModal";
 import { BACKEND_API } from "@/constants/Mysc";
 
@@ -28,7 +27,6 @@ function LoadCertificate() {
         certificateImage: "",
     });
 
-    const { isAuthenticated } = useAuth();
     const [dni, setDni] = useState<string>("");
     const [certificateImage, setCertificateImage] = useState<string | null>(null);
     const [fileName, setFileName] = useState<string | null>(null);  
@@ -91,19 +89,18 @@ function LoadCertificate() {
       const handleCloseModal = () => {
         setModalVisible(false);
       };
-    
 
-    const handleSubmit = async () => {
+
+      const handleSubmit = async () => {
         const authToken = await AsyncStorage.getItem("authToken");
-
-     
+    
         const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
-
+    
         const dataToSend = {
             dni,
             file: base64File, 
         };
-
+    
         try {
             const response = await fetch(BACKEND_API + '/api/deathCertificate/upload', {
                 method: "POST",
@@ -111,27 +108,33 @@ function LoadCertificate() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${authToken}`,
                 },
-                body: JSON.stringify(dataToSend), 
+                body: JSON.stringify(dataToSend),
             });
-
+    
             if (!response.ok) {
-                throw new Error(`Error ${response.status}: ${response.statusText}`);
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
             }
-
+    
             const result = await response.json();
             console.log("Respuesta del servidor:", result);
-
+    
             navigation.navigate("obituaries/loadCertificate", { 
                 jsonData: JSON.stringify(result) 
             });
-
+    
         } catch (error) {
             console.error("Error al enviar datos:", error);
-            alert("Hubo un problema al enviar los datos. Inténtalo de nuevo.");
+    
+            const errorMessage = (error as Error).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
+            alert(errorMessage);
         }
     };
+    
+    
 
-    return isAuthenticated ? (
+
+    return  (
         <View style={styles.container}>
             <View style={styles.dataContainer}>
             <Text style={styles.title}>Carga el certificado de defunción</Text>
@@ -185,7 +188,7 @@ function LoadCertificate() {
         <View style={styles.divider} />
         <View style={styles.buttonContainer}>
             <CustomButton title="Seleccionar archivo" onPress={pickImage} />
-            <CustomButton title="Pagar esquela (1,99 €)" onPress={showConfirmationModal} />
+            <CustomButton title="Subir certificado" onPress={showConfirmationModal} />
         </View>
         {modalVisible && (
             <CustomModal
@@ -214,11 +217,7 @@ function LoadCertificate() {
     </View>
 
     
-) :  (
-    <ThemedView style={styles.container}>
-      <Text style={styles.title}>Debes iniciar sesión para poder acceder a esta sección</Text>
-    </ThemedView>
-  );
+);
 }
 
 const styles = StyleSheet.create({
@@ -313,4 +312,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER]);
+export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER, AUTHORITIES.ANONYMOUS]);
