@@ -13,7 +13,7 @@ import CustomButton from "@/components/CustomButton";
 import { CustomTextInput } from "@/components/CustomTextInput";
 import { useRoute, RouteProp } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, NavigationProp  } from "@react-navigation/native";
 import CustomModal from "@/components/CustomModal";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
@@ -52,7 +52,7 @@ type Contact = {
 
 function SelectContacts() {
   const { isAuthenticated } = useAuth();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<SelectContactsRouteProp>();
   const jsonData = route.params?.jsonData ?? '';
   if (!route.params || !route.params.jsonData) {
@@ -75,6 +75,8 @@ function SelectContacts() {
   const [combinedData, setCombinedData] = useState<any>({});
 
   const [userRole, setUserRole] = useState<string | null>(null);
+
+  const [is_mine, setIsMine] = useState<boolean>(true);
 
   useFocusEffect(
     useCallback(() => {
@@ -205,7 +207,7 @@ function SelectContacts() {
     const dataToSend = {
       ...combinedData,
       contacts: contactsWithoutIds,
-      isMine: false,
+      isMine: true,
     };
 
     const url = is_newObituary
@@ -240,10 +242,21 @@ function SelectContacts() {
   };
 
   const moveToNextScreen = () => {
-    navigation.navigate("obituaries/loadCertificate" as never);
-  };
+    const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
+
+    const dataToSend = {
+        ...combinedData,
+        contacts: contactsWithoutIds,
+        isMine: false,
+    };
+
+    navigation.navigate("obituaries/loadCertificate", { 
+        jsonData: JSON.stringify(dataToSend) 
+    });
+};
 
   const showConfirmationModal = async (is_mine: boolean) => {
+    setIsMine(is_mine);
     const errors: string[] = [];
 
     const phoneSet = new Set();
@@ -298,7 +311,8 @@ function SelectContacts() {
     setModalVisible(false);
   };
 
-  const handleSubmit = async (is_mine: boolean) => {
+  const handleSubmit = async () => {
+  
     try {
       if (is_mine) {
         await createObituary();
@@ -391,8 +405,7 @@ function SelectContacts() {
         {is_newObituary && (
           <CustomButton
             title="Cree y envie su esquela para un ser querido"
-            //onPress={() => showConfirmationModal(false)}
-            onPress={() => alert("Esta función estará disponible en el futuro")}
+            onPress={() => showConfirmationModal(false)}
             style={styles.saveButton}
           />
         )
@@ -410,9 +423,9 @@ function SelectContacts() {
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => handleSubmit(true)}
+              onPress={() => handleSubmit()}
             >
-              <Text style={styles.buttonText}>Aceptar</Text>
+            <Text style={styles.buttonText}>Aceptar</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.button}
