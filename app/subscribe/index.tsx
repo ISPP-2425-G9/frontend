@@ -14,6 +14,7 @@ function PlanManagementView() {
   const [storedUser, setStoredUser] = useState(user);
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState<'CUSTOMER_FREE' | 'CUSTOMER_PREMIUM' | 'COMPANY_FREE' | 'COMPANY_PREMIUM' | null>(null);
+  const [fechaExpiracion, setFechaExpiracion] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -34,6 +35,9 @@ function PlanManagementView() {
       const foundRole = storedUser.roles.find((r: AuthorityType) => VALID_ROLES.includes(r));
       if (foundRole) {
         setRole(foundRole as 'CUSTOMER_FREE' | 'CUSTOMER_PREMIUM' | 'COMPANY_FREE' | 'COMPANY_PREMIUM');
+        if (foundRole.includes('PREMIUM')) {
+          setFechaExpiracion('2024-04-15');   // TODO: pasar la fecha de pago desde el backend
+        }
       }
     }
   }, [storedUser]);
@@ -46,11 +50,12 @@ function PlanManagementView() {
     <ThemedView style={styles.container}>
       <Text style={styles.title}>Gestión de planes</Text>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {role && <PlanCard role={role} />} {/* PASAR LA FECHA DE PAGO */}	
+        {role && <PlanCard role={role} fechaExpiracion={fechaExpiracion || undefined} />}
       </ScrollView>
     </ThemedView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

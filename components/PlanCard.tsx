@@ -89,9 +89,10 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
     description: `
     Crea y envía esquelas digitales personalizadas cuando lo necesites. Beneficios:
     - Personalización de textos y estilos.
-    - Envío instantáneo a contactos seleccionados.
+    - Envío instantáneo a contactos seleccionados tras la verificación.
     - Almacenamiento y acceso permanente.
     - Diseño elegante y fácil de compartir.
+    - Tranquilidad y seguridad garantizadas.
     `,
     price: '1.99€/esquela',
     borderColor: GlobalStyles.grey,
@@ -105,8 +106,8 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
         <View style={[styles.card, { borderColor, backgroundColor }]}>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.description}>{description}</Text>
-          {nextPayment && <Text style={styles.payment}>Próximo pago: {nextPayment}</Text>}
           <Text style={styles.price}>{price}</Text>
+          {nextPayment && <Text style={styles.payment}>Próximo pago: {nextPayment}</Text>}
           {isPremium ? (
             <TouchableOpacity style={styles.buttonCancel}>
               <Text style={styles.buttonText}>Darte de baja</Text>
@@ -161,9 +162,10 @@ const styles = StyleSheet.create({
     color: GlobalStyles.darkGrey,
   },
   price: {
-    fontSize: 16,
+    fontSize: 20,
     fontFamily: GlobalStyles.fontBold,
     color: GlobalStyles.blue,
+    fontWeight: 'bold',
   },
   buttonSubscribe: {
     marginTop: 10,
