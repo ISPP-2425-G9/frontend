@@ -54,6 +54,9 @@ type RootStackParamList = {
 
 function EsquelaCustomizer() {
 
+  const [selectedColor, setSelectedColor] = useState("rgb(0,0,0)"); // Color inicial negro
+  const [colorPickerVisible, setColorPickerVisible] = useState(false);
+
   const { isAuthenticated } = useAuth();
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -75,6 +78,11 @@ function EsquelaCustomizer() {
   const [loading, setLoading] = useState(true);
 
   const jsonData = route.params?.jsonData ?? undefined;
+
+  const handleColorSelect = (color: string) => {
+    setSelectedColor(color);
+    setColorPickerVisible(false);
+  };
 
 
   const [formData, setFormData] = useState({
@@ -208,6 +216,11 @@ function EsquelaCustomizer() {
     setModalVisible(false);
   };
 
+  const handleCloseModalColors = () => {
+    setColorPickerVisible(false);
+  };
+
+
   const validateForm = () => {
     const { name, birthDate, farewellMessage, farewellPhrase, customImage } =
       formData;
@@ -273,7 +286,7 @@ function EsquelaCustomizer() {
           <Text style={{ fontSize: 30, fontWeight: "bold", marginBottom: 30 }}>
             {is_newObituary ? "Crea tu esquela" : "Edita tu esquela"}
           </Text>
-          <Text>Nombre del fallecido:</Text>
+          <Text style={styles.formText}>Nombre del fallecido:</Text>
           <CustomTextInput
             style={{ width: "75%" }}
             placeholder="Nombre"
@@ -282,7 +295,7 @@ function EsquelaCustomizer() {
             onChangeText={(text) => handleChange("name", text)}
           />
 
-          <Text>Fecha de nacimiento:</Text>
+          <Text style={styles.formText}>Fecha de nacimiento:</Text>
           <CustomTextInput
             style={{ width: "75%" }}
             placeholder="dd/mm/aaaa"
@@ -324,7 +337,7 @@ function EsquelaCustomizer() {
             }}
           />
 
-          <Text>Fecha de fallecimiento:</Text>
+          <Text style={styles.formText}>Fecha de fallecimiento:</Text>
           <CustomTextInput
             style={{ width: "75%" }}
             placeholder="La fecha de fallecimiento (se añadirá automáticamente)"
@@ -335,7 +348,7 @@ function EsquelaCustomizer() {
             keyboardType="numeric"
           />
 
-          <Text>Mensaje de despedida:</Text>
+          <Text style={styles.formText}>Mensaje de despedida:</Text>
           <CustomTextInput
             style={[{ width: "75%" }]}
             placeholder="Escribe un mensaje de despedida"
@@ -345,7 +358,7 @@ function EsquelaCustomizer() {
             onChangeText={(text) => handleChange("farewellMessage", text)}
           />
 
-          <Text>Frase de despedida:</Text>
+          <Text style={styles.formText}>Frase de despedida:</Text>
           <CustomTextInput
             style={{ width: "75%" }}
             placeholder="Frase de despedida"
@@ -371,9 +384,15 @@ function EsquelaCustomizer() {
                 />
                 <CustomButton
                   style={styles.customButtonStyle}
+                  title="Selecciona un color de texto"
+                  onPress={() => setColorPickerVisible(true)}
+                />
+                <CustomButton
+                  style={styles.customButtonStyle}
                   title="Cambia el diseño de tu esquela"
                   onPress={changeDesign}
                 />
+
               </View>
               <CustomButton
                 color="grey"
@@ -397,16 +416,18 @@ function EsquelaCustomizer() {
                 }
                 style={styles.customImage}
               />
-              <Text style={styles.previewName}>{formData.name || "Nombre "}</Text>
-              <Text style={styles.previewDate}>
+              <Text style={[styles.previewName, { color: selectedColor }]}>
+                {formData.name || "Nombre "}
+              </Text>
+              <Text style={[styles.previewDate, { color: selectedColor }]}>
                 {formData.birthDate || "Año de nacimiento"} -{" "}
                 {formData.deathDate || "Año de fallecimiento"}
               </Text>
-              <Text style={styles.previewText}>
+              <Text style={[styles.previewText, { color: selectedColor }]}>
                 {formData.farewellMessage ||
                   "Tu mensaje de despedida aparecerá aquí"}
               </Text>
-              <Text style={styles.previewPhrase}>
+              <Text style={[styles.previewPhrase, { color: selectedColor }]}>
                 "{formData.farewellPhrase || "Frase de despedida"}"
               </Text>
             </View>
@@ -435,6 +456,36 @@ function EsquelaCustomizer() {
             </View>
           </CustomModal>
         )}
+        {colorPickerVisible && (<CustomModal
+          visible={colorPickerVisible}
+          onClose={handleCloseModalColors}
+          style={styles.modalStyle}
+        >
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Selecciona un color</Text>
+            <View style={styles.gradient}>
+              {Array.from({ length: 10 }).map((_, index) => {
+                const color = [
+                  "rgb(253, 111, 111)", "rgb(209, 181, 129)", "rgb(195, 221, 255)", "rgb(190, 177, 161)", "rgb(60, 179, 113)",
+                  "rgb(255, 255, 255)", "rgb(150, 150, 150)", "rgb(100, 100, 100)", "rgb(33, 33, 33)", "rgb(0,0,0)"
+                ][index];
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    style={[styles.colorBox, { backgroundColor: color }]}
+                    onPress={() => handleColorSelect(color)}
+                  />
+                );
+              })}
+            </View>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => setColorPickerVisible(false)}
+            >
+              <Text style={styles.buttonText}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </CustomModal>)}
       </View>
     </ScrollView>
   ) : (
@@ -554,10 +605,41 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   customButtonStyle: {
-    marginTop: 12, 
-    width: "49%", 
+    marginTop: 12,
+    width: "32%",
     height: width > 600 ? 40 : 60
-  }
+  },
+  formText: {
+    alignSelf: "flex-start",
+    marginLeft: width > 600 ? "0%" : "15%",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: GlobalStyles.darkGrey,
+  },
+  gradient: {
+    flexDirection: "row",
+    width: "100%",
+    borderRadius: 10,
+    overflow: "hidden",
+    marginBottom: 20,
+    flexWrap: "wrap",
+  },
+  colorBox: {
+    width: 50,
+    height: 50,
+    marginLeft: 10,
+    borderRadius: 60,
+    marginTop: 10,
+    borderWidth: 1,
+  },
 });
 
 export default withAuth(EsquelaCustomizer, [AUTHORITIES.CUSTOMER])
