@@ -1,7 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { GlobalStyles } from '@/constants/Colors';
-
 
 interface PlanCardProps {
   role: 'CUSTOMER_FREE' | 'CUSTOMER_PREMIUM' | 'COMPANY_FREE' | 'COMPANY_PREMIUM';
@@ -12,10 +11,8 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
   const plan = role.split('_')[1].toLowerCase();
   const isPremium = plan === 'premium';
   const isCustomer = role.includes('CUSTOMER');
-  let expirationDate = null;
-  if (fechaExpiracion) {
-    expirationDate = fechaExpiracion;
-  }
+  let expirationDate = fechaExpiracion ? fechaExpiracion : null;
+  const isDesktop = Dimensions.get('window').width > 768;
 
   const getPlanDetails = () => {
     if (isPremium && !isCustomer) {
@@ -89,7 +86,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
     description: `
     Crea y envía esquelas digitales personalizadas cuando lo necesites. Beneficios:
     - Personalización de textos y estilos.
-    - Envío instantáneo a contactos seleccionados tras la verificación.
+    - Envío instantáneo a contactos tras la verificación.
     - Almacenamiento y acceso permanente.
     - Diseño elegante y fácil de compartir.
     - Tranquilidad y seguridad garantizadas.
@@ -100,7 +97,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
   };
 
   return (
-    <View style={{ width: '100%' }}>
+    <View style={[styles.cardContainer, isDesktop ? styles.cardContainerDesktop : styles.cardContainerMobile]}>
       {/* plan específico según el rol */}
       {title && (
         <View style={[styles.card, { borderColor, backgroundColor }]}>
@@ -119,74 +116,89 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           )}
         </View>
       )}
-      {/* esquelas digitales (siempre visible) */}
-      { isCustomer &&
+      {/* esquelas digitales (siempre visible en usuarios customers) */}
+      {isCustomer && (
         <View style={[styles.card, { borderColor: esquelasDetails.borderColor, backgroundColor: esquelasDetails.backgroundColor }]}>
-            <Text style={styles.title}>{esquelasDetails.title}</Text>
-            <Text style={styles.description}>{esquelasDetails.description}</Text>
-            <Text style={styles.price}>{esquelasDetails.price}</Text>
+          <Text style={styles.title}>{esquelasDetails.title}</Text>
+          <Text style={styles.description}>{esquelasDetails.description}</Text>
+          <Text style={styles.price}>{esquelasDetails.price}</Text>
         </View>
-       }
+      )}
     </View>
   );
 };
 
 
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 2,
-    padding: 16,
-    borderRadius: 8,
-    marginVertical: 10,
-    alignItems: 'center',
-  },
-  darkCard: {
-    borderColor: GlobalStyles.grey,
-    backgroundColor: GlobalStyles.lightGrey,
-  },
-  title: {
-    fontSize: 18,
-    fontFamily: GlobalStyles.fontBold,
-    color: GlobalStyles.darkGrey,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  description: {
-    fontSize: 14,
-    fontFamily: GlobalStyles.font,
-    color: GlobalStyles.grey,
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  payment: {
-    fontSize: 16,
-    fontFamily: GlobalStyles.fontBold,
-    color: GlobalStyles.darkGrey,
-  },
-  price: {
-    fontSize: 20,
-    fontFamily: GlobalStyles.fontBold,
-    color: GlobalStyles.blue,
-    fontWeight: 'bold',
-  },
-  buttonSubscribe: {
-    marginTop: 10,
-    backgroundColor: GlobalStyles.blue,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 5,
-  },
-  buttonCancel: {
-    marginTop: 10,
-    backgroundColor: GlobalStyles.red,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: GlobalStyles.white,
-    fontFamily: GlobalStyles.fontBold,
-  },
-});
+    cardContainer: {
+      width: '100%',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    cardContainerMobile: {
+      flexDirection: 'column',
+    },
+    cardContainerDesktop: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      width: '100%',
+      flexWrap: 'wrap',
+      gap: 50,
+    },
+    card: {
+      borderWidth: 2,
+      padding: 20,
+      borderRadius: 8,
+      marginVertical: 10,
+      alignItems: 'center',
+      width: '100%',
+      maxWidth: 520,
+      marginHorizontal: 15,
+    },
+    title: {
+      fontSize: 18,
+      fontFamily: GlobalStyles.fontBold,
+      color: GlobalStyles.darkGrey,
+      marginBottom: 8,
+      textAlign: 'center',
+    },
+    description: {
+      fontSize: 14,
+      fontFamily: GlobalStyles.font,
+      color: GlobalStyles.grey,
+      textAlign: 'center',
+      marginBottom: 8,
+    },
+    payment: {
+      fontSize: 16,
+      fontFamily: GlobalStyles.fontBold,
+      color: GlobalStyles.darkGrey,
+    },
+    price: {
+      fontSize: 20,
+      fontFamily: GlobalStyles.fontBold,
+      color: GlobalStyles.blue,
+      fontWeight: 'bold',
+    },
+    buttonSubscribe: {
+      marginTop: 10,
+      backgroundColor: GlobalStyles.blue,
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+      borderRadius: 5,
+    },
+    buttonCancel: {
+      marginTop: 10,
+      backgroundColor: GlobalStyles.red,
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+      borderRadius: 5,
+    },
+    buttonText: {
+      color: GlobalStyles.white,
+      fontFamily: GlobalStyles.fontBold,
+    },
+  });
 
 export default PlanCard;
