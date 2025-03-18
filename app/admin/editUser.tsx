@@ -61,6 +61,23 @@ function EditUserScreen() {
   const [loading, setLoading] = useState(true);
   const [hasChanges, setHasChanges] = useState(false);
 
+  useEffect(() => {
+    if (!userId) return; // Evita ejecutar la lógica si userId es undefined o vacío
+    fetchProfile();
+  }, [userId, isCustomer]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setHasChanges(false); // Restablecer cambios al entrar en la pestaña
+      fetchProfile(); // Cargar datos del usuario
+      setShowPlanModal(false); // Cierra el modal al entrar
+  
+      return () => {
+        setShowPlanModal(false); // Cierra el modal cuando la pantalla pierde el foco
+      };
+    }, [fetchProfile])
+  );
+
   const fetchProfile = useCallback(async () => {
     setLoading(true);
     try {
@@ -106,23 +123,6 @@ function EditUserScreen() {
       setLoading(false);
     }
   }, [userId, isCustomer]);
-
-  useEffect(() => {
-    if (!userId) return; // Evita ejecutar la lógica si userId es undefined o vacío
-    fetchProfile();
-  }, [userId, isCustomer]);
-
-  useFocusEffect(
-    useCallback(() => {
-      setHasChanges(false); // Restablecer cambios al entrar en la pestaña
-      fetchProfile(); // Cargar datos del usuario
-      setShowPlanModal(false); // Cierra el modal al entrar
-  
-      return () => {
-        setShowPlanModal(false); // Cierra el modal cuando la pantalla pierde el foco
-      };
-    }, [fetchProfile])
-  );
   
 
   const handleInputChange = (field: keyof Profile, value: string) => {
@@ -132,7 +132,7 @@ function EditUserScreen() {
       return updatedProfile;
     });
   };
-  
+
   const handleSavePlan = async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
@@ -172,56 +172,54 @@ function EditUserScreen() {
     }
   };
 
-  
-const handleSave = async () => {
-  try {
-    const token = await AsyncStorage.getItem('authToken');
-    if (!token) throw new Error('No se encontró el token de autenticación.');
+  const handleSave = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) throw new Error('No se encontró el token de autenticación.');
 
-    const endpoint = isCustomer
-      ? `${BACKEND_API}/api/auth/admin/customers/${userId}`
-      : `${BACKEND_API}/api/auth/admin/companies/${userId}`;
+      const endpoint = isCustomer
+        ? `${BACKEND_API}/api/auth/admin/customers/${userId}`
+        : `${BACKEND_API}/api/auth/admin/companies/${userId}`;
 
-    const profileToSend: any = {
-      fullName: isCustomer ? editedProfile.fullName : undefined,
-      name: !isCustomer ? editedProfile.fullName : undefined,
-      email: editedProfile.email,
-      telephone: editedProfile.telephone,
-      address: editedProfile.address,
-      city: editedProfile.city,
-      zipCode: editedProfile.zipCode,
-      nif: editedProfile.nif,
-      description: editedProfile.description,
-      password: editedProfile.password,
-    };
+      const profileToSend: any = {
+        fullName: isCustomer ? editedProfile.fullName : undefined,
+        name: !isCustomer ? editedProfile.fullName : undefined,
+        email: editedProfile.email,
+        telephone: editedProfile.telephone,
+        address: editedProfile.address,
+        city: editedProfile.city,
+        zipCode: editedProfile.zipCode,
+        nif: editedProfile.nif,
+        description: editedProfile.description,
+        password: editedProfile.password,
+      };
 
-    if (isCustomer) {
-      profileToSend.dni = editedProfile.dni;
+      if (isCustomer) {
+        profileToSend.dni = editedProfile.dni;
+      }
+
+      const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(profileToSend),
+      });
+
+      if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar el perfil.`);
+
+      showAlert('Éxito', 'Perfil actualizado correctamente.');
+      setHasChanges(false);
+      setOriginalProfile(editedProfile);
+
+      // Redirección según el tipo de usuario
+      // Dentro del handleSave en EditUserScreen
+      navigation.navigate('admin/listUsers');
+
+      
+    } catch (error: any) {
+      console.error('Error al guardar los cambios:', error.message);
+      showAlert('Error', error.message);
     }
-
-    const response = await fetch(endpoint, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify(profileToSend),
-    });
-
-    if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar el perfil.`);
-
-    showAlert('Éxito', 'Perfil actualizado correctamente.');
-    setHasChanges(false);
-    setOriginalProfile(editedProfile);
-
-    // Redirección según el tipo de usuario
-    // Dentro del handleSave en EditUserScreen
-    navigation.navigate('admin/listUsers');
-
-    
-  } catch (error: any) {
-    console.error('Error al guardar los cambios:', error.message);
-    showAlert('Error', error.message);
-  }
-};
-
+  };
 
   const showAlert = (title: string, message: string) => {
     if (Platform.OS === 'web') {
@@ -292,10 +290,10 @@ const handleSave = async () => {
           )}
           <View style={styles.buttonContainer}>
           <ThemedText style={styles.changePlanText}>
-                                ¿Desea cambiar su plan?{' '}
-                                <Pressable onPress={() => setShowPlanModal(true)}>
-                                    <ThemedText style={styles.changePlanLink}>Cambiar plan</ThemedText>
-                                </Pressable>
+              ¿Desea cambiar su plan?{' '}
+              <Pressable onPress={() => setShowPlanModal(true)}>
+                <ThemedText style={styles.changePlanLink}>Cambiar plan</ThemedText>
+              </Pressable>
           </ThemedText>
             <CustomButton 
               title="Guardar" 
@@ -334,8 +332,6 @@ const handleSave = async () => {
           <Picker.Item key={plan} label={plan} value={plan} />
         ))}
       </Picker>
-
-      {/* Dirección de Facturación */}
       <ThemedText style={styles.label}>Dirección de Facturación</ThemedText>
       <TextInput
         style={styles.input}
@@ -349,8 +345,6 @@ const handleSave = async () => {
         placeholder="Dirección de facturación"
         placeholderTextColor="#666"
       />
-
-      {/* Fecha de Expiración */}
       <ThemedText style={styles.label}>Fecha de Expiración</ThemedText>
       <TextInput
         style={styles.input}
@@ -364,12 +358,9 @@ const handleSave = async () => {
         placeholder="AAAA-MM-DD"
         placeholderTextColor="#666"
       />
-
       {/* ID del Plan (Solo Informativo) */}
       <ThemedText style={styles.label}>ID del Plan</ThemedText>
       <ThemedText style={styles.infoText}>{editedProfile.plan?.id ?? 'N/A'}</ThemedText>
-
-      {/* Botones de acción */}
       <CustomButton 
         title="Guardar" 
         onPress={handleSavePlan}
