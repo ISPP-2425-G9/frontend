@@ -59,19 +59,11 @@ function SelectContacts() {
   const { isAuthenticated } = useAuth();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<SelectContactsRouteProp>();
-  const isMine = route.params?.is_mine ?? true;
-  const jsonData = route.params?.jsonData ?? '';
-  if (!route.params || !route.params.jsonData) {
-    return (
-      <View style={{ padding: 30 }}>
-        <Text>Error: No se proporcionaron los datos necesarios para continuar.</Text>
-      </View>
-    );
-  }
 
-
-  const is_newObituary = route.params?.is_newObituary ?? true;
-  const obituaryId = route.params?.obituaryId ?? undefined;
+  const jsonData = route.params?.jsonData ?? "";
+  const is_newObituary = route.params?.is_newObituary;
+  const obituaryId = route.params?.obituaryId;
+  const is_mine = route.params?.is_mine;
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -79,11 +71,13 @@ function SelectContacts() {
     { id: Date.now(), name: "", phone: "", email: "" },
   ]);
   const [combinedData, setCombinedData] = useState<any>({});
-
   const [userRole, setUserRole] = useState<string | null>(null);
 
-  const [is_mine, setIsMine] = useState<boolean>(true);
-
+  const hasError =
+    jsonData === "" ||
+    is_newObituary === undefined ||
+    obituaryId === undefined ||
+    is_mine === undefined;
   useFocusEffect(
     useCallback(() => {
       if (is_newObituary) {
@@ -213,7 +207,7 @@ function SelectContacts() {
     const dataToSend = {
       ...combinedData,
       contacts: contactsWithoutIds,
-      isMine: true,
+      isMine: is_mine,
     };
 
     const url = is_newObituary
@@ -253,7 +247,6 @@ function SelectContacts() {
     const dataToSend = {
         ...combinedData,
         contacts: contactsWithoutIds,
-        isMine: false,
     };
 
     navigation.navigate("obituaries/loadCertificate", { 
@@ -263,8 +256,7 @@ function SelectContacts() {
     });
 };
 
-  const showConfirmationModal = async (is_mine: boolean) => {
-    setIsMine(is_mine);
+  const showConfirmationModal = async () => {
     const errors: string[] = [];
 
     const phoneSet = new Set();
@@ -320,6 +312,7 @@ function SelectContacts() {
   };
 
   const handleSubmit = async () => {
+    console.log("is_mine", is_mine);
   
     try {
       if (is_mine) {
@@ -402,36 +395,40 @@ function SelectContacts() {
       <View style={styles.buttonContainer}>
 
         
-        {is_newObituary && (
+
+
+      {
+        is_newObituary ? (
+          <>
+            <CustomButton
+              title={"Cree su propia esquela"}
+              onPress={() => showConfirmationModal()}
+              style={styles.saveButton}
+            />
+
+            <CustomButton
+              title={"Cree y envie su esquela para un ser querido"}
+              onPress={() => showConfirmationModal()}
+              style={styles.saveButton}
+            />
+          </>
+        ) : is_mine ? (
+          console.log("is_mine", is_mine),
           <CustomButton
-            title="Cree y envie su esquela para un ser querido"
-            onPress={() => showConfirmationModal(false)}
+            title={"Actualice su esquela"}
+            onPress={() => showConfirmationModal()}
             style={styles.saveButton}
           />
-          )
-        }
-        {isMine ? (
+        ) : (
           <CustomButton
-            title={
-              is_newObituary
-                ? "Cree y envie su esquela para un ser querido"
-                : "Actualice el certificado de defunción"
-            }            onPress={() => showConfirmationModal(false)}
-              style={styles.saveButton}
-            />
-          ): (
-            <CustomButton
-              title={
-                is_newObituary
-                  ? "Cree su propia esquela"
-                  : "Actualice su propia esquela"
-              }
-              onPress={() => showConfirmationModal(true)}
-              style={styles.saveButton}
-            />
-          )
+            title={"Actualice el certificado de defunción"}
+            onPress={() => showConfirmationModal()}
+            style={styles.saveButton}
+          />
+        )
+      }
 
-        }
+
 
       </View>
 

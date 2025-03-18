@@ -77,7 +77,7 @@ function LoadCertificate() {
         if (!response.ok) throw new Error("Error al obtener los datos");
           const data = await response.json();
           setDni(data.dni);
-          setCertificateImage(data.url);
+          setCertificateImage(data.deathCertificate.url);
         }
         console.log("Datos del formulario:", certificateImage);
       };
