@@ -30,7 +30,7 @@ export default function TabLayout() {
         tabBarIcon: ({ color, size, focused }) => {
           const iconsDict: Record<string, keyof typeof Ionicons.glyphMap> = {
             "profile/index": "person",
-            "certificate/index": "document",
+            "certificate/index": "newspaper-outline",
             "obituaries/index": "document",
             "messages/index": "chatbox",
             "contacts/index": "book-sharp",
@@ -88,16 +88,18 @@ export default function TabLayout() {
       <Tabs.Screen name="home" options={{ title: "" }} />
       <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen name="+not-found" options={{ href: null }} />
-      <Tabs.Screen name="certificate/index" options={{ title: "Cargar certificado" }} />,
 
 
       {
         isAuthenticated ? [
           <Tabs.Screen name="login/index" options={{ href: null }} />,
           <Tabs.Screen name="register/index" options={{ href: null }} />,
+          <Tabs.Screen name="certificate/index" options={{ title: "Cargar certificado" }} />,
         ] : [
           <Tabs.Screen name="login/index" options={{ title: "" }} />,
           <Tabs.Screen name="register/index" options={{ title: "" }} />,
+          <Tabs.Screen name="certificate/index" options={{ title: "Cargar certificado" }} />,
+
         ]
       }
 
@@ -123,7 +125,6 @@ export default function TabLayout() {
           <Tabs.Screen name="obituaries/createObituary" options={{ href: null }} />,
           <Tabs.Screen name="obituaries/listMyObituaries" options={{ href: null }} />,
           <Tabs.Screen name="obituaries/selectContacts" options={{ href: null }} />,
-          <Tabs.Screen name="obituaries/loadCertificate" options={{ href: null }} />,
         ]
       }
 
