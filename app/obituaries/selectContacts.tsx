@@ -30,14 +30,17 @@ const { width } = Dimensions.get("window");
 
 type RootStackParamList = {
   "obituaries/selectContacts": {
-    jsonData: string;
-    is_newObituary: boolean;
-    obituaryId: number;
+    jsonData: string,
+    is_newObituary: boolean,
+    obituaryId: number,
+    is_mine: boolean
   };
   "obituaries/listMyObituaries": undefined;
   "obituaries/loadCertificate": { 
     jsonData: string, 
-    is_newObituary: boolean};
+    is_newObituary: boolean, 
+    obituaryId: number
+  };
 };
 
 type SelectContactsRouteProp = RouteProp<
@@ -56,6 +59,7 @@ function SelectContacts() {
   const { isAuthenticated } = useAuth();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<SelectContactsRouteProp>();
+  const isMine = route.params?.is_mine ?? true;
   const jsonData = route.params?.jsonData ?? '';
   if (!route.params || !route.params.jsonData) {
     return (
@@ -254,7 +258,8 @@ function SelectContacts() {
 
     navigation.navigate("obituaries/loadCertificate", { 
         jsonData: JSON.stringify(dataToSend) ,
-        is_newObituary
+        is_newObituary, 
+        obituaryId
     });
 };
 
@@ -396,22 +401,36 @@ function SelectContacts() {
       <View style={styles.divider} />
       <View style={styles.buttonContainer}>
 
-        <CustomButton
-          title={
-            is_newObituary
-              ? "Cree su propia esquela"
-              : "Actualice su propia esquela"
-          }
-          onPress={() => showConfirmationModal(true)}
-          style={styles.saveButton}
-        />
+        
         {is_newObituary && (
           <CustomButton
             title="Cree y envie su esquela para un ser querido"
             onPress={() => showConfirmationModal(false)}
             style={styles.saveButton}
           />
-        )
+          )
+        }
+        {isMine ? (
+          <CustomButton
+            title={
+              is_newObituary
+                ? "Cree y envie su esquela para un ser querido"
+                : "Actualice el certificado de defunción"
+            }            onPress={() => showConfirmationModal(false)}
+              style={styles.saveButton}
+            />
+          ): (
+            <CustomButton
+              title={
+                is_newObituary
+                  ? "Cree su propia esquela"
+                  : "Actualice su propia esquela"
+              }
+              onPress={() => showConfirmationModal(true)}
+              style={styles.saveButton}
+            />
+          )
+
         }
 
       </View>

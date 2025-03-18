@@ -39,6 +39,7 @@ type RootStackParamList = {
     jsonData: string;
     is_newObituary: boolean;
     obituaryId: number;
+    is_mine: boolean;
   };
   "obituaries/createObituary": {
     imageTemplateId: number;
@@ -87,6 +88,7 @@ function EsquelaCustomizer() {
     farewellPhrase: "",
     imageTemplate_id: imageId,
     customImage: null as string | null,
+    is_mine: true,
   });
 
   useEffect(() => {
@@ -117,6 +119,7 @@ function EsquelaCustomizer() {
           farewellPhrase: "",
           customImage: null,
           imageTemplate_id: imageId || 1,
+          is_mine: true,
         });
         setLoading(false);
         return;
@@ -153,6 +156,7 @@ function EsquelaCustomizer() {
             farewellPhrase: data.farewellPhrase || "",
             customImage: data.customImageUrl || null,
             imageTemplate_id: imageId || 1,
+            is_mine: data.is_mine,
           });
         } catch (error) {
           console.error("Error al cargar la esquela:", error);
@@ -175,6 +179,7 @@ function EsquelaCustomizer() {
         farewellPhrase: "",
         customImage: null,
         imageTemplate_id: imageId || 1,
+        is_mine: true,
       });
     };
   }, []);
@@ -263,6 +268,7 @@ function EsquelaCustomizer() {
         jsonData: jsonData,
         is_newObituary,
         obituaryId,
+        is_mine: formData.is_mine,
       });
     }
     setModalVisible(false);

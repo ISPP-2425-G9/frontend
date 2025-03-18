@@ -16,7 +16,11 @@ import CustomModal from "@/components/CustomModal";
 import { BACKEND_API } from "@/constants/Mysc";
 
 type RootStackParamList = {
-    "obituaries/loadCertificate": { jsonData: string };
+    "obituaries/loadCertificate": { 
+      jsonData: string
+      is_newObituary: boolean, 
+      obituaryId: string
+    };
     "obituaries": undefined;
 };
 
@@ -31,9 +35,8 @@ function LoadCertificate() {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
  
 
-      const route = useRoute<ObituaryLoadCertificateRouteProp>();
-
-      const is_newObituary = route.params?.jsonData ? true : false;
+    const route = useRoute<ObituaryLoadCertificateRouteProp>();
+    const is_newObituary = route.params?.is_newObituary;
     
 
     const { isAuthenticated } = useAuth();
@@ -53,19 +56,30 @@ function LoadCertificate() {
 
     useEffect(() => {
       const initializeForm = async () => {
-        if (is_newObituary) {
+        if (is_newObituary === true) {
           setFormData({
             dni: "",
             certificateImage: "",
           });
           return;
         } else {
-          // Aquí iría la llamada al servidor si no es nuevo
-          // Ejemplo:
-          // const response = await fetch(...);
-          // const data = await response.json();
-          // setFormData(data);
+
+          const authToken = await AsyncStorage.getItem("authToken");
+          const obituaryId = route.params?.obituaryId ?? "";
+          const response = await fetch(`${BACKEND_API}/api/deathCertificate/obituary/${obituaryId}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+        if (!response.ok) throw new Error("Error al obtener los datos");
+          const data = await response.json();
+          setDni(data.dni);
+          setCertificateImage(data.url);
         }
+        console.log("Datos del formulario:", certificateImage);
       };
     
       initializeForm();
@@ -116,7 +130,7 @@ function LoadCertificate() {
         }
         if (!validateDni(dni)) {
             setDni("");
-            setDniError("El DNI no es válido. Debe tener el formato 12345678A.");
+            setDniError("El DNI debe tener el formato 12345678A.");
             return;
         }
         setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido, podrá modificar su esquela hasta que se enviado a todos los contactos que usted eligio.")
@@ -131,13 +145,13 @@ function LoadCertificate() {
     const handleSubmit = async () => {
 
         const authToken = await AsyncStorage.getItem("authToken");
-        const jsonDatato = route.params.jsonData ?? '';
+        const jsonData = route.params.jsonData ?? '';
         const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
 
         const dataToSend = {
-            dni,
+            ... JSON.parse(jsonData),
+            dni: dni,
             file: base64File, 
-            jsonDatato
         };
 
         console.log("Datos a enviar:", dataToSend);
@@ -292,7 +306,7 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     paddingHorizontal: 8,
     marginBottom: 16,
-    fontSize: 12,
+    fontSize: 16,
   },
   divider: {
     height: 1,
