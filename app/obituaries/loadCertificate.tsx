@@ -17,6 +17,7 @@ import { BACKEND_API } from "@/constants/Mysc";
 
 type RootStackParamList = {
     "obituaries/loadCertificate": { jsonData: string };
+    "obituaries": undefined;
 };
 
 type ObituaryLoadCertificateRouteProp = RouteProp<
@@ -31,6 +32,8 @@ function LoadCertificate() {
  
 
       const route = useRoute<ObituaryLoadCertificateRouteProp>();
+
+      const is_newObituary = route.params?.jsonData ? true : false;
     
 
     const { isAuthenticated } = useAuth();
@@ -42,15 +45,32 @@ function LoadCertificate() {
     const [modalMessage, setModalMessage] = useState("");
     const [combinedData, setCombinedData] = useState<any>({});
 
-    const jsonData = route.params?.jsonData ?? '';
-
-    useEffect(() => {
-      console.log("jsonData", jsonData);
-    }, []);
     const [formData, setFormData] = useState({
       dni: "",
       certificateImage: "",
     });
+
+
+    useEffect(() => {
+      const initializeForm = async () => {
+        if (is_newObituary) {
+          setFormData({
+            dni: "",
+            certificateImage: "",
+          });
+          return;
+        } else {
+          // Aquí iría la llamada al servidor si no es nuevo
+          // Ejemplo:
+          // const response = await fetch(...);
+          // const data = await response.json();
+          // setFormData(data);
+        }
+      };
+    
+      initializeForm();
+    }, [is_newObituary]);
+    
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -109,15 +129,18 @@ function LoadCertificate() {
     
 
     const handleSubmit = async () => {
-        const authToken = await AsyncStorage.getItem("authToken");
 
-     
+        const authToken = await AsyncStorage.getItem("authToken");
+        const jsonDatato = route.params.jsonData ?? '';
         const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
 
         const dataToSend = {
             dni,
             file: base64File, 
+            jsonDatato
         };
+
+        console.log("Datos a enviar:", dataToSend);
 
         try {
             const response = await fetch(BACKEND_API + '/api/deathCertificate/upload', {
@@ -136,9 +159,8 @@ function LoadCertificate() {
             const result = await response.json();
             console.log("Respuesta del servidor:", result);
 
-            navigation.navigate("obituaries/loadCertificate", { 
-                jsonData: JSON.stringify(result) 
-            });
+            navigation.navigate("obituaries");
+          
 
         } catch (error) {
             console.error("Error al enviar datos:", error);
