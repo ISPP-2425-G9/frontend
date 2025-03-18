@@ -132,7 +132,47 @@ function EditUserScreen() {
       return updatedProfile;
     });
   };
+  
+  const handleSavePlan = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) throw new Error('No se encontró el token de autenticación.');
+  
+      const endpoint = isCustomer
+        ? `${BACKEND_API}/api/auth/admin/customers/${userId}`
+        : `${BACKEND_API}/api/auth/admin/companies/${userId}`;
+  
+      const profileToSend = {
+        ...editedProfile,
+        plan: {
+          id: editedProfile.plan?.id, // Enviar el ID del plan seleccionado
+          planType: editedProfile.plan?.planType,
+          billingAddress: editedProfile.plan?.billingAddress,
+          expireDate: editedProfile.plan?.expireDate,
+        },
+      };
+  
+      console.log('Enviando al backend:', profileToSend); // Verificar los datos antes de enviar
+  
+      const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(profileToSend),
+      });
+  
+      if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar el perfil.`);
+  
+      showAlert('Éxito', 'El plan ha sido actualizado correctamente.');
+      setShowPlanModal(false); // Cierra el modal después de guardar
+      navigation.navigate('admin/listUsers');
+  
+    } catch (error: any) {
+      console.error('Error al guardar el plan:', error.message);
+      showAlert('Error', error.message);
+    }
+  };
 
+  
 const handleSave = async () => {
   try {
     const token = await AsyncStorage.getItem('authToken');
@@ -332,7 +372,7 @@ const handleSave = async () => {
       {/* Botones de acción */}
       <CustomButton 
         title="Guardar" 
-        onPress={() => setShowPlanModal(false)} 
+        onPress={handleSavePlan}
         color="blue" 
       />
       <CustomButton 
