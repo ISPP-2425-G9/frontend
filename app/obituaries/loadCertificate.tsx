@@ -149,12 +149,12 @@ function LoadCertificate() {
         const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
 
         const dataToSend = {
-            ... JSON.parse(jsonData),
-            dni: dni,
-            file: base64File, 
-        };
-
-        console.log("Datos a enviar:", dataToSend);
+          ...JSON.parse(jsonData),
+          deathCertificate: {
+              dni: dni,
+              file: base64File
+          }
+      };
 
         try {
             const response = await fetch(BACKEND_API + '/api/deathCertificate/upload', {
