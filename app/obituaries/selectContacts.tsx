@@ -65,6 +65,8 @@ function SelectContacts() {
   const obituaryId = route.params?.obituaryId;
   const is_mine = route.params?.is_mine;
 
+  const [isMine, setIsMine] = useState(false);
+
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [contacts, setContacts] = useState<Contact[]>([
@@ -256,9 +258,9 @@ function SelectContacts() {
     });
 };
 
-  const showConfirmationModal = async () => {
+  const showConfirmationModal = async (isMine: boolean) => {
     const errors: string[] = [];
-
+    setIsMine(isMine);
     const phoneSet = new Set();
     const emailSet = new Set();
 
@@ -286,7 +288,7 @@ function SelectContacts() {
         throw new Error(`Hay error(es) en su formulario: ${errors.join(", ")}`);
       }
 
-      if (is_mine) {
+      if (isMine) {
         if (userRole === 'CUSTOMER_FREE') {
 
           setModalMessage("¿Desea guardar su propia esquela?\n ⚠️¡Recuerde que debe contratar nuestro plan para que su esquela sea enviada!");
@@ -315,7 +317,7 @@ function SelectContacts() {
     console.log("is_mine", is_mine);
   
     try {
-      if (is_mine) {
+      if (isMine) {
         await createObituary();
       } else {
         moveToNextScreen();
@@ -402,13 +404,13 @@ function SelectContacts() {
           <>
             <CustomButton
               title={"Cree su propia esquela"}
-              onPress={() => showConfirmationModal()}
+              onPress={() => showConfirmationModal(true)}
               style={styles.saveButton}
             />
 
             <CustomButton
               title={"Cree y envie su esquela para un ser querido"}
-              onPress={() => showConfirmationModal()}
+              onPress={() => showConfirmationModal(false)}
               style={styles.saveButton}
             />
           </>
@@ -416,13 +418,13 @@ function SelectContacts() {
           console.log("is_mine", is_mine),
           <CustomButton
             title={"Actualice su esquela"}
-            onPress={() => showConfirmationModal()}
+            onPress={() => showConfirmationModal(true)}
             style={styles.saveButton}
           />
         ) : (
           <CustomButton
             title={"Actualice el certificado de defunción"}
-            onPress={() => showConfirmationModal()}
+            onPress={() => showConfirmationModal(false)}
             style={styles.saveButton}
           />
         )
