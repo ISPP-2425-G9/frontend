@@ -35,7 +35,9 @@ type RootStackParamList = {
     obituaryId: number;
   };
   "obituaries/listMyObituaries": undefined;
-  "obituaries/loadCertificate": { jsonData: string };
+  "obituaries/loadCertificate": { 
+    jsonData: string, 
+    is_newObituary: boolean};
 };
 
 type SelectContactsRouteProp = RouteProp<
@@ -251,7 +253,8 @@ function SelectContacts() {
     };
 
     navigation.navigate("obituaries/loadCertificate", { 
-        jsonData: JSON.stringify(dataToSend) 
+        jsonData: JSON.stringify(dataToSend) ,
+        is_newObituary
     });
 };
 

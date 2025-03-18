@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Image } from "react-native";
 import { useNavigation, NavigationProp, useRoute, RouteProp } from "@react-navigation/native";
 import { Dimensions } from "react-native";
@@ -11,66 +11,28 @@ import CustomButton from "@/components/CustomButton";
 import { CustomTextInput } from "@/components/CustomTextInput";
 import { GlobalStyles } from "@/constants/Colors";
 import { ThemedView } from "@/components/ThemedView";
-import useAuth from "@/hooks/useAuth";
 import CustomModal from "@/components/CustomModal";
 import { BACKEND_API } from "@/constants/Mysc";
 
 type RootStackParamList = {
     "obituaries/loadCertificate": { jsonData: string };
-    "obituaries": undefined;
 };
-
-type ObituaryLoadCertificateRouteProp = RouteProp<
-  RootStackParamList,
-  "obituaries/loadCertificate"
->;
 
 const { width } = Dimensions.get("window");
 
 function LoadCertificate() {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
- 
+    const [formData, setFormData] = useState({
+        dni: "",
+        certificateImage: "",
+    });
 
-      const route = useRoute<ObituaryLoadCertificateRouteProp>();
-
-      const is_newObituary = route.params?.jsonData ? true : false;
-    
-
-    const { isAuthenticated } = useAuth();
     const [dni, setDni] = useState<string>("");
     const [certificateImage, setCertificateImage] = useState<string | null>(null);
     const [fileName, setFileName] = useState<string | null>(null);  
     const [dniError, setDniError] = useState<string>("");
     const [modalVisible, setModalVisible] = useState(false);
     const [modalMessage, setModalMessage] = useState("");
-    const [combinedData, setCombinedData] = useState<any>({});
-
-    const [formData, setFormData] = useState({
-      dni: "",
-      certificateImage: "",
-    });
-
-
-    useEffect(() => {
-      const initializeForm = async () => {
-        if (is_newObituary) {
-          setFormData({
-            dni: "",
-            certificateImage: "",
-          });
-          return;
-        } else {
-          // Aquí iría la llamada al servidor si no es nuevo
-          // Ejemplo:
-          // const response = await fetch(...);
-          // const data = await response.json();
-          // setFormData(data);
-        }
-      };
-    
-      initializeForm();
-    }, [is_newObituary]);
-    
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -110,6 +72,7 @@ function LoadCertificate() {
 
     
       const showConfirmationModal = async () => {
+        console.log("DNI:");
         if (!dni || !certificateImage) {
             alert("Por favor, introduce el DNI y selecciona un archivo.");
             return;
@@ -126,22 +89,18 @@ function LoadCertificate() {
       const handleCloseModal = () => {
         setModalVisible(false);
       };
-    
 
-    const handleSubmit = async () => {
 
+      const handleSubmit = async () => {
         const authToken = await AsyncStorage.getItem("authToken");
-        const jsonDatato = route.params.jsonData ?? '';
+    
         const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
-
+    
         const dataToSend = {
             dni,
             file: base64File, 
-            jsonDatato
         };
-
-        console.log("Datos a enviar:", dataToSend);
-
+    
         try {
             const response = await fetch(BACKEND_API + '/api/deathCertificate/upload', {
                 method: "POST",
@@ -149,26 +108,33 @@ function LoadCertificate() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${authToken}`,
                 },
-                body: JSON.stringify(dataToSend), 
+                body: JSON.stringify(dataToSend),
             });
-
+    
             if (!response.ok) {
-                throw new Error(`Error ${response.status}: ${response.statusText}`);
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
             }
-
+    
             const result = await response.json();
             console.log("Respuesta del servidor:", result);
-
-            navigation.navigate("obituaries");
-          
-
+    
+            navigation.navigate("obituaries/loadCertificate", { 
+                jsonData: JSON.stringify(result) 
+            });
+    
         } catch (error) {
             console.error("Error al enviar datos:", error);
-            alert("Hubo un problema al enviar los datos. Inténtalo de nuevo.");
+    
+            const errorMessage = (error as Error).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
+            alert(errorMessage);
         }
     };
+    
+    
 
-    return isAuthenticated ? (
+
+    return  (
         <View style={styles.container}>
             <View style={styles.dataContainer}>
             <Text style={styles.title}>Carga el certificado de defunción</Text>
@@ -222,7 +188,7 @@ function LoadCertificate() {
         <View style={styles.divider} />
         <View style={styles.buttonContainer}>
             <CustomButton title="Seleccionar archivo" onPress={pickImage} />
-            <CustomButton title="Pagar esquela (1,99 €)" onPress={showConfirmationModal} />
+            <CustomButton title="Subir certificado" onPress={showConfirmationModal} />
         </View>
         {modalVisible && (
             <CustomModal
@@ -251,11 +217,7 @@ function LoadCertificate() {
     </View>
 
     
-) :  (
-    <ThemedView style={styles.container}>
-      <Text style={styles.title}>Debes iniciar sesión para poder acceder a esta sección</Text>
-    </ThemedView>
-  );
+);
 }
 
 const styles = StyleSheet.create({
@@ -350,5 +312,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER]);
-
+export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER, AUTHORITIES.ANONYMOUS]);
