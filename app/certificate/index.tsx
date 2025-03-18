@@ -82,7 +82,7 @@ function LoadCertificate() {
             setDniError("El DNI no es válido. Debe tener el formato 12345678A.");
             return;
         }
-        setModalMessage("La esquela no será subida hasta que un administrador del sistema verifique que el certificado es válido, podrá modificar su esquela hasta que se enviado a todos los contactos que usted eligio.")
+        setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido, podrá modificar su esquela hasta que se enviado a todos los contactos que usted eligio.")
         setModalVisible(true);
       };
 

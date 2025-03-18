@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Image } from "react-native";
 import { useNavigation, NavigationProp, useRoute, RouteProp } from "@react-navigation/native";
 import { Dimensions } from "react-native";
@@ -19,14 +19,19 @@ type RootStackParamList = {
     "obituaries/loadCertificate": { jsonData: string };
 };
 
+type ObituaryLoadCertificateRouteProp = RouteProp<
+  RootStackParamList,
+  "obituaries/loadCertificate"
+>;
+
 const { width } = Dimensions.get("window");
 
 function LoadCertificate() {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-    const [formData, setFormData] = useState({
-        dni: "",
-        certificateImage: "",
-    });
+ 
+
+      const route = useRoute<ObituaryLoadCertificateRouteProp>();
+    
 
     const { isAuthenticated } = useAuth();
     const [dni, setDni] = useState<string>("");
@@ -35,6 +40,17 @@ function LoadCertificate() {
     const [dniError, setDniError] = useState<string>("");
     const [modalVisible, setModalVisible] = useState(false);
     const [modalMessage, setModalMessage] = useState("");
+    const [combinedData, setCombinedData] = useState<any>({});
+
+    const jsonData = route.params?.jsonData ?? '';
+
+    useEffect(() => {
+      console.log("jsonData", jsonData);
+    }, []);
+    const [formData, setFormData] = useState({
+      dni: "",
+      certificateImage: "",
+    });
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
@@ -74,7 +90,6 @@ function LoadCertificate() {
 
     
       const showConfirmationModal = async () => {
-        console.log("DNI:");
         if (!dni || !certificateImage) {
             alert("Por favor, introduce el DNI y selecciona un archivo.");
             return;
@@ -84,7 +99,7 @@ function LoadCertificate() {
             setDniError("El DNI no es válido. Debe tener el formato 12345678A.");
             return;
         }
-        setModalMessage("La esquela no será subida hasta que un administrador del sistema verifique que el certificado es válido, podrá modificar su esquela hasta que se enviado a todos los contactos que usted eligio.")
+        setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido, podrá modificar su esquela hasta que se enviado a todos los contactos que usted eligio.")
         setModalVisible(true);
       };
 
@@ -314,3 +329,4 @@ const styles = StyleSheet.create({
 });
 
 export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER]);
+
