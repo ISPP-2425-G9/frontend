@@ -1,6 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { GlobalStyles } from '@/constants/Colors';
+import CustomModal from '@/components/CustomModal';
+import CustomButton from '@/components/CustomButton';
+import { ThemedText } from '@/components/ThemedText';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
+
 
 interface PlanCardProps {
   role: 'CUSTOMER_FREE' | 'CUSTOMER_PREMIUM' | 'COMPANY_FREE' | 'COMPANY_PREMIUM';
@@ -8,11 +14,23 @@ interface PlanCardProps {
 }
 
 const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
   const plan = role.split('_')[1].toLowerCase();
   const isPremium = plan === 'premium';
   const isCustomer = role.includes('CUSTOMER');
   let expirationDate = fechaExpiracion ? fechaExpiracion : null;
   const isDesktop = Dimensions.get('window').width > 768;
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        setIsModalVisible(false); 
+        setIsCancelModalVisible(false); 
+      };
+    }, [])
+  );
 
   const getPlanDetails = () => {
     if (isPremium && !isCustomer) {
@@ -95,6 +113,13 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
     borderColor: GlobalStyles.grey,
     backgroundColor: GlobalStyles.lightGrey,
   };
+  const handleSubscribe = () => {
+    // TODO: Implementar lógica de suscripción aquí en el futuro
+  };
+  const handleUnsubscribe = () => {
+    // TODO: Implementar lógica de suscripción aquí en el futuro
+  };
+  
 
   return (
     <View style={[styles.cardContainer, isDesktop ? styles.cardContainerDesktop : styles.cardContainerMobile]}>
@@ -106,11 +131,16 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           <Text style={styles.price}>{price}</Text>
           {nextPayment && <Text style={styles.payment}>Próximo pago: {nextPayment}</Text>}
           {isPremium ? (
-            <TouchableOpacity style={styles.buttonCancel}>
+            <TouchableOpacity 
+              style={styles.buttonCancel}
+              onPress={() => setIsCancelModalVisible(true)}>
               <Text style={styles.buttonText}>Darte de baja</Text>
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity style={styles.buttonSubscribe}>
+            <TouchableOpacity 
+              style={styles.buttonSubscribe} 
+              onPress={() => setIsModalVisible(true)}
+            >
               <Text style={styles.buttonText}>Contratar plan</Text>
             </TouchableOpacity>
           )}
@@ -124,6 +154,50 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           <Text style={styles.price}>{esquelasDetails.price}</Text>
         </View>
       )}
+      <CustomModal visible={isModalVisible} onClose={() => setIsModalVisible(false)} title="Confirmar Contratación">
+        <View style={styles.modalContent}>
+          <ThemedText style={styles.modalText}>
+            ¿Estás seguro que deseas contratar este plan?
+          </ThemedText>
+          <View style={styles.modalButtons}>
+            <CustomButton
+              title="Cancelar"
+              onPress={() => setIsModalVisible(false)}
+              style={styles.modalButton}
+              color="red"
+            />
+            <CustomButton
+              title={isProcessing ? 'Procesando...' : 'Confirmar'}
+              onPress={handleSubscribe}
+              style={styles.modalButton}
+              color="blue"
+            />
+          </View>
+        </View>
+      </CustomModal>
+      <CustomModal visible={isCancelModalVisible} onClose={() => setIsCancelModalVisible(false)} title="Cancelar Suscripción">
+        <View style={styles.modalContent}>
+          <ThemedText style={styles.modalText}>
+            ¿Estás seguro que deseas cancelar tu suscripción?
+          </ThemedText>
+          <View style={styles.modalButtons}>
+            <CustomButton
+              title="Cancelar"
+              onPress={() => setIsCancelModalVisible(false)}
+              style={styles.modalButton}
+              color="red"
+            />
+            <CustomButton
+              title={isProcessing ? 'Procesando...' : 'Confirmar'}
+              onPress={handleUnsubscribe} // Llamar función para cancelar suscripción
+              style={styles.modalButton}
+              color="blue"
+            />
+          </View>
+        </View>
+      </CustomModal>
+
+
     </View>
   );
 };
@@ -198,6 +272,38 @@ const styles = StyleSheet.create({
     buttonText: {
       color: GlobalStyles.white,
       fontFamily: GlobalStyles.fontBold,
+    },
+    modalContent: {
+      padding: 20,
+      alignItems: 'center',
+      backgroundColor: 'white',
+      borderRadius: 10,
+      width: '90%',
+      alignSelf: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5,
+    },
+    modalText: {
+      fontSize: 16,
+      textAlign: 'center',
+      marginBottom: 20,
+      color: '#333',
+    },
+    modalButtons: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      width: '100%',
+      marginTop: 10,
+    },
+    modalButton: {
+      flex: 1,
+      marginHorizontal: 5,
+      paddingVertical: 10,
+      borderRadius: 5,
+      alignItems: 'center',
     },
   });
 
