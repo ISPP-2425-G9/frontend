@@ -5,6 +5,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import CustomButton from "@/components/CustomButton";
 import Logo from "@/components/Logo";
 import useAuth from "@/hooks/useAuth";
+import LineBreak from "@/components/LineBreack";
 
 
 const { width } = Dimensions.get("window");
@@ -23,11 +24,11 @@ export default function HomeScreen() {
       <View style={[styles.container, width > 800 ? styles.rowLayout : styles.columnLayout]}>
         <View style={styles.logoContainer}>
           <Logo size={logoSize}/>
-          <br/>
+          <LineBreak />
           <Text style={styles.tagline}>Honrando memorias,</Text>
           <Text style={styles.tagline}>facilitando despedidas</Text>
-          <br/>
-          <br/>
+          <LineBreak />
+          <LineBreak />
         </View>
         
         <View style={styles.spacer} />
