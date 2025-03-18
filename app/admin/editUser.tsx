@@ -61,23 +61,6 @@ function EditUserScreen() {
   const [loading, setLoading] = useState(true);
   const [hasChanges, setHasChanges] = useState(false);
 
-  useEffect(() => {
-    if (!userId) return; // Evita ejecutar la lógica si userId es undefined o vacío
-    fetchProfile();
-  }, [userId, isCustomer]);
-
-  useFocusEffect(
-    useCallback(() => {
-      setHasChanges(false); // Restablecer cambios al entrar en la pestaña
-      fetchProfile(); // Cargar datos del usuario
-      setShowPlanModal(false); // Cierra el modal al entrar
-  
-      return () => {
-        setShowPlanModal(false); // Cierra el modal cuando la pantalla pierde el foco
-      };
-    }, [fetchProfile])
-  );
-
   const fetchProfile = useCallback(async () => {
     setLoading(true);
     try {
@@ -124,6 +107,23 @@ function EditUserScreen() {
     }
   }, [userId, isCustomer]);
   
+
+  useEffect(() => {
+    if (!userId) return; // Evita ejecutar la lógica si userId es undefined o vacío
+    fetchProfile();
+  }, [userId, isCustomer]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setHasChanges(false); // Restablecer cambios al entrar en la pestaña
+      fetchProfile(); // Cargar datos del usuario
+      setShowPlanModal(false); // Cierra el modal al entrar
+  
+      return () => {
+        setShowPlanModal(false); // Cierra el modal cuando la pantalla pierde el foco
+      };
+    }, [fetchProfile])
+  );
 
   const handleInputChange = (field: keyof Profile, value: string) => {
     setEditedProfile((prev) => {
