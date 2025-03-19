@@ -1,11 +1,9 @@
 import { GlobalStyles } from '@/constants/Colors';
 import React from 'react';
 import { ViewStyle } from 'react-native';
-import Svg, { Defs, G, Path, Rect, Circle, Polygon } from "react-native-svg"
+import Svg, { Defs, G, Path, Polygon } from "react-native-svg"
 
 type LogoProps = {
-  onPress?: () => void;
-  style?: ViewStyle;
   color?: "blue" | "grey" | "red" | "white" | "darkGrey";
   size?: number;
 };
@@ -18,7 +16,7 @@ const colors = {
   "darkGrey": GlobalStyles.darkGrey,
 };
 
-const Logo: React.FC<LogoProps> = ({ style, color = "blue", onPress, size=75 }) => {
+const Logo: React.FC<LogoProps> = ({ color = "blue", size=75 }) => {
   const svgColor = colors[color];
 
   return (
