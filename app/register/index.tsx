@@ -1,8 +1,7 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
   Alert,
@@ -11,25 +10,25 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import TextInputArraysForm from "@/components/TextInputArraysForm";
+import CustomButton from "@/components/CustomButton";
 import { GlobalStyles } from "@/constants/Colors";
-import { InputField } from "@/components/TextInputArraysForm";
+import { CustomTextInput } from "@/components/CustomTextInput";
 import { BACKEND_API } from "@/constants/Mysc";
 import { withAuth } from "../_util/withAuth";
 import { AUTHORITIES } from "../_util/Authorities";
-import { parseErrors } from "../_util/utils";
 import { useAuth } from "../_util/useAuth";
-import CustomButton from "@/components/CustomButton";
 
 const { width } = Dimensions.get("window");
 
 const RegisterScreen: React.FC = () => {
   const [userType, setUserType] = useState<"Empresa" | "Cliente" | null>(null);
+  const [formValues, setFormValues] = useState<Record<string, string>>({});
+  const [formErrors, setFormErrors] = useState<string[]>([]); // nuevo estado para errores
   const navigation = useNavigation();
   const { login } = useAuth();
 
   // Company fields for the form
-  const companyFields: InputField[] = [
+  const companyFields = [
     {
       name: "name",
       placeholder: "Floristería Loli S.L.",
@@ -48,11 +47,7 @@ const RegisterScreen: React.FC = () => {
       keyboardType: "phone-pad",
       description: "Teléfono",
     },
-    {
-      name: "city",
-      placeholder: "Sevilla",
-      description: "Ciudad",
-    },
+    { name: "city", placeholder: "Sevilla", description: "Ciudad" },
     {
       name: "address",
       placeholder: "C/ Arquímedes, 3",
@@ -84,7 +79,7 @@ const RegisterScreen: React.FC = () => {
   ];
 
   // Customer fields for the form
-  const clientFields: InputField[] = [
+  const clientFields = [
     {
       name: "name",
       placeholder: "Jesús García",
@@ -117,8 +112,20 @@ const RegisterScreen: React.FC = () => {
     },
   ];
 
+  // Modificamos handleUserTypeSelection para inicializar formValues con claves vacías según el tipo de usuario
   const handleUserTypeSelection = (type: "Empresa" | "Cliente") => {
     setUserType(type);
+    const initialValues: Record<string, string> = {};
+    if (type === "Empresa") {
+      companyFields.forEach((field) => {
+        initialValues[field.name] = ""; // inicializa con cadena vacía
+      });
+    } else {
+      clientFields.forEach((field) => {
+        initialValues[field.name] = "";
+      });
+    }
+    setFormValues(initialValues);
   };
 
   const handleGoBack = () => {
@@ -229,46 +236,38 @@ const RegisterScreen: React.FC = () => {
     return errors;
   };
 
-  const handleSubmit = async (
-    values: Record<string, string | { uri: string; name: string; type: string }>
-  ) => {
+  const handleSubmit = async (values: Record<string, string>) => {
     try {
-      const errors: String[] = await validateData(values, userType);
-      if (errors.length != 0) {
-        throw new Error(`Hay error(es) en su formulario: ${errors}`);
+      console.log("handleSubmit llamado con:", values);
+      if (Object.keys(values).length === 0) {
+        Alert.alert("Información", "Debe completar el formulario");
+        return;
+      }
+      const errors: string[] = await validateData(values, userType);
+      if (errors.length !== 0) {
+        setFormErrors(errors); // se guardan los errores para mostrarlos en la UI
+        return;
+      } else {
+        setFormErrors([]); // limpiar errores si todo está bien
       }
       const reqUrl =
-        userType == "Empresa"
+        userType === "Empresa"
           ? "api/auth/companies/signup"
           : "api/auth/customers/signup";
       const response = await fetch(BACKEND_API + `/${reqUrl}`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
-
-      if (!response.ok) {
-        const errors = await response.json();
-        const errorList = parseErrors(errors);
-        throw new Error(`Hubo un problema al registrarse: \n ${errorList}`);
-      }
-
       const data = await response.json();
-      await AsyncStorage.setItem("authToken", data.token);
-      await AsyncStorage.setItem("userId", data.id);
-      await AsyncStorage.setItem("email", data.username);
-      await AsyncStorage.setItem("roles", JSON.stringify(data.roles));
+      if (!response.ok || !data.token) {
+        throw new Error(`Hubo un problema al registrarse: ${JSON.stringify(data)}`);
+      }
       await AsyncStorage.setItem("authToken", data.token);
       login(data.id, data.token, data.roles);
       navigation.navigate("home" as never);
     } catch (error: any) {
-      if (Platform.OS === "web") {
-        window.alert("Error: " + error);
-      } else {
-        Alert.alert("Error", error);
-      }
+      Alert.alert("Error", error.message || error);
     }
   };
 
@@ -302,16 +301,55 @@ const RegisterScreen: React.FC = () => {
             style={styles.backButton}
           />
 
-          <TextInputArraysForm
-            title={
-              userType === "Empresa"
-                ? "Registro de Empresa"
-                : "Registro de Cliente"
-            }
-            inputs={userType === "Empresa" ? companyFields : clientFields}
-            onSubmit={handleSubmit}
-            buttonText="Completar Registro"
-            style={styles.formStyle}
+          <Text style={styles.formTitle}>
+            {userType === "Empresa"
+              ? "Registro de Empresa"
+              : "Registro de Cliente"}
+          </Text>
+
+          {formErrors.length > 0 && (
+            <View style={styles.errorContainer}>
+              {formErrors.map((error, index) => (
+                <Text key={`error-${index}`} style={styles.errorText}>
+                  {error}
+                </Text>
+              ))}
+            </View>
+          )}
+
+          {userType === "Empresa"
+            ? companyFields.map((field, index) => (
+                <View key={`company-${field.name}-${index}`} style={styles.inputContainer}>
+                  <Text>{field.description}</Text>
+                  <CustomTextInput
+                    placeholder={field.placeholder}
+                    secureTextEntry={field.secureTextEntry}
+                    value={formValues[field.name] || ""}
+                    onChangeText={(text) =>
+                      setFormValues({ ...formValues, [field.name]: text })
+                    }
+                  />
+                </View>
+              ))
+            : clientFields.map((field, index) => (
+                <View key={`client-${field.name}-${index}`} style={styles.inputContainer}>
+                  <Text>{field.description}</Text>
+                  <CustomTextInput
+                    placeholder={field.placeholder}
+                    secureTextEntry={field.secureTextEntry}
+                    value={formValues[field.name] || ""}
+                    onChangeText={(text) =>
+                      setFormValues({ ...formValues, [field.name]: text })
+                    }
+                  />
+                </View>
+              ))}
+
+          <CustomButton
+            title="Completar Registro"
+            onPress={() => handleSubmit(formValues)}
+            color="blue"
+            style={styles.submitButton}
           />
         </ScrollView>
       )}
@@ -350,17 +388,37 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     paddingBottom: 40,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  formStyle: {
-    backgroundColor: GlobalStyles.lightGrey,
-    borderRadius: 15,
-    padding: 20,
-    width: "100%",
+  formTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginVertical: 20,
+    textAlign: "center",
+  },
+  inputContainer: {
+    marginBottom: 20,
   },
   backButton: {
     width: 100,
     marginBottom: 20,
     alignSelf: "flex-start",
+  },
+  submitButton: {
+    marginTop: 20,
+    width: "auto",
+    alignSelf: "center",
+  },
+  errorContainer: {
+    backgroundColor: "#ffe6e6",
+    padding: 10,
+    marginBottom: 20,
+    borderRadius: 4,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 14,
   },
 });
 
