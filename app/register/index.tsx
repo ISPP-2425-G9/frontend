@@ -17,6 +17,7 @@ import { BACKEND_API } from "@/constants/Mysc";
 import { withAuth } from "../_util/withAuth";
 import { AUTHORITIES } from "../_util/Authorities";
 import { useAuth } from "../_util/useAuth";
+import Checkbox from 'expo-checkbox';
 
 const { width } = Dimensions.get("window");
 
@@ -24,6 +25,7 @@ const RegisterScreen: React.FC = () => {
   const [userType, setUserType] = useState<"Empresa" | "Cliente" | null>(null);
   const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [formErrors, setFormErrors] = useState<string[]>([]);
+  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
   const navigation = useNavigation();
   const { login } = useAuth();
 
@@ -239,6 +241,10 @@ const RegisterScreen: React.FC = () => {
 
   const handleSubmit = async (values: Record<string, string>) => {
     try {
+      if (!acceptedTerms) {
+        setFormErrors(["Debe aceptar los términos y condiciones"]);
+        return;
+      }
       console.log("handleSubmit llamado con:", values);
       if (Object.keys(values).length === 0) {
         Alert.alert("Información", "Debe completar el formulario");
@@ -373,6 +379,17 @@ const RegisterScreen: React.FC = () => {
             </View>
           )}
 
+          <View style={styles.checkboxContainer}>
+            <Checkbox
+              value={acceptedTerms}
+              onValueChange={setAcceptedTerms}
+              color={acceptedTerms ? GlobalStyles.blue : undefined}
+            />
+            <Text style={styles.checkboxLabel}>
+              Acepto los términos y condiciones
+            </Text>
+          </View>
+
           <CustomButton
             title="Completar Registro"
             onPress={() => handleSubmit(formValues)}
@@ -491,6 +508,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     marginBottom: 12,
+    color: GlobalStyles.darkGrey,
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  checkboxLabel: {
+    marginLeft: 8,
+    fontSize: 16,
     color: GlobalStyles.darkGrey,
   },
 });
