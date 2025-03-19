@@ -79,7 +79,6 @@ function EditUserScreen() {
       if (!response.ok) throw new Error(`Error ${response.status}: No se pudo obtener los datos del perfil.`);
 
       const data = await response.json();
-      console.log(data)
       
       const profileData: Profile = {
         name: data.name || '',
@@ -145,14 +144,12 @@ function EditUserScreen() {
       const profileToSend = {
         ...editedProfile,
         plan: {
-          id: editedProfile.plan?.id, // Enviar el ID del plan seleccionado
+          id: editedProfile.plan?.id,
           planType: editedProfile.plan?.planType,
           billingAddress: editedProfile.plan?.billingAddress,
           expireDate: editedProfile.plan?.expireDate,
         },
       };
-  
-      console.log('Enviando al backend:', profileToSend); // Verificar los datos antes de enviar
   
       const response = await fetch(endpoint, {
         method: 'PUT',
@@ -163,7 +160,7 @@ function EditUserScreen() {
       if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar el perfil.`);
   
       showAlert('Éxito', 'El plan ha sido actualizado correctamente.');
-      setShowPlanModal(false); // Cierra el modal después de guardar
+      setShowPlanModal(false);
       navigation.navigate('admin/listUsers');
   
     } catch (error: any) {
@@ -259,10 +256,10 @@ function EditUserScreen() {
 
   return ( 
     <ThemedView style={styles.container}>
+
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.profileContainer}>
           <ThemedText style={styles.title}>{isCustomer ? 'Editar Cliente' : 'Editar Empresa'}</ThemedText>
-
           {isCustomer ? (
             <View style={styles.formContainer}>
               {renderEditableField('Nombre', editedProfile.fullName, 'fullName', 'Nombre')}
@@ -271,7 +268,6 @@ function EditUserScreen() {
               {renderEditableField('Teléfono', editedProfile.telephone, 'telephone', 'Teléfono')}
               {renderEditableField('DNI', editedProfile.dni ?? '', 'dni', 'DNI')}
             </View>
-            
           ) : (
             <View style={styles.twoColumnsContainer}>
               <View style={styles.column}>
@@ -311,80 +307,82 @@ function EditUserScreen() {
       </ScrollView>
 
       {/* Modal de Cambio de Plan */}
-<Modal visible={showPlanModal} transparent animationType="fade">
-  <View style={styles.modalContainer}>
-    <View style={styles.modalContent}>
-      <ThemedText style={styles.modalTitle}>Modificar Plan</ThemedText>
-
-      {/* Tipo de Plan */}
-      <ThemedText style={styles.label}>Tipo de Plan</ThemedText>
-      <Picker
-        selectedValue={editedProfile.plan?.planType}
-        onValueChange={(itemValue) => 
-          setEditedProfile((prev) => ({
-            ...prev,
-            plan: { ...prev.plan, planType: itemValue },
-          }))
-        }
-        style={styles.picker}
-      >
-        {['FREE', 'PREMIUM'].map((plan) => (
-          <Picker.Item key={plan} label={plan} value={plan} />
-        ))}
-      </Picker>
-      <ThemedText style={styles.label}>Dirección de Facturación</ThemedText>
-      <TextInput
-        style={styles.input}
-        value={editedProfile.plan?.billingAddress ?? ''}
-        onChangeText={(text) =>
-          setEditedProfile((prev) => ({
-            ...prev,
-            plan: { ...prev.plan, billingAddress: text },
-          }))
-        }
-        placeholder="Dirección de facturación"
-        placeholderTextColor="#666"
-      />
-      <ThemedText style={styles.label}>Fecha de Expiración</ThemedText>
-      <TextInput
-        style={styles.input}
-        value={editedProfile.plan?.expireDate ?? ''}
-        onChangeText={(text) =>
-          setEditedProfile((prev) => ({
-            ...prev,
-            plan: { ...prev.plan, expireDate: text },
-          }))
-        }
-        placeholder="AAAA-MM-DD"
-        placeholderTextColor="#666"
-      />
-      {/* ID del Plan (Solo Informativo) */}
-      <ThemedText style={styles.label}>ID del Plan</ThemedText>
-      <ThemedText style={styles.infoText}>{editedProfile.plan?.id ?? 'N/A'}</ThemedText>
-      <CustomButton 
-        title="Guardar" 
-        onPress={handleSavePlan}
-        color="blue" 
-      />
-      <CustomButton 
-        title="Cancelar" 
-        onPress={() => setShowPlanModal(false)} 
-        color="red" 
-      />
-    </View>
-  </View>
-</Modal>
-
-
+      <Modal visible={showPlanModal} transparent animationType="fade">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <ThemedText style={styles.modalTitle}>Modificar plan</ThemedText>
+            {/* Tipo de Plan */}
+            <ThemedText style={styles.label}>Tipo de plan</ThemedText>
+            <Picker
+              selectedValue={editedProfile.plan?.planType}
+              onValueChange={(itemValue) => 
+                setEditedProfile((prev) => ({
+                  ...prev,
+                  plan: { ...prev.plan, planType: itemValue },
+                }))
+              }
+              style={styles.picker}
+            >
+              {['FREE', 'PREMIUM'].map((plan) => (
+                <Picker.Item key={plan} label={plan} value={plan} />
+              ))}
+            </Picker>
+            {/* Dirección de Facturación */}
+            <ThemedText style={styles.label}>Dirección de facturación</ThemedText>
+            <TextInput
+              style={styles.input}
+              value={editedProfile.plan?.billingAddress ?? ''}
+              onChangeText={(text) =>
+                setEditedProfile((prev) => ({
+                  ...prev,
+                  plan: { ...prev.plan, billingAddress: text },
+                }))
+              }
+              placeholder="Dirección de facturación"
+              placeholderTextColor="#666"
+            />
+            {/* Fecha de Expiración */}
+            <ThemedText style={styles.label}>Fecha de expiración</ThemedText>
+            <TextInput
+              style={styles.input}
+              value={editedProfile.plan?.expireDate ?? ''}
+              onChangeText={(text) =>
+                setEditedProfile((prev) => ({
+                  ...prev,
+                  plan: { ...prev.plan, expireDate: text },
+                }))
+              }
+              placeholder="AAAA-MM-DD"
+              placeholderTextColor="#666"
+            />
+            {/* Botones de acción */}
+            <View style={styles.buttonRow}>
+              <CustomButton 
+                title="Guardar" 
+                onPress={handleSavePlan}
+                color="blue" 
+                style={styles.smallButton} 
+              />
+              <CustomButton 
+                title="Cancelar" 
+                onPress={() => setShowPlanModal(false)} 
+                color="red" 
+                style={styles.smallButton} 
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ThemedView>
   );
-
 }
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    paddingVertical: 120,
   },
   twoColumnsContainer: { 
     flexDirection: 'row', 
@@ -488,6 +486,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 50,
     marginBottom: 20,
+    alignSelf: 'center',
+    textAlign: 'center',
   },
   changePlanText: {
     fontSize: 16,
@@ -510,7 +510,19 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     width: '100%',
   },
-  
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    width: '100%',
+    marginTop: 15,
+  },
+  smallButton: {
+    paddingVertical: 6,  
+    paddingHorizontal: 15,  
+    width: 100,  
+    height: 35,  
+    borderRadius: 8,
+  },
 });
 
 export default withAuth(EditUserScreen, [AUTHORITIES.ADMIN]);

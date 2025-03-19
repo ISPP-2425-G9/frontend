@@ -84,8 +84,6 @@ function AdminListUsers() {
       const authToken = await AsyncStorage.getItem('authToken');
       if (!authToken) throw new Error('No se encontró un token de autenticación');
 
-      console.log('Eliminando usuario con ID:', selectedUserId);
-
       const response = await fetch(BACKEND_API + '/api/auth/admin/users/' + selectedUserId, {
         method: 'DELETE',
         headers: {
@@ -94,7 +92,6 @@ function AdminListUsers() {
       });
 
       if (response.status === 204) {
-        console.log(`Usuario con ID ${selectedUserId} eliminado exitosamente.`);
         setModalVisible(false);
         fetchData();
       } else {
