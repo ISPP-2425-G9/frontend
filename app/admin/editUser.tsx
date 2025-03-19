@@ -361,16 +361,20 @@ const handleSave = async () => {
               placeholderTextColor="#666"
             />
             {/* Botones de acción */}
+            <View style={styles.buttonRow}>
             <CustomButton 
               title="Guardar" 
               onPress={handleSavePlan}
               color="blue" 
+                style={styles.smallButton} 
             />
             <CustomButton 
               title="Cancelar" 
               onPress={() => setShowPlanModal(false)} 
               color="red" 
+                style={styles.smallButton} 
             />
+            </View>
           </View>
         </View>
       </Modal>
@@ -487,6 +491,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 50,
     marginBottom: 20,
+    alignSelf: 'center',
+    textAlign: 'center',
   },
   changePlanText: {
     fontSize: 16,
@@ -509,7 +515,19 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     width: '100%',
   },
-  
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    width: '100%',
+    marginTop: 15,
+  },
+  smallButton: {
+    paddingVertical: 6,  
+    paddingHorizontal: 15,  
+    width: 100,  
+    height: 35,  
+    borderRadius: 8,
+  },
 });
 
 export default withAuth(EditUserScreen, [AUTHORITIES.ADMIN]);
