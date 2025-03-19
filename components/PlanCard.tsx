@@ -113,14 +113,17 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
     borderColor: GlobalStyles.grey,
     backgroundColor: GlobalStyles.lightGrey,
   };
+
   const handleSubscribe = () => {
     // TODO: Implementar lógica de suscripción aquí en el futuro
+    console.log('Contratando plan...');
   };
+
   const handleUnsubscribe = () => {
     // TODO: Implementar lógica de suscripción aquí en el futuro
+    console.log('Dándote de baja...');
   };
   
-
   return (
     <View style={[styles.cardContainer, isDesktop ? styles.cardContainerDesktop : styles.cardContainerMobile]}>
       {/* plan específico según el rol */}
@@ -154,7 +157,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           <Text style={styles.price}>{esquelasDetails.price}</Text>
         </View>
       )}
-      <CustomModal visible={isModalVisible} onClose={() => setIsModalVisible(false)} title="Confirmar Contratación">
+      <CustomModal visible={isModalVisible} onClose={() => setIsModalVisible(false)} title="Confirmar contratación">
         <View style={styles.modalContent}>
           <ThemedText style={styles.modalText}>
             ¿Estás seguro que deseas contratar este plan?
@@ -175,7 +178,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           </View>
         </View>
       </CustomModal>
-      <CustomModal visible={isCancelModalVisible} onClose={() => setIsCancelModalVisible(false)} title="Cancelar Suscripción">
+      <CustomModal visible={isCancelModalVisible} onClose={() => setIsCancelModalVisible(false)} title="Cancelar suscripción">
         <View style={styles.modalContent}>
           <ThemedText style={styles.modalText}>
             ¿Estás seguro que deseas cancelar tu suscripción?
@@ -189,15 +192,13 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
             />
             <CustomButton
               title={isProcessing ? 'Procesando...' : 'Confirmar'}
-              onPress={handleUnsubscribe} // Llamar función para cancelar suscripción
+              onPress={handleUnsubscribe}
               style={styles.modalButton}
               color="blue"
             />
           </View>
         </View>
       </CustomModal>
-
-
     </View>
   );
 };
