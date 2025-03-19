@@ -114,6 +114,7 @@ const RegisterScreen: React.FC = () => {
 
   const handleUserTypeSelection = (type: "Empresa" | "Cliente") => {
     setUserType(type);
+    setFormErrors([]); // Se limpian los errores al cambiar de pestaña
     const initialValues: Record<string, string> = {};
     if (type === "Empresa") {
       companyFields.forEach((field) => {
@@ -129,6 +130,7 @@ const RegisterScreen: React.FC = () => {
 
   const handleGoBack = () => {
     setUserType(null);
+    setFormErrors([]); // Se limpian los errores al volver atrás
   };
 
   const validateData = async (
