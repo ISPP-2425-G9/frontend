@@ -79,7 +79,6 @@ function EditUserScreen() {
       if (!response.ok) throw new Error(`Error ${response.status}: No se pudo obtener los datos del perfil.`);
 
       const data = await response.json();
-      console.log(data)
       
       const profileData: Profile = {
         name: data.name || '',
@@ -145,14 +144,12 @@ function EditUserScreen() {
       const profileToSend = {
         ...editedProfile,
         plan: {
-          id: editedProfile.plan?.id, // Enviar el ID del plan seleccionado
+          id: editedProfile.plan?.id,
           planType: editedProfile.plan?.planType,
           billingAddress: editedProfile.plan?.billingAddress,
           expireDate: editedProfile.plan?.expireDate,
         },
       };
-  
-      console.log('Enviando al backend:', profileToSend); // Verificar los datos antes de enviar
   
       const response = await fetch(endpoint, {
         method: 'PUT',
@@ -362,18 +359,18 @@ const handleSave = async () => {
             />
             {/* Botones de acción */}
             <View style={styles.buttonRow}>
-            <CustomButton 
-              title="Guardar" 
-              onPress={handleSavePlan}
-              color="blue" 
+              <CustomButton 
+                title="Guardar" 
+                onPress={handleSavePlan}
+                color="blue" 
                 style={styles.smallButton} 
-            />
-            <CustomButton 
-              title="Cancelar" 
-              onPress={() => setShowPlanModal(false)} 
-              color="red" 
+              />
+              <CustomButton 
+                title="Cancelar" 
+                onPress={() => setShowPlanModal(false)} 
+                color="red" 
                 style={styles.smallButton} 
-            />
+              />
             </View>
           </View>
         </View>
