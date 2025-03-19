@@ -368,7 +368,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
-    // Mejoras de UI tipo card:
     backgroundColor: "#fff",
     borderRadius: 8,
     shadowColor: "#000",
@@ -392,12 +391,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
-    paddingHorizontal: 10, // Agregado para mayor responsividad
+    paddingHorizontal: 10,
     marginTop: 20,
   },
   typeButton: {
     flex: 1,
-    marginHorizontal: 5, // Permite separación equitativa adaptándose al ancho de pantalla
+    marginHorizontal: 5,
     marginVertical: 15,
     minHeight: 50,
   },
