@@ -7,6 +7,8 @@ import {
   Alert,
   Platform,
   Dimensions,
+  Modal,
+  TouchableOpacity
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
@@ -26,6 +28,7 @@ const RegisterScreen: React.FC = () => {
   const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
   const navigation = useNavigation();
   const { login } = useAuth();
 
@@ -385,9 +388,12 @@ const RegisterScreen: React.FC = () => {
               onValueChange={setAcceptedTerms}
               color={acceptedTerms ? GlobalStyles.blue : undefined}
             />
-            <Text style={styles.checkboxLabel}>
-              Acepto los términos y condiciones
-            </Text>
+            <Text style={styles.checkboxLabel}>Acepto los </Text>
+            <TouchableOpacity onPress={() => setModalVisible(true)}>
+              <Text style={[styles.checkboxLabel, { textDecorationLine: 'underline', color: GlobalStyles.blue }]}>
+                términos y condiciones
+              </Text>
+            </TouchableOpacity>
           </View>
 
           <CustomButton
@@ -396,6 +402,31 @@ const RegisterScreen: React.FC = () => {
             color="blue"
             style={styles.submitButton}
           />
+
+          <Modal
+            visible={modalVisible}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <ScrollView>
+                  <Text style={styles.modalTitle}>Términos y Condiciones</Text>
+                  <Text style={styles.modalText}>
+                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+                  </Text>
+                </ScrollView>
+                <CustomButton
+                  title="Cerrar"
+                  onPress={() => setModalVisible(false)}
+                  color="blue"
+                  style={styles.modalButton}
+                />
+              </View>
+            </View>
+          </Modal>
+
         </ScrollView>
       )}
     </View>
@@ -519,6 +550,32 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 16,
     color: GlobalStyles.darkGrey,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    width: "90%",
+    maxHeight: "80%",
+    backgroundColor: GlobalStyles.white,
+    padding: 20,
+    borderRadius: 10,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 16,
+    color: GlobalStyles.darkGrey,
+    marginBottom: 20,
+  },
+  modalButton: {
+    alignSelf: "center",
   },
 });
 
