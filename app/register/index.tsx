@@ -259,13 +259,29 @@ const RegisterScreen: React.FC = () => {
         body: JSON.stringify(values),
       });
       const data = await response.json();
-      if (!response.ok || !data.token) {
-        throw new Error(`Hubo un problema al registrarse: ${JSON.stringify(data)}`);
+      if (!response.ok) {
+        let errorMessage = "Hubo un error inesperado.";
+        if (data.errors) {
+          errorMessage = Object.values(data.errors).flat().join("\n");
+        } else if (data.error) {
+          if (data.error.toLowerCase().includes("dni")) {
+            errorMessage = "El DNI ya ha sido registrado.";
+          } else if (data.error.toLowerCase().includes("email")) {
+            errorMessage = "El email ya ha sido registrado.";
+          } else {
+            errorMessage = data.error;
+          }
+        }
+        throw new Error(errorMessage);
+      }
+      if (!data.token) {
+        throw new Error("No se recibió token de autenticación.");
       }
       await AsyncStorage.setItem("authToken", data.token);
       login(data.id, data.token, data.roles);
       navigation.navigate("home" as never);
     } catch (error: any) {
+      setFormErrors([error.message || error]); // se guarda el error para mostrarlo en la UI
       Alert.alert("Error", error.message || error);
     }
   };
