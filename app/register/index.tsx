@@ -276,20 +276,20 @@ const RegisterScreen: React.FC = () => {
         <View style={styles.selectionContainer}>
           <Text style={styles.title}>Registro de Usuario</Text>
           <Text style={styles.subtitle}>Selecciona el tipo de cuenta:</Text>
-
-          <CustomButton
-            title="Registrarme como Cliente"
-            onPress={() => handleUserTypeSelection("Cliente")}
-            color="blue"
-            style={styles.typeButton}
-          />
-
-          <CustomButton
-            title="Registrar mi Empresa"
-            onPress={() => handleUserTypeSelection("Empresa")}
-            color="blue"
-            style={styles.typeButton}
-          />
+          <View style={styles.buttonBox}>
+            <CustomButton
+              title="Registrarme como Cliente"
+              onPress={() => handleUserTypeSelection("Cliente")}
+              color="blue"
+              style={styles.typeButton}
+            />
+            <CustomButton
+              title="Registrar mi Empresa"
+              onPress={() => handleUserTypeSelection("Empresa")}
+              color="blue"
+              style={styles.typeButton}
+            />
+          </View>
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -305,16 +305,6 @@ const RegisterScreen: React.FC = () => {
               ? "Registro de Empresa"
               : "Registro de Cliente"}
           </Text>
-
-          {formErrors.length > 0 && (
-            <View style={styles.errorContainer}>
-              {formErrors.map((error, index) => (
-                <Text key={`error-${index}`} style={styles.errorText}>
-                  {error}
-                </Text>
-              ))}
-            </View>
-          )}
 
           {userType === "Empresa"
             ? companyFields.map((field, index) => (
@@ -344,6 +334,16 @@ const RegisterScreen: React.FC = () => {
                 </View>
               ))}
 
+          {formErrors.length > 0 && (
+            <View style={styles.errorContainer}>
+              {formErrors.map((error, index) => (
+                <Text key={`error-${index}`} style={styles.errorText}>
+                  {error}
+                </Text>
+              ))}
+            </View>
+          )}
+
           <CustomButton
             title="Completar Registro"
             onPress={() => handleSubmit(formValues)}
@@ -367,6 +367,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 20,
+    // Mejoras de UI tipo card:
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+    padding: 20,
   },
   title: {
     fontSize: 28,
@@ -379,10 +388,18 @@ const styles = StyleSheet.create({
     color: GlobalStyles.darkGrey,
     marginBottom: 40,
   },
+  buttonBox: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: 10, // Agregado para mayor responsividad
+    marginTop: 20,
+  },
   typeButton: {
-    width: "80%",
+    flex: 1,
+    marginHorizontal: 5, // Permite separación equitativa adaptándose al ancho de pantalla
     marginVertical: 15,
-    height: 50,
+    minHeight: 50,
   },
   scrollContainer: {
     flexGrow: 1,
