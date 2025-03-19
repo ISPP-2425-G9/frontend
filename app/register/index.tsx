@@ -274,21 +274,32 @@ const RegisterScreen: React.FC = () => {
     <View style={styles.container}>
       {!userType ? (
         <View style={styles.selectionContainer}>
-          <Text style={styles.title}>Registro de Usuario</Text>
-          <Text style={styles.subtitle}>Selecciona el tipo de cuenta:</Text>
-          <View style={styles.buttonBox}>
-            <CustomButton
-              title="Registrarme como Cliente"
-              onPress={() => handleUserTypeSelection("Cliente")}
-              color="blue"
-              style={styles.typeButton}
-            />
-            <CustomButton
-              title="Registrar mi Empresa"
-              onPress={() => handleUserTypeSelection("Empresa")}
-              color="blue"
-              style={styles.typeButton}
-            />
+          
+          <View style={styles.optionsContainer}>
+            <View style={styles.optionCard}>
+              <Text style={styles.optionTitle}>Soy Cliente</Text>
+              <Text style={styles.optionDescription}>
+                Accede a una experiencia personalizada para comprar y disfrutar de nuestros servicios.
+              </Text>
+              <CustomButton
+                title="Registrarme como Cliente"
+                onPress={() => handleUserTypeSelection("Cliente")}
+                color="blue"
+                style={styles.typeButton}
+              />
+            </View>
+            <View style={styles.optionCard}>
+              <Text style={styles.optionTitle}>Soy Empresa</Text>
+              <Text style={styles.optionDescription}>
+                Registra tu negocio y llega a más clientes ofreciendo tus productos.
+              </Text>
+              <CustomButton
+                title="Registrar mi Empresa"
+                onPress={() => handleUserTypeSelection("Empresa")}
+                color="blue"
+                style={styles.typeButton}
+              />
+            </View>
           </View>
         </View>
       ) : (
@@ -368,11 +379,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    backgroundColor: "#f2f2f2",
+    
     elevation: 5,
     padding: 20,
   },
@@ -395,10 +403,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   typeButton: {
-    flex: 1,
+    width: "40%",           // nuevo ancho deseado
     marginHorizontal: 5,
-    marginVertical: 15,
-    minHeight: 50,
+    marginVertical: 10,      // se mantiene el margen vertical
+    minHeight: 50,           // se revierte la altura al valor original
+    alignSelf: "center",
   },
   scrollContainer: {
     flexGrow: 1,
@@ -434,6 +443,31 @@ const styles = StyleSheet.create({
   errorText: {
     color: "red",
     fontSize: 14,
+  },
+  optionsContainer: {
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  optionCard: {
+    width: "100%",
+    backgroundColor: "#f5f5f5",
+    padding: 15,
+    borderRadius: 8,
+    marginVertical: 10,
+    alignItems: "center",
+  },
+  optionTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 5,
+    color: GlobalStyles.blue,
+  },
+  optionDescription: {
+    fontSize: 14,
+    textAlign: "center",
+    marginBottom: 10,
+    color: GlobalStyles.darkGrey,
   },
 });
 
