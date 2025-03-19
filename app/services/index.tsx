@@ -119,13 +119,14 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     width: '100%',
-    flexDirection: 'column',
     alignItems: 'center',
+    marginLeft: 37,
   },
   sponsorWrapper: {
     width: '100%',
-    maxWidth: 600,
-    alignItems: 'center',
+    maxWidth: 750,
+    marginHorizontal: 'auto',
+    alignSelf: 'center',
     marginBottom: 16,
   },
 });
