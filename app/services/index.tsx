@@ -1,4 +1,4 @@
-import { StyleSheet, Text, FlatList, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, ScrollView, ActivityIndicator, View } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
@@ -55,41 +55,78 @@ const ListServiceScreen: React.FC = () => {
 
   return (
     <ThemedView style={styles.container}>
-      <Text style={styles.title}>Empresas destacadas del sector</Text>
-      {loading ? (
-        <ActivityIndicator size="large" color={GlobalStyles.blue} />
-      ) : (
-        <FlatList
-          data={sponsors}
-          keyExtractor={(item) => item.nif}
-          renderItem={({ item }) => <AdvertisementSponsor sponsor={item} />}
-          contentContainerStyle={styles.listContainer}
-        />
-      )}
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.introContainer}>
+          <Text style={styles.introTitle}>Empresas destacadas del sector</Text>
+          <Text style={styles.introText}>
+            En esta sección, presentamos las empresas que están suscritas a <Text style={styles.highlight}>CARONTE</Text>,
+            ofreciendo soluciones y servicios especializados en el sector funerario.
+          </Text>
+        </View>
+
+        {loading ? (
+          <ActivityIndicator size="large" color={GlobalStyles.blue} />
+        ) : (
+          <View style={styles.listContainer}>
+            {sponsors.map((item) => (
+              <View key={item.nif} style={styles.sponsorWrapper}>
+                <AdvertisementSponsor sponsor={item} />
+              </View>
+            ))}
+          </View>
+        )}
+      </ScrollView>
     </ThemedView>
   );
 }
 
+
 const styles = StyleSheet.create({
   container: {
-    padding: 8,
     flex: 1,
-    alignItems: 'center',
-    paddingTop: 120,
     backgroundColor: GlobalStyles.white,
+    paddingVertical: 120,
   },
-  title: {
-    fontSize: 30,
+  scrollContainer: {
+    flexGrow: 1,
+    padding: 16,
+    alignItems: 'center',
+  },
+  introContainer: {
+    width: '90%',
+    backgroundColor: GlobalStyles.lightGrey,
+    padding: 20,
+    borderRadius: 10,
+    marginBottom: 20,
+    alignItems: 'center',
+  },
+  introTitle: {
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 30,
     color: GlobalStyles.darkGrey,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  introText: {
+    fontSize: 20,
+    color: GlobalStyles.darkGrey,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  highlight: {
+    fontWeight: 'bold',
+    color: GlobalStyles.blue,
   },
   listContainer: {
     width: '100%',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  sponsorWrapper: {
+    width: '100%',
+    maxWidth: 600,
+    alignItems: 'center',
+    marginBottom: 16,
   },
 });
 
