@@ -5,8 +5,9 @@ import CustomModal from '@/components/CustomModal';
 import CustomButton from '@/components/CustomButton';
 import { ThemedText } from '@/components/ThemedText';
 import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
-
+import PaymentModal from './PaymentModal';
 
 interface PlanCardProps {
   role: 'CUSTOMER_FREE' | 'CUSTOMER_PREMIUM' | 'COMPANY_FREE' | 'COMPANY_PREMIUM';
@@ -17,6 +18,8 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const router = useRouter();
   const plan = role.split('_')[1].toLowerCase();
   const isPremium = plan === 'premium';
   const isCustomer = role.includes('CUSTOMER');
@@ -114,10 +117,22 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
     backgroundColor: GlobalStyles.lightGrey,
   };
   const handleSubscribe = () => {
-    // TODO: Implementar lógica de suscripción aquí en el futuro
+    setIsModalVisible(false);
+    setShowPaymentModal(true);
   };
   const handleUnsubscribe = () => {
-    // TODO: Implementar lógica de suscripción aquí en el futuro
+    // TODO: Implementar lógica de cancelación de suscripción
+    setIsCancelModalVisible(false);
+  };
+
+  const handlePaymentSuccess = () => {
+    // TODO: Actualizar el estado del usuario después del pago exitoso
+    setShowPaymentModal(false);
+  };
+
+  const handlePaymentError = (error: string) => {
+    // TODO: Mostrar mensaje de error al usuario
+    console.error('Error en el pago:', error);
   };
   
 
@@ -197,6 +212,15 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
         </View>
       </CustomModal>
 
+      <PaymentModal
+        visible={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        amount={isCustomer ? 0.99 : 9.99}
+        planType={isCustomer ? 'CUSTOMER_PREMIUM' : 'COMPANY_PREMIUM'}
+        description={`Suscripción al ${isCustomer ? 'Plan Mensual - Mensajes de Despedida' : 'Plan Premium - Publicita tu Empresa'}`}
+        onSuccess={handlePaymentSuccess}
+        onError={handlePaymentError}
+      />
 
     </View>
   );
