@@ -137,27 +137,15 @@ function EditUserScreen() {
       const token = await AsyncStorage.getItem('authToken');
       if (!token) throw new Error('No se encontró el token de autenticación.');
   
-      const endpoint = isCustomer
-        ? `${BACKEND_API}/api/auth/admin/customers/${userId}`
-        : `${BACKEND_API}/api/auth/admin/companies/${userId}`;
+        // Si el usuario ha cambiado a Free o Premium, usar los endpoints específicos
+      const planEndpoint = `${BACKEND_API}/api/plans/${userId}/${editedProfile.plan?.planType.toLowerCase()}`;
   
-      const profileToSend = {
-        ...editedProfile,
-        plan: {
-          id: editedProfile.plan?.id,
-          planType: editedProfile.plan?.planType,
-          billingAddress: editedProfile.plan?.billingAddress,
-          expireDate: editedProfile.plan?.expireDate,
-        },
-      };
-  
-      const response = await fetch(endpoint, {
+      const response = await fetch(planEndpoint, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify(profileToSend),
       });
   
-      if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar el perfil.`);
+      if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar el plan.`);
   
       showAlert('Éxito', 'El plan ha sido actualizado correctamente.');
       setShowPlanModal(false);
@@ -167,6 +155,7 @@ function EditUserScreen() {
       showAlert('Error', error.message);
     }
   };
+  
 
   const handleSave = async () => {
     try {
