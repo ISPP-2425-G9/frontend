@@ -274,27 +274,27 @@ const RegisterScreen: React.FC = () => {
     <View style={styles.container}>
       {!userType ? (
         <View style={styles.selectionContainer}>
-          
+          <Text style={styles.formTitle}>¿Qué tipo de usuario eres?</Text>
           <View style={styles.optionsContainer}>
             <View style={styles.optionCard}>
-              <Text style={styles.optionTitle}>Soy Cliente</Text>
+              <Text style={styles.optionTitle}>Soy cliente</Text>
               <Text style={styles.optionDescription}>
                 Accede a una experiencia personalizada para comprar y disfrutar de nuestros servicios.
               </Text>
               <CustomButton
-                title="Registrarme como Cliente"
+                title="Registrarme como cliente"
                 onPress={() => handleUserTypeSelection("Cliente")}
                 color="blue"
                 style={styles.typeButton}
               />
             </View>
             <View style={styles.optionCard}>
-              <Text style={styles.optionTitle}>Soy Empresa</Text>
+              <Text style={styles.optionTitle}>Soy empresa</Text>
               <Text style={styles.optionDescription}>
                 Registra tu negocio y llega a más clientes ofreciendo tus productos.
               </Text>
               <CustomButton
-                title="Registrar mi Empresa"
+                title="Registrar mi empresa"
                 onPress={() => handleUserTypeSelection("Empresa")}
                 color="blue"
                 style={styles.typeButton}
@@ -403,10 +403,10 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   typeButton: {
-    width: "40%",           // nuevo ancho deseado
+    width: "40%",
     marginHorizontal: 5,
-    marginVertical: 10,      // se mantiene el margen vertical
-    minHeight: 50,           // se revierte la altura al valor original
+    marginVertical: 10,
+    minHeight: 50,
     alignSelf: "center",
   },
   scrollContainer: {
@@ -450,23 +450,29 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   optionCard: {
-    width: "100%",
-    backgroundColor: "#f5f5f5",
-    padding: 15,
-    borderRadius: 8,
+    width: "90%",
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
     marginVertical: 10,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: "#ddd",
   },
   optionTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 5,
+    marginBottom: 8,
     color: GlobalStyles.blue,
   },
   optionDescription: {
-    fontSize: 14,
+    fontSize: 16,
     textAlign: "center",
-    marginBottom: 10,
+    marginBottom: 12,
     color: GlobalStyles.darkGrey,
   },
 });
