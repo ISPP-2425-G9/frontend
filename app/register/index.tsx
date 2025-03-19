@@ -23,7 +23,7 @@ const { width } = Dimensions.get("window");
 const RegisterScreen: React.FC = () => {
   const [userType, setUserType] = useState<"Empresa" | "Cliente" | null>(null);
   const [formValues, setFormValues] = useState<Record<string, string>>({});
-  const [formErrors, setFormErrors] = useState<string[]>([]); // nuevo estado para errores
+  const [formErrors, setFormErrors] = useState<string[]>([]);
   const navigation = useNavigation();
   const { login } = useAuth();
 
@@ -112,13 +112,12 @@ const RegisterScreen: React.FC = () => {
     },
   ];
 
-  // Modificamos handleUserTypeSelection para inicializar formValues con claves vacías según el tipo de usuario
   const handleUserTypeSelection = (type: "Empresa" | "Cliente") => {
     setUserType(type);
     const initialValues: Record<string, string> = {};
     if (type === "Empresa") {
       companyFields.forEach((field) => {
-        initialValues[field.name] = ""; // inicializa con cadena vacía
+        initialValues[field.name] = "";
       });
     } else {
       clientFields.forEach((field) => {
