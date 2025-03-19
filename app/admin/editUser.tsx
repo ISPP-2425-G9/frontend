@@ -163,7 +163,7 @@ function EditUserScreen() {
       if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar el perfil.`);
   
       showAlert('Éxito', 'El plan ha sido actualizado correctamente.');
-      setShowPlanModal(false); // Cierra el modal después de guardar
+      setShowPlanModal(false);
       navigation.navigate('admin/listUsers');
   
     } catch (error: any) {
@@ -261,10 +261,10 @@ const handleSave = async () => {
 
   return ( 
     <ThemedView style={styles.container}>
+
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.profileContainer}>
           <ThemedText style={styles.title}>{isCustomer ? 'Editar Cliente' : 'Editar Empresa'}</ThemedText>
-
           {isCustomer ? (
             <View style={styles.formContainer}>
               {renderEditableField('Nombre', editedProfile.fullName, 'fullName', 'Nombre')}
@@ -273,7 +273,6 @@ const handleSave = async () => {
               {renderEditableField('Teléfono', editedProfile.telephone, 'telephone', 'Teléfono')}
               {renderEditableField('DNI', editedProfile.dni ?? '', 'dni', 'DNI')}
             </View>
-            
           ) : (
             <View style={styles.twoColumnsContainer}>
               <View style={styles.column}>
@@ -313,87 +312,78 @@ const handleSave = async () => {
       </ScrollView>
 
       {/* Modal de Cambio de Plan */}
-<Modal visible={showPlanModal} transparent animationType="fade">
-  <View style={styles.modalContainer}>
-    <View style={styles.modalContent}>
-      <ThemedText style={styles.modalTitle}>Modificar Plan</ThemedText>
-
-      {/* Tipo de Plan */}
-      <ThemedText style={styles.label}>Tipo de Plan</ThemedText>
-      <Picker
-        selectedValue={editedProfile.plan?.planType}
-        onValueChange={(itemValue) => 
-          setEditedProfile((prev) => ({
-            ...prev,
-            plan: { ...prev.plan, planType: itemValue },
-          }))
-        }
-        style={styles.picker}
-      >
-        {['FREE', 'PREMIUM'].map((plan) => (
-          <Picker.Item key={plan} label={plan} value={plan} />
-        ))}
-      </Picker>
-
-      {/* Dirección de Facturación */}
-      <ThemedText style={styles.label}>Dirección de Facturación</ThemedText>
-      <TextInput
-        style={styles.input}
-        value={editedProfile.plan?.billingAddress ?? ''}
-        onChangeText={(text) =>
-          setEditedProfile((prev) => ({
-            ...prev,
-            plan: { ...prev.plan, billingAddress: text },
-          }))
-        }
-        placeholder="Dirección de facturación"
-        placeholderTextColor="#666"
-      />
-
-      {/* Fecha de Expiración */}
-      <ThemedText style={styles.label}>Fecha de Expiración</ThemedText>
-      <TextInput
-        style={styles.input}
-        value={editedProfile.plan?.expireDate ?? ''}
-        onChangeText={(text) =>
-          setEditedProfile((prev) => ({
-            ...prev,
-            plan: { ...prev.plan, expireDate: text },
-          }))
-        }
-        placeholder="AAAA-MM-DD"
-        placeholderTextColor="#666"
-      />
-
-      {/* ID del Plan (Solo Informativo) */}
-      <ThemedText style={styles.label}>ID del Plan</ThemedText>
-      <ThemedText style={styles.infoText}>{editedProfile.plan?.id ?? 'N/A'}</ThemedText>
-
-      {/* Botones de acción */}
-      <CustomButton 
-        title="Guardar" 
-        onPress={handleSavePlan}
-        color="blue" 
-      />
-      <CustomButton 
-        title="Cancelar" 
-        onPress={() => setShowPlanModal(false)} 
-        color="red" 
-      />
-    </View>
-  </View>
-</Modal>
-
-
+      <Modal visible={showPlanModal} transparent animationType="fade">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <ThemedText style={styles.modalTitle}>Modificar plan</ThemedText>
+            {/* Tipo de Plan */}
+            <ThemedText style={styles.label}>Tipo de plan</ThemedText>
+            <Picker
+              selectedValue={editedProfile.plan?.planType}
+              onValueChange={(itemValue) => 
+                setEditedProfile((prev) => ({
+                  ...prev,
+                  plan: { ...prev.plan, planType: itemValue },
+                }))
+              }
+              style={styles.picker}
+            >
+              {['FREE', 'PREMIUM'].map((plan) => (
+                <Picker.Item key={plan} label={plan} value={plan} />
+              ))}
+            </Picker>
+            {/* Dirección de Facturación */}
+            <ThemedText style={styles.label}>Dirección de facturación</ThemedText>
+            <TextInput
+              style={styles.input}
+              value={editedProfile.plan?.billingAddress ?? ''}
+              onChangeText={(text) =>
+                setEditedProfile((prev) => ({
+                  ...prev,
+                  plan: { ...prev.plan, billingAddress: text },
+                }))
+              }
+              placeholder="Dirección de facturación"
+              placeholderTextColor="#666"
+            />
+            {/* Fecha de Expiración */}
+            <ThemedText style={styles.label}>Fecha de expiración</ThemedText>
+            <TextInput
+              style={styles.input}
+              value={editedProfile.plan?.expireDate ?? ''}
+              onChangeText={(text) =>
+                setEditedProfile((prev) => ({
+                  ...prev,
+                  plan: { ...prev.plan, expireDate: text },
+                }))
+              }
+              placeholder="AAAA-MM-DD"
+              placeholderTextColor="#666"
+            />
+            {/* Botones de acción */}
+            <CustomButton 
+              title="Guardar" 
+              onPress={handleSavePlan}
+              color="blue" 
+            />
+            <CustomButton 
+              title="Cancelar" 
+              onPress={() => setShowPlanModal(false)} 
+              color="red" 
+            />
+          </View>
+        </View>
+      </Modal>
     </ThemedView>
   );
-
 }
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    paddingVertical: 120,
   },
   twoColumnsContainer: { 
     flexDirection: 'row', 
