@@ -161,7 +161,6 @@ function EditUserScreen() {
   
       showAlert('Éxito', 'El plan ha sido actualizado correctamente.');
       setShowPlanModal(false);
-      navigation.navigate('admin/listUsers');
   
     } catch (error: any) {
       console.error('Error al guardar el plan:', error.message);
@@ -173,11 +172,11 @@ function EditUserScreen() {
     try {
       const token = await AsyncStorage.getItem('authToken');
       if (!token) throw new Error('No se encontró el token de autenticación.');
-
+  
       const endpoint = isCustomer
         ? `${BACKEND_API}/api/auth/admin/customers/${userId}`
         : `${BACKEND_API}/api/auth/admin/companies/${userId}`;
-
+  
       const profileToSend: any = {
         fullName: isCustomer ? editedProfile.fullName : undefined,
         name: !isCustomer ? editedProfile.fullName : undefined,
@@ -188,36 +187,61 @@ function EditUserScreen() {
         zipCode: editedProfile.zipCode,
         nif: editedProfile.nif,
         description: editedProfile.description,
-        password: editedProfile.password,
       };
-
+  
       if (isCustomer) {
         profileToSend.dni = editedProfile.dni;
       }
-
+  
+      // Detectar si la contraseña ha cambiado
+      const passwordChanged = editedProfile.password && editedProfile.password !== originalProfile?.password;
+  
+      if (passwordChanged) {
+        profileToSend.password = editedProfile.password;
+      }
+  
+      // Enviar la actualización del perfil
       const response = await fetch(endpoint, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(profileToSend),
       });
-
+  
       if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar el perfil.`);
-
+  
+      if (passwordChanged) {
+        const passwordUpdateResponse = await fetch(`${BACKEND_API}/api/auth/password/${userId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            userId,  
+            newPassword: editedProfile.password,  // Nombre correcto según el backend
+            confirmPassword: editedProfile.password, // Si el backend lo requiere, envía el mismo valor
+          }),
+        });
+  
+        if (!passwordUpdateResponse.ok) throw new Error(`Error ${passwordUpdateResponse.status}: No se pudo actualizar la contraseña.`);
+      }
+  
       showAlert('Éxito', 'Perfil actualizado correctamente.');
       setHasChanges(false);
       setOriginalProfile(editedProfile);
-
+  
       // Redirección según el tipo de usuario
-      // Dentro del handleSave en EditUserScreen
       navigation.navigate('admin/listUsers');
-
-      
+  
     } catch (error: any) {
       console.error('Error al guardar los cambios:', error.message);
       showAlert('Error', error.message);
     }
   };
-
+  
   const showAlert = (title: string, message: string) => {
     if (Platform.OS === 'web') {
       window.alert(`${title}: ${message}`);
@@ -225,6 +249,7 @@ function EditUserScreen() {
       Alert.alert(title, message);
     }
   };
+  
 
   const renderEditableField = (
     label: string,
