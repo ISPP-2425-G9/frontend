@@ -20,6 +20,7 @@ import { withAuth } from "../_util/withAuth";
 import { AUTHORITIES } from "../_util/Authorities";
 import { useAuth } from "../_util/useAuth";
 import Checkbox from 'expo-checkbox';
+import TermsAndConditions from '@/components/TermsAndConditions';
 
 const { width } = Dimensions.get("window");
 
@@ -388,10 +389,10 @@ const RegisterScreen: React.FC = () => {
               onValueChange={setAcceptedTerms}
               color={acceptedTerms ? GlobalStyles.blue : undefined}
             />
-            <Text style={styles.checkboxLabel}>Acepto los </Text>
+            <Text style={styles.checkboxLabel}>Acepto los</Text>
             <TouchableOpacity onPress={() => setModalVisible(true)}>
               <Text style={[styles.checkboxLabel, { textDecorationLine: 'underline', color: GlobalStyles.blue }]}>
-                términos y condiciones
+                términos y condiciones de uso
               </Text>
             </TouchableOpacity>
           </View>
@@ -413,9 +414,7 @@ const RegisterScreen: React.FC = () => {
               <View style={styles.modalContent}>
                 <ScrollView>
                   <Text style={styles.modalTitle}>Términos y Condiciones</Text>
-                  <Text style={styles.modalText}>
-                    Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-                  </Text>
+                  <TermsAndConditions />
                 </ScrollView>
                 <CustomButton
                   title="Cerrar"
