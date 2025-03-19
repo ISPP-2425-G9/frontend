@@ -337,8 +337,8 @@ const RegisterScreen: React.FC = () => {
 
           <Text style={styles.formTitle}>
             {userType === "Empresa"
-              ? "Registro de Empresa"
-              : "Registro de Cliente"}
+              ? "Registro de empresa"
+              : "Registro de cliente"}
           </Text>
 
           {userType === "Empresa"
@@ -391,7 +391,7 @@ const RegisterScreen: React.FC = () => {
           </View>
 
           <CustomButton
-            title="Completar Registro"
+            title="Completar registro"
             onPress={() => handleSubmit(formValues)}
             color="blue"
             style={styles.submitButton}
