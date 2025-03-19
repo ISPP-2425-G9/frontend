@@ -245,10 +245,10 @@ const RegisterScreen: React.FC = () => {
       }
       const errors: string[] = await validateData(values, userType);
       if (errors.length !== 0) {
-        setFormErrors(errors); // se guardan los errores para mostrarlos en la UI
+        setFormErrors(errors);
         return;
       } else {
-        setFormErrors([]); // limpiar errores si todo está bien
+        setFormErrors([]);
       }
       const reqUrl =
         userType === "Empresa"
