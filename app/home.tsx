@@ -16,13 +16,12 @@ export default function HomeScreen() {
     userRoles = roles
   }
   const navigation = useNavigation();
-  const logoSize = width > 800 ? 225 : 150;
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={[styles.container, width > 800 ? styles.rowLayout : styles.columnLayout]}>
         <View style={styles.logoContainer}>
-          <Logo size={logoSize}/>
+          <Logo size={250}/>
           <br/>
           <Text style={styles.tagline}>Honrando memorias,</Text>
           <Text style={styles.tagline}>facilitando despedidas</Text>
