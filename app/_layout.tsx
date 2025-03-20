@@ -92,6 +92,7 @@ export default function TabLayout() {
       <Tabs.Screen name="_util/useAuth" options={{ href: null }} />
       <Tabs.Screen name="_util/utils" options={{ href: null }} />
       <Tabs.Screen name="_util/withAuth" options={{ href: null }} />
+      <Tabs.Screen name="obituaries/loadCertificate" options={{ href: null }} />
       
       
 
@@ -156,7 +157,7 @@ export default function TabLayout() {
 
       { 
         isAuthenticated && userRoles?.includes("COMPANY") ? [
-          
+          <Tabs.Screen name="obituaries/loadCertificate" options={{ href: null }} />,
         ] : [
           
         ]
