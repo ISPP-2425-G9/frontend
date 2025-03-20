@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Image } from "react-native";
 import { useNavigation, NavigationProp, useRoute, RouteProp } from "@react-navigation/native";
 import { Dimensions } from "react-native";
@@ -11,82 +11,30 @@ import CustomButton from "@/components/CustomButton";
 import { CustomTextInput } from "@/components/CustomTextInput";
 import { GlobalStyles } from "@/constants/Colors";
 import { ThemedView } from "@/components/ThemedView";
-import useAuth from "@/hooks/useAuth";
 import CustomModal from "@/components/CustomModal";
 import { BACKEND_API } from "@/constants/Mysc";
 
 type RootStackParamList = {
-  "obituaries/loadCertificate": {
-    jsonData: string
-    is_newObituary: boolean,
-    obituaryId: string,
-    isMine: boolean
-  };
-  "obituaries/index": undefined;
+  "obituaries/loadCertificate": { jsonData: string },
+  "home": undefined,
 };
 
-type ObituaryLoadCertificateRouteProp = RouteProp<
-  RootStackParamList,
-  "obituaries/loadCertificate"
->;
 
 const { width } = Dimensions.get("window");
 
 function LoadCertificate() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const [formData, setFormData] = useState({
+    dni: "",
+    certificateImage: "",
+  });
 
-
-  const route = useRoute<ObituaryLoadCertificateRouteProp>();
-  const is_newObituary = route.params?.is_newObituary;
-
-
-  const { isAuthenticated } = useAuth();
   const [dni, setDni] = useState<string>("");
   const [certificateImage, setCertificateImage] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [dniError, setDniError] = useState<string>("");
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-  const [combinedData, setCombinedData] = useState<unknown>({});
-
-  const isMine = route.params?.isMine;
-  const [formData, setFormData] = useState({
-    dni: "",
-    certificateImage: "",
-  });
-
-
-  useEffect(() => {
-    const initializeForm = async () => {
-      if (is_newObituary === true) {
-        setFormData({
-          dni: "",
-          certificateImage: "",
-        });
-        return;
-      } else {
-
-        const authToken = await AsyncStorage.getItem("authToken");
-        const obituaryId = route.params?.obituaryId ?? "";
-        const response = await fetch(`${BACKEND_API}/api/deathCertificate/obituary/${obituaryId}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-        );
-        if (!response.ok) throw new Error("Error al obtener los datos");
-        const data = await response.json();
-        setDni(data.dni);
-        setCertificateImage(data.deathCertificate.url);
-      }
-      console.log("Datos del formulario:", certificateImage);
-    };
-
-    void initializeForm();
-  }, [is_newObituary]);
-
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -132,10 +80,10 @@ function LoadCertificate() {
     }
     if (!validateDni(dni)) {
       setDni("");
-      setDniError("El DNI debe tener el formato 12345678A.");
+      setDniError("El DNI no es válido. Debe tener el formato 12345678A.");
       return;
     }
-    setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido. Podrá modificar su esquela hasta que se hayan enviado a los contactos que eligió.")
+    setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido. Podrá modificar su esquela hasta que sea enviada a todos los contactos que usted eligió.")
     setModalVisible(true);
   };
 
@@ -146,45 +94,80 @@ function LoadCertificate() {
 
   const handleSubmit = async () => {
 
-    const authToken = await AsyncStorage.getItem("authToken");
-    const jsonData = route.params.jsonData ?? '';
     const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
-
+    const authToken = await AsyncStorage.getItem("authToken");
+    console.log("authToken:", authToken);
     const dataToSend = {
-      ...JSON.parse(jsonData),
-      deathCertificate: {
-        dni: dni,
-        file: base64File
-      },
-      isMine
+      dni,
+      file: base64File,
     };
 
-    try {
-      const response = await fetch(BACKEND_API + '/api/obituary/create', {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify(dataToSend),
-      });
+    if (authToken !== null) {
+      try {
+        const response = await fetch(BACKEND_API + '/api/deathCertificate/upload/loggedInUser', {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${authToken}`,
+          },
+          body: JSON.stringify(dataToSend),
+        });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
+        if (!response.ok) {
+          const errorData = await response.json();
+          setModalVisible(false);
+          await new Promise((resolve) => setTimeout(resolve, 200));
+
+          throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
+        }
+        setModalVisible(false);
+        navigation.navigate("home");
+
+
+      } catch (error) {
+        console.error("Error al enviar datos:", error);
+        const errorMessage = (error as Error).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
+        setModalVisible(false);
+        alert(errorMessage);
       }
-      setModalVisible(false);
-      navigation.navigate("obituaries/index");
 
+    } else {
+      try {
+        const response = await fetch(BACKEND_API + '/api/deathCertificate/upload', {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(dataToSend),
+        });
 
-    } catch (error) {
-      console.error("Error al enviar datos:", error);
-      const errorMessage = (error as Error).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
-      alert(errorMessage);
+        if (!response.ok) {
+          const errorData = await response.json();
+          setModalVisible(false);
+          // Asegurar que el modal se pong aen false
+          await new Promise((resolve) => setTimeout(resolve, 200));
+
+          throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
+        }
+
+        setModalVisible(false);
+        navigation.navigate("home");
+
+      } catch (error) {
+        console.error("Error al enviar datos:", error);
+        const errorMessage = (error as Error).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
+        setModalVisible(false);
+        alert(errorMessage);
+      }
     }
-  };
 
-  return isAuthenticated ? (
+  }
+
+
+
+
+
+  return (
     <View style={styles.container}>
       <View style={styles.dataContainer}>
         <Text style={styles.title}>Carga el certificado de defunción</Text>
@@ -238,16 +221,7 @@ function LoadCertificate() {
       <View style={styles.divider} />
       <View style={styles.buttonContainer}>
         <CustomButton title="Seleccionar archivo" onPress={pickImage} />
-        <CustomButton
-          title={is_newObituary ? "Pagar esquela (1,99 €)" : "Actualizar esquela"}
-          onPress={() => {
-            if (is_newObituary) {
-              void showConfirmationModal();
-            } else {
-              window.alert("Función todavía no implementada");
-            }
-          }}
-        />
+        <CustomButton title="Subir certificado" onPress={showConfirmationModal} />
       </View>
       {modalVisible && (
         <CustomModal
@@ -276,10 +250,6 @@ function LoadCertificate() {
     </View>
 
 
-  ) : (
-    <ThemedView style={styles.container}>
-      <Text style={styles.title}>Debes iniciar sesión para poder acceder a esta sección</Text>
-    </ThemedView>
   );
 }
 
@@ -317,7 +287,7 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     paddingHorizontal: 8,
     marginBottom: 16,
-    fontSize: 16,
+    fontSize: 12,
   },
   divider: {
     height: 1,
@@ -375,5 +345,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER]);
-
+export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER, AUTHORITIES.ANONYMOUS]);
