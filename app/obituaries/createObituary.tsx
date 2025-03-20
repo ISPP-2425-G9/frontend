@@ -34,28 +34,34 @@ const height = Dimensions.get("window").height;
 
 type RootStackParamList = {
   "obituaries/selectContacts": {
-    jsonData: string;
-    is_newObituary: boolean;
-    obituaryId: number;
-    is_mine: boolean | undefined;
+    jsonData: string,
+    is_newObituary: boolean,
+    obituaryId: number,
+    is_mine: boolean | undefined, 
+    isMine: boolean | undefined
   };
   "obituaries/createObituary": {
-    imageTemplateId: number;
-    imageUrl: string;
-    is_newObituary: boolean;
-    obituaryId: number;
-    jsonData: string;
+    imageTemplateId: number,
+    imageUrl: string,
+    is_newObituary: boolean,
+    obituaryId: number,
+    jsonData: string,
+    is_mine: boolean;
   };
   "obituaries/index": {
     is_newObituary: boolean,
     obituaryId: number,
-    jsonData: string
+    jsonData: string,
+    changeDesign: boolean,
+    is_mine: boolean
   };
 };
 
 function EsquelaCustomizer() {
 
-  const [selectedColor, setSelectedColor] = useState("rgb(0,0,0)"); // Color inicial negro
+  
+  const [selectedColor, setSelectedColor] = useState(""); 
+
   const [colorPickerVisible, setColorPickerVisible] = useState(false);
 
   const { isAuthenticated } = useAuth();
@@ -80,7 +86,12 @@ function EsquelaCustomizer() {
 
   const jsonData = route.params?.jsonData ?? undefined;
 
-  const [ is_mine, setIsMine ] = useState();
+  const is_mine = route.params?.is_mine;
+
+  const [ isMine, setIsMine] = useState();
+
+  const [is_sended, setIsSended] = useState();
+
   const handleColorSelect = (color: string) => {
     setSelectedColor(color);
     setColorPickerVisible(false);
@@ -100,8 +111,10 @@ function EsquelaCustomizer() {
   useEffect(() => {
     const initializeForm = async () => {
       setLoading(true);
+      setSelectedColor("")
 
       if (jsonData !== undefined) {
+        console.log("jsonData", jsonData);
         try {
           const parsedData = JSON.parse(jsonData);
           setFormData((prev) => ({
@@ -117,6 +130,7 @@ function EsquelaCustomizer() {
       }
 
       if (is_newObituary) {
+        console.log("imageId", imageId);
         setFormData({
           name: "",
           birthDate: "",
@@ -150,16 +164,18 @@ function EsquelaCustomizer() {
           if (!response.ok) throw new Error("Error al obtener los datos");
           const data = await response.json();
 
-          setIsMine(data.isMine);
-          console.log(is_mine, "data");
-
-          let formatBirthDate = "";  
+          let formatBirthDate = "";
           if (data.birthDate) {
             const [year, month, day] = data.birthDate.split("-") || [];
             if (day && month && year) {
               formatBirthDate = `${day}/${month}/${year}`;
-              }
+            }
           }
+
+          setSelectedColor(`rgb(${data.wordColor})`);
+          console.log("data", selectedColor);  
+          setIsMine(data.isMine)
+          setIsSended(data.deathDate)
 
           setFormData({
             name: data.name || "",
@@ -170,6 +186,7 @@ function EsquelaCustomizer() {
             customImage: data.customImageUrl || null,
             imageTemplate_id: imageId || 1,
           });
+       
         } catch (error) {
           console.error("Error al cargar la esquela:", error);
         } finally {
@@ -203,6 +220,8 @@ function EsquelaCustomizer() {
       is_newObituary,
       obituaryId,
       jsonData,
+      changeDesign: true,
+      is_mine
     });
   };
 
@@ -278,14 +297,23 @@ function EsquelaCustomizer() {
   };
 
   const handleSubmit = () => {
-    console.log(is_mine, "is_mine");
     if (validateForm()) {
       const jsonData = JSON.stringify(formData, null, 2);
+      const parsedJsonData = JSON.parse(jsonData);
+  
+      const rgbMatch = selectedColor.match(/\d+/g);
+      const rgbString = rgbMatch ? rgbMatch.join(",") : "0,0,0";  
+  
+      parsedJsonData.wordColor = rgbString;
+  
+      const finalJsonData = JSON.stringify(parsedJsonData, null, 2);
+  
       navigation.navigate("obituaries/selectContacts" as never, {
-        jsonData: jsonData,
+        jsonData: finalJsonData,
         is_newObituary,
         obituaryId,
-        is_mine: is_mine !== undefined ? is_mine : undefined, 
+        is_mine, 
+        isMine
       });
     }
     setModalVisible(false);
@@ -296,7 +324,10 @@ function EsquelaCustomizer() {
       <View style={styles.container}>
         <View style={styles.formSection}>
           <Text style={{ fontSize: 30, fontWeight: "bold", marginBottom: 30 }}>
-            {is_newObituary ? "Crea tu esquela" : "Edita tu esquela"}
+            { is_mine ?
+              is_newObituary ? "Cree su esquela" : "Edite su esquela" :
+              is_newObituary ? "Cree la esquela para un ser querido" : "Edite la esquela para un ser querido"
+            }
           </Text>
           <Text style={styles.formText}>Nombre del fallecido:</Text>
           <CustomTextInput
@@ -314,6 +345,57 @@ function EsquelaCustomizer() {
             value={formData.birthDate}
             maxLength={10}
             keyboardType="numeric"
+            onChangeText={(text) => {
+              let cleaned = text.replace(/\D/g, "");
+              let day = "";
+              let month = "";
+              let year = "";
+              if (cleaned.length >= 1) day = cleaned.slice(0, 2);
+              if (cleaned.length >= 3) month = cleaned.slice(2, 4);
+              if (cleaned.length >= 5) year = cleaned.slice(4, 8);
+
+              if (day.length === 2) {
+                let dayNum = parseInt(day, 10);
+                if (dayNum > 31) day = "31";
+                else if (dayNum < 1) day = "01";
+                else day = dayNum.toString().padStart(2, "0");
+              }
+              if (month.length === 2) {
+                let monthNum = parseInt(month, 10);
+                if (monthNum > 12) month = "12";
+                else if (monthNum < 1) month = "01";
+                else month = monthNum.toString().padStart(2, "0");
+              }
+              if (year.length === 4) {
+                let yearNum = parseInt(year, 10);
+                if (yearNum < 1800) year = "1800";
+                else if (yearNum > 2025) year = "2025";
+                else year = yearNum.toString();
+              }
+
+              let formatted = day;
+              if (month) formatted += "/" + month;
+              if (year) formatted += "/" + year;
+              if (formatted.length > 10) formatted = formatted.slice(0, 10);
+
+              const currentDate = new Date();
+              const inputDate = new Date(`${year}-${month}-${day}`);
+
+              if (inputDate > currentDate) {
+                formatted = `${currentDate.getDate().toString().padStart(2, "0")}/${(currentDate.getMonth() + 1).toString().padStart(2, "0")}/${currentDate.getFullYear()}`;
+              }
+
+              handleChange("birthDate", formatted);
+            }}
+          />
+
+          <Text style={styles.formText}>Fecha de fallecimiento:</Text>
+          <CustomTextInput
+            style={{ width: "75%" }}
+            placeholder={is_mine ? "La fecha de fallecimiento (se añadirá automáticamente)" : "Fecha de fallecimiento"}
+            value={formData.deathDate}
+            maxLength={12}
+            editable={!is_mine ? true : false}
             onChangeText={(text) => {
               let cleaned = text.replace(/\D/g, "");
               let day = "";
@@ -345,18 +427,15 @@ function EsquelaCustomizer() {
               if (year) formatted += "/" + year;
               if (formatted.length > 10) formatted = formatted.slice(0, 10);
 
-              handleChange("birthDate", formatted);
-            }}
-          />
+              const currentDate = new Date();
+              const inputDate = new Date(`${year}-${month}-${day}`);
 
-          <Text style={styles.formText}>Fecha de fallecimiento:</Text>
-          <CustomTextInput
-            style={{ width: "75%" }}
-            placeholder="La fecha de fallecimiento (se añadirá automáticamente)"
-            value={formData.deathDate}
-            maxLength={12}
-            editable={false}
-            onChangeText={(text) => handleChange("deathDate", text)}
+              if (inputDate > currentDate) {
+                formatted = `${currentDate.getDate().toString().padStart(2, "0")}/${(currentDate.getMonth() + 1).toString().padStart(2, "0")}/${currentDate.getFullYear()}`;
+              }
+
+              handleChange("deathDate", formatted);
+            }}
             keyboardType="numeric"
           />
 
@@ -379,7 +458,7 @@ function EsquelaCustomizer() {
             onChangeText={(text) => handleChange("farewellPhrase", text)}
           />
 
-          {!formData.deathDate && (
+          {!is_sended && (
             <>
               <View
                 style={{
@@ -409,7 +488,7 @@ function EsquelaCustomizer() {
               <CustomButton
                 color="grey"
                 style={{ marginTop: 12, width: "75%" }}
-                title={is_newObituary ? "Guardar y seleccionar contactos" : "Actualice sus contactos"}
+                title={is_newObituary ? "Seleccionar contactos" : "Actualice sus contactos"}
                 onPress={showConfirmationModal}
               />
             </>

@@ -20,7 +20,7 @@ type RootStackParamList = {
     jsonData: string
     is_newObituary: boolean,
     obituaryId: string,
-    isMine: boolean
+    is_mine: boolean
   };
   "obituaries/index": undefined;
 };
@@ -47,9 +47,12 @@ function LoadCertificate() {
   const [dniError, setDniError] = useState<string>("");
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-  const [combinedData, setCombinedData] = useState<unknown>({});
 
-  const isMine = route.params?.isMine;
+
+  const json = route.params?.jsonData;
+
+
+  const is_mine = route.params?.is_mine;
   const [formData, setFormData] = useState({
     dni: "",
     certificateImage: "",
@@ -81,7 +84,6 @@ function LoadCertificate() {
         setDni(data.dni);
         setCertificateImage(data.deathCertificate.url);
       }
-      console.log("Datos del formulario:", certificateImage);
     };
 
     void initializeForm();
@@ -149,14 +151,14 @@ function LoadCertificate() {
     const authToken = await AsyncStorage.getItem("authToken");
     const jsonData = route.params.jsonData ?? '';
     const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
-
+    console.log("adios", jsonData);
     const dataToSend = {
       ...JSON.parse(jsonData),
       deathCertificate: {
         dni: dni,
         file: base64File
       },
-      isMine
+      isMine: is_mine
     };
 
     try {

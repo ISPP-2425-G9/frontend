@@ -35,14 +35,15 @@ type RootStackParamList = {
     jsonData: string,
     is_newObituary: boolean,
     obituaryId: number,
-    is_mine: boolean
+    is_mine: boolean, 
+    isMine: boolean
   };
   "obituaries/listMyObituaries": undefined;
   "obituaries/loadCertificate": { 
     jsonData: string, 
     is_newObituary: boolean, 
     obituaryId: number,
-    isMine: boolean
+    is_mine: boolean
   };
 };
 
@@ -66,10 +67,7 @@ function SelectContacts() {
   const jsonData = route.params?.jsonData ?? "";
   const is_newObituary = route.params?.is_newObituary;
   const obituaryId = route.params?.obituaryId;
-  const is_mine = route.params?.is_mine;
-
-  const [isMine, setIsMine] = useState(false);
-
+  const is_mine = route.params?.is_mine ?? route.params?.isMine;
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [newContact, setNewContact] = useState<Contact>({
@@ -78,9 +76,8 @@ function SelectContacts() {
     phone: "",
     email: "",
   });
-  const [contacts, setContacts] = useState<Contact[]>([
-    { id: Date.now(), name: "", phone: "", email: "" },
-  ]);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+
   const [combinedData, setCombinedData] = useState<any>({});
   const [userRole, setUserRole] = useState<string | null>(null);
 
@@ -215,15 +212,17 @@ function SelectContacts() {
   };
 
 
-  const showConfirmationModal = async (is_mine: boolean) => {
-    setIsMine(is_mine);
+  const showConfirmationModal = async () => {
     const errors: string[] = [];
-    setIsMine(isMine);
-
     const phoneSet = new Set();
     const emailSet = new Set();
 
     try {
+
+      if (contacts.length < 1) {
+        window.alert("Por favor, añada al menos un contacto");
+        return;
+      }
       for (const contact of contacts) {
 
         if (emailSet.has(contact.email)) {
@@ -237,13 +236,15 @@ function SelectContacts() {
         } else {
           phoneSet.add(contact.phone);
         }
+
+       
       }
 
       if (errors.length !== 0) {
         throw new Error(`Hay error(es) en su formulario: ${errors.join(", ")}`);
       }
 
-      if (isMine) {
+      if (is_mine) {
         if (userRole === 'CUSTOMER_FREE') {
 
           setModalMessage("¿Desea guardar su propia esquela?\n ⚠️¡Recuerde que debe contratar nuestro plan para que su esquela sea enviada!");
@@ -271,7 +272,7 @@ function SelectContacts() {
   const handleSubmit = async () => {
 
     try {
-      if (isMine) {
+      if (is_mine) {
         await createObituary();
       } else {
         moveToNextScreen();
@@ -287,11 +288,16 @@ function SelectContacts() {
   };
 
   const createObituary = async () => {
-    const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
+
+    const contactsWithoutIds = contacts.map(({ id, phone, ...rest }) => ({
+      ...rest,
+      phone: phone.replace(/\s+/g, '') 
+    }));    
+    
     const dataToSend = {
       ...combinedData,
       contacts: contactsWithoutIds,
-      isMine: isMine,
+      isMine: is_mine,
     };
 
     const url = is_newObituary
@@ -325,9 +331,12 @@ function SelectContacts() {
     }
   };
 
-
   const moveToNextScreen = () => {
-    const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
+
+    const contactsWithoutIds = contacts.map(({ id, phone, ...rest }) => ({
+      ...rest,
+      phone: phone.replace(/\s+/g, '') 
+    }));    
 
     const dataToSend = {
         ...combinedData,
@@ -338,7 +347,7 @@ function SelectContacts() {
         jsonData: JSON.stringify(dataToSend) ,
         is_newObituary, 
         obituaryId,
-        isMine
+        is_mine
     });
 };
 
@@ -380,7 +389,7 @@ function SelectContacts() {
             onChangeText={(text) => handleChange("email", text)}
             style={styles.input}
           />
-          <CustomButton title="Añadir" onPress={addContact} />
+          <CustomButton  style={styles.button} title="Añadir" onPress={addContact} />
         </View>
 
 
@@ -420,48 +429,24 @@ function SelectContacts() {
       </View><View style={styles.divider} />
       <View style={styles.buttonContainer}>
 
-        
-
-
+      
       {
         is_newObituary ? (
-          <>
-            <CustomButton
-              title={"Cree su propia esquela"}
-              onPress={() => showConfirmationModal(true)}
-              style={styles.saveButton}
-            />
-
-            <CustomButton
-              title={"Cree y envie su esquela para un ser querido"}
-              onPress={() => showConfirmationModal(false)}
-              style={styles.saveButton}
-            />
-          </>
-        ) : is_mine ? (
           <CustomButton
-          title="Actualice su esquela"
-          onPress={() => {
-            if (is_mine) {
-              showConfirmationModal(true); 
-            } else {
-              window.alert("Función deshabilitada temporalmente"); 
-            }
-          }}
-          style={styles.saveButton}
-        />
-        
-        ) : (
-          <CustomButton
-            title={"Actualice el certificado de defunción"}
-            onPress={() => showConfirmationModal(false)}
+            title={is_mine ? "Crear esquela": "Subir certificado"}
+            onPress={() => showConfirmationModal()}
             style={styles.saveButton}
           />
+        ) : (
+          is_mine && (
+            <CustomButton
+              title={"Actualizar esquela"}
+              onPress={() => showConfirmationModal()}
+              style={styles.saveButton}
+            />
+          )
         )
       }
-
-
-
       </View>
       {modalVisible && (
         <CustomModal
@@ -493,7 +478,6 @@ function SelectContacts() {
     </ThemedView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -574,6 +558,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     borderRadius: 8,
     alignItems: "center",
+    marginTop: width > 600 ? 0: 10,
   },
   headerCell: {
     fontWeight: "bold",
@@ -587,15 +572,27 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     alignItems: "center",
     flex: 1,
-    borderRadius: 8,
+    borderRadius: 10,
+    flexWrap: "wrap",
+    borderWidth: 1,
+    borderColor: GlobalStyles.blue,
+    overflow: "hidden",
+    width: "100%",
   },
   cell: {
     flex: 1,
     textAlign: "center",
+    padding: 5,
+    overflow: "hidden",
+    textOverflow: "ellipsis", 
+    flexWrap: "nowrap",
   },
   tableContainer: {
     flex: 1,
     padding: 10,
+    overflow: "hidden",
+    flexWrap: "wrap",
+    maxWidth: width*0.9,
   },
   tableHeader: {
     flexDirection: "row",
@@ -603,7 +600,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 10,
     borderRadius: 8,
+    gap: width > 600 ? 120 : 0,
   },
 });
+
 
 export default withAuth(SelectContacts, [AUTHORITIES.CUSTOMER])

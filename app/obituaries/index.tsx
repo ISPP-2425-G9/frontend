@@ -8,6 +8,8 @@ import useAuth from "@/hooks/useAuth";
 import { BACKEND_API } from '@/constants/Mysc';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
+import CustomModal from "@/components/CustomModal";
+import { GlobalStyles } from "@/constants/Colors";
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
@@ -17,13 +19,16 @@ type RootStackParamList = {
      imageUrl: string, 
      is_newObituary: boolean, 
      obituaryId: number,
-     jsonData: string
+     jsonData: string, 
+     is_mine: boolean
     };
   'obituaries/listMyObituaries': undefined;
   'obituaries/index': { 
     is_newObituary: boolean,
      obituaryId: number, 
-     jsonData: string 
+     jsonData: string, 
+     changeDesign: boolean,
+     is_mine: boolean
     };
 
 };
@@ -35,6 +40,10 @@ function ObituaryIndex() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const route = useRoute<RouteProp<RootStackParamList, 'obituaries/index'>>();
+  const [selectedObituary, setSelectedObituary] = useState<{ id: number; imageUrl: string } | null>(null);
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
   const is_newObituary = route.params?.is_newObituary ?? true;
 
@@ -46,6 +55,10 @@ function ObituaryIndex() {
 
   const [obituaries, setObituaries] = useState<Obituary[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const changeDesign = route.params?.changeDesign ?? false;
+
+  const is_mine = route.params?.is_mine ?? false;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -65,18 +78,59 @@ function ObituaryIndex() {
     fetchData();
   }, []);
 
-  const handleObituaryPress = (id: number, imageUrl: string) => {
+
+  const showConfirmationModal = (id: number, imageUrl: string) => {
+
+    setSelectedObituary({ id, imageUrl });
+    setModalMessage("¿Para quién es la esquela?");
+    setModalVisible(true);  
+
+  };
+
+
+  const handleOwnObituary = async () => {
+    if (!selectedObituary) return;
+
     const obituaryId = route.params?.obituaryId ?? undefined;
     const jsonData = route.params?.jsonData ?? undefined;    
     navigation.navigate('obituaries/createObituary', { 
-      imageTemplateId: id, 
-      imageUrl,
+      imageTemplateId: selectedObituary.id, 
+      imageUrl: selectedObituary.imageUrl,
       is_newObituary,
       obituaryId,
-      jsonData
+      jsonData, 
+      is_mine: true
 
     });
+
+    setModalVisible(false);
+  }
+
+  const handleElseObituary = async () => {
+    if (!selectedObituary) return;
+
+    const obituaryId = route.params?.obituaryId ?? undefined;
+    const jsonData = route.params?.jsonData ?? undefined;    
+    navigation.navigate('obituaries/createObituary', { 
+      imageTemplateId: selectedObituary.id, 
+      imageUrl: selectedObituary.imageUrl,
+      is_newObituary,
+      obituaryId,
+      jsonData, 
+      is_mine: false
+    });    
+
+    setModalVisible(false);
+  }
+
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
   };
+
+
+ 
+  
   
 
   if (loading) {
@@ -95,14 +149,51 @@ function ObituaryIndex() {
         {obituaries.map((item) => (
           <TouchableOpacity
             key={item.id}  
-            onPress={() => handleObituaryPress(item.id, item.imageUrl)} 
-            style={[styles.obituaryCard]} 
+            onPress={() => {
+              if (changeDesign) {
+                navigation.navigate('obituaries/createObituary', {
+                  imageTemplateId: item.id,
+                  imageUrl: item.imageUrl,
+                  is_newObituary,
+                  obituaryId: route.params?.obituaryId ?? undefined,
+                  jsonData: route.params?.jsonData ?? undefined,
+                  is_mine: route.params?.is_mine ,
+                });
+              } else {
+                showConfirmationModal(item.id, item.imageUrl);
+              }
+            }}            style={[styles.obituaryCard]} 
           >
             <Image source={{ uri: item.imageUrl }} style={styles.image} />
           </TouchableOpacity>
         ))}
         </View>
       </ScrollView>
+
+      {modalVisible && !changeDesign && (
+        <CustomModal
+          visible={modalVisible}
+          onClose={handleCloseModal}
+          title={modalMessage}
+          style={styles.modalStyle}
+        >
+          <View style={styles.buttonModalContainer}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => handleOwnObituary()}
+            >
+              <Text style={styles.buttonText}>Tu propia esquela</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => handleElseObituary()}
+            >
+              <Text style={styles.buttonText}>Para un ser querido</Text>
+            </TouchableOpacity>
+          </View>
+        </CustomModal>
+      )}
+
       <View style={styles.divider} />
         <View style={styles.buttonContainer}>
           <CustomButton title="Sus esquelas" onPress={() => navigation.navigate('obituaries/listMyObituaries')} />
@@ -113,6 +204,7 @@ function ObituaryIndex() {
     <Text style={styles.title}>Debes iniciar sesión para poder acceder a esta sección</Text>  
     </ThemedView>
   );
+
 }
 
 const styles = StyleSheet.create({
@@ -169,12 +261,45 @@ const styles = StyleSheet.create({
     backgroundColor: '#ccc',
     marginVertical: 20,
   },
+
   buttonContainer: {
     width: '90%',
     alignItems: 'flex-end', 
     marginBottom: '0.5%', 
     marginRight: '6%',
-  }
+  }, 
+  buttonModalContainer: {
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: "1%",
+      flexDirection: "row",
+      width: "35%",
+      gap: "2%",
+  },
+   buttonText: {
+      color: "#fff",
+      fontSize: 16,
+      fontWeight: "bold",
+      textAlign: "center",
+    },
+    button: {
+      backgroundColor: GlobalStyles.blue,
+      paddingVertical: 12,
+      paddingHorizontal: 25,
+      borderRadius: 8,
+      alignItems: "center",
+    },
+    modalStyle: {
+      backgroundColor: "#fff",
+      padding: 20,
+      borderRadius: 15,
+      alignItems: "center",
+      shadowColor: "#000",
+      shadowOpacity: 0.2,
+      shadowRadius: 5,
+      elevation: 5,
+      width: width > 600 ? "40%" : "80%",
+    },
 });
 
 export default withAuth(ObituaryIndex, [AUTHORITIES.CUSTOMER])
