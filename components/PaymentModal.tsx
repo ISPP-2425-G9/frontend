@@ -135,7 +135,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
             <TextInput
               style={styles.input}
               value={cvv}
-              onChangeText={(text) => setCvv(text.replace(/\D/g, '').slice(0, 3))}
+              onChangeText={(text) => { setCvv(text.replace(/\D/g, '').slice(0, 3)); }}
               placeholder="123"
               keyboardType="numeric"
               maxLength={3}
