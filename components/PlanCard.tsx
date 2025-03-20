@@ -118,11 +118,15 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
     borderColor: GlobalStyles.grey,
     backgroundColor: GlobalStyles.lightGrey,
   };
+
   const handleSubscribe = () => {
+
     setIsModalVisible(false);
     setShowPaymentModal(true);
   };
+
   const handleUnsubscribe = () => {
+
     // TODO: Implementar lógica de cancelación de suscripción
     setIsCancelModalVisible(false);
   };
@@ -137,7 +141,6 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
     console.error('Error en el pago:', error);
   };
   
-
   return (
     <View style={[styles.cardContainer, isDesktop ? styles.cardContainerDesktop : styles.cardContainerMobile]}>
       {/* plan específico según el rol */}
@@ -192,7 +195,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           </View>
         </View>
       </CustomModal>
-      <CustomModal visible={isCancelModalVisible} onClose={() => setIsCancelModalVisible(false)} title="Cancelar Suscripción">
+      <CustomModal visible={isCancelModalVisible} onClose={() => setIsCancelModalVisible(false)} title="Cancelar suscripción">
         <View style={styles.modalContent}>
           <ThemedText style={styles.modalText}>
             ¿Estás seguro que deseas cancelar tu suscripción?
@@ -223,7 +226,6 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
         onSuccess={handlePaymentSuccess}
         onError={handlePaymentError}
       />
-
     </View>
   );
 };

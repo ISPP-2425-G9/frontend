@@ -79,7 +79,6 @@ function EditUserScreen() {
       if (!response.ok) throw new Error(`Error ${response.status}: No se pudo obtener los datos del perfil.`);
 
       const data = await response.json();
-      console.log(data)
       
       const profileData: Profile = {
         name: data.name || '',
@@ -106,6 +105,7 @@ function EditUserScreen() {
       setLoading(false);
     }
   }, [userId, isCustomer]);
+  
 
   useEffect(() => {
     if (!userId) return; // Evita ejecutar la lógica si userId es undefined o vacío
@@ -123,7 +123,6 @@ function EditUserScreen() {
       };
     }, [fetchProfile])
   );
-  
 
   const handleInputChange = (field: keyof Profile, value: string) => {
     setEditedProfile((prev) => {
@@ -132,8 +131,33 @@ function EditUserScreen() {
       return updatedProfile;
     });
   };
-  
+
   const handleSavePlan = async () => {
+    try {
+      const token = await AsyncStorage.getItem('authToken');
+      if (!token) throw new Error('No se encontró el token de autenticación.');
+  
+        // Si el usuario ha cambiado a Free o Premium, usar los endpoints específicos
+      const planEndpoint = `${BACKEND_API}/api/plans/${userId}/${editedProfile.plan?.planType.toLowerCase()}`;
+  
+      const response = await fetch(planEndpoint, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      });
+  
+      if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar el plan.`);
+  
+      showAlert('Éxito', 'El plan ha sido actualizado correctamente.');
+      setShowPlanModal(false);
+  
+    } catch (error: any) {
+      console.error('Error al guardar el plan:', error.message);
+      showAlert('Error', error.message);
+    }
+  };
+  
+
+  const handleSave = async () => {
     try {
       const token = await AsyncStorage.getItem('authToken');
       if (!token) throw new Error('No se encontró el token de autenticación.');
@@ -142,87 +166,71 @@ function EditUserScreen() {
         ? `${BACKEND_API}/api/auth/admin/customers/${userId}`
         : `${BACKEND_API}/api/auth/admin/companies/${userId}`;
   
-      const profileToSend = {
-        ...editedProfile,
-        plan: {
-          id: editedProfile.plan?.id, // Enviar el ID del plan seleccionado
-          planType: editedProfile.plan?.planType,
-          billingAddress: editedProfile.plan?.billingAddress,
-          expireDate: editedProfile.plan?.expireDate,
-        },
+      const profileToSend: any = {
+        fullName: isCustomer ? editedProfile.fullName : undefined,
+        name: !isCustomer ? editedProfile.fullName : undefined,
+        email: editedProfile.email,
+        telephone: editedProfile.telephone,
+        address: editedProfile.address,
+        city: editedProfile.city,
+        zipCode: editedProfile.zipCode,
+        nif: editedProfile.nif,
+        description: editedProfile.description,
       };
   
-      console.log('Enviando al backend:', profileToSend); // Verificar los datos antes de enviar
+      if (isCustomer) {
+        profileToSend.dni = editedProfile.dni;
+      }
   
+      // Detectar si la contraseña ha cambiado
+      const passwordChanged = editedProfile.password && editedProfile.password !== originalProfile?.password;
+  
+      if (passwordChanged) {
+        profileToSend.password = editedProfile.password;
+      }
+  
+      // Enviar la actualización del perfil
       const response = await fetch(endpoint, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(profileToSend),
       });
   
       if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar el perfil.`);
   
-      showAlert('Éxito', 'El plan ha sido actualizado correctamente.');
-      setShowPlanModal(false); // Cierra el modal después de guardar
+      if (passwordChanged) {
+        const passwordUpdateResponse = await fetch(`${BACKEND_API}/api/auth/password/${userId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            userId,  
+            newPassword: editedProfile.password,  // Nombre correcto según el backend
+            confirmPassword: editedProfile.password, // Si el backend lo requiere, envía el mismo valor
+          }),
+        });
+  
+        if (!passwordUpdateResponse.ok) throw new Error(`Error ${passwordUpdateResponse.status}: No se pudo actualizar la contraseña.`);
+      }
+  
+      showAlert('Éxito', 'Perfil actualizado correctamente.');
+      setHasChanges(false);
+      setOriginalProfile(editedProfile);
+  
+      // Redirección según el tipo de usuario
       navigation.navigate('admin/listUsers');
   
     } catch (error: any) {
-      console.error('Error al guardar el plan:', error.message);
+      console.error('Error al guardar los cambios:', error.message);
       showAlert('Error', error.message);
     }
   };
-
   
-const handleSave = async () => {
-  try {
-    const token = await AsyncStorage.getItem('authToken');
-    if (!token) throw new Error('No se encontró el token de autenticación.');
-
-    const endpoint = isCustomer
-      ? `${BACKEND_API}/api/auth/admin/customers/${userId}`
-      : `${BACKEND_API}/api/auth/admin/companies/${userId}`;
-
-    const profileToSend: any = {
-      fullName: isCustomer ? editedProfile.fullName : undefined,
-      name: !isCustomer ? editedProfile.fullName : undefined,
-      email: editedProfile.email,
-      telephone: editedProfile.telephone,
-      address: editedProfile.address,
-      city: editedProfile.city,
-      zipCode: editedProfile.zipCode,
-      nif: editedProfile.nif,
-      description: editedProfile.description,
-      password: editedProfile.password,
-    };
-
-    if (isCustomer) {
-      profileToSend.dni = editedProfile.dni;
-    }
-
-    const response = await fetch(endpoint, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify(profileToSend),
-    });
-
-    if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar el perfil.`);
-
-    showAlert('Éxito', 'Perfil actualizado correctamente.');
-    setHasChanges(false);
-    setOriginalProfile(editedProfile);
-
-    // Redirección según el tipo de usuario
-    // Dentro del handleSave en EditUserScreen
-    navigation.navigate('admin/listUsers');
-
-    
-  } catch (error: any) {
-    console.error('Error al guardar los cambios:', error.message);
-    showAlert('Error', error.message);
-  }
-};
-
-
   const showAlert = (title: string, message: string) => {
     if (Platform.OS === 'web') {
       window.alert(`${title}: ${message}`);
@@ -230,6 +238,7 @@ const handleSave = async () => {
       Alert.alert(title, message);
     }
   };
+  
 
   const renderEditableField = (
     label: string,
@@ -261,10 +270,10 @@ const handleSave = async () => {
 
   return ( 
     <ThemedView style={styles.container}>
+
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.profileContainer}>
           <ThemedText style={styles.title}>{isCustomer ? 'Editar Cliente' : 'Editar Empresa'}</ThemedText>
-
           {isCustomer ? (
             <View style={styles.formContainer}>
               {renderEditableField('Nombre', editedProfile.fullName, 'fullName', 'Nombre')}
@@ -273,7 +282,6 @@ const handleSave = async () => {
               {renderEditableField('Teléfono', editedProfile.telephone, 'telephone', 'Teléfono')}
               {renderEditableField('DNI', editedProfile.dni ?? '', 'dni', 'DNI')}
             </View>
-            
           ) : (
             <View style={styles.twoColumnsContainer}>
               <View style={styles.column}>
@@ -292,10 +300,10 @@ const handleSave = async () => {
           )}
           <View style={styles.buttonContainer}>
           <ThemedText style={styles.changePlanText}>
-                                ¿Desea cambiar su plan?{' '}
-                                <Pressable onPress={() => setShowPlanModal(true)}>
-                                    <ThemedText style={styles.changePlanLink}>Cambiar plan</ThemedText>
-                                </Pressable>
+              ¿Desea cambiar su plan?{' '}
+              <Pressable onPress={() => setShowPlanModal(true)}>
+                <ThemedText style={styles.changePlanLink}>Cambiar plan</ThemedText>
+              </Pressable>
           </ThemedText>
             <CustomButton 
               title="Guardar" 
@@ -313,87 +321,82 @@ const handleSave = async () => {
       </ScrollView>
 
       {/* Modal de Cambio de Plan */}
-<Modal visible={showPlanModal} transparent animationType="fade">
-  <View style={styles.modalContainer}>
-    <View style={styles.modalContent}>
-      <ThemedText style={styles.modalTitle}>Modificar Plan</ThemedText>
-
-      {/* Tipo de Plan */}
-      <ThemedText style={styles.label}>Tipo de Plan</ThemedText>
-      <Picker
-        selectedValue={editedProfile.plan?.planType}
-        onValueChange={(itemValue) => 
-          setEditedProfile((prev) => ({
-            ...prev,
-            plan: { ...prev.plan, planType: itemValue },
-          }))
-        }
-        style={styles.picker}
-      >
-        {['FREE', 'PREMIUM'].map((plan) => (
-          <Picker.Item key={plan} label={plan} value={plan} />
-        ))}
-      </Picker>
-
-      {/* Dirección de Facturación */}
-      <ThemedText style={styles.label}>Dirección de Facturación</ThemedText>
-      <TextInput
-        style={styles.input}
-        value={editedProfile.plan?.billingAddress ?? ''}
-        onChangeText={(text) =>
-          setEditedProfile((prev) => ({
-            ...prev,
-            plan: { ...prev.plan, billingAddress: text },
-          }))
-        }
-        placeholder="Dirección de facturación"
-        placeholderTextColor="#666"
-      />
-
-      {/* Fecha de Expiración */}
-      <ThemedText style={styles.label}>Fecha de Expiración</ThemedText>
-      <TextInput
-        style={styles.input}
-        value={editedProfile.plan?.expireDate ?? ''}
-        onChangeText={(text) =>
-          setEditedProfile((prev) => ({
-            ...prev,
-            plan: { ...prev.plan, expireDate: text },
-          }))
-        }
-        placeholder="AAAA-MM-DD"
-        placeholderTextColor="#666"
-      />
-
-      {/* ID del Plan (Solo Informativo) */}
-      <ThemedText style={styles.label}>ID del Plan</ThemedText>
-      <ThemedText style={styles.infoText}>{editedProfile.plan?.id ?? 'N/A'}</ThemedText>
-
-      {/* Botones de acción */}
-      <CustomButton 
-        title="Guardar" 
-        onPress={handleSavePlan}
-        color="blue" 
-      />
-      <CustomButton 
-        title="Cancelar" 
-        onPress={() => setShowPlanModal(false)} 
-        color="red" 
-      />
-    </View>
-  </View>
-</Modal>
-
-
+      <Modal visible={showPlanModal} transparent animationType="fade">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <ThemedText style={styles.modalTitle}>Modificar plan</ThemedText>
+            {/* Tipo de Plan */}
+            <ThemedText style={styles.label}>Tipo de plan</ThemedText>
+            <Picker
+              selectedValue={editedProfile.plan?.planType}
+              onValueChange={(itemValue) => 
+                setEditedProfile((prev) => ({
+                  ...prev,
+                  plan: { ...prev.plan, planType: itemValue },
+                }))
+              }
+              style={styles.picker}
+            >
+              {['FREE', 'PREMIUM'].map((plan) => (
+                <Picker.Item key={plan} label={plan} value={plan} />
+              ))}
+            </Picker>
+            {/* Dirección de Facturación */}
+            <ThemedText style={styles.label}>Dirección de facturación</ThemedText>
+            <TextInput
+              style={styles.input}
+              value={editedProfile.plan?.billingAddress ?? ''}
+              onChangeText={(text) =>
+                setEditedProfile((prev) => ({
+                  ...prev,
+                  plan: { ...prev.plan, billingAddress: text },
+                }))
+              }
+              placeholder="Dirección de facturación"
+              placeholderTextColor="#666"
+            />
+            {/* Fecha de Expiración */}
+            <ThemedText style={styles.label}>Fecha de expiración</ThemedText>
+            <TextInput
+              style={styles.input}
+              value={editedProfile.plan?.expireDate ?? ''}
+              onChangeText={(text) =>
+                setEditedProfile((prev) => ({
+                  ...prev,
+                  plan: { ...prev.plan, expireDate: text },
+                }))
+              }
+              placeholder="AAAA-MM-DD"
+              placeholderTextColor="#666"
+            />
+            {/* Botones de acción */}
+            <View style={styles.buttonRow}>
+              <CustomButton 
+                title="Guardar" 
+                onPress={handleSavePlan}
+                color="blue" 
+                style={styles.smallButton} 
+              />
+              <CustomButton 
+                title="Cancelar" 
+                onPress={() => setShowPlanModal(false)} 
+                color="red" 
+                style={styles.smallButton} 
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ThemedView>
   );
-
 }
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    paddingVertical: 120,
   },
   twoColumnsContainer: { 
     flexDirection: 'row', 
@@ -497,6 +500,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 50,
     marginBottom: 20,
+    alignSelf: 'center',
+    textAlign: 'center',
   },
   changePlanText: {
     fontSize: 16,
@@ -519,7 +524,19 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     width: '100%',
   },
-  
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    width: '100%',
+    marginTop: 15,
+  },
+  smallButton: {
+    paddingVertical: 6,  
+    paddingHorizontal: 15,  
+    width: 100,  
+    height: 35,  
+    borderRadius: 8,
+  },
 });
 
 export default withAuth(EditUserScreen, [AUTHORITIES.ADMIN]);
