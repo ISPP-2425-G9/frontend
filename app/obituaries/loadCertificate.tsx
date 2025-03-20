@@ -19,9 +19,10 @@ type RootStackParamList = {
     "obituaries/loadCertificate": { 
       jsonData: string
       is_newObituary: boolean, 
-      obituaryId: string
+      obituaryId: string, 
+      isMine: boolean
     };
-    "obituaries": undefined;
+    "obituaries/index": undefined;
 };
 
 type ObituaryLoadCertificateRouteProp = RouteProp<
@@ -48,6 +49,7 @@ function LoadCertificate() {
     const [modalMessage, setModalMessage] = useState("");
     const [combinedData, setCombinedData] = useState<any>({});
 
+    const isMine = route.params?.isMine ;
     const [formData, setFormData] = useState({
       dni: "",
       certificateImage: "",
@@ -153,11 +155,12 @@ function LoadCertificate() {
           deathCertificate: {
               dni: dni,
               file: base64File
-          }
+          }, 
+          isMine
       };
 
         try {
-            const response = await fetch(BACKEND_API + '/api/deathCertificate/upload', {
+            const response = await fetch(BACKEND_API + '/api/obituary/create', {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -169,11 +172,8 @@ function LoadCertificate() {
             if (!response.ok) {
                 throw new Error(`Error ${response.status}: ${response.statusText}`);
             }
-
-            const result = await response.json();
-            console.log("Respuesta del servidor:", result);
-
-            navigation.navigate("obituaries");
+            setModalVisible(false);
+            navigation.navigate("obituaries/index");
           
 
         } catch (error) {
@@ -236,7 +236,16 @@ function LoadCertificate() {
         <View style={styles.divider} />
         <View style={styles.buttonContainer}>
             <CustomButton title="Seleccionar archivo" onPress={pickImage} />
-            <CustomButton title="Pagar esquela (1,99 €)" onPress={showConfirmationModal} />
+            <CustomButton 
+              title={is_newObituary ? "Pagar esquela (1,99 €)" : "Actualizar esquela"} 
+              onPress={() => {
+                if (is_newObituary) {
+                  showConfirmationModal();
+                } else {
+                  window.alert("Función todavía no implementada"); 
+                }
+              }} 
+            />
         </View>
         {modalVisible && (
             <CustomModal

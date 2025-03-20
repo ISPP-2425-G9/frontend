@@ -15,8 +15,10 @@ import CustomModal from "@/components/CustomModal";
 import { BACKEND_API } from "@/constants/Mysc";
 
 type RootStackParamList = {
-    "obituaries/loadCertificate": { jsonData: string };
+    "obituaries/loadCertificate": { jsonData: string },
+    "home": undefined,
 };
+
 
 const { width } = Dimensions.get("window");
 
@@ -91,48 +93,76 @@ function LoadCertificate() {
 
 
       const handleSubmit = async () => {
-        const authToken = await AsyncStorage.getItem("authToken");
       
         const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
-      
+        const authToken = await AsyncStorage.getItem("authToken");
+        console.log("authToken:", authToken);
         const dataToSend = {
           dni,
           file: base64File,
         };
-      
-        try {
-          const response = await fetch(BACKEND_API + '/api/deathCertificate/upload', {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${authToken}`,
-            },
-            body: JSON.stringify(dataToSend),
-          });
-      
-          if (!response.ok) {
-            const errorData = await response.json();
+
+        if (authToken !== null){
+          try {
+            const response = await fetch(BACKEND_API + '/api/deathCertificate/upload/loggedInUser', {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${authToken}`,
+              },
+              body: JSON.stringify(dataToSend),
+            });
+        
+            if (!response.ok) {
+              const errorData = await response.json();
+              setModalVisible(false); 
+              await new Promise((resolve) => setTimeout(resolve, 200));
+              
+              throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
+            }
+            setModalVisible(false);
+            navigation.navigate("home");
+
+        
+          } catch (error) {
+            console.error("Error al enviar datos:", error);
+            const errorMessage = (error as Error).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
             setModalVisible(false); 
-            // Asegurar que el modal se pong aen false
-            await new Promise((resolve) => setTimeout(resolve, 200));
-            
-            throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
+            alert(errorMessage);
           }
-      
-          const result = await response.json();
-          console.log("Respuesta del servidor:", result);
-      
-          navigation.navigate("obituaries/loadCertificate", { 
-            jsonData: JSON.stringify(result) 
-          });
-      
-        } catch (error) {
-          console.error("Error al enviar datos:", error);
-          const errorMessage = (error as Error).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
-          setModalVisible(false); 
-          alert(errorMessage);
+
+        } else{
+            try {
+              const response = await fetch(BACKEND_API + '/api/deathCertificate/upload', {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(dataToSend),
+              });
+          
+              if (!response.ok) {
+                const errorData = await response.json();
+                setModalVisible(false); 
+                // Asegurar que el modal se pong aen false
+                await new Promise((resolve) => setTimeout(resolve, 200));
+                
+                throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
+              }
+          
+              setModalVisible(false);
+              navigation.navigate("home");
+          
+            } catch (error) {
+              console.error("Error al enviar datos:", error);
+              const errorMessage = (error as Error).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
+              setModalVisible(false); 
+              alert(errorMessage);
+            }
+          };
+          
         }
-      };
+      
       
     
 

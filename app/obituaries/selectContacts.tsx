@@ -39,7 +39,8 @@ type RootStackParamList = {
   "obituaries/loadCertificate": { 
     jsonData: string, 
     is_newObituary: boolean, 
-    obituaryId: number
+    obituaryId: number,
+    isMine: boolean
   };
 };
 
@@ -262,7 +263,6 @@ function SelectContacts() {
   };
 
   const handleSubmit = async () => {
-    console.log("is_mine", is_mine);
   
     try {
       if (isMine) {
@@ -331,7 +331,8 @@ function SelectContacts() {
     navigation.navigate("obituaries/loadCertificate", { 
         jsonData: JSON.stringify(dataToSend) ,
         is_newObituary, 
-        obituaryId
+        obituaryId,
+        isMine
     });
 };
 
@@ -419,12 +420,18 @@ function SelectContacts() {
             />
           </>
         ) : is_mine ? (
-          console.log("is_mine", is_mine),
           <CustomButton
-            title={"Actualice su esquela"}
-            onPress={() => showConfirmationModal(true)}
-            style={styles.saveButton}
-          />
+          title="Actualice su esquela"
+          onPress={() => {
+            if (is_mine) {
+              showConfirmationModal(true); 
+            } else {
+              window.alert("Función deshabilitada temporalmente"); 
+            }
+          }}
+          style={styles.saveButton}
+        />
+        
         ) : (
           <CustomButton
             title={"Actualice el certificado de defunción"}
