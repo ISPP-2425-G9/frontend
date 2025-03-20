@@ -16,7 +16,7 @@ interface PaymentModalProps {
   planType: string;
   description: string;
   onSuccess?: () => void;
-  onError?: (errorMessage: string) => void;
+  onError?: (error: string) => void;
 }
 
 const PaymentModal: React.FC<PaymentModalProps> = ({
