@@ -204,63 +204,11 @@ function SelectContacts() {
     }
   };
 
-  const createObituary = async () => {
-    const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
-    const dataToSend = {
-      ...combinedData,
-      contacts: contactsWithoutIds,
-      isMine: is_mine,
-    };
-
-    const url = is_newObituary
-      ? BACKEND_API + `/api/obituary/create`
-      : BACKEND_API + `/api/obituary/update/${obituaryId}`;
-
-    const method_type = is_newObituary ? "POST" : "PUT";
-
-    try {
-
-      const authToken = await AsyncStorage.getItem("authToken");
-      const response = await fetch(url, {
-        method: method_type,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify(dataToSend),
-      });
-
-      if (response.ok) {
-        navigation.navigate("obituaries/listMyObituaries" as never);
-      } else {
-        throw new Error("Error en la creación de la esquela");
-      }
-    } catch (error) {
-      const errormssg = is_newObituary
-        ? "Error al crear la esquela.Por favor, inténtelo de nuevo."
-        : "Error al actualizar la esquela.Por favor, inténtelo de nuevo.";
-      window.alert(errormssg);
-    }
-  };
-
-  const moveToNextScreen = () => {
-    const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
-
-    const dataToSend = {
-        ...combinedData,
-        contacts: contactsWithoutIds,
-    };
-
-    navigation.navigate("obituaries/loadCertificate", { 
-        jsonData: JSON.stringify(dataToSend) ,
-        is_newObituary, 
-        obituaryId
-    });
-};
 
   const showConfirmationModal = async (isMine: boolean) => {
     const errors: string[] = [];
     setIsMine(isMine);
+
     const phoneSet = new Set();
     const emailSet = new Set();
 
@@ -331,6 +279,62 @@ function SelectContacts() {
       }
     }
   };
+
+  const createObituary = async () => {
+    const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
+    const dataToSend = {
+      ...combinedData,
+      contacts: contactsWithoutIds,
+      isMine: isMine,
+    };
+
+    const url = is_newObituary
+      ? BACKEND_API + `/api/obituary/create`
+      : BACKEND_API + `/api/obituary/update/${obituaryId}`;
+
+    const method_type = is_newObituary ? "POST" : "PUT";
+
+    try {
+
+      const authToken = await AsyncStorage.getItem("authToken");
+      const response = await fetch(url, {
+        method: method_type,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(dataToSend),
+      });
+
+      if (response.ok) {
+        navigation.navigate("obituaries/listMyObituaries" as never);
+      } else {
+        throw new Error("Error en la creación de la esquela");
+      }
+    } catch (error) {
+      const errormssg = is_newObituary
+        ? "Error al crear la esquela.Por favor, inténtelo de nuevo."
+        : "Error al actualizar la esquela.Por favor, inténtelo de nuevo.";
+      window.alert(errormssg);
+    }
+  };
+
+
+  const moveToNextScreen = () => {
+    const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
+
+    const dataToSend = {
+        ...combinedData,
+        contacts: contactsWithoutIds,
+    };
+
+    navigation.navigate("obituaries/loadCertificate", { 
+        jsonData: JSON.stringify(dataToSend) ,
+        is_newObituary, 
+        obituaryId
+    });
+};
+
 
   return isAuthenticated ? (
     <View style={styles.container}>
