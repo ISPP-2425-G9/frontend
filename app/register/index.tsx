@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -34,6 +34,16 @@ const RegisterScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const navigation = useNavigation();
   const { login } = useAuth();
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setUserType(null);
+      setFormValues({});
+      setFormErrors([]);
+      setAcceptedTerms(false);
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   // Company fields for the form
   const companyFields = [
@@ -139,6 +149,7 @@ const RegisterScreen: React.FC = () => {
   const handleGoBack = () => {
     setUserType(null);
     setFormErrors([]);
+    setFormValues({});
   };
 
   const validateData = async (
