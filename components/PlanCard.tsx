@@ -5,7 +5,6 @@ import CustomModal from '@/components/CustomModal';
 import CustomButton from '@/components/CustomButton';
 import { ThemedText } from '@/components/ThemedText';
 import { useFocusEffect } from '@react-navigation/native';
-import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
 import PaymentModal from './PaymentModal';
 
@@ -21,7 +20,6 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const router = useRouter();
   const plan = role.split('_')[1].toLowerCase();
   const isPremium = plan === 'premium';
   const isCustomer = role.includes('CUSTOMER');

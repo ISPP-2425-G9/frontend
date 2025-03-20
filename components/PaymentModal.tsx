@@ -16,7 +16,7 @@ interface PaymentModalProps {
   planType: string;
   description: string;
   onSuccess?: () => void;
-  onError?: (error: string) => void;
+  onError?: (errorMessage: string) => void;
 }
 
 const PaymentModal: React.FC<PaymentModalProps> = ({
@@ -78,8 +78,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
       onSuccess?.();
       onClose();
-    } catch (error) {
-      onError?.(error instanceof Error ? error.message : 'Error desconocido');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      onError?.(errorMessage);
     } finally {
       setIsProcessing(false);
     }
