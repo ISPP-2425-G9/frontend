@@ -1,15 +1,24 @@
-import CustomButton from '@/components/CustomButton';
-import DeleteAccountButton from '@/components/DeleteAccountButton';
-import LogoutButton from '@/components/LogoutButton';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { BACKEND_API } from '@/constants/Mysc';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { AUTHORITIES } from '../_util/Authorities';
-import { withAuth } from '../_util/withAuth';
-
+import CustomButton from "@/components/CustomButton";
+import DeleteAccountButton from "@/components/DeleteAccountButton";
+import LogoutButton from "@/components/LogoutButton";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { BACKEND_API } from "@/constants/Mysc";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  Modal,
+  Platform,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
+import { AUTHORITIES } from "../_util/Authorities";
+import { withAuth } from "../_util/withAuth";
 
 function ProfileScreen() {
   const [customer, setCustomer] = useState<CustomerProfile | null>(null);
@@ -17,19 +26,34 @@ function ProfileScreen() {
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [editedCustomer, setEditedCustomer] = useState<CustomerProfile>({ name: '', email: '', telephone: '', password: '' });
-  const [editedCompany, setEditedCompany] = useState<CompanyProfile>({ name: '', email: '', telephone: '', address: '', city: '', zipCode: '', nif: '', description: '', imageUrl: '', password: '' });
+  const [editedCustomer, setEditedCustomer] = useState<CustomerProfile>({
+    name: "",
+    email: "",
+    telephone: "",
+    password: "",
+  });
+  const [editedCompany, setEditedCompany] = useState<CompanyProfile>({
+    name: "",
+    email: "",
+    telephone: "",
+    address: "",
+    city: "",
+    zipCode: "",
+    nif: "",
+    description: "",
+    imageUrl: "",
+    password: "",
+  });
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [customImageUrl, setCustomImageUrl] = useState('');
-  
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [customImageUrl, setCustomImageUrl] = useState("");
 
   const fetchProfile = async () => {
     try {
-      const userDataStr = await AsyncStorage.getItem('user_data');
+      const userDataStr = await AsyncStorage.getItem("user_data");
       if (!userDataStr) {
-        console.error('Faltan datos de autenticación');
+        console.error("Faltan datos de autenticación");
         setLoading(false);
         return;
       }
@@ -39,7 +63,7 @@ function ProfileScreen() {
       const userRole = userData.roles[0];
 
       if (!token || !userId || !userRole) {
-        console.error('Faltan datos de autenticación');
+        console.error("Faltan datos de autenticación");
         setLoading(false);
         return;
       }
@@ -58,15 +82,15 @@ function ProfileScreen() {
       }
 
       const response = await fetch(endpoint, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
-        console.error('Error al obtener los datos del perfil');
+        console.error("Error al obtener los datos del perfil");
         setLoading(false);
         return;
       }
@@ -80,12 +104,11 @@ function ProfileScreen() {
         setEditedCompany(data);
       }
     } catch (error) {
-      console.error('Error al cargar el perfil:', error);
+      console.error("Error al cargar el perfil:", error);
     } finally {
       setLoading(false);
     }
   };
-
 
   useEffect(() => {
     fetchProfile();
@@ -117,15 +140,18 @@ function ProfileScreen() {
     setEditedCustomer({ ...editedCustomer, [field]: value });
   };
 
-  const handleInputChangeCompany = (field: keyof CompanyProfile, value: string) => {
+  const handleInputChangeCompany = (
+    field: keyof CompanyProfile,
+    value: string
+  ) => {
     setEditedCompany({ ...editedCompany, [field]: value });
   };
 
   const handleSave = async () => {
     try {
-      const userDataStr = await AsyncStorage.getItem('user_data');
+      const userDataStr = await AsyncStorage.getItem("user_data");
       if (!userDataStr) {
-        console.error('Faltan datos de autenticación');
+        console.error("Faltan datos de autenticación");
         return;
       }
       const userData = JSON.parse(userDataStr);
@@ -143,46 +169,52 @@ function ProfileScreen() {
         password: editedCustomer.password,
       };
 
-      const response = await fetch(BACKEND_API + `/api/auth/customers/${userId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(updatedData),
-      });
+      const response = await fetch(
+        BACKEND_API + `/api/auth/customers/${userId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updatedData),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        if (Platform.OS === 'web') {
-          window.alert('Error al actualizar el perfil, comprueba los datos');
+        if (Platform.OS === "web") {
+          window.alert("Error al actualizar el perfil, comprueba los datos");
         } else {
-          Alert.alert('Error al actualizar el perfil, comprueba los datos');
+          Alert.alert("Error al actualizar el perfil, comprueba los datos");
         }
-        throw new Error(errorData.message || 'Error al actualizar el perfil');
+        throw new Error(errorData.message || "Error al actualizar el perfil");
       }
 
       const data = await response.json();
 
-      await AsyncStorage.setItem('user_data', JSON.stringify({
-        ...userData,
-        email: editedCustomer.email,
-        token: data.token || userData.token,
-      }));
+      await AsyncStorage.setItem(
+        "user_data",
+        JSON.stringify({
+          ...userData,
+          email: editedCustomer.email,
+          token: data.token || userData.token,
+        })
+      );
 
       fetchProfile();
       setIsEditing(false);
-      Alert.alert('Éxito', 'Perfil actualizado correctamente');
+      Alert.alert("Éxito", "Perfil actualizado correctamente");
     } catch (error) {
-      console.error('Error al guardar los cambios:', error);
+      console.error("Error al guardar los cambios:", error);
     }
   };
 
   const handleSaveCompany = async () => {
     try {
-      const userDataStr = await AsyncStorage.getItem('user_data');
+      const userDataStr = await AsyncStorage.getItem("user_data");
       if (!userDataStr) {
-        console.error('Faltan datos de autenticación');
+        console.error("Faltan datos de autenticación");
         return;
       }
       const userData = JSON.parse(userDataStr);
@@ -206,45 +238,51 @@ function ProfileScreen() {
         imageUrl: editedCompany.imageUrl,
       };
 
-      const response = await fetch(BACKEND_API + `/api/auth/companies/${userId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(updatedData),
-      });
+      const response = await fetch(
+        BACKEND_API + `/api/auth/companies/${userId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updatedData),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        if (Platform.OS === 'web') {
-          window.alert('Error al actualizar el perfil, comprueba los datos');
+        if (Platform.OS === "web") {
+          window.alert("Error al actualizar el perfil, comprueba los datos");
         } else {
-          Alert.alert('Error al actualizar el perfil, comprueba los datos');
+          Alert.alert("Error al actualizar el perfil, comprueba los datos");
         }
-        throw new Error(errorData.message || 'Error al actualizar el perfil');
+        throw new Error(errorData.message || "Error al actualizar el perfil");
       }
 
       const data = await response.json();
 
-      await AsyncStorage.setItem('user_data', JSON.stringify({
-        ...userData,
-        email: editedCustomer.email,
-        token: data.token || userData.token,
-      }));
+      await AsyncStorage.setItem(
+        "user_data",
+        JSON.stringify({
+          ...userData,
+          email: editedCustomer.email,
+          token: data.token || userData.token,
+        })
+      );
 
       fetchProfile();
       setIsEditing(false);
-      Alert.alert('Éxito', 'Perfil actualizado correctamente');
+      Alert.alert("Éxito", "Perfil actualizado correctamente");
     } catch (error) {
-      console.error('Error al guardar los cambios:', error);
+      console.error("Error al guardar los cambios:", error);
     }
-  }
+  };
 
   const handleUpdateImageUrl = () => {
     if (customImageUrl.trim()) {
       setEditedCompany({ ...editedCompany, imageUrl: customImageUrl.trim() });
-      setCustomImageUrl('');
+      setCustomImageUrl("");
     } else {
       Alert.alert("Error", "Por favor ingresa un URL válido");
     }
@@ -252,58 +290,73 @@ function ProfileScreen() {
 
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
-      Alert.alert('Error', 'Las contraseñas no coinciden');
+      Alert.alert("Error", "Las contraseñas no coinciden");
       return;
     }
-    
+
     try {
-      const userDataStr = await AsyncStorage.getItem('user_data');
+      const userDataStr = await AsyncStorage.getItem("user_data");
       if (!userDataStr) {
-        Alert.alert('Error', 'No hay datos de autenticación');
+        Alert.alert("Error", "No hay datos de autenticación");
         return;
       }
       const userData = JSON.parse(userDataStr);
       const token = userData.token;
       const userId = userData.id;
-  
+
       const requestBody = {
         newPassword: newPassword,
         confirmPassword: confirmPassword,
       };
-  
-      const response = await fetch(`${BACKEND_API}/api/auth/password/${userId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(requestBody),
-      });
-  
+
+      const response = await fetch(
+        `${BACKEND_API}/api/auth/password/${userId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
+
       if (!response.ok) {
         const errorData = await response.text();
-        Alert.alert('Error', errorData || 'Error mientras se actualizaba la contraseña');
+        Alert.alert(
+          "Error",
+          errorData || "Error mientras se actualizaba la contraseña"
+        );
         return;
       }
-  
+
       const data = await response.json();
-  
-      await AsyncStorage.setItem('user_data', JSON.stringify({
-        ...userData,
-        token: data.token || userData.token,
-      }));
-  
-      Alert.alert('Éxito', 'Contraseña actualizada correctamente');
+
+      await AsyncStorage.setItem(
+        "user_data",
+        JSON.stringify({
+          ...userData,
+          token: data.token || userData.token,
+        })
+      );
+
+      Alert.alert("Éxito", "Contraseña actualizada correctamente");
       setShowPasswordModal(false);
-      setNewPassword('');
-      setConfirmPassword('');
+      setNewPassword("");
+      setConfirmPassword("");
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      Alert.alert('Error', errorMessage);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      Alert.alert("Error", errorMessage);
     }
   };
 
-  const renderEditableField = (label: string, value: string, field: keyof CustomerProfile, placeholder: string) => (
+  const renderEditableField = (
+    label: string,
+    value: string,
+    field: keyof CustomerProfile,
+    placeholder: string
+  ) => (
     <>
       <ThemedText style={styles.label}>{label}</ThemedText>
       {isEditing ? (
@@ -312,7 +365,7 @@ function ProfileScreen() {
           value={value}
           onChangeText={(text) => handleInputChange(field, text)}
           placeholder={placeholder}
-          placeholderTextColor={'#666'}
+          placeholderTextColor={"#666"}
         />
       ) : (
         <ThemedText style={styles.value}>{value}</ThemedText>
@@ -331,24 +384,24 @@ function ProfileScreen() {
       {isEditing ? (
         <TextInput
           style={
-            field === 'description'
+            field === "description"
               ? styles.inputCompanyDescription
               : styles.inputCompany
           }
           value={value}
           onChangeText={(text) => handleInputChangeCompany(field, text)}
           placeholder={placeholder}
-          placeholderTextColor={'#666'}
-          multiline={field === 'description'}
+          placeholderTextColor={"#666"}
+          multiline={field === "description"}
         />
       ) : (
         <ThemedText
           style={
-            field === 'name'
+            field === "name"
               ? styles.valueName
-              : field === 'description'
-                ? styles.valueDescription
-                : styles.valueCompany
+              : field === "description"
+              ? styles.valueDescription
+              : styles.valueCompany
           }
         >
           {value}
@@ -367,7 +420,7 @@ function ProfileScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      {(customer || company) ? (
+      {customer || company ? (
         <>
           <View style={styles.profileContainer}>
             {role === "CUSTOMER" ? (
@@ -375,11 +428,28 @@ function ProfileScreen() {
                 <View style={styles.columnData}>
                   <ThemedText style={styles.title}>Mis datos</ThemedText>
 
-                  {renderEditableField('Nombre', editedCustomer.name, 'name', 'Nombre de usuario')}
-                  {renderEditableField('Email', editedCustomer.email, 'email', 'Email')}
-                  {renderEditableField('Teléfono', editedCustomer.telephone, 'telephone', 'Número de teléfono')}
+                  {renderEditableField(
+                    "Nombre",
+                    editedCustomer.name,
+                    "name",
+                    "Nombre de usuario"
+                  )}
+                  {renderEditableField(
+                    "Email",
+                    editedCustomer.email,
+                    "email",
+                    "Email"
+                  )}
+                  {renderEditableField(
+                    "Teléfono",
+                    editedCustomer.telephone,
+                    "telephone",
+                    "Número de teléfono"
+                  )}
                   <ThemedText style={styles.label}>DNI</ThemedText>
-                  <ThemedText style={styles.value}>{editedCustomer.dni}</ThemedText>
+                  <ThemedText style={styles.value}>
+                    {editedCustomer.dni}
+                  </ThemedText>
                   {isEditing ? (
                     <View style={styles.buttonContainer}>
                       <DeleteAccountButton />
@@ -401,18 +471,24 @@ function ProfileScreen() {
                   )}
 
                   <ThemedText style={styles.changePasswordText}>
-                    ¿Desea cambiar su contraseña?{' '}
-                    <Pressable onPress={() => alert('Esta función estará disponible en el futuro')}>
-                      <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
+                    ¿Desea cambiar su contraseña?{" "}
+                    <Pressable
+                      onPress={() =>
+                        alert("Esta función estará disponible en el futuro")
+                      }
+                    >
+                      <ThemedText style={styles.changePasswordLink}>
+                        Cambiar contraseña
+                      </ThemedText>
                     </Pressable>
                   </ThemedText>
                 </View>
-
+                {/*
                 <View style={styles.column}>
                   <ThemedText style={styles.title}>Contactos de emergencia</ThemedText>
                   <ThemedText style={styles.text}>Esta función estará disponible en futuras versiones</ThemedText>
                   
-                  {/*
+                  
                   <ThemedText style={styles.label}>Nombre de contacto</ThemedText>
                   <ThemedText style={styles.value}>Juan Pérez</ThemedText>
                   <ThemedText style={styles.label}>Teléfono de contacto</ThemedText>
@@ -431,18 +507,27 @@ function ProfileScreen() {
                       color="blue"
                     />
                   </View>
-                  */}
+                  
                 </View>
+                */}
               </View>
             ) : (
               <View style={styles.companyContainer}>
                 <View style={styles.companyHeader}>
-                  {renderEditableFieldCompany('', editedCompany.name, 'name', 'Name')}
-                  {isEditing ?
+                  {renderEditableFieldCompany(
+                    "",
+                    editedCompany.name,
+                    "name",
+                    "Name"
+                  )}
+                  {isEditing ? (
                     <View style={styles.imageHeaderContainer}>
-
                       <Image
-                        source={{ uri: editedCompany.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
+                        source={{
+                          uri:
+                            editedCompany.imageUrl ||
+                            "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg",
+                        }}
                         style={styles.companyImage}
                       />
                       <TextInput
@@ -458,25 +543,62 @@ function ProfileScreen() {
                         color="blue"
                       />
                     </View>
-                    :
+                  ) : (
                     <Image
-                      source={{ uri: editedCompany.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
+                      source={{
+                        uri:
+                          editedCompany.imageUrl ||
+                          "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg",
+                      }}
                       style={styles.companyImage}
-                    />}
+                    />
+                  )}
                 </View>
 
                 <View style={styles.twoColumnsContainerCompany}>
                   <View style={styles.column}>
-                    {renderEditableFieldCompany('Descripción', editedCompany.description, 'description', 'Descripción')}
-                    {renderEditableFieldCompany('Email', editedCompany.email, 'email', 'Email')}
-                    {renderEditableFieldCompany('Teléfono', editedCompany.telephone, 'telephone', 'Teléfono')}
+                    {renderEditableFieldCompany(
+                      "Descripción",
+                      editedCompany.description,
+                      "description",
+                      "Descripción"
+                    )}
+                    {renderEditableFieldCompany(
+                      "Email",
+                      editedCompany.email,
+                      "email",
+                      "Email"
+                    )}
+                    {renderEditableFieldCompany(
+                      "Teléfono",
+                      editedCompany.telephone,
+                      "telephone",
+                      "Teléfono"
+                    )}
                   </View>
                   <View style={styles.column}>
                     <ThemedText style={styles.labelCompany}>NIF</ThemedText>
-                    <ThemedText style={styles.valueCompany}>{editedCompany.nif}</ThemedText>
-                    {renderEditableFieldCompany('Dirección', editedCompany.address, 'address', 'Dirección')}
-                    {renderEditableFieldCompany('Ciudad', editedCompany.city, 'city', 'Ciudad')}
-                    {renderEditableFieldCompany('Código Postal', editedCompany.zipCode, 'zipCode', 'Código Postal')}
+                    <ThemedText style={styles.valueCompany}>
+                      {editedCompany.nif}
+                    </ThemedText>
+                    {renderEditableFieldCompany(
+                      "Dirección",
+                      editedCompany.address,
+                      "address",
+                      "Dirección"
+                    )}
+                    {renderEditableFieldCompany(
+                      "Ciudad",
+                      editedCompany.city,
+                      "city",
+                      "Ciudad"
+                    )}
+                    {renderEditableFieldCompany(
+                      "Código Postal",
+                      editedCompany.zipCode,
+                      "zipCode",
+                      "Código Postal"
+                    )}
                   </View>
                 </View>
 
@@ -500,9 +622,11 @@ function ProfileScreen() {
                       />
                     </View>
                     <ThemedText style={styles.changePasswordText}>
-                      ¿Desea cambiar su contraseña?{' '}
+                      ¿Desea cambiar su contraseña?{" "}
                       <Pressable onPress={() => setShowPasswordModal(true)}>
-                        <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
+                        <ThemedText style={styles.changePasswordLink}>
+                          Cambiar contraseña
+                        </ThemedText>
                       </Pressable>
                     </ThemedText>
                   </View>
@@ -514,7 +638,9 @@ function ProfileScreen() {
           <Modal visible={showPasswordModal} transparent animationType="fade">
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
-                <ThemedText style={styles.modalTitle}>Cambiar contraseña</ThemedText>
+                <ThemedText style={styles.modalTitle}>
+                  Cambiar contraseña
+                </ThemedText>
                 <TextInput
                   style={styles.input}
                   placeholder="Nueva contraseña"
@@ -531,205 +657,213 @@ function ProfileScreen() {
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                 />
-                <CustomButton title="Guardar" onPress={handleChangePassword} color="blue" />
-                <CustomButton title="Cancelar" onPress={() => setShowPasswordModal(false)} color="red" />
+                <CustomButton
+                  title="Guardar"
+                  onPress={handleChangePassword}
+                  color="blue"
+                />
+                <CustomButton
+                  title="Cancelar"
+                  onPress={() => setShowPasswordModal(false)}
+                  color="red"
+                />
               </View>
             </View>
           </Modal>
         </>
       ) : (
-        <ThemedText style={styles.text}>No se pudo cargar el perfil.</ThemedText>
-      )
-      }
-    </ThemedView >
+        <ThemedText style={styles.text}>
+          No se pudo cargar el perfil.
+        </ThemedText>
+      )}
+    </ThemedView>
   );
-
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
   profileContainer: {
     padding: 20,
     elevation: 5,
-    width: '95%',
-    height: '80%',
-    alignItems: 'center',
+    width: "95%",
+    height: "80%",
+    alignItems: "center",
   },
   companyContainer: {
     padding: 20,
     elevation: 5,
-    width: '100%',
-    height: '80%',
-    alignItems: 'center',
+    width: "100%",
+    height: "80%",
+    alignItems: "center",
   },
   twoColumnsContainer: {
-    alignSelf: 'center',
-    marginTop: '5%',
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '90%',
+    alignSelf: "center",
+    marginTop: "5%",
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "90%",
   },
   twoColumnsContainerCompany: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '70%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "70%",
   },
   columnData: {
-    width: '50%',
-    alignItems: 'center',
-    height: '100%',
+    width: "50%",
+    alignItems: "center",
+    height: "100%",
   },
   column: {
-    width: '50%',
-    height: '100%',
-    alignItems: 'center',
+    width: "50%",
+    height: "100%",
+    alignItems: "center",
   },
   label: {
     fontSize: 16,
-    color: '#666',
+    color: "#666",
     marginBottom: 5,
-    textAlign: 'left',
-    width: '50%',
-    marginLeft: '15%',
+    textAlign: "left",
+    width: "50%",
+    marginLeft: "15%",
   },
   labelCompany: {
     fontSize: 16,
-    color: '#666',
+    color: "#666",
     marginBottom: 5,
-    textAlign: 'left',
-    width: '70%',
+    textAlign: "left",
+    width: "70%",
   },
   value: {
     fontSize: 18,
-    color: '#000',
+    color: "#000",
     marginBottom: 15,
-    fontWeight: 'bold',
-    textAlign: 'left',
-    width: '50%',
-    marginLeft: '15%',
+    fontWeight: "bold",
+    textAlign: "left",
+    width: "50%",
+    marginLeft: "15%",
   },
   valueCompany: {
     fontSize: 18,
-    color: '#000',
+    color: "#000",
     marginBottom: 15,
-    fontWeight: 'bold',
-    textAlign: 'left',
-    width: '70%',
+    fontWeight: "bold",
+    textAlign: "left",
+    width: "70%",
   },
   valueName: {
     fontSize: 24,
-    color: '#000',
+    color: "#000",
     marginBottom: 15,
-    fontWeight: 'bold',
-    textAlign: 'left',
-    width: '40%',
+    fontWeight: "bold",
+    textAlign: "left",
+    width: "40%",
   },
   imageHeaderContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 20,
-    alignItems: 'center',
-    width: '100%',
+    alignItems: "center",
+    width: "100%",
   },
   input: {
-    width: '40%',
-    backgroundColor: '#f0f0f0',
+    width: "40%",
+    backgroundColor: "#f0f0f0",
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
     fontSize: 16,
-    color: '#333',
+    color: "#333",
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     marginBottom: 10,
   },
   inputImage: {
-    width: '50%',
-    alignSelf: 'center',
-    backgroundColor: '#f0f0f0',
+    width: "50%",
+    alignSelf: "center",
+    backgroundColor: "#f0f0f0",
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
     fontSize: 16,
-    color: '#333',
+    color: "#333",
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     marginBottom: 10,
   },
   inputCompany: {
-    width: '70%',
-    backgroundColor: '#f0f0f0',
+    width: "70%",
+    backgroundColor: "#f0f0f0",
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
     fontSize: 16,
-    color: '#333',
+    color: "#333",
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     marginBottom: 10,
   },
   inputCompanyDescription: {
-    width: '70%',
-    height: '50%',
-    backgroundColor: '#f0f0f0',
+    width: "70%",
+    height: "50%",
+    backgroundColor: "#f0f0f0",
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
     fontSize: 16,
-    color: '#333',
+    color: "#333",
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     marginBottom: 10,
   },
   valueDescription: {
     fontSize: 18,
-    height: '50%',
-    color: '#000',
+    height: "50%",
+    color: "#000",
     marginBottom: 15,
-    fontWeight: 'bold',
-    textAlign: 'left',
-    width: '70%',
+    fontWeight: "bold",
+    textAlign: "left",
+    width: "70%",
   },
   text: {
     fontSize: 18,
-    color: '#000',
+    color: "#000",
     marginBottom: 10,
   },
   title: {
     fontSize: 36,
-    color: '#000',
-    fontWeight: 'bold',
+    color: "#000",
+    fontWeight: "bold",
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: "center",
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     marginTop: 20,
     marginBottom: 20,
     gap: 20,
   },
   changePasswordText: {
     fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
+    color: "#666",
+    textAlign: "center",
     marginTop: 10,
   },
   changePasswordLink: {
-    color: '#42B5FC',
-    fontWeight: 'bold',
-    textDecorationLine: 'underline',
+    color: "#42B5FC",
+    fontWeight: "bold",
+    textDecorationLine: "underline",
   },
   companyHeader: {
-    width: '60%',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    alignContent: 'center',
+    width: "60%",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    alignContent: "center",
     marginBottom: 20,
   },
   companyImage: {
@@ -740,30 +874,33 @@ const styles = StyleSheet.create({
   },
   companyName: {
     fontSize: 20,
-    color: '#000',
-    fontWeight: 'bold',
+    color: "#000",
+    fontWeight: "bold",
   },
   modalContainer: {
     flex: 1,
-    width: '100%',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: "100%",
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContent: {
-    width: '40%',
-    backgroundColor: '#fff',
+    width: "40%",
+    backgroundColor: "#fff",
     padding: 20,
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: "center",
     gap: 10,
   },
   modalTitle: {
-    color: '#000',
+    color: "#000",
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
   },
 });
 
-export default withAuth(ProfileScreen, [AUTHORITIES.CUSTOMER, AUTHORITIES.COMPANY]);
+export default withAuth(ProfileScreen, [
+  AUTHORITIES.CUSTOMER,
+  AUTHORITIES.COMPANY,
+]);
