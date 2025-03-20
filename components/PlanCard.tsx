@@ -9,6 +9,8 @@ import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
 import PaymentModal from './PaymentModal';
 
+const { width } = Dimensions.get('window');
+
 interface PlanCardProps {
   role: 'CUSTOMER_FREE' | 'CUSTOMER_PREMIUM' | 'COMPANY_FREE' | 'COMPANY_PREMIUM';
   fechaExpiracion?: string;
@@ -169,22 +171,22 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           <Text style={styles.price}>{esquelasDetails.price}</Text>
         </View>
       )}
-      <CustomModal visible={isModalVisible} onClose={() => setIsModalVisible(false)} title="Confirmar Contratación">
+      <CustomModal visible={isModalVisible} onClose={() => setIsModalVisible(false)} title="Confirmar contratación">
         <View style={styles.modalContent}>
           <ThemedText style={styles.modalText}>
             ¿Estás seguro que deseas contratar este plan?
           </ThemedText>
-          <View style={styles.modalButtons}>
+          <View style={styles.buttonContainer}>
             <CustomButton
               title="Cancelar"
               onPress={() => setIsModalVisible(false)}
-              style={styles.modalButton}
+              style={styles.button}
               color="red"
             />
             <CustomButton
               title={isProcessing ? 'Procesando...' : 'Confirmar'}
               onPress={handleSubscribe}
-              style={styles.modalButton}
+              style={styles.button}
               color="blue"
             />
           </View>
@@ -195,17 +197,17 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           <ThemedText style={styles.modalText}>
             ¿Estás seguro que deseas cancelar tu suscripción?
           </ThemedText>
-          <View style={styles.modalButtons}>
+          <View style={styles.buttonContainer}>
             <CustomButton
               title="Cancelar"
               onPress={() => setIsCancelModalVisible(false)}
-              style={styles.modalButton}
+              style={styles.button}
               color="red"
             />
             <CustomButton
               title={isProcessing ? 'Procesando...' : 'Confirmar'}
               onPress={handleUnsubscribe} // Llamar función para cancelar suscripción
-              style={styles.modalButton}
+              style={styles.button}
               color="blue"
             />
           </View>
@@ -217,7 +219,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
         onClose={() => setShowPaymentModal(false)}
         amount={isCustomer ? 0.99 : 9.99}
         planType={isCustomer ? 'CUSTOMER_PREMIUM' : 'COMPANY_PREMIUM'}
-        description={`Suscripción al ${isCustomer ? 'Plan Mensual - Mensajes de Despedida' : 'Plan Premium - Publicita tu Empresa'}`}
+        description={`Suscripción al ${isCustomer ? 'plan mensual - Mensajes de despedida' : 'Plan Premium - Publicita tu Empresa'}`}
         onSuccess={handlePaymentSuccess}
         onError={handlePaymentError}
       />
@@ -302,7 +304,7 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       backgroundColor: 'white',
       borderRadius: 10,
-      width: '90%',
+      width: width > 600 ? '80%': '102%',
       alignSelf: 'center',
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
@@ -313,21 +315,24 @@ const styles = StyleSheet.create({
     modalText: {
       fontSize: 16,
       textAlign: 'center',
-      marginBottom: 20,
+      marginBottom: 15,
       color: '#333',
+      paddingHorizontal: 10,
     },
-    modalButtons: {
+    buttonContainer: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       width: '100%',
-      marginTop: 10,
+      paddingHorizontal: 10,
+      marginTop: 15,
+      gap: 10,
+      maxWidth: 400,
+      alignSelf: 'center',
     },
-    modalButton: {
+    button: {
       flex: 1,
       marginHorizontal: 5,
-      paddingVertical: 10,
-      borderRadius: 5,
-      alignItems: 'center',
+      maxWidth: 160,
     },
   });
 

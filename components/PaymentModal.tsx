@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TextInput, ActivityIndicator, Dimensions } from 'react-native';
 import { GlobalStyles } from '@/constants/Colors';
 import CustomModal from '@/components/CustomModal';
 import CustomButton from '@/components/CustomButton';
 import { ThemedText } from '@/components/ThemedText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_API } from '@/constants/Mysc';
+
+const { width } = Dimensions.get('window');
 
 interface PaymentModalProps {
   visible: boolean;
@@ -98,13 +100,13 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   };
 
   return (
-    <CustomModal visible={visible} onClose={onClose} title="Pago Seguro">
+    <CustomModal visible={visible} onClose={onClose} title="Pago seguro">
       <View style={styles.container}>
         <Text style={styles.description}>{description}</Text>
         <Text style={styles.amount}>{amount.toFixed(2)}€/mes</Text>
 
         <View style={styles.inputContainer}>
-          <ThemedText style={styles.label}>Número de Tarjeta</ThemedText>
+          <ThemedText style={styles.label}>Número de tarjeta</ThemedText>
           <TextInput
             style={styles.input}
             value={cardNumber}
@@ -117,7 +119,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
         <View style={styles.row}>
           <View style={[styles.inputContainer, { flex: 1, marginRight: 10 }]}>
-            <ThemedText style={styles.label}>Fecha Exp.</ThemedText>
+            <ThemedText style={styles.label}>Fecha exp.</ThemedText>
             <TextInput
               style={styles.input}
               value={expiryDate}
@@ -143,7 +145,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         </View>
 
         <View style={styles.inputContainer}>
-          <ThemedText style={styles.label}>Titular de la Tarjeta</ThemedText>
+          <ThemedText style={styles.label}>Titular de la tarjeta</ThemedText>
           <TextInput
             style={styles.input}
             value={cardHolder}
@@ -180,6 +182,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 const styles = StyleSheet.create({
   container: {
     padding: 20,
+    width: width > 600 ? '80%' : '100%',
+    maxWidth: 500,
+    alignSelf: 'center',
   },
   description: {
     fontSize: 16,
@@ -196,6 +201,9 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     marginBottom: 15,
+    width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center',
   },
   label: {
     fontSize: 14,
@@ -213,15 +221,23 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center',
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    width: '100%',
     marginTop: 20,
+    maxWidth: 400,
+    alignSelf: 'center',
+    gap: 10,
   },
   button: {
     flex: 1,
     marginHorizontal: 5,
+    maxWidth: 160,
   },
   loader: {
     marginTop: 20,
