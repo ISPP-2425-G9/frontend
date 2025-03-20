@@ -23,8 +23,10 @@ import Checkbox from 'expo-checkbox';
 import TermsAndConditions from '@/components/TermsAndConditions';
 
 const { width } = Dimensions.get("window");
+const deviceWidth = Dimensions.get("window").width;
 
 const RegisterScreen: React.FC = () => {
+  const isMobile = deviceWidth < 768;
   const [userType, setUserType] = useState<"Empresa" | "Cliente" | null>(null);
   const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [formErrors, setFormErrors] = useState<string[]>([]);
@@ -313,7 +315,7 @@ const RegisterScreen: React.FC = () => {
                 title="Registrarme como cliente"
                 onPress={() => handleUserTypeSelection("Cliente")}
                 color="blue"
-                style={styles.typeButton}
+                style={{ ...styles.typeButton, ...(isMobile ? {} : { width: 400 }) }}
               />
             </View>
             <View style={styles.optionCard}>
@@ -325,7 +327,7 @@ const RegisterScreen: React.FC = () => {
                 title="Registrar mi empresa"
                 onPress={() => handleUserTypeSelection("Empresa")}
                 color="blue"
-                style={styles.typeButton}
+                style={{ ...styles.typeButton, ...(isMobile ? {} : { width: 400 }) }}
               />
             </View>
           </View>
@@ -347,7 +349,7 @@ const RegisterScreen: React.FC = () => {
 
           {userType === "Empresa"
             ? companyFields.map((field, index) => (
-                <View key={`company-${field.name}-${index}`} style={styles.inputContainer}>
+                <View key={`company-${field.name}-${index}`} style={[styles.inputContainer, !isMobile && { width: 400, alignSelf: "center" }]}>
                   <Text>{field.description}</Text>
                   <CustomTextInput
                     placeholder={field.placeholder}
@@ -356,11 +358,12 @@ const RegisterScreen: React.FC = () => {
                     onChangeText={(text) =>
                       setFormValues({ ...formValues, [field.name]: text })
                     }
+                    style={{ width: "100%" }}
                   />
                 </View>
               ))
             : clientFields.map((field, index) => (
-                <View key={`client-${field.name}-${index}`} style={styles.inputContainer}>
+                <View key={`client-${field.name}-${index}`} style={[styles.inputContainer, !isMobile && { width: 400, alignSelf: "center" }]}>
                   <Text>{field.description}</Text>
                   <CustomTextInput
                     placeholder={field.placeholder}
@@ -369,6 +372,7 @@ const RegisterScreen: React.FC = () => {
                     onChangeText={(text) =>
                       setFormValues({ ...formValues, [field.name]: text })
                     }
+                    style={{ width: "100%" }}
                   />
                 </View>
               ))}
@@ -401,7 +405,7 @@ const RegisterScreen: React.FC = () => {
             title="Completar registro"
             onPress={() => handleSubmit(formValues)}
             color="blue"
-            style={styles.submitButton}
+            style={{ ...styles.submitButton, ...(isMobile ? {} : { width: 400 }) }}
           />
 
           <Modal
@@ -437,7 +441,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: GlobalStyles.white,
     padding: 20,
-    paddingTop: 100,
+    paddingTop: deviceWidth < 375 ? 50 : 100,
   },
   selectionContainer: {
     flex: 1,
@@ -468,7 +472,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   typeButton: {
-    width: "40%",
+    width: "90%",
     marginHorizontal: 5,
     marginVertical: 10,
     minHeight: 50,
@@ -479,6 +483,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 20,
   },
   formTitle: {
     fontSize: 24,
@@ -488,6 +493,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     marginBottom: 20,
+    width: "100%",
   },
   backButton: {
     width: 100,
@@ -496,7 +502,7 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     marginTop: 20,
-    width: "auto",
+    width: "90%",
     alignSelf: "center",
   },
   errorContainer: {
@@ -515,7 +521,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   optionCard: {
-    width: "90%",
+    width: deviceWidth < 375 ? "95%" : "90%",
     backgroundColor: "#fff",
     padding: 20,
     borderRadius: 10,
@@ -557,7 +563,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalContent: {
-    width: "90%",
+    width: deviceWidth < 375 ? "95%" : "90%",
     maxHeight: "80%",
     backgroundColor: GlobalStyles.white,
     padding: 20,
