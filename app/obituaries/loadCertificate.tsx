@@ -135,7 +135,7 @@ function LoadCertificate() {
       setDniError("El DNI debe tener el formato 12345678A.");
       return;
     }
-    setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido, podrá modificar su esquela hasta que se enviado a todos los contactos que usted eligio.")
+    setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido. Podrá modificar su esquela hasta que se hayan enviado a los contactos que eligió.")
     setModalVisible(true);
   };
 
@@ -170,7 +170,8 @@ function LoadCertificate() {
       });
 
       if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
       }
       setModalVisible(false);
       navigation.navigate("obituaries/index");
@@ -178,7 +179,8 @@ function LoadCertificate() {
 
     } catch (error) {
       console.error("Error al enviar datos:", error);
-      alert("Hubo un problema al enviar los datos. Inténtalo de nuevo.");
+      const errorMessage = (error as Error).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
+      alert(errorMessage);
     }
   };
 
