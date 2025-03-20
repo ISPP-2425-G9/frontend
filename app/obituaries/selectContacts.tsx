@@ -13,7 +13,7 @@ import CustomButton from "@/components/CustomButton";
 import { CustomTextInput } from "@/components/CustomTextInput";
 import { useRoute, RouteProp } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation, NavigationProp  } from "@react-navigation/native";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
 import CustomModal from "@/components/CustomModal";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
@@ -23,6 +23,8 @@ import { withAuth } from "../_util/withAuth";
 import { AUTHORITIES } from "../_util/Authorities";
 import useAuth from "@/hooks/useAuth";
 import { ThemedView } from "@/components/ThemedView";
+import { green } from "react-native-reanimated/lib/typescript/Colors";
+import { ScrollView } from "react-native-gesture-handler";
 
 const { width } = Dimensions.get("window");
 
@@ -35,9 +37,10 @@ type RootStackParamList = {
     obituaryId: number;
   };
   "obituaries/listMyObituaries": undefined;
-  "obituaries/loadCertificate": { 
-    jsonData: string, 
-    is_newObituary: boolean};
+  "obituaries/loadCertificate": {
+    jsonData: string,
+    is_newObituary: boolean
+  };
 };
 
 type SelectContactsRouteProp = RouteProp<
@@ -71,6 +74,12 @@ function SelectContacts() {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [newContact, setNewContact] = useState<Contact>({
+    id: Date.now(),
+    name: "",
+    phone: "",
+    email: "",
+  });
   const [contacts, setContacts] = useState<Contact[]>([
     { id: Date.now(), name: "", phone: "", email: "" },
   ]);
@@ -116,7 +125,7 @@ function SelectContacts() {
 
   useEffect(() => {
     if (is_newObituary) {
-      setContacts([{ id: Date.now(), name: "", phone: "", email: "" }]);
+      setContacts([]);
     } else {
       const fetchContactData = async () => {
         try {
@@ -161,18 +170,14 @@ function SelectContacts() {
     setCombinedData(updateData);
   }, [contacts, jsonData]);
 
-  const handleChange = (id: number, field: keyof Contact, value: string) => {
-    setContacts((prevContacts) =>
-      prevContacts.map((contact) =>
-        contact.id === id ? { ...contact, [field]: value } : contact
-      )
-    );
+  const handleChange = (field: keyof Contact, value: string) => {
+    setNewContact((prev) => ({ ...prev, [field]: value }));
   };
 
   const validateData = (values: Contact) => {
     const errors: string[] = [];
     const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const phoneRegex = /^\+?\d{9,15}$/;
+    const phoneRegex = /^\d{3} \d{3} \d{3}$/;
 
     if (!values.name || values.name.trim() === "") {
       errors.push("El nombre es obligatorio para el contacto");
@@ -185,42 +190,51 @@ function SelectContacts() {
     if (!values.email || !emailRegex.test(values.email)) {
       errors.push("El email no es válido.");
     }
-
     return errors;
   };
 
   const addContact = () => {
-    setContacts([
-      { id: Date.now(), name: "", phone: "", email: "" },
-      ...contacts,
-    ]);
+
+    if (!newContact.name || !newContact.phone || !newContact.email) {
+      window.alert("Todos los campos son obligatorios");
+      return;
+    }
+    if (validateData(newContact)) {
+      if (validateData(newContact).length > 0) {
+        window.alert(validateData(newContact).join("\n"));
+        return;
+      }
+    }
+    setNewContact({ id: Date.now(), name: "", phone: "", email: "" });
+    setContacts([...contacts, newContact]);
+    console.log("newContact", newContact);
   };
 
   const removeContact = (id: number) => {
-    if (contacts.length > 1) {
-      setContacts(contacts.filter((contact) => contact.id !== id));
-    } else {
-      window.alert("Debe haber al menos un contacto.");
-    }
+    setContacts(contacts.filter((contact) => contact.id !== id));
   };
 
   const createObituary = async () => {
+    console.log("Contactos para crear obituary", contacts);
     const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
     const dataToSend = {
       ...combinedData,
       contacts: contactsWithoutIds,
       isMine: true,
     };
-
+  
     const url = is_newObituary
       ? BACKEND_API + `/api/obituary/create`
       : BACKEND_API + `/api/obituary/update/${obituaryId}`;
-
+  
     const method_type = is_newObituary ? "POST" : "PUT";
-
+  
     try {
-
       const authToken = await AsyncStorage.getItem("authToken");
+      if (!authToken) {
+        throw new Error("Token de autenticación no disponible.");
+      }
+  
       const response = await fetch(url, {
         method: method_type,
         headers: {
@@ -229,34 +243,39 @@ function SelectContacts() {
         },
         body: JSON.stringify(dataToSend),
       });
-
+  
       if (response.ok) {
         navigation.navigate("obituaries/listMyObituaries" as never);
       } else {
-        throw new Error("Error en la creación de la esquela");
+        const responseBody = await response.json();
+        const errorMessage = responseBody?.message || "Error desconocido en el servidor";
+        throw new Error(errorMessage);
       }
     } catch (error) {
       const errormssg = is_newObituary
-        ? "Error al crear la esquela.Por favor, inténtelo de nuevo."
-        : "Error al actualizar la esquela.Por favor, inténtelo de nuevo.";
+        ? "Error al crear la esquela. Por favor, inténtelo de nuevo."
+        : "Error al actualizar la esquela. Por favor, inténtelo de nuevo.";
+  
+      console.error("Detalles del error:", error); 
       window.alert(errormssg);
     }
   };
+  
 
   const moveToNextScreen = () => {
     const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
 
     const dataToSend = {
-        ...combinedData,
-        contacts: contactsWithoutIds,
-        isMine: false,
+      ...combinedData,
+      contacts: contactsWithoutIds,
+      isMine: false,
     };
 
-    navigation.navigate("obituaries/loadCertificate", { 
-        jsonData: JSON.stringify(dataToSend) ,
-        is_newObituary
+    navigation.navigate("obituaries/loadCertificate", {
+      jsonData: JSON.stringify(dataToSend),
+      is_newObituary
     });
-};
+  };
 
   const showConfirmationModal = async (is_mine: boolean) => {
     setIsMine(is_mine);
@@ -267,7 +286,7 @@ function SelectContacts() {
 
     try {
       for (const contact of contacts) {
-        const contactErrors = validateData(contact);
+
         if (emailSet.has(contact.email)) {
           errors.push("No se pueden repetir los correos electrónicos");
         } else {
@@ -278,10 +297,6 @@ function SelectContacts() {
           errors.push("No se pueden repetir los números de teléfono");
         } else {
           phoneSet.add(contact.phone);
-        }
-
-        if (contactErrors.length > 0) {
-          errors.push(...contactErrors.slice(0, 3 - errors.length));
         }
       }
 
@@ -315,7 +330,7 @@ function SelectContacts() {
   };
 
   const handleSubmit = async () => {
-  
+
     try {
       if (is_mine) {
         await createObituary();
@@ -340,82 +355,112 @@ function SelectContacts() {
         ) : (
           <Text style={styles.title}>Edita a tus contactos</Text>
         )}
+        <View style={styles.contactContainer}>
+          <CustomTextInput
+            placeholder="Nombre"
+            value={newContact.name}
+            maxLength={50}
+            onChangeText={(text) => handleChange("name", text)}
+            style={styles.input}
+          />
+          <CustomTextInput
+            placeholder="Teléfono (sin prefijo)"
+            value={newContact.phone}
+            maxLength={11}
+            keyboardType="phone-pad"
+            onChangeText={(text) => {
+              const numericText = text.replace(/\D/g, "");
+              const formattedText = numericText.replace(/(\d{3})/g, "$1 ").trim();
+              handleChange("phone", formattedText);
+            }}
 
-        <FlatList
-          data={contacts}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item, index }) => (
-            <View style={styles.contactContainer}>
-              <Text style={styles.contactNumber}>{index + 1}.</Text>
-              <CustomTextInput
-                placeholder="Nombre"
-                value={item.name}
-                onChangeText={(text) => handleChange(item.id, "name", text)}
-                style={styles.input}
-              />
-              <CustomTextInput
-                placeholder="Teléfono (sin prefijo)"
-                value={item.phone}
-                maxLength={9}
-                keyboardType="phone-pad"
-                onChangeText={(text) => {
-                  const numericText = text.replace(/\D/g, "");
-                  handleChange(item.id, "phone", numericText);
-                }}
-                style={styles.input}
-              />
-              <CustomTextInput
-                placeholder="Email"
-                value={item.email}
-                keyboardType="email-address"
-                onChangeText={(text) => handleChange(item.id, "email", text)}
-                style={styles.input}
-              />
+            style={styles.input}
+          />
+          <CustomTextInput
+            placeholder="Email"
+            value={newContact.email}
+            maxLength={50}
+            keyboardType="email-address"
+            onChangeText={(text) => handleChange("email", text)}
+            style={styles.input}
+          />
+          <CustomButton title="Añadir" onPress={addContact} />
+        </View>
 
-              {index === 0 && (
-                <CustomButton
-                  title="Añadir otro"
-                  onPress={addContact}
-                  style={styles.deleteButton}
-                />
-              )}
 
-              {index !== 0 && (
-                <CustomButton
-                  title="Eliminar"
-                  color="red"
-                  onPress={() => removeContact(item.id)}
-                  style={styles.deleteButton}
-                />
-              )}
+        <Text style={styles.title}>Lista de contactos añadidos</Text>
+        <ScrollView style={styles.tableContainer} horizontal>
+          <View>
+
+            <View style={styles.tableHeader}>
+              <Text style={styles.headerCell}>Nombre</Text>
+              <Text style={styles.headerCell}>Teléfono</Text>
+              <Text style={styles.headerCell}>Email</Text>
+              <Text style={styles.headerCell}>Acción</Text>
             </View>
-          )}
-        />
-      </View>
 
-      <View style={styles.divider} />
+            <FlatList
+              data={contacts}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => (
+                <View style={styles.tableRow}>
+                  <Text style={styles.cell}>{item.name}</Text>
+                  <Text style={styles.cell}>{item.phone}</Text>
+                  <Text style={styles.cell}>{item.email}</Text>
+                  <CustomButton
+                    title="Eliminar"
+                    style={styles.deleteButton}
+                    color="red"
+                    onPress={() => removeContact(item.id)}
+                  />
+                </View>
+              )}
+            />
+          </View>
+        </ScrollView>
+
+
+
+      </View><View style={styles.divider} />
       <View style={styles.buttonContainer}>
 
         <CustomButton
-          title={
-            is_newObituary
-              ? "Cree su propia esquela"
-              : "Actualice su propia esquela"
-          }
+          title={is_newObituary
+            ? "Cree su propia esquela"
+            : "Actualice su propia esquela"}
           onPress={() => showConfirmationModal(true)}
-          style={styles.saveButton}
-        />
+          style={styles.saveButton} />
         {is_newObituary && (
           <CustomButton
             title="Cree y envie su esquela para un ser querido"
             onPress={() => showConfirmationModal(false)}
-            style={styles.saveButton}
-          />
-        )
-        }
+            style={styles.saveButton} />
+        )}
 
+        {modalVisible && (
+          <CustomModal
+            visible={modalVisible}
+            onClose={handleCloseModal}
+            title={modalMessage}
+            style={styles.modalStyle}
+          >
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => handleSubmit()}
+              >
+                <Text style={styles.buttonText}>Aceptar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => handleCloseModal()}
+              >
+                <Text style={styles.buttonText}>Cancelar</Text>
+              </TouchableOpacity>
+            </View>
+          </CustomModal>
+        )}
       </View>
-
       {modalVisible && (
         <CustomModal
           visible={modalVisible}
@@ -428,7 +473,7 @@ function SelectContacts() {
               style={styles.button}
               onPress={() => handleSubmit()}
             >
-            <Text style={styles.buttonText}>Aceptar</Text>
+              <Text style={styles.buttonText}>Aceptar</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.button}
@@ -441,10 +486,10 @@ function SelectContacts() {
       )}
     </View>
   ) : (
-      <ThemedView style={styles.container}>
-        <Text style={styles.title}>Debes iniciar sesión para poder acceder a esta sección</Text>
-      </ThemedView>
-    );
+    <ThemedView style={styles.container}>
+      <Text style={styles.title}>Debes iniciar sesión para poder acceder a esta sección</Text>
+    </ThemedView>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -465,19 +510,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
-  contactNumber: {
-    marginRight: 8,
-    fontWeight: "bold",
-    fontSize: 20,
-  },
   contactContainer: {
     alignSelf: "center",
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    width: width > 600 ? "100%" : "80%",
+    width: width > 600 ? "100%" : 1000,
     marginBottom: 10,
-    flexDirection: "row",
+    flexDirection: width > 600 ? "row" : "column",
   },
   deleteButton: {
     marginLeft: 10,
@@ -485,7 +524,7 @@ const styles = StyleSheet.create({
     width: "20%",
   },
   input: {
-    marginLeft: 10,
+    marginRight: 10,
     width: "30%",
   },
   saveButton: {
@@ -533,6 +572,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     borderRadius: 8,
     alignItems: "center",
+  },
+  headerCell: {
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
+    marginHorizontal: 10,
+    flex: 1,
+  },
+  tableRow: {
+    flexDirection: "row",
+    paddingVertical: 10,
+    alignItems: "center",
+    flex: 1,
+    borderRadius: 8,
+  },
+  cell: {
+    flex: 1,
+    textAlign: "center",
+  },
+  tableContainer: {
+    flex: 1,
+    padding: 10,
+  },
+  tableHeader: {
+    flexDirection: "row",
+    backgroundColor: GlobalStyles.blue,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 8,
   },
 });
 
