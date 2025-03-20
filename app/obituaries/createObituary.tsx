@@ -37,6 +37,7 @@ type RootStackParamList = {
     jsonData: string;
     is_newObituary: boolean;
     obituaryId: number;
+    is_mine: boolean | undefined;
   };
   "obituaries/createObituary": {
     imageTemplateId: number;
@@ -79,6 +80,7 @@ function EsquelaCustomizer() {
 
   const jsonData = route.params?.jsonData ?? undefined;
 
+  const [ is_mine, setIsMine ] = useState();
   const handleColorSelect = (color: string) => {
     setSelectedColor(color);
     setColorPickerVisible(false);
@@ -148,8 +150,16 @@ function EsquelaCustomizer() {
           if (!response.ok) throw new Error("Error al obtener los datos");
           const data = await response.json();
 
-          const [year, month, day] = data.birthDate.split("-");
-          const formatBirthDate = `${day}/${month}/${year}`;
+          setIsMine(data.isMine);
+          console.log(is_mine, "data");
+
+          let formatBirthDate = "";  
+          if (data.birthDate) {
+            const [year, month, day] = data.birthDate.split("-") || [];
+            if (day && month && year) {
+              formatBirthDate = `${day}/${month}/${year}`;
+              }
+          }
 
           setFormData({
             name: data.name || "",
@@ -268,12 +278,14 @@ function EsquelaCustomizer() {
   };
 
   const handleSubmit = () => {
+    console.log(is_mine, "is_mine");
     if (validateForm()) {
       const jsonData = JSON.stringify(formData, null, 2);
       navigation.navigate("obituaries/selectContacts" as never, {
         jsonData: jsonData,
         is_newObituary,
         obituaryId,
+        is_mine: is_mine !== undefined ? is_mine : undefined, 
       });
     }
     setModalVisible(false);

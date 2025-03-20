@@ -16,8 +16,13 @@ import CustomModal from "@/components/CustomModal";
 import { BACKEND_API } from "@/constants/Mysc";
 
 type RootStackParamList = {
-    "obituaries/loadCertificate": { jsonData: string };
-    "obituaries": undefined;
+  "obituaries/loadCertificate": {
+    jsonData: string
+    is_newObituary: boolean,
+    obituaryId: string,
+    isMine: boolean
+  };
+  "obituaries/index": undefined;
 };
 
 type ObituaryLoadCertificateRouteProp = RouteProp<
@@ -28,230 +33,250 @@ type ObituaryLoadCertificateRouteProp = RouteProp<
 const { width } = Dimensions.get("window");
 
 function LoadCertificate() {
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
- 
-
-      const route = useRoute<ObituaryLoadCertificateRouteProp>();
-
-      const is_newObituary = route.params?.jsonData ? true : false;
-    
-
-    const { isAuthenticated } = useAuth();
-    const [dni, setDni] = useState<string>("");
-    const [certificateImage, setCertificateImage] = useState<string | null>(null);
-    const [fileName, setFileName] = useState<string | null>(null);  
-    const [dniError, setDniError] = useState<string>("");
-    const [modalVisible, setModalVisible] = useState(false);
-    const [modalMessage, setModalMessage] = useState("");
-    const [combinedData, setCombinedData] = useState<any>({});
-
-    const [formData, setFormData] = useState({
-      dni: "",
-      certificateImage: "",
-    });
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
 
-    useEffect(() => {
-      const initializeForm = async () => {
-        if (is_newObituary) {
-          setFormData({
-            dni: "",
-            certificateImage: "",
-          });
-          return;
-        } else {
-          // Aquí iría la llamada al servidor si no es nuevo
-          // Ejemplo:
-          // const response = await fetch(...);
-          // const data = await response.json();
-          // setFormData(data);
-        }
-      };
-    
-      initializeForm();
-    }, [is_newObituary]);
-    
+  const route = useRoute<ObituaryLoadCertificateRouteProp>();
+  const is_newObituary = route.params?.is_newObituary;
 
-    const pickImage = async () => {
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
-            allowsEditing: true,
-            quality: 1,
+
+  const { isAuthenticated } = useAuth();
+  const [dni, setDni] = useState<string>("");
+  const [certificateImage, setCertificateImage] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [dniError, setDniError] = useState<string>("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const [combinedData, setCombinedData] = useState<unknown>({});
+
+  const isMine = route.params?.isMine;
+  const [formData, setFormData] = useState({
+    dni: "",
+    certificateImage: "",
+  });
+
+
+  useEffect(() => {
+    const initializeForm = async () => {
+      if (is_newObituary === true) {
+        setFormData({
+          dni: "",
+          certificateImage: "",
         });
-
-        if (!result.canceled) {
-            const fileUri = result.assets[0].uri;
-            const fileName = result.assets[0].fileName || null; 
-            setFormData({ ...formData, certificateImage: fileUri });
-            setCertificateImage(fileUri);
-            setFileName(fileName);  
-        }
-    };
-
-    const convertToBase64 = async (uri: string) => {
-        const response = await fetch(uri);
-        const blob = await response.blob();
-
-        return new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64Data = reader.result as string;
-                resolve(base64Data);
-            };
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-        });
-    };
-
-    const validateDni = (dni: string) => {
-        const dniRegex = /^\d{8}[A-Z]$/;
-        return dniRegex.test(dni);
-    };
-
-    
-      const showConfirmationModal = async () => {
-        if (!dni || !certificateImage) {
-            alert("Por favor, introduce el DNI y selecciona un archivo.");
-            return;
-        }
-        if (!validateDni(dni)) {
-            setDni("");
-            setDniError("El DNI no es válido. Debe tener el formato 12345678A.");
-            return;
-        }
-        setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido, podrá modificar su esquela hasta que se enviado a todos los contactos que usted eligio.")
-        setModalVisible(true);
-      };
-
-      const handleCloseModal = () => {
-        setModalVisible(false);
-      };
-    
-
-    const handleSubmit = async () => {
+        return;
+      } else {
 
         const authToken = await AsyncStorage.getItem("authToken");
-        const jsonDatato = route.params.jsonData ?? '';
-        const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
-
-        const dataToSend = {
-            dni,
-            file: base64File, 
-            jsonDatato
-        };
-
-        console.log("Datos a enviar:", dataToSend);
-
-        try {
-            const response = await fetch(BACKEND_API + '/api/deathCertificate/upload', {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${authToken}`,
-                },
-                body: JSON.stringify(dataToSend), 
-            });
-
-            if (!response.ok) {
-                throw new Error(`Error ${response.status}: ${response.statusText}`);
-            }
-
-            const result = await response.json();
-            console.log("Respuesta del servidor:", result);
-
-            navigation.navigate("obituaries");
-          
-
-        } catch (error) {
-            console.error("Error al enviar datos:", error);
-            alert("Hubo un problema al enviar los datos. Inténtalo de nuevo.");
+        const obituaryId = route.params?.obituaryId ?? "";
+        const response = await fetch(`${BACKEND_API}/api/deathCertificate/obituary/${obituaryId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+          },
         }
+        );
+        if (!response.ok) throw new Error("Error al obtener los datos");
+        const data = await response.json();
+        setDni(data.dni);
+        setCertificateImage(data.deathCertificate.url);
+      }
+      console.log("Datos del formulario:", certificateImage);
     };
 
-    return isAuthenticated ? (
-        <View style={styles.container}>
-            <View style={styles.dataContainer}>
-            <Text style={styles.title}>Carga el certificado de defunción</Text>
-            
-            <Text>DNI:</Text>
-            <CustomTextInput
-                placeholder={dniError ? dniError : "Dni del fallecido"} 
-                value={dni} 
-                maxLength={9}
-                keyboardType="numeric"
-                onChangeText={(value) => {
-                    let newValue = value.replace(/[^0-9A-Za-z]/g, ""); 
-                    
-                    if (newValue.length > 9) {
-                        newValue = newValue.slice(0, 9);
-                    }
-            
-                    if (newValue.length <= 8) {
-                        newValue = newValue.replace(/[^0-9]/g, "");
-                    }
-                    
-                    if (newValue.length === 9) {
-                        const lastChar = newValue[8];
-                        if (!/[A-Za-z]/.test(lastChar)) {
-                            newValue = newValue.slice(0, 8);  
-                        } else {
-                            newValue = newValue.slice(0, 8) + lastChar.toUpperCase(); 
-                        }
-                    }
-                    setDni(newValue);  
-                    setDniError("");  
-                }}                        
-                style={styles.input}
-                placeholderTextColor={dniError ? "red" : GlobalStyles.darkGrey}  
-            />
+    void initializeForm();
+  }, [is_newObituary]);
 
-            {certificateImage && (
-                <Image 
-                    source={{ uri: certificateImage }} 
-                    style={styles.imagePreview} 
-                />
-            )}
 
-            {fileName && (
-            <Text style={styles.fileNameText}>
-                Archivo subido: {fileName}
-            </Text>
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const fileUri = result.assets[0].uri;
+      const fileName = result.assets[0].fileName || null;
+      setFormData({ ...formData, certificateImage: fileUri });
+      setCertificateImage(fileUri);
+      setFileName(fileName);
+    }
+  };
+
+  const convertToBase64 = async (uri: string) => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64Data = reader.result as string;
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  const validateDni = (dni: string) => {
+    const dniRegex = /^\d{8}[A-Z]$/;
+    return dniRegex.test(dni);
+  };
+
+
+  const showConfirmationModal = async () => {
+    if (!dni || !certificateImage) {
+      alert("Por favor, introduce el DNI y selecciona un archivo.");
+      return;
+    }
+    if (!validateDni(dni)) {
+      setDni("");
+      setDniError("El DNI debe tener el formato 12345678A.");
+      return;
+    }
+    setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido. Podrá modificar su esquela hasta que se hayan enviado a los contactos que eligió.")
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+  };
+
+
+  const handleSubmit = async () => {
+
+    const authToken = await AsyncStorage.getItem("authToken");
+    const jsonData = route.params.jsonData ?? '';
+    const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
+
+    const dataToSend = {
+      ...JSON.parse(jsonData),
+      deathCertificate: {
+        dni: dni,
+        file: base64File
+      },
+      isMine
+    };
+
+    try {
+      const response = await fetch(BACKEND_API + '/api/obituary/create', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(dataToSend),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
+      }
+      setModalVisible(false);
+      navigation.navigate("obituaries/index");
+
+
+    } catch (error) {
+      console.error("Error al enviar datos:", error);
+      const errorMessage = (error as Error).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
+      alert(errorMessage);
+    }
+  };
+
+  return isAuthenticated ? (
+    <View style={styles.container}>
+      <View style={styles.dataContainer}>
+        <Text style={styles.title}>Carga el certificado de defunción</Text>
+
+        <Text>DNI:</Text>
+        <CustomTextInput
+          placeholder={dniError ? dniError : "Dni del fallecido"}
+          value={dni}
+          maxLength={9}
+          keyboardType="numeric"
+          onChangeText={(value) => {
+            let newValue = value.replace(/[^0-9A-Za-z]/g, "");
+
+            if (newValue.length > 9) {
+              newValue = newValue.slice(0, 9);
+            }
+
+            if (newValue.length <= 8) {
+              newValue = newValue.replace(/[^0-9]/g, "");
+            }
+
+            if (newValue.length === 9) {
+              const lastChar = newValue[8];
+              if (!/[A-Za-z]/.test(lastChar)) {
+                newValue = newValue.slice(0, 8);
+              } else {
+                newValue = newValue.slice(0, 8) + lastChar.toUpperCase();
+              }
+            }
+            setDni(newValue);
+            setDniError("");
+          }}
+          style={styles.input}
+          placeholderTextColor={dniError ? "red" : GlobalStyles.darkGrey}
+        />
+
+        {certificateImage && (
+          <Image
+            source={{ uri: certificateImage }}
+            style={styles.imagePreview}
+          />
         )}
-       
-        </View>
-        <View style={styles.divider} />
-        <View style={styles.buttonContainer}>
-            <CustomButton title="Seleccionar archivo" onPress={pickImage} />
-            <CustomButton title="Pagar esquela (1,99 €)" onPress={showConfirmationModal} />
-        </View>
-        {modalVisible && (
-            <CustomModal
-                visible={modalVisible}
-                onClose={handleCloseModal}
-                title={modalMessage}
-                style={styles.modalStyle}
+
+        {fileName && (
+          <Text style={styles.fileNameText}>
+            Archivo subido: {fileName}
+          </Text>
+        )}
+
+      </View>
+      <View style={styles.divider} />
+      <View style={styles.buttonContainer}>
+        <CustomButton title="Seleccionar archivo" onPress={pickImage} />
+        <CustomButton
+          title={is_newObituary ? "Pagar esquela (1,99 €)" : "Actualizar esquela"}
+          onPress={() => {
+            if (is_newObituary) {
+              void showConfirmationModal();
+            } else {
+              window.alert("Función todavía no implementada");
+            }
+          }}
+        />
+      </View>
+      {modalVisible && (
+        <CustomModal
+          visible={modalVisible}
+          onClose={handleCloseModal}
+          title={modalMessage}
+          style={styles.modalStyle}
+        >
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => handleSubmit()}
             >
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                style={styles.button}
-                onPress={() => handleSubmit()}
-                >
-                <Text style={styles.buttonText}>Aceptar</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                style={styles.button}
-                onPress={() => handleCloseModal()}
-                >
-                <Text style={styles.buttonText}>Cancelar</Text>
-                </TouchableOpacity>
-            </View>
-            </CustomModal>
-        )}
-    
+              <Text style={styles.buttonText}>Aceptar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => { handleCloseModal() }}
+            >
+              <Text style={styles.buttonText}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </CustomModal>
+      )}
+
     </View>
 
-    
-) :  (
+
+  ) : (
     <ThemedView style={styles.container}>
       <Text style={styles.title}>Debes iniciar sesión para poder acceder a esta sección</Text>
     </ThemedView>
@@ -274,10 +299,10 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 14,
-    color: GlobalStyles.white,  
-    textAlign: "center",  
-    marginTop: 10,  
-    paddingVertical: 10,  
+    color: GlobalStyles.white,
+    textAlign: "center",
+    marginTop: 10,
+    paddingVertical: 10,
     paddingHorizontal: 15,
   },
   title: {
@@ -292,7 +317,7 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     paddingHorizontal: 8,
     marginBottom: 16,
-    fontSize: 12,
+    fontSize: 16,
   },
   divider: {
     height: 1,
@@ -321,9 +346,9 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 8,
-    color: "red",  
+    color: "red",
     marginTop: 5,
-  }, 
+  },
   buttonText: {
     color: "#fff",
     fontSize: 16,

@@ -92,13 +92,15 @@ export default function TabLayout() {
 
       {
         isAuthenticated ? [
+          <Tabs.Screen name="certificate/index" options={{ title: "Cargar certificado" }} />,
           <Tabs.Screen name="login/index" options={{ href: null }} />,
           <Tabs.Screen name="register/index" options={{ href: null }} />,
-          <Tabs.Screen name="certificate/index" options={{ title: "Cargar certificado" }} />,
         ] : [
+          <Tabs.Screen name="certificate/index" options={{ title: "Cargar certificado" }} />,
           <Tabs.Screen name="login/index" options={{ title: "" }} />,
           <Tabs.Screen name="register/index" options={{ title: "" }} />,
-          <Tabs.Screen name="certificate/index" options={{ title: "Cargar certificado" }} />,
+          <Tabs.Screen name="obituaries/loadCertificate" options={{ href: null }} />,
+
 
         ]
       }

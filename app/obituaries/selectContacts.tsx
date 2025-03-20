@@ -32,14 +32,17 @@ const { width } = Dimensions.get("window");
 
 type RootStackParamList = {
   "obituaries/selectContacts": {
-    jsonData: string;
-    is_newObituary: boolean;
-    obituaryId: number;
+    jsonData: string,
+    is_newObituary: boolean,
+    obituaryId: number,
+    is_mine: boolean
   };
   "obituaries/listMyObituaries": undefined;
-  "obituaries/loadCertificate": {
-    jsonData: string,
-    is_newObituary: boolean
+  "obituaries/loadCertificate": { 
+    jsonData: string, 
+    is_newObituary: boolean, 
+    obituaryId: number,
+    isMine: boolean
   };
 };
 
@@ -59,18 +62,13 @@ function SelectContacts() {
   const { isAuthenticated } = useAuth();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<SelectContactsRouteProp>();
-  const jsonData = route.params?.jsonData ?? '';
-  if (!route.params || !route.params.jsonData) {
-    return (
-      <View style={{ padding: 30 }}>
-        <Text>Error: No se proporcionaron los datos necesarios para continuar.</Text>
-      </View>
-    );
-  }
 
+  const jsonData = route.params?.jsonData ?? "";
+  const is_newObituary = route.params?.is_newObituary;
+  const obituaryId = route.params?.obituaryId;
+  const is_mine = route.params?.is_mine;
 
-  const is_newObituary = route.params?.is_newObituary ?? true;
-  const obituaryId = route.params?.obituaryId ?? undefined;
+  const [isMine, setIsMine] = useState(false);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -84,11 +82,13 @@ function SelectContacts() {
     { id: Date.now(), name: "", phone: "", email: "" },
   ]);
   const [combinedData, setCombinedData] = useState<any>({});
-
   const [userRole, setUserRole] = useState<string | null>(null);
 
-  const [is_mine, setIsMine] = useState<boolean>(true);
-
+  const hasError =
+    jsonData === "" ||
+    is_newObituary === undefined ||
+    obituaryId === undefined ||
+    is_mine === undefined;
   useFocusEffect(
     useCallback(() => {
       if (is_newObituary) {
@@ -214,72 +214,11 @@ function SelectContacts() {
     setContacts(contacts.filter((contact) => contact.id !== id));
   };
 
-  const createObituary = async () => {
-    console.log("Contactos para crear obituary", contacts);
-    const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
-    const dataToSend = {
-      ...combinedData,
-      contacts: contactsWithoutIds,
-      isMine: true,
-    };
-  
-    const url = is_newObituary
-      ? BACKEND_API + `/api/obituary/create`
-      : BACKEND_API + `/api/obituary/update/${obituaryId}`;
-  
-    const method_type = is_newObituary ? "POST" : "PUT";
-  
-    try {
-      const authToken = await AsyncStorage.getItem("authToken");
-      if (!authToken) {
-        throw new Error("Token de autenticación no disponible.");
-      }
-  
-      const response = await fetch(url, {
-        method: method_type,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify(dataToSend),
-      });
-  
-      if (response.ok) {
-        navigation.navigate("obituaries/listMyObituaries" as never);
-      } else {
-        const responseBody = await response.json();
-        const errorMessage = responseBody?.message || "Error desconocido en el servidor";
-        throw new Error(errorMessage);
-      }
-    } catch (error) {
-      const errormssg = is_newObituary
-        ? "Error al crear la esquela. Por favor, inténtelo de nuevo."
-        : "Error al actualizar la esquela. Por favor, inténtelo de nuevo.";
-  
-      console.error("Detalles del error:", error); 
-      window.alert(errormssg);
-    }
-  };
-  
-
-  const moveToNextScreen = () => {
-    const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
-
-    const dataToSend = {
-      ...combinedData,
-      contacts: contactsWithoutIds,
-      isMine: false,
-    };
-
-    navigation.navigate("obituaries/loadCertificate", {
-      jsonData: JSON.stringify(dataToSend),
-      is_newObituary
-    });
-  };
 
   const showConfirmationModal = async (is_mine: boolean) => {
     setIsMine(is_mine);
     const errors: string[] = [];
+    setIsMine(isMine);
 
     const phoneSet = new Set();
     const emailSet = new Set();
@@ -304,7 +243,7 @@ function SelectContacts() {
         throw new Error(`Hay error(es) en su formulario: ${errors.join(", ")}`);
       }
 
-      if (is_mine) {
+      if (isMine) {
         if (userRole === 'CUSTOMER_FREE') {
 
           setModalMessage("¿Desea guardar su propia esquela?\n ⚠️¡Recuerde que debe contratar nuestro plan para que su esquela sea enviada!");
@@ -332,7 +271,7 @@ function SelectContacts() {
   const handleSubmit = async () => {
 
     try {
-      if (is_mine) {
+      if (isMine) {
         await createObituary();
       } else {
         moveToNextScreen();
@@ -346,6 +285,63 @@ function SelectContacts() {
       }
     }
   };
+
+  const createObituary = async () => {
+    const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
+    const dataToSend = {
+      ...combinedData,
+      contacts: contactsWithoutIds,
+      isMine: isMine,
+    };
+
+    const url = is_newObituary
+      ? BACKEND_API + `/api/obituary/create`
+      : BACKEND_API + `/api/obituary/update/${obituaryId}`;
+
+    const method_type = is_newObituary ? "POST" : "PUT";
+
+    try {
+
+      const authToken = await AsyncStorage.getItem("authToken");
+      const response = await fetch(url, {
+        method: method_type,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify(dataToSend),
+      });
+
+      if (response.ok) {
+        navigation.navigate("obituaries/listMyObituaries" as never);
+      } else {
+        throw new Error("Error en la creación de la esquela");
+      }
+    } catch (error) {
+      const errormssg = is_newObituary
+        ? "Error al crear la esquela.Por favor, inténtelo de nuevo."
+        : "Error al actualizar la esquela.Por favor, inténtelo de nuevo.";
+      window.alert(errormssg);
+    }
+  };
+
+
+  const moveToNextScreen = () => {
+    const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
+
+    const dataToSend = {
+        ...combinedData,
+        contacts: contactsWithoutIds,
+    };
+
+    navigation.navigate("obituaries/loadCertificate", { 
+        jsonData: JSON.stringify(dataToSend) ,
+        is_newObituary, 
+        obituaryId,
+        isMine
+    });
+};
+
 
   return isAuthenticated ? (
     <View style={styles.container}>
@@ -424,42 +420,48 @@ function SelectContacts() {
       </View><View style={styles.divider} />
       <View style={styles.buttonContainer}>
 
-        <CustomButton
-          title={is_newObituary
-            ? "Cree su propia esquela"
-            : "Actualice su propia esquela"}
-          onPress={() => showConfirmationModal(true)}
-          style={styles.saveButton} />
-        {is_newObituary && (
-          <CustomButton
-            title="Cree y envie su esquela para un ser querido"
-            onPress={() => showConfirmationModal(false)}
-            style={styles.saveButton} />
-        )}
+        
 
-        {modalVisible && (
-          <CustomModal
-            visible={modalVisible}
-            onClose={handleCloseModal}
-            title={modalMessage}
-            style={styles.modalStyle}
-          >
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => handleSubmit()}
-              >
-                <Text style={styles.buttonText}>Aceptar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => handleCloseModal()}
-              >
-                <Text style={styles.buttonText}>Cancelar</Text>
-              </TouchableOpacity>
-            </View>
-          </CustomModal>
-        )}
+
+      {
+        is_newObituary ? (
+          <>
+            <CustomButton
+              title={"Cree su propia esquela"}
+              onPress={() => showConfirmationModal(true)}
+              style={styles.saveButton}
+            />
+
+            <CustomButton
+              title={"Cree y envie su esquela para un ser querido"}
+              onPress={() => showConfirmationModal(false)}
+              style={styles.saveButton}
+            />
+          </>
+        ) : is_mine ? (
+          <CustomButton
+          title="Actualice su esquela"
+          onPress={() => {
+            if (is_mine) {
+              showConfirmationModal(true); 
+            } else {
+              window.alert("Función deshabilitada temporalmente"); 
+            }
+          }}
+          style={styles.saveButton}
+        />
+        
+        ) : (
+          <CustomButton
+            title={"Actualice el certificado de defunción"}
+            onPress={() => showConfirmationModal(false)}
+            style={styles.saveButton}
+          />
+        )
+      }
+
+
+
       </View>
       {modalVisible && (
         <CustomModal
