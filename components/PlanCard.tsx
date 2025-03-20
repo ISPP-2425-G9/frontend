@@ -133,11 +133,6 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
     // TODO: Actualizar el estado del usuario después del pago exitoso
     setShowPaymentModal(false);
   };
-
-  const handlePaymentError = (error: string) => {
-    // TODO: Mostrar mensaje de error al usuario
-    console.error('Error en el pago:', error);
-  };
   
   return (
     <View style={[styles.cardContainer, isDesktop ? styles.cardContainerDesktop : styles.cardContainerMobile]}>
