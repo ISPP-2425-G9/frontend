@@ -16,7 +16,6 @@ interface PaymentModalProps {
   planType: string;
   description: string;
   onSuccess?: () => void;
-  onError?: (error: string) => void;
 }
 
 const PaymentModal: React.FC<PaymentModalProps> = ({
@@ -26,7 +25,6 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   planType,
   description,
   onSuccess,
-  onError,
 }) => {
   const [cardNumber, setCardNumber] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
@@ -43,16 +41,16 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   };
 
   const handlePayment = async () => {
-    const validationError = validateCard();
-    if (validationError) {
-      onError?.(validationError);
+    if (!validateCard()) {
       return;
     }
 
     setIsProcessing(true);
     try {
       const authToken = await AsyncStorage.getItem('authToken');
-      if (!authToken) throw new Error('No se encontró un token de autenticación');
+      if (!authToken) {
+        throw new Error('No se encontró un token de autenticación');
+      }
 
       const response = await fetch(`${BACKEND_API}/api/payments/process`, {
         method: 'POST',
@@ -79,8 +77,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       onSuccess?.();
       onClose();
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
-      onError?.(errorMessage);
+      console.error('Error en el pago:', err);
     } finally {
       setIsProcessing(false);
     }
