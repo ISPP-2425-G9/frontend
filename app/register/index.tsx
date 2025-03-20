@@ -428,7 +428,7 @@ const RegisterScreen: React.FC = () => {
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
                 <ScrollView>
-                  <Text style={styles.modalTitle}>Términos y Condiciones</Text>
+                  <Text style={styles.modalTitle}>Términos y condiciones de uso</Text>
                   <TermsAndConditions />
                 </ScrollView>
                 <CustomButton
