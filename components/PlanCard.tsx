@@ -222,7 +222,6 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
         planType={isCustomer ? 'CUSTOMER_PREMIUM' : 'COMPANY_PREMIUM'}
         description={`Suscripción al ${isCustomer ? 'plan mensual - Mensajes de despedida' : 'Plan Premium - Publicita tu Empresa'}`}
         onSuccess={handlePaymentSuccess}
-        onError={handlePaymentError}
       />
     </View>
   );
