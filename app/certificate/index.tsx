@@ -72,7 +72,6 @@ function LoadCertificate() {
 
     
       const showConfirmationModal = async () => {
-        console.log("DNI:");
         if (!dni || !certificateImage) {
             alert("Por favor, introduce el DNI y selecciona un archivo.");
             return;
@@ -93,44 +92,48 @@ function LoadCertificate() {
 
       const handleSubmit = async () => {
         const authToken = await AsyncStorage.getItem("authToken");
-    
+      
         const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
-    
+      
         const dataToSend = {
-            dni,
-            file: base64File, 
+          dni,
+          file: base64File,
         };
-    
+      
         try {
-            const response = await fetch(BACKEND_API + '/api/deathCertificate/upload', {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${authToken}`,
-                },
-                body: JSON.stringify(dataToSend),
-            });
-    
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
-            }
-    
-            const result = await response.json();
-            console.log("Respuesta del servidor:", result);
-    
-            navigation.navigate("obituaries/loadCertificate", { 
-                jsonData: JSON.stringify(result) 
-            });
-    
+          const response = await fetch(BACKEND_API + '/api/deathCertificate/upload', {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify(dataToSend),
+          });
+      
+          if (!response.ok) {
+            const errorData = await response.json();
+            setModalVisible(false); 
+            // Asegurar que el modal se pong aen false
+            await new Promise((resolve) => setTimeout(resolve, 200));
+            
+            throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
+          }
+      
+          const result = await response.json();
+          console.log("Respuesta del servidor:", result);
+      
+          navigation.navigate("obituaries/loadCertificate", { 
+            jsonData: JSON.stringify(result) 
+          });
+      
         } catch (error) {
-            console.error("Error al enviar datos:", error);
-    
-            const errorMessage = (error as Error).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
-            alert(errorMessage);
+          console.error("Error al enviar datos:", error);
+          const errorMessage = (error as Error).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
+          setModalVisible(false); 
+          alert(errorMessage);
         }
-    };
-    
+      };
+      
     
 
 
