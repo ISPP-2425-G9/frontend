@@ -13,7 +13,7 @@ import CustomButton from "@/components/CustomButton";
 import { CustomTextInput } from "@/components/CustomTextInput";
 import { useRoute, RouteProp } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, NavigationProp  } from "@react-navigation/native";
 import CustomModal from "@/components/CustomModal";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
@@ -30,12 +30,18 @@ const { width } = Dimensions.get("window");
 
 type RootStackParamList = {
   "obituaries/selectContacts": {
-    jsonData: string;
-    is_newObituary: boolean;
-    obituaryId: number;
+    jsonData: string,
+    is_newObituary: boolean,
+    obituaryId: number,
+    is_mine: boolean
   };
   "obituaries/listMyObituaries": undefined;
-  "obituaries/loadCertificate": { jsonData: string };
+  "obituaries/loadCertificate": { 
+    jsonData: string, 
+    is_newObituary: boolean, 
+    obituaryId: number,
+    isMine: boolean
+  };
 };
 
 type SelectContactsRouteProp = RouteProp<
@@ -52,20 +58,15 @@ type Contact = {
 
 function SelectContacts() {
   const { isAuthenticated } = useAuth();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<SelectContactsRouteProp>();
-  const jsonData = route.params?.jsonData ?? '';
-  if (!route.params || !route.params.jsonData) {
-    return (
-      <View style={{ padding: 30 }}>
-        <Text>Error: No se proporcionaron los datos necesarios para continuar.</Text>
-      </View>
-    );
-  }
 
+  const jsonData = route.params?.jsonData ?? "";
+  const is_newObituary = route.params?.is_newObituary;
+  const obituaryId = route.params?.obituaryId;
+  const is_mine = route.params?.is_mine;
 
-  const is_newObituary = route.params?.is_newObituary ?? true;
-  const obituaryId = route.params?.obituaryId ?? undefined;
+  const [isMine, setIsMine] = useState(false);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -73,9 +74,13 @@ function SelectContacts() {
     { id: Date.now(), name: "", phone: "", email: "" },
   ]);
   const [combinedData, setCombinedData] = useState<any>({});
-
   const [userRole, setUserRole] = useState<string | null>(null);
 
+  const hasError =
+    jsonData === "" ||
+    is_newObituary === undefined ||
+    obituaryId === undefined ||
+    is_mine === undefined;
   useFocusEffect(
     useCallback(() => {
       if (is_newObituary) {
@@ -200,12 +205,87 @@ function SelectContacts() {
     }
   };
 
+
+  const showConfirmationModal = async (isMine: boolean) => {
+    const errors: string[] = [];
+    setIsMine(isMine);
+
+    const phoneSet = new Set();
+    const emailSet = new Set();
+
+    try {
+      for (const contact of contacts) {
+        const contactErrors = validateData(contact);
+        if (emailSet.has(contact.email)) {
+          errors.push("No se pueden repetir los correos electrónicos");
+        } else {
+          emailSet.add(contact.email);
+        }
+
+        if (phoneSet.has(contact.phone)) {
+          errors.push("No se pueden repetir los números de teléfono");
+        } else {
+          phoneSet.add(contact.phone);
+        }
+
+        if (contactErrors.length > 0) {
+          errors.push(...contactErrors.slice(0, 3 - errors.length));
+        }
+      }
+
+      if (errors.length !== 0) {
+        throw new Error(`Hay error(es) en su formulario: ${errors.join(", ")}`);
+      }
+
+      if (isMine) {
+        if (userRole === 'CUSTOMER_FREE') {
+
+          setModalMessage("¿Desea guardar su propia esquela?\n ⚠️¡Recuerde que debe contratar nuestro plan para que su esquela sea enviada!");
+        } else {
+          setModalMessage("¿Desea guardar su propia esquela?");
+        }
+      } else {
+        setModalMessage("¿Desea crear y enviar una esquela para un ser querido?");
+      }
+
+      setModalVisible(true);
+    } catch (error: any) {
+      if (Platform.OS === "web") {
+        window.alert("Error: " + error.message);
+      } else {
+        Alert.alert("Error", error.message || error);
+      }
+    }
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+  };
+
+  const handleSubmit = async () => {
+  
+    try {
+      if (isMine) {
+        await createObituary();
+      } else {
+        moveToNextScreen();
+      }
+      setModalVisible(false);
+    } catch (error: any) {
+      if (Platform.OS === "web") {
+        window.alert("Error: " + error.message);
+      } else {
+        Alert.alert("Error", error.message || error);
+      }
+    }
+  };
+
   const createObituary = async () => {
     const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
     const dataToSend = {
       ...combinedData,
       contacts: contactsWithoutIds,
-      isMine: false,
+      isMine: isMine,
     };
 
     const url = is_newObituary
@@ -239,81 +319,23 @@ function SelectContacts() {
     }
   };
 
+
   const moveToNextScreen = () => {
-    navigation.navigate("obituaries/loadCertificate" as never);
-  };
+    const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
 
-  const showConfirmationModal = async (is_mine: boolean) => {
-    const errors: string[] = [];
+    const dataToSend = {
+        ...combinedData,
+        contacts: contactsWithoutIds,
+    };
 
-    const phoneSet = new Set();
-    const emailSet = new Set();
+    navigation.navigate("obituaries/loadCertificate", { 
+        jsonData: JSON.stringify(dataToSend) ,
+        is_newObituary, 
+        obituaryId,
+        isMine
+    });
+};
 
-    try {
-      for (const contact of contacts) {
-        const contactErrors = validateData(contact);
-        if (emailSet.has(contact.email)) {
-          errors.push("No se pueden repetir los correos electrónicos");
-        } else {
-          emailSet.add(contact.email);
-        }
-
-        if (phoneSet.has(contact.phone)) {
-          errors.push("No se pueden repetir los números de teléfono");
-        } else {
-          phoneSet.add(contact.phone);
-        }
-
-        if (contactErrors.length > 0) {
-          errors.push(...contactErrors.slice(0, 3 - errors.length));
-        }
-      }
-
-      if (errors.length !== 0) {
-        throw new Error(`Hay error(es) en su formulario: ${errors.join(", ")}`);
-      }
-
-      if (is_mine) {
-        if (userRole === 'CUSTOMER_FREE') {
-
-          setModalMessage("¿Desea guardar su propia esquela?\n ⚠️¡Recuerde que debe contratar nuestro plan para que su esquela sea enviada!");
-        } else {
-          setModalMessage("¿Desea guardar su propia esquela?");
-        }
-      } else {
-        setModalMessage("¿Desea crear y enviar una esquela para un ser querido?");
-      }
-
-      setModalVisible(true);
-    } catch (error: any) {
-      if (Platform.OS === "web") {
-        window.alert("Error: " + error.message);
-      } else {
-        Alert.alert("Error", error.message || error);
-      }
-    }
-  };
-
-  const handleCloseModal = () => {
-    setModalVisible(false);
-  };
-
-  const handleSubmit = async (is_mine: boolean) => {
-    try {
-      if (is_mine) {
-        await createObituary();
-      } else {
-        moveToNextScreen();
-      }
-      setModalVisible(false);
-    } catch (error: any) {
-      if (Platform.OS === "web") {
-        window.alert("Error: " + error.message);
-      } else {
-        Alert.alert("Error", error.message || error);
-      }
-    }
-  };
 
   return isAuthenticated ? (
     <View style={styles.container}>
@@ -379,24 +401,47 @@ function SelectContacts() {
       <View style={styles.divider} />
       <View style={styles.buttonContainer}>
 
-        <CustomButton
-          title={
-            is_newObituary
-              ? "Cree su propia esquela"
-              : "Actualice su propia esquela"
-          }
-          onPress={() => showConfirmationModal(true)}
+        
+
+
+      {
+        is_newObituary ? (
+          <>
+            <CustomButton
+              title={"Cree su propia esquela"}
+              onPress={() => showConfirmationModal(true)}
+              style={styles.saveButton}
+            />
+
+            <CustomButton
+              title={"Cree y envie su esquela para un ser querido"}
+              onPress={() => showConfirmationModal(false)}
+              style={styles.saveButton}
+            />
+          </>
+        ) : is_mine ? (
+          <CustomButton
+          title="Actualice su esquela"
+          onPress={() => {
+            if (is_mine) {
+              showConfirmationModal(true); 
+            } else {
+              window.alert("Función deshabilitada temporalmente"); 
+            }
+          }}
           style={styles.saveButton}
         />
-        {is_newObituary && (
+        
+        ) : (
           <CustomButton
-            title="Cree y envie su esquela para un ser querido"
-            //onPress={() => showConfirmationModal(false)}
-            onPress={() => alert("Esta función estará disponible en el futuro")}
+            title={"Actualice el certificado de defunción"}
+            onPress={() => showConfirmationModal(false)}
             style={styles.saveButton}
           />
         )
-        }
+      }
+
+
 
       </View>
 
@@ -410,9 +455,9 @@ function SelectContacts() {
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => handleSubmit(true)}
+              onPress={() => handleSubmit()}
             >
-              <Text style={styles.buttonText}>Aceptar</Text>
+            <Text style={styles.buttonText}>Aceptar</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.button}
