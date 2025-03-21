@@ -655,7 +655,7 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   templateImage: {
-    width: width > 600 ? width * 0.86 : width * 0.90,
+    width: width > 600 ? width * 0.6 : width * 0.90,
     height: width > 600 ? height * 0.86 : height * 0.90,
     resizeMode: "contain",
   },
