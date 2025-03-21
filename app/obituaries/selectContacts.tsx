@@ -81,6 +81,9 @@ function SelectContacts() {
   const [combinedData, setCombinedData] = useState<any>({});
   const [userRole, setUserRole] = useState<string | null>(null);
 
+  const [editingContact, setEditingContact] = useState<Contact | null>(null);
+
+
   const hasError =
     jsonData === "" ||
     is_newObituary === undefined ||
@@ -89,6 +92,7 @@ function SelectContacts() {
   useFocusEffect(
     useCallback(() => {
       if (is_newObituary) {
+        setNewContact({ id: Date.now(), name: "", phone: "", email: "" });
         setContacts([]);
         setCombinedData({});
       }
@@ -179,6 +183,9 @@ function SelectContacts() {
     const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const phoneRegex = /^\d{3} \d{3} \d{3}$/;
 
+    const phoneSet = new Set();
+    const emailSet = new Set();
+
     if (!values.name || values.name.trim() === "") {
       errors.push("El nombre es obligatorio para el contacto");
     }
@@ -190,6 +197,26 @@ function SelectContacts() {
     if (!values.email || !emailRegex.test(values.email)) {
       errors.push("El email no es válido.");
     }
+
+    contacts.forEach((contact) => {
+      phoneSet.add(contact.phone);
+    });
+
+    if (phoneSet.has(values.phone)) {
+      errors.push("El teléfono ya ha sido añadido");
+    }
+
+    contacts.forEach((contact) => {
+      emailSet.add(contact.email);
+    }
+    );
+
+    if (emailSet.has(values.email)) {
+      errors.push("El email ya ha sido añadido");
+    }
+
+
+
     return errors;
   };
 
@@ -205,6 +232,8 @@ function SelectContacts() {
         return;
       }
     }
+
+
     setNewContact({ id: Date.now(), name: "", phone: "", email: "" });
     setContacts([...contacts, newContact]);
     console.log("newContact", newContact);
@@ -213,6 +242,20 @@ function SelectContacts() {
   const removeContact = (id: number) => {
     setContacts(contacts.filter((contact) => contact.id !== id));
   };
+
+
+  const handleEditContact = (contact: { id: number; name: string; phone: string; email: string; }) => {
+    removeContact(contact.id);
+    setEditingContact(contact); 
+    setNewContact({
+      id: contact.id,
+      name: contact.name,
+      phone: contact.phone,
+      email: contact.email,
+    });
+  };
+  
+  
 
 
   const showConfirmationModal = async () => {
@@ -226,23 +269,7 @@ function SelectContacts() {
         window.alert("Por favor, añada al menos un contacto");
         return;
       }
-      for (const contact of contacts) {
-
-        if (emailSet.has(contact.email)) {
-          errors.push("No se pueden repetir los correos electrónicos");
-        } else {
-          emailSet.add(contact.email);
-        }
-
-        if (phoneSet.has(contact.phone)) {
-          errors.push("No se pueden repetir los números de teléfono");
-        } else {
-          phoneSet.add(contact.phone);
-        }
-
-       
-      }
-
+      
       if (errors.length !== 0) {
         throw new Error(`Hay error(es) en su formulario: ${errors.join(", ")}`);
       }
@@ -421,6 +448,12 @@ function SelectContacts() {
                     color="red"
                     onPress={() => removeContact(item.id)}
                   />
+               <CustomButton
+                  title="Editar"
+                  style={styles.editButton}
+                  onPress={() => handleEditContact(item)}
+                />
+
                 </View>
               )}
             />
@@ -481,6 +514,8 @@ function SelectContacts() {
     </ThemedView>
   );
 }
+
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -512,13 +547,19 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     width: "20%",
   },
+  editButton: {
+    marginLeft: 5,
+    marginRight: 10,
+    alignSelf: "center",
+    width: "20%",
+  },
   input: {
     marginRight: 10,
     width: "30%",
   },
   saveButton: {
     width: width > 600 ? "60%" : 160,
-    height: width > 600 ? "100%" : 70,
+    height: width > 600 ? "100%" : 50,
     textAlign: "center",
     justifyContent: "center",
     alignItems: "center",
