@@ -89,7 +89,7 @@ function SelectContacts() {
   useFocusEffect(
     useCallback(() => {
       if (is_newObituary) {
-        setContacts([{ id: Date.now(), name: "", phone: "", email: "" }]);
+        setContacts([]);
         setCombinedData({});
       }
     }, [is_newObituary])
@@ -114,7 +114,7 @@ function SelectContacts() {
     fetchUserRole();
 
     return () => {
-      setContacts([{ id: Date.now(), name: '', phone: '', email: '' }]);
+      setContacts([]);
       setCombinedData({});
     };
   }, []);
@@ -145,9 +145,12 @@ function SelectContacts() {
 
           const contactData = await response.json();
           contactData.forEach((contact: any) => {
-            contact.phone = contact.telephone;
+            const rawPhone = contact.telephone;
+            contact.phone = rawPhone.replace(/(\d{3})(?=\d)/g, '$1 ').trim();
+            
             delete contact.telephone;
           });
+          
 
           setContacts(contactData);
         } catch (error) {
