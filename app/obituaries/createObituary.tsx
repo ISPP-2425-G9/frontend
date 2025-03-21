@@ -339,7 +339,7 @@ function EsquelaCustomizer() {
           <Text style={styles.formText}>Fecha de nacimiento:</Text>
           <CustomTextInput
             style={{ width: "75%" }}
-            placeholder="dd/mm/aaaa"
+            placeholder="Fecha de nacimiento (dd/mm/aaaa)"
             value={formData.birthDate}
             maxLength={10}
             keyboardType="numeric"
@@ -390,7 +390,7 @@ function EsquelaCustomizer() {
           <Text style={styles.formText}>Fecha de fallecimiento:</Text>
           <CustomTextInput
             style={{ width: "75%" }}
-            placeholder={is_mine ? "La fecha de fallecimiento (se añadirá automáticamente)" : "Fecha de fallecimiento"}
+            placeholder={is_mine ? "La fecha de fallecimiento (se añadirá automáticamente)" : "Fecha de fallecimiento (dd/mm/aaaa)"}
             value={formData.deathDate}
             maxLength={12}
             editable={!is_mine ? true : false}
@@ -440,7 +440,7 @@ function EsquelaCustomizer() {
           <Text style={styles.formText}>Mensaje de despedida:</Text>
           <CustomTextInput
             style={[{ width: "75%" }]}
-            placeholder="Escribe un mensaje de despedida"
+            placeholder="Mensaje de despedida"
             value={formData.farewellMessage}
             maxLength={624}
             //multiline
@@ -468,17 +468,17 @@ function EsquelaCustomizer() {
               >
                 <CustomButton
                   style={styles.customButtonStyle}
-                  title="Selecciona una imagen"
+                  title="Seleccionar imagen"
                   onPress={pickImage}
                 />
                 <CustomButton
                   style={styles.customButtonStyle}
-                  title="Selecciona un color de texto"
+                  title="Cambiar color"
                   onPress={() => setColorPickerVisible(true)}
                 />
                 <CustomButton
                   style={styles.customButtonStyle}
-                  title="Cambia el diseño de tu esquela"
+                  title="Cambiar diseño"
                   onPress={changeDesign}
                 />
 
