@@ -32,6 +32,7 @@ export default function TabLayout() {
             "profile/index": "person",
             "certificate/index": "newspaper-outline",
             "obituaries/index": "document",
+            "obituaries/listMyObituaries": "document",
             "messages/index": "chatbox",
             "contacts/index": "book-sharp",
             "services/index": "briefcase",
@@ -117,9 +118,9 @@ export default function TabLayout() {
 
       { 
         isAuthenticated && userRoles?.includes("CUSTOMER") ? [
-          <Tabs.Screen name="obituaries/index" options={{ title: "" }} />,
+          <Tabs.Screen name="obituaries/index" options={{ title: "Crear esquela" }} />,
           <Tabs.Screen name="obituaries/createObituary" options={{ href: null }} />,
-          <Tabs.Screen name="obituaries/listMyObituaries" options={{ href: null }} />,
+          <Tabs.Screen name="obituaries/listMyObituaries" options={{title: "Esquelas creadas"}} />,
           <Tabs.Screen name="obituaries/selectContacts" options={{ href: null }} />,
           <Tabs.Screen name="obituaries/loadCertificate" options={{ href: null }} />,
         ] : [
