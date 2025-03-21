@@ -20,12 +20,10 @@ type RootStackParamList = {
   "home": undefined,
 };
 
-
 const { width } = Dimensions.get("window");
 
 function LoadCertificate() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
 
   const [dni, setDni] = useState<string>("");
   const [certificateImage, setCertificateImage] = useState<string | null>(null);
@@ -33,6 +31,7 @@ function LoadCertificate() {
   const [dniError, setDniError] = useState<string>("");
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [successMessageVisible, setSuccessMessageVisible] = useState(false);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -58,7 +57,6 @@ function LoadCertificate() {
     }, [])
   );
 
-
   const convertToBase64 = async (uri: string) => {
     const response = await fetch(uri);
     const blob = await response.blob();
@@ -79,7 +77,6 @@ function LoadCertificate() {
     return dniRegex.test(dni);
   };
 
-
   const showConfirmationModal = async () => {
     if (!dni || !certificateImage) {
       alert("Por favor, introduce el DNI y selecciona un archivo.");
@@ -90,7 +87,7 @@ function LoadCertificate() {
       setDniError("El DNI no es válido. Debe tener el formato 12345678A.");
       return;
     }
-    setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido. Podrá modificar su esquela hasta que sea enviada a todos los contactos que usted eligió.")
+    setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido. Podrá modificar su esquela hasta que sea enviada a todos los contactos que usted eligió.");
     setModalVisible(true);
   };
 
@@ -98,80 +95,50 @@ function LoadCertificate() {
     setModalVisible(false);
   };
 
-
   const handleSubmit = async () => {
-
     const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
     const authToken = await AsyncStorage.getItem("authToken");
-    const dataToSend = {
-      dni,
-      file: base64File,
+    const dataToSend = { dni, file: base64File };
+
+    setModalVisible(false);
+    setSuccessMessageVisible(true);
+
+    try {
+      const response = await sendDataToBackend(authToken, dataToSend);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
+      }
+
+      setTimeout(() => {
+        setSuccessMessageVisible(false);  // Ocultar el mensaje
+        navigation.navigate("home");  // Redirigir
+      }, 2000);
+    } catch (error) {
+      console.error("Error al enviar datos:", error);
+      setModalVisible(false);
+      const errorMessage = (error as any).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
+      alert(errorMessage);
+    }
+  };
+
+  // Función para enviar los datos al backend
+  const sendDataToBackend = async (authToken: string | null, dataToSend: { dni: string; file: string; }) => {
+    const url = authToken
+      ? BACKEND_API + '/api/deathCertificate/upload/loggedInUser'
+      : BACKEND_API + '/api/deathCertificate/upload';
+
+    const headers = {
+      "Content-Type": "application/json",
+      ...(authToken && { "Authorization": `Bearer ${authToken}` }), // Añadir el token si está presente
     };
 
-    if (authToken !== null) {
-      try {
-        const response = await fetch(BACKEND_API + '/api/deathCertificate/upload/loggedInUser', {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${authToken}`,
-          },
-          body: JSON.stringify(dataToSend),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          setModalVisible(false);
-          await new Promise((resolve) => setTimeout(resolve, 200));
-
-          throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
-        }
-        setModalVisible(false);
-        navigation.navigate("home");
-
-
-      } catch (error) {
-        console.error("Error al enviar datos:", error);
-        const errorMessage = (error as Error).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
-        setModalVisible(false);
-        alert(errorMessage);
-      }
-
-    } else {
-      try {
-        const response = await fetch(BACKEND_API + '/api/deathCertificate/upload', {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(dataToSend),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          setModalVisible(false);
-          // Asegurar que el modal se pong aen false
-          await new Promise((resolve) => setTimeout(resolve, 200));
-
-          throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
-        }
-
-        setModalVisible(false);
-        navigation.navigate("home");
-
-      } catch (error) {
-        console.error("Error al enviar datos:", error);
-        const errorMessage = (error as Error).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
-        setModalVisible(false);
-        alert(errorMessage);
-      }
-    }
-
-  }
-
-
-
-
+    return await fetch(url, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(dataToSend),
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -229,6 +196,7 @@ function LoadCertificate() {
         <CustomButton title="Seleccionar archivo" onPress={pickImage} />
         <CustomButton title="Subir certificado" onPress={showConfirmationModal} />
       </View>
+
       {modalVisible && (
         <CustomModal
           visible={modalVisible}
@@ -253,9 +221,28 @@ function LoadCertificate() {
         </CustomModal>
       )}
 
+      {successMessageVisible && (
+        <CustomModal
+          visible={successMessageVisible}
+          onClose={() => setSuccessMessageVisible(false)}
+          title="¡Datos enviados con éxito!✅"
+          style={styles.successModal}
+        >
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => {
+                setSuccessMessageVisible(false);
+                navigation.navigate("home");
+              }}
+            >
+              <Text style={styles.buttonText}>Aceptar</Text>
+            </TouchableOpacity>
+          </View>
+        </CustomModal>
+      )}
+
     </View>
-
-
   );
 }
 
@@ -272,14 +259,6 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     paddingTop: 120,
-  },
-  infoText: {
-    fontSize: 14,
-    color: GlobalStyles.white,
-    textAlign: "center",
-    marginTop: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
   },
   title: {
     fontSize: 22,
@@ -320,11 +299,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     resizeMode: "contain"
   },
-  errorText: {
-    fontSize: 8,
-    color: "red",
-    marginTop: 5,
-  },
   buttonText: {
     color: "#fff",
     fontSize: 16,
@@ -349,8 +323,14 @@ const styles = StyleSheet.create({
     elevation: 5,
     width: width > 600 ? "40%" : "80%",
   },
+  successModal: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '40%',
+  },
 });
 
 export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER, AUTHORITIES.ANONYMOUS]);
-
-
