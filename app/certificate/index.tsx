@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Image } from "react-native";
 import { useNavigation, NavigationProp, useRoute, RouteProp } from "@react-navigation/native";
 import { Dimensions } from "react-native";
@@ -13,6 +13,7 @@ import { GlobalStyles } from "@/constants/Colors";
 import { ThemedView } from "@/components/ThemedView";
 import CustomModal from "@/components/CustomModal";
 import { BACKEND_API } from "@/constants/Mysc";
+import { useFocusEffect } from '@react-navigation/native';
 
 type RootStackParamList = {
   "obituaries/loadCertificate": { jsonData: string },
@@ -24,10 +25,7 @@ const { width } = Dimensions.get("window");
 
 function LoadCertificate() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [formData, setFormData] = useState({
-    dni: "",
-    certificateImage: "",
-  });
+
 
   const [dni, setDni] = useState<string>("");
   const [certificateImage, setCertificateImage] = useState<string | null>(null);
@@ -46,11 +44,20 @@ function LoadCertificate() {
     if (!result.canceled) {
       const fileUri = result.assets[0].uri;
       const fileName = result.assets[0].fileName || null;
-      setFormData({ ...formData, certificateImage: fileUri });
       setCertificateImage(fileUri);
       setFileName(fileName);
     }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      setDni("");
+      setCertificateImage(null);
+      setFileName(null);
+      setDniError("");
+    }, [])
+  );
+
 
   const convertToBase64 = async (uri: string) => {
     const response = await fetch(uri);
@@ -96,7 +103,6 @@ function LoadCertificate() {
 
     const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
     const authToken = await AsyncStorage.getItem("authToken");
-    console.log("authToken:", authToken);
     const dataToSend = {
       dni,
       file: base64File,
@@ -346,3 +352,5 @@ const styles = StyleSheet.create({
 });
 
 export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER, AUTHORITIES.ANONYMOUS]);
+
+

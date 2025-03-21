@@ -114,7 +114,6 @@ function EsquelaCustomizer() {
       setSelectedColor("")
 
       if (jsonData !== undefined) {
-        console.log("jsonData", jsonData);
         try {
           const parsedData = JSON.parse(jsonData);
           setFormData((prev) => ({
@@ -173,9 +172,8 @@ function EsquelaCustomizer() {
           }
 
           setSelectedColor(`rgb(${data.wordColor})`);
-          console.log("data", selectedColor);  
-          setIsMine(data.isMine)
-          setIsSended(data.deathDate)
+          setIsMine(data.isMine);
+          setIsSended(data.deathDate);
 
           setFormData({
             name: data.name || "",

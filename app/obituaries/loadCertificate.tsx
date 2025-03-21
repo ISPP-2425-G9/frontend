@@ -68,7 +68,6 @@ function LoadCertificate() {
         });
         return;
       } else {
-
         const authToken = await AsyncStorage.getItem("authToken");
         const obituaryId = route.params?.obituaryId ?? "";
         const response = await fetch(`${BACKEND_API}/api/deathCertificate/obituary/${obituaryId}`, {
