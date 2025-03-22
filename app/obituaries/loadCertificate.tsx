@@ -136,7 +136,7 @@ function LoadCertificate() {
       setDniError("El DNI debe tener el formato 12345678A.");
       return;
     }
-    setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido. Podrá modificar su esquela hasta que se hayan enviado a los contactos que eligió.")
+    setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido.")
     setModalVisible(true);
   };
 
@@ -190,7 +190,7 @@ function LoadCertificate() {
       <View style={styles.dataContainer}>
         <Text style={styles.title}>Carga el certificado de defunción</Text>
 
-        <Text>DNI:</Text>
+        <Text style={{ textAlign: 'left' }}>DNI:</Text>
         <CustomTextInput
           placeholder={dniError ? dniError : "Dni del fallecido"}
           value={dni}
@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   title: {
-    fontSize: 22,
+    fontSize: 30,
     fontWeight: "bold",
     marginBottom: 10,
   },

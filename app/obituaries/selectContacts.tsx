@@ -588,7 +588,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 5,
-    width: width > 600 ? "40%" : "80%",
+    width: width > 600 ? "40%" : "90%",
   },
   buttonText: {
     color: "#fff",

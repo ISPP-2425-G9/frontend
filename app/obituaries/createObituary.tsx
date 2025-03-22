@@ -90,7 +90,7 @@ function EsquelaCustomizer() {
 
   const [ isMine, setIsMine] = useState();
 
-  const [is_sended, setIsSended] = useState();
+  const [is_sended, setIsSended] = useState(false);
 
   const handleColorSelect = (color: string) => {
     setSelectedColor(color);
@@ -171,14 +171,24 @@ function EsquelaCustomizer() {
             }
           }
 
+          let formatDeathDate = "";
+          if (data.deathDate) {
+            const [year, month, day] = data.deathDate.split("-") || [];
+            if (day && month && year) {
+              formatDeathDate = `${day}/${month}/${year}`;
+            }
+          }
+
+
           setSelectedColor(`rgb(${data.wordColor})`);
           setIsMine(data.isMine);
-          setIsSended(data.deathDate);
+
+          isMine ? setIsSended(false) : setIsSended(true);
 
           setFormData({
             name: data.name || "",
             birthDate: formatBirthDate || "",
-            deathDate: data.deathDate || "",
+            deathDate: formatDeathDate || "",
             farewellMessage: data.farewellMessage || "",
             farewellPhrase: data.farewellPhrase || "",
             customImage: data.customImageUrl || null,
@@ -456,7 +466,7 @@ function EsquelaCustomizer() {
             onChangeText={(text) => handleChange("farewellPhrase", text)}
           />
 
-          {!is_sended && (
+          { !is_sended && (
             <>
               <View
                 style={{

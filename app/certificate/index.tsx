@@ -101,7 +101,6 @@ function LoadCertificate() {
     const dataToSend = { dni, file: base64File };
 
     setModalVisible(false);
-    setSuccessMessageVisible(true);
 
     try {
       const response = await sendDataToBackend(authToken, dataToSend);
@@ -110,10 +109,15 @@ function LoadCertificate() {
         throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
       }
 
+    else{ 
+      setSuccessMessageVisible(true);
       setTimeout(() => {
         setSuccessMessageVisible(false);  
         navigation.navigate("home");  
       }, 2000);
+
+    }
+
     } catch (error) {
       console.error("Error al enviar datos:", error);
       setModalVisible(false);
@@ -260,7 +264,7 @@ const styles = StyleSheet.create({
     paddingTop: 120,
   },
   title: {
-    fontSize: 22,
+    fontSize: 30,
     fontWeight: "bold",
     marginBottom: 10,
   },
@@ -271,7 +275,7 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     paddingHorizontal: 8,
     marginBottom: 16,
-    fontSize: 12,
+    fontSize: 16,
   },
   divider: {
     height: 1,
@@ -321,7 +325,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
     width: width > 600 ? "40%" : "80%",
-    height: width > 600 ? "25%" : "40%",
+    height: width > 600 ? "15%" : "32%",
   },
   successModal: {
     backgroundColor: 'white',
@@ -329,7 +333,7 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    width: '40%',
+    width: width > 600 ? '40%': '80%',
   },
 });
 
