@@ -15,6 +15,7 @@ const CustomNavbar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
+    const [activeItem, setActiveItem] = useState<string>('');
     const isNarrow = width < 500;
     const { isAuthenticated, roles, name } = useAuth();
     let userRoles: string[] | null = null;
@@ -34,9 +35,14 @@ const CustomNavbar = () => {
         setIsLogoutModalVisible(false);
     };
 
+    const handleNavigation = (route: string) => {
+        setActiveItem(route);
+        navigation.navigate(route as never);
+    };
+
     return (
         <View style={styles.navbar}>
-            <TouchableOpacity onPress={() => navigation.navigate('home' as never)}>
+            <TouchableOpacity onPress={() => { setActiveItem('home'); navigation.navigate('home' as never) }}>
                 <Image
                     source={require("@/assets/images/icon_caronte_azul.png")}
                     style={styles.logo}
@@ -50,22 +56,22 @@ const CustomNavbar = () => {
                         </TouchableOpacity>
                         {menuOpen && (
                             <View style={styles.dropdown}>
-                                <TouchableOpacity onPress={() => navigation.navigate('certificate/index' as never)}>
+                                <TouchableOpacity onPress={() => { handleNavigation('certificate/index'); setMenuOpen(false); }}>
                                     <Text style={styles.dropdownNavItem}>Cargar certificado</Text>
                                 </TouchableOpacity>
                                 {!isAuthenticated && (
                                     <>
-                                        <TouchableOpacity onPress={() => navigation.navigate('login/index' as never)}>
+                                        <TouchableOpacity onPress={() => { handleNavigation('login/index'); setMenuOpen(false); }}>
                                             <Text style={styles.dropdownNavItem}>Iniciar sesión</Text>
                                         </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => navigation.navigate('register/index' as never)}>
+                                        <TouchableOpacity onPress={() => { handleNavigation('register/index'); setMenuOpen(false); }}>
                                             <Text style={styles.dropdownNavItem}>Registrarse</Text>
                                         </TouchableOpacity>
                                     </>
                                 )}
                                 {isAuthenticated && userRoles?.includes("ADMIN") && (
                                     <>
-                                        <TouchableOpacity onPress={() => navigation.navigate('admin/listUsers' as never)}>
+                                        <TouchableOpacity onPress={() => { handleNavigation('admin/listUsers'); setMenuOpen(false); }}>
                                             <Text style={styles.dropdownNavItem}>Usuarios</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={() => {
@@ -78,32 +84,33 @@ const CustomNavbar = () => {
                                 )}
                                 {isAuthenticated && userRoles?.includes("CUSTOMER") && (
                                     <>
-                                        <TouchableOpacity onPress={() => navigation.navigate('obituaries/index' as never)}>
+                                        <TouchableOpacity onPress={() => { handleNavigation('obituaries/index'); setMenuOpen(false); }}>
                                             <Text style={styles.dropdownNavItem}>Esquelas</Text>
                                         </TouchableOpacity>
                                     </>
                                 )}
                                 {isAuthenticated && userRoles?.includes("CUSTOMER_PREMIUM") && (
                                     <>
-                                        <TouchableOpacity onPress={() => navigation.navigate('messages/index' as never)}>
+                                        <TouchableOpacity onPress={() => { handleNavigation('messages/index'); setMenuOpen(false); }}>
                                             <Text style={styles.dropdownNavItem}>Mensajes</Text>
                                         </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => navigation.navigate('contacts/index' as never)}>
+                                        <TouchableOpacity onPress={() => { handleNavigation('contacts/index'); setMenuOpen(false); }}>
                                             <Text style={styles.dropdownNavItem}>Contactos</Text>
                                         </TouchableOpacity>
                                     </>
                                 )}
                                 {isAuthenticated && (userRoles?.includes("CUSTOMER") || userRoles?.includes("COMPANY")) && (
                                     <>
-                                        <TouchableOpacity onPress={() => navigation.navigate('services/index' as never)}>
+                                        <TouchableOpacity onPress={() => { handleNavigation('services/index'); setMenuOpen(false); }}>
                                             <Text style={styles.dropdownNavItem}>Servicios</Text>
                                         </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => navigation.navigate('subscribe/index' as never)}>
+                                        <TouchableOpacity onPress={() => { handleNavigation('subscribe/index'); setMenuOpen(false); }}>
                                             <Text style={styles.dropdownNavItem}>Planes</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={() => {
                                             setUserMenuOpen(false);
-                                            navigation.navigate('profile/index' as never);
+                                            handleNavigation('profile/index');
+                                            setMenuOpen(false);
                                         }}>
                                             <Text style={styles.dropdownNavItem}>{userName}</Text>
                                         </TouchableOpacity>
@@ -121,65 +128,97 @@ const CustomNavbar = () => {
                 ) : (
                     <React.Fragment>
                         <View style={styles.navItems}>
-                            <TouchableOpacity onPress={() => navigation.navigate('certificate/index' as never)}>
-                                <Text style={styles.navItem}>Cargar certificado</Text>
+                            <TouchableOpacity onPress={() => handleNavigation('certificate/index')}>
+                                <View>
+                                    <Text style={styles.navItem}>Cargar certificado</Text>
+                                    {activeItem === 'certificate/index' && <View style={styles.activeIndicator} />}
+                                </View>
                             </TouchableOpacity>
                             {!isAuthenticated && (
                                 <>
-                                    <TouchableOpacity onPress={() => navigation.navigate('login/index' as never)}>
-                                        <Text style={styles.navItem}>Iniciar sesión</Text>
+                                    <TouchableOpacity onPress={() => handleNavigation('login/index')}>
+                                        <View>
+                                            <Text style={styles.navItem}>Iniciar sesión</Text>
+                                            {activeItem === 'login/index' && <View style={styles.activeIndicator} />}
+                                        </View>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => navigation.navigate('register/index' as never)}>
-                                        <Text style={styles.navItem}>Registrarse</Text>
+                                    <TouchableOpacity onPress={() => handleNavigation('register/index')}>
+                                        <View>
+                                            <Text style={styles.navItem}>Registrarse</Text>
+                                            {activeItem === 'register/index' && <View style={styles.activeIndicator} />}
+                                        </View>
                                     </TouchableOpacity>
                                 </>
                             )}
                             {isAuthenticated && userRoles?.includes("ADMIN") && (
                                 <>
-                                    <TouchableOpacity onPress={() => navigation.navigate('admin/listUsers' as never)}>
-                                        <Text style={styles.navItem}>Usuarios</Text>
+                                    <TouchableOpacity onPress={() => handleNavigation('admin/listUsers')}>
+                                        <View>
+                                            <Text style={styles.navItem}>Usuarios</Text>
+                                            {activeItem === 'admin/listUsers' && <View style={styles.activeIndicator} />}
+                                        </View>
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => {
                                         setUserMenuOpen(false);
                                         setIsLogoutModalVisible(true);
                                     }}>
-                                        <Text style={styles.navItem}>Cerrar sesión</Text>
+                                        <View>
+                                            <Text style={styles.navItem}>Cerrar sesión</Text>
+                                        </View>
                                     </TouchableOpacity>
                                 </>
                             )}
                             {isAuthenticated && userRoles?.includes("CUSTOMER") && (
                                 <>
-                                    <TouchableOpacity onPress={() => navigation.navigate('obituaries/index' as never)}>
-                                        <Text style={styles.navItem}>Esquelas</Text>
+                                    <TouchableOpacity onPress={() => handleNavigation('obituaries/index')}>
+                                        <View>
+                                            <Text style={styles.navItem}>Esquelas</Text>
+                                            {activeItem === 'obituaries/index' && <View style={styles.activeIndicator} />}
+                                        </View>
                                     </TouchableOpacity>
                                 </>
                             )}
                             {isAuthenticated && userRoles?.includes("CUSTOMER_PREMIUM") && (
                                 <>
-                                    <TouchableOpacity onPress={() => navigation.navigate('messages/index' as never)}>
-                                        <Text style={styles.navItem}>Mensajes</Text>
+                                    <TouchableOpacity onPress={() => handleNavigation('messages/index')}>
+                                        <View>
+                                            <Text style={styles.navItem}>Mensajes</Text>
+                                            {activeItem === 'messages/index' && <View style={styles.activeIndicator} />}
+                                        </View>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => navigation.navigate('contacts/index' as never)}>
-                                        <Text style={styles.navItem}>Contactos</Text>
+                                    <TouchableOpacity onPress={() => handleNavigation('contacts/index')}>
+                                        <View>
+                                            <Text style={styles.navItem}>Contactos</Text>
+                                            {activeItem === 'contacts/index' && <View style={styles.activeIndicator} />}
+                                        </View>
                                     </TouchableOpacity>
                                 </>
                             )}
                             {isAuthenticated && (userRoles?.includes("CUSTOMER") || userRoles?.includes("COMPANY")) && (
                                 <>
-                                    <TouchableOpacity onPress={() => navigation.navigate('services/index' as never)}>
-                                        <Text style={styles.navItem}>Servicios</Text>
+                                    <TouchableOpacity onPress={() => handleNavigation('services/index')}>
+                                        <View>
+                                            <Text style={styles.navItem}>Servicios</Text>
+                                            {activeItem === 'services/index' && <View style={styles.activeIndicator} />}
+                                        </View>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => navigation.navigate('subscribe/index' as never)}>
-                                        <Text style={styles.navItem}>Planes</Text>
+                                    <TouchableOpacity onPress={() => handleNavigation('subscribe/index')}>
+                                        <View>
+                                            <Text style={styles.navItem}>Planes</Text>
+                                            {activeItem === 'subscribe/index' && <View style={styles.activeIndicator} />}
+                                        </View>
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => setUserMenuOpen(!userMenuOpen)}>
-                                        <Text style={styles.navItem}>{userName}</Text>
+                                        <View>
+                                            <Text style={styles.navItem}>{userName}</Text>
+                                            {activeItem === 'profile/index' && <View style={styles.activeIndicator} />}
+                                        </View>
                                     </TouchableOpacity>
                                     {userMenuOpen && (
                                         <View style={styles.dropdown}>
                                             <TouchableOpacity onPress={() => {
                                                 setUserMenuOpen(false);
-                                                navigation.navigate('profile/index' as never);
+                                                handleNavigation('profile/index');
                                             }}>
                                                 <Text style={styles.dropdownNavItem}>Mi perfil</Text>
                                             </TouchableOpacity>
@@ -255,6 +294,12 @@ const styles = StyleSheet.create({
         color: GlobalStyles.blue,
         fontFamily: GlobalStyles.font,
         marginHorizontal: 10,
+    },
+    activeIndicator: {
+        borderBottomWidth: 2,
+        borderBottomColor: GlobalStyles.blue,
+        marginTop: 2,
+        borderRadius: 10,
     },
     dropdown: {
         position: 'absolute',
