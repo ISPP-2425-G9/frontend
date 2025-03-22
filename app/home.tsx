@@ -4,8 +4,8 @@ import Logo from "@/components/Logo";
 import { GlobalStyles } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import React, { useEffect } from 'react';
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import React from 'react';
 import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 
 export default function HomeScreen() {
@@ -16,9 +16,11 @@ export default function HomeScreen() {
     userRoles = roles;
   }
 
-  useEffect(() => {
-    document.title = 'Inicio';
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      document.title = 'Inicio';
+    }, [])
+  );
 
   const navigation = useNavigation();
 

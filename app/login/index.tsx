@@ -3,8 +3,9 @@ import { ThemedText } from '@/components/ThemedText';
 import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
 import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useRef } from 'react';
-import { Alert, Animated, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { useFocusEffect } from 'expo-router';
+import React, { useRef, useState } from 'react';
+import { Animated, Pressable, StyleSheet, View } from 'react-native';
 import { AUTHORITIES } from '../_util/Authorities';
 import { useAuth } from '../_util/useAuth';
 import { withAuth } from '../_util/withAuth';
@@ -12,26 +13,35 @@ import { withAuth } from '../_util/withAuth';
 const LoginScreen: React.FC = () => {
   const navigation = useNavigation();
   const { login } = useAuth();
-
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
 
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 1000,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [fadeAnim, slideAnim]);
+  useFocusEffect(
+    React.useCallback(() => {
+      document.title = 'Iniciar sesión';
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, [fadeAnim, slideAnim])
+  );
 
   const handleSubmit = async (values: Record<string, string>) => {
+
+    if (!values.identifier || !values.password) {
+      setErrorMessage('Por favor, rellena todos los campos');
+      return;
+    }
+
     try {
       const response = await fetch(BACKEND_API + `/api/auth/login`, {
         method: 'POST',
@@ -49,16 +59,12 @@ const LoginScreen: React.FC = () => {
       login(data.id, data.token, data.roles, data.username);
       navigation.navigate('home' as never);
     } catch (error: any) {
-      if (Platform.OS === 'web') {
-        window.alert(`Error: ${error.message}`);
-      } else {
-        Alert.alert('Error', error.message);
-      }
+      setErrorMessage('Credenciales incorrectas. Por favor, inténtalo de nuevo.');
     }
   };
 
   const loginFields: InputField[] = [
-    { name: 'identifier', placeholder: 'NIF, DNI o Email', keyboardType: 'default', description: 'Introduce tu NIF, DNI o Email' },
+    { name: 'identifier', placeholder: 'NIF, DNI o email', keyboardType: 'default', description: 'Introduce tu NIF, DNI o email' },
     { name: 'password', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Introduce tu contraseña' },
   ];
 
@@ -83,6 +89,9 @@ const LoginScreen: React.FC = () => {
           buttonText="Iniciar sesión"
           style={styles.formStyle}
         />
+        {errorMessage !== "" && (
+          <ThemedText style={styles.errorMessage}>{errorMessage}</ThemedText>
+        )}
         <ThemedText style={styles.registerText}>
           ¿Aún no tienes cuenta?{' '}
           <Pressable onPress={() => navigation.navigate('register/index' as never)}>
@@ -145,7 +154,13 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     borderRadius: 10,
     width: '100%',
-  }
+  },
+  errorMessage: {
+    color: 'red',
+    textAlign: 'center',
+    marginTop: 10,
+    fontSize: 14,
+  },
 });
 
 

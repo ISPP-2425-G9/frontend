@@ -51,7 +51,7 @@ const CustomNavbar = () => {
                         {menuOpen && (
                             <View style={styles.dropdown}>
                                 <TouchableOpacity onPress={() => navigation.navigate('certificate/index' as never)}>
-                                    <Text style={styles.dropdownNavItem}>Cargar Certificado</Text>
+                                    <Text style={styles.dropdownNavItem}>Cargar certificado</Text>
                                 </TouchableOpacity>
                                 {!isAuthenticated && (
                                     <>
@@ -122,7 +122,7 @@ const CustomNavbar = () => {
                     <React.Fragment>
                         <View style={styles.navItems}>
                             <TouchableOpacity onPress={() => navigation.navigate('certificate/index' as never)}>
-                                <Text style={styles.navItem}>Cargar Certificado</Text>
+                                <Text style={styles.navItem}>Cargar certificado</Text>
                             </TouchableOpacity>
                             {!isAuthenticated && (
                                 <>
