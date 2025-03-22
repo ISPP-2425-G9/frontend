@@ -1,16 +1,80 @@
-import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { useColorScheme } from "react-native";
-import { GlobalStyles, Colors } from "@/constants/Colors";
-import { useFonts, DMSans_500Medium, DMSans_700Bold } from "@expo-google-fonts/dm-sans";
+import { Colors, GlobalStyles } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
+import { DMSans_500Medium, DMSans_700Bold, useFonts } from "@expo-google-fonts/dm-sans";
+import { Tabs, useRouter } from "expo-router";
+import React, { useState } from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, useColorScheme, View } from "react-native";
 
+function ProfileDropdown({ userName }: { userName: string }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+
+  const handleProfile = () => {
+    setOpen(false);
+    //router.push("profile/index");
+  };
+
+  const handleLogout = () => {
+    setOpen(false);
+    // Aquí llamar a tu función de logout
+    // Por ejemplo: logout();
+  };
+
+  return (
+    <View style={styles.dropdownContainer}>
+      <TouchableOpacity onPress={() => setOpen(!open)}>
+        <Text style={styles.profileLabel}>{userName}</Text>
+      </TouchableOpacity>
+      {open && (
+        <View style={styles.dropdownMenu}>
+          <TouchableOpacity onPress={handleProfile}>
+            <Text style={styles.dropdownItem}>Mi perfil</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleLogout}>
+            <Text style={styles.dropdownItem}>Cerrar sesión</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  dropdownContainer: {
+    alignItems: "center",
+    // Para que el dropdown se muestre sobre el tabBar
+    zIndex: 100,
+  },
+  profileLabel: {
+    fontFamily: GlobalStyles.font,
+    fontSize: 16,
+    fontWeight: "bold",
+    color: GlobalStyles.blue,
+    textAlign: "center",
+  },
+  dropdownMenu: {
+    position: "absolute",
+    top: 25,
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 4,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    zIndex: 100,
+  },
+  dropdownItem: {
+    paddingVertical: 5,
+    color: GlobalStyles.blue,
+    textAlign: "center",
+  },
+});
 
 export default function TabLayout() {
   const { isAuthenticated, roles } = useAuth();
   let userRoles: string[] | null = null
   if(isAuthenticated){
-    userRoles = roles
+    userRoles = roles;
   }
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme || "light"];
@@ -24,60 +88,66 @@ export default function TabLayout() {
     return null;
   }
 
+  const labelsDict: Record<string, string> = {
+    "home": "Inicio",
+    "login/index": "Iniciar sesión",
+    "register/index": "Registrarse",
+    "profile/index": "Perfil",
+    "obituaries/index": "Esquelas",
+    "messages/index": "Mensajes",
+    "contacts/index": "Contactos",
+    "services/index": "Servicios",
+    "subscribe/index": "Planes",
+    "admin/listUsers": "Usuarios",
+    "admin/editUser": "Editar usuario",
+  };
+
   return (
+    <View style={{ flex: 1 }}>
     <Tabs
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ color, size, focused }) => {
-          const iconsDict: Record<string, keyof typeof Ionicons.glyphMap> = {
-            "profile/index": "person",
-            "obituaries/index": "document",
-            "messages/index": "chatbox",
-            "contacts/index": "book-sharp",
-            "services/index": "briefcase",
-            "subscribe/index": "logo-bitcoin",
-            "login/index": "log-in",
-            "register/index": "person-add",
-            "home": "home",
-            "admin/listUsers": "people",
-          };
-
-          let iconName: keyof typeof Ionicons.glyphMap = iconsDict[route.name] ?? "home";
-
-          return (
-            <Ionicons
-              name={iconName}
-              size={size}
-              color={color}
-              style={{
-                opacity: focused ? 1 : 0.6,
-                transform: [{ scale: focused ? 1.1 : 1 }],
-                marginBottom: -15,
-              }}
-            />
-          );
-        },
+        tabBarBackground: () => (
+          <Image
+            source={require("@/assets/images/icon_caronte_azul.svg")}
+            style={{
+              top: 10,
+              width: 50,
+              height: 50,
+              position: "absolute",
+              alignContent: "center",
+              resizeMode: "cover",
+            }}
+          />
+        ), 
+        tabBarLabel: ({ focused }) =>
+          route.name === "profile/index" && isAuthenticated ? (
+            <ProfileDropdown userName={"Usuario"} />
+          ) : (
+            <Text style={{
+              fontFamily: GlobalStyles.font,
+              justifyContent: "center",
+              fontSize: 16,
+              fontWeight: "bold",
+              color: GlobalStyles.blue,
+              borderBottomWidth: focused ? 3 : 0,
+              borderBottomColor: GlobalStyles.blue,
+              borderRadius: 2,
+              textAlign: "center",
+              marginTop: -10,
+              overflow: "visible",
+            }}>
+              {labelsDict[route.name]}
+            </Text>
+          ),
         tabBarActiveTintColor: theme.tabIconSelected,
         tabBarInactiveTintColor: theme.tabIconDefault,
         tabBarStyle: {
-          backgroundColor: theme.background,
-          borderBottomWidth: 0,
-          shadowColor: "#000",
+          backgroundColor: "white",
           shadowOpacity: 0.1,
           shadowRadius: 10,
-          elevation: 5,
           height: 70,
-          borderRadius: 20,
           position: "absolute",
-          left: 15,
-          right: 15,
-          top: 10,
-          paddingTop: 10,
-          zIndex: 10,
-        },
-        tabBarLabelStyle: {
-          fontFamily: GlobalStyles.font,
-          fontSize: 12,
-          fontWeight: "bold",
+          top: 0,
         },
         headerShown: false,
         safeAreaInsets: { top: 0 },
@@ -179,5 +249,7 @@ export default function TabLayout() {
       }
       
     </Tabs>
+    </View>
+
   );
 }
