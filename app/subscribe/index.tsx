@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, ScrollView, View, Dimensions } from 'react-native';
+import PlanCard from '@/components/PlanCard';
 import { ThemedView } from '@/components/ThemedView';
-import { withAuth } from '../_util/withAuth';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AUTHORITIES, AuthorityType } from '../_util/Authorities';
 import { useAuth } from '../_util/useAuth';
-import PlanCard from '@/components/PlanCard';
+import { withAuth } from '../_util/withAuth';
 
 const VALID_ROLES: AuthorityType[] = ['CUSTOMER_FREE', 'CUSTOMER_PREMIUM', 'COMPANY_FREE', 'COMPANY_PREMIUM'];
 
@@ -40,6 +41,12 @@ function PlanManagementView() {
       }
     }
   }, [storedUser]);
+
+  useFocusEffect(
+      React.useCallback(() => {
+        document.title = 'Planes';
+      }, [])
+    );
 
   if (loading) {
     return <Text>Cargando...</Text>;

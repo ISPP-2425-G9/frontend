@@ -90,6 +90,7 @@ function ProfileScreen() {
   useFocusEffect(
     React.useCallback(() => {
       fetchProfile();
+      document.title = 'Perfil';
     }, [])
   );
 

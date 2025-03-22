@@ -1,14 +1,13 @@
-import { useEffect, useState } from 'react';
-import { StyleSheet, Image, View, useWindowDimensions, ScrollView, TouchableOpacity, Text } from 'react-native';
+import CustomButton from '@/components/CustomButton';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { useNavigation, NavigationProp, useRoute, RouteProp } from '@react-navigation/native';
-import { Dimensions } from 'react-native';
-import CustomButton from '@/components/CustomButton';
-import useAuth from "@/hooks/useAuth";
 import { BACKEND_API } from '@/constants/Mysc';
-import { withAuth } from '../_util/withAuth';
+import useAuth from "@/hooks/useAuth";
+import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { AUTHORITIES } from '../_util/Authorities';
+import { withAuth } from '../_util/withAuth';
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
@@ -66,6 +65,12 @@ function ObituaryIndex() {
 
     fetchData();
   }, []);
+
+  useFocusEffect(
+      React.useCallback(() => {
+        document.title = 'Esquelas';
+      }, [])
+    );
 
   const handleObituaryPress = (id: number, imageUrl: string) => {
     const obituaryId = route.params?.obituaryId ?? undefined;

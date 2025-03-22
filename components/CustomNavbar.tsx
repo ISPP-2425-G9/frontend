@@ -181,7 +181,7 @@ const CustomNavbar = () => {
                                                 setUserMenuOpen(false);
                                                 navigation.navigate('profile/index' as never);
                                             }}>
-                                                <Text style={styles.dropdownNavItem}>Mi Perfil</Text>
+                                                <Text style={styles.dropdownNavItem}>Mi perfil</Text>
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => {
                                                 setUserMenuOpen(false);

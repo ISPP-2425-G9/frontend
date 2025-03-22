@@ -1,26 +1,26 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Alert,
-  Platform,
-  Dimensions,
-  Modal,
-  TouchableOpacity
-} from "react-native";
+import CustomButton from "@/components/CustomButton";
+import { CustomTextInput } from "@/components/CustomTextInput";
+import TermsAndConditions from '@/components/TermsAndConditions';
+import { GlobalStyles } from "@/constants/Colors";
+import { BACKEND_API } from "@/constants/Mysc";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import CustomButton from "@/components/CustomButton";
-import { GlobalStyles } from "@/constants/Colors";
-import { CustomTextInput } from "@/components/CustomTextInput";
-import { BACKEND_API } from "@/constants/Mysc";
-import { withAuth } from "../_util/withAuth";
+import Checkbox from 'expo-checkbox';
+import { useFocusEffect } from "expo-router";
+import React, { useEffect, useState } from "react";
+import {
+  Alert,
+  Dimensions,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
 import { AUTHORITIES } from "../_util/Authorities";
 import { useAuth } from "../_util/useAuth";
-import Checkbox from 'expo-checkbox';
-import TermsAndConditions from '@/components/TermsAndConditions';
+import { withAuth } from "../_util/withAuth";
 
 const { width } = Dimensions.get("window");
 const deviceWidth = Dimensions.get("window").width;
@@ -44,6 +44,12 @@ const RegisterScreen: React.FC = () => {
     });
     return unsubscribe;
   }, [navigation]);
+
+  useFocusEffect(
+      React.useCallback(() => {
+        document.title = 'Registrarse';
+      }, [])
+    );
 
   // Company fields for the form
   const companyFields = [
@@ -303,7 +309,7 @@ const RegisterScreen: React.FC = () => {
         throw new Error("No se recibió token de autenticación.");
       }
       await AsyncStorage.setItem("authToken", data.token);
-      login(data.id, data.token, data.roles);
+      login(data.id, data.token, data.roles, data.username);
       navigation.navigate("home" as never);
     } catch (error: any) {
       setFormErrors([error.message || error]);
