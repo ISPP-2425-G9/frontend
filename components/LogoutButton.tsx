@@ -25,7 +25,7 @@ export default function LogoutButton() {
   return (
     <>
       <CustomButton 
-        title="Cerrar Sesión" 
+        title="Cerrar sesión" 
         onPress={() => setIsModalVisible(true)}
         color="red"
         style={styles.button}
@@ -34,7 +34,7 @@ export default function LogoutButton() {
       <CustomModal
         visible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
-        title="Cerrar Sesión"
+        title="Cerrar sesión"
       >
         <View style={styles.modalContent}>
           <ThemedText style={styles.modalText}>

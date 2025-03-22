@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { AUTHORITIES, AuthorityType } from "./Authorities";
+import { useEffect, useState } from "react";
+import { AuthorityType } from "./Authorities";
 
 const USER_STORAGE_KEY = "user_data"; // Clave de almacenamiento
 
@@ -38,8 +38,8 @@ export const useAuth = () => {
   }, []);
 
   // ✅ Función para iniciar sesión y guardar en AsyncStorage
-  const login = async ( id: string, token: string, roles: AuthorityType[]) => {
-    const userData = { id, token, roles };
+  const login = async ( id: string, token: string, roles: AuthorityType[], username: string) => {
+    const userData = { id, token, roles, username };
     setUser(userData);
     await AsyncStorage.setItem('authToken', token);
     await AsyncStorage.setItem('userId', id);

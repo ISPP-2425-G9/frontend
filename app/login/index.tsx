@@ -44,10 +44,9 @@ const LoginScreen: React.FC = () => {
       if (!response.ok) {
         throw new Error('Credenciales incorrectas.');
       }
-
       const data = await response.json();
-
-      login(data.id, data.token, data.roles);
+      console.log(data);
+      login(data.id, data.token, data.roles, data.username);
       navigation.navigate('home' as never);
     } catch (error: any) {
       if (Platform.OS === 'web') {
