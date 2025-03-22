@@ -1,3 +1,4 @@
+import { GlobalStyles } from '@/constants/Colors';
 import useAuth from '@/hooks/useAuth';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -16,18 +17,12 @@ const CustomNavbar = () => {
     const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
     const isNarrow = width < 500;
     const { isAuthenticated, roles, name } = useAuth();
-    console.log(useAuth());
     let userRoles: string[] | null = null;
     let userName: string | null = null;
     if (isAuthenticated) {
         userRoles = roles;
         userName = name;
     }
-
-    const handleNavigation = (route: string) => {
-        navigation.navigate(route as never);
-        setMenuOpen(false);
-    };
 
     const handleLogout = () => {
         try {
@@ -56,58 +51,58 @@ const CustomNavbar = () => {
                         {menuOpen && (
                             <View style={styles.dropdown}>
                                 <TouchableOpacity onPress={() => navigation.navigate('certificate/index' as never)}>
-                                    <Text style={styles.navItem}>Cargar Certificado</Text>
+                                    <Text style={styles.dropdownNavItem}>Cargar Certificado</Text>
                                 </TouchableOpacity>
                                 {!isAuthenticated && (
                                     <>
                                         <TouchableOpacity onPress={() => navigation.navigate('login/index' as never)}>
-                                            <Text style={styles.navItem}>Iniciar sesión</Text>
+                                            <Text style={styles.dropdownNavItem}>Iniciar sesión</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={() => navigation.navigate('register/index' as never)}>
-                                            <Text style={styles.navItem}>Registrarse</Text>
+                                            <Text style={styles.dropdownNavItem}>Registrarse</Text>
                                         </TouchableOpacity>
                                     </>
                                 )}
                                 {isAuthenticated && userRoles?.includes("ADMIN") && (
                                     <>
                                         <TouchableOpacity onPress={() => navigation.navigate('admin/listUsers' as never)}>
-                                            <Text style={styles.navItem}>Usuarios</Text>
+                                            <Text style={styles.dropdownNavItem}>Usuarios</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={() => {
                                             setUserMenuOpen(false);
                                             setIsLogoutModalVisible(true);
                                         }}>
-                                            <Text style={styles.navItem}>Cerrar sesión</Text>
+                                            <Text style={styles.dropdownNavItem}>Cerrar sesión</Text>
                                         </TouchableOpacity>
                                     </>
                                 )}
                                 {isAuthenticated && userRoles?.includes("CUSTOMER") && (
                                     <>
                                         <TouchableOpacity onPress={() => navigation.navigate('obituaries/index' as never)}>
-                                            <Text style={styles.navItem}>Esquelas</Text>
+                                            <Text style={styles.dropdownNavItem}>Esquelas</Text>
                                         </TouchableOpacity>
                                     </>
                                 )}
                                 {isAuthenticated && userRoles?.includes("CUSTOMER_PREMIUM") && (
                                     <>
                                         <TouchableOpacity onPress={() => navigation.navigate('messages/index' as never)}>
-                                            <Text style={styles.navItem}>Mensajes</Text>
+                                            <Text style={styles.dropdownNavItem}>Mensajes</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={() => navigation.navigate('contacts/index' as never)}>
-                                            <Text style={styles.navItem}>Contactos</Text>
+                                            <Text style={styles.dropdownNavItem}>Contactos</Text>
                                         </TouchableOpacity>
                                     </>
                                 )}
                                 {isAuthenticated && (userRoles?.includes("CUSTOMER") || userRoles?.includes("COMPANY")) && (
                                     <>
                                         <TouchableOpacity onPress={() => navigation.navigate('services/index' as never)}>
-                                            <Text style={styles.navItem}>Servicios</Text>
+                                            <Text style={styles.dropdownNavItem}>Servicios</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={() => navigation.navigate('subscribe/index' as never)}>
-                                            <Text style={styles.navItem}>Suscribirse</Text>
+                                            <Text style={styles.dropdownNavItem}>Planes</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={() => setUserMenuOpen(!userMenuOpen)}>
-                                            <Text style={styles.navItem}>{userName}</Text>
+                                            <Text style={styles.dropdownNavItem}>{userName}</Text>
                                         </TouchableOpacity>
                                         {userMenuOpen && (
                                             <View style={styles.dropdown}>
@@ -115,13 +110,13 @@ const CustomNavbar = () => {
                                                     setUserMenuOpen(false);
                                                     navigation.navigate('profile/index' as never);
                                                 }}>
-                                                    <Text style={styles.navItem}>Mi Perfil</Text>
+                                                    <Text style={styles.dropdownNavItem}>Mi Perfil</Text>
                                                 </TouchableOpacity>
                                                 <TouchableOpacity onPress={() => {
                                                     setUserMenuOpen(false);
                                                     setIsLogoutModalVisible(true);
                                                 }}>
-                                                    <Text style={styles.navItem}>Cerrar sesión</Text>
+                                                    <Text style={styles.dropdownNavItem}>Cerrar sesión</Text>
                                                 </TouchableOpacity>
                                             </View>
                                         )}
@@ -182,7 +177,7 @@ const CustomNavbar = () => {
                                         <Text style={styles.navItem}>Servicios</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => navigation.navigate('subscribe/index' as never)}>
-                                        <Text style={styles.navItem}>Suscribirse</Text>
+                                        <Text style={styles.navItem}>Planes</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => setUserMenuOpen(!userMenuOpen)}>
                                         <Text style={styles.navItem}>{userName}</Text>
@@ -193,13 +188,13 @@ const CustomNavbar = () => {
                                                 setUserMenuOpen(false);
                                                 navigation.navigate('profile/index' as never);
                                             }}>
-                                                <Text style={styles.navItem}>Mi Perfil</Text>
+                                                <Text style={styles.dropdownNavItem}>Mi Perfil</Text>
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => {
                                                 setUserMenuOpen(false);
                                                 setIsLogoutModalVisible(true);
                                             }}>
-                                                <Text style={styles.navItem}>Cerrar sesión</Text>
+                                                <Text style={styles.dropdownNavItem}>Cerrar sesión</Text>
                                             </TouchableOpacity>
                                         </View>
                                     )}
@@ -213,6 +208,7 @@ const CustomNavbar = () => {
                 visible={isLogoutModalVisible}
                 onClose={() => setIsLogoutModalVisible(false)}
                 title="Cerrar sesión"
+                style={styles.modalContent}
             >
                 <View style={styles.modalContent}>
                     <ThemedText style={styles.modalText}>
@@ -263,7 +259,8 @@ const styles = StyleSheet.create({
     },
     navItem: {
         fontSize: 16,
-        color: '#333',
+        color: GlobalStyles.blue,
+        fontFamily: GlobalStyles.font,
         marginHorizontal: 10,
     },
     dropdown: {
@@ -273,13 +270,24 @@ const styles = StyleSheet.create({
         backgroundColor: '#f8f8f8',
         borderWidth: 1,
         borderColor: '#ccc',
-        borderRadius: 4,
+        borderRadius: 10,
         padding: 10,
-        zIndex: 10,      // Para iOS
-        elevation: 10,   // Para Android
+        zIndex: 10,
+        elevation: 10,
+    },
+    dropdownNavItem: {
+        fontSize: 16,
+        color: GlobalStyles.blue,
+        fontFamily: GlobalStyles.font,
+        width: 200,
+        marginHorizontal: 10,
+        paddingVertical: 5,
+        borderBottomWidth: 1,
+        borderBottomColor: GlobalStyles.lightGrey, 
     },
     modalContent: {
-        padding: 20,
+        width: 'auto',
+        padding: '2%',
     },
     modalText: {
         textAlign: 'center',
