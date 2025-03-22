@@ -101,25 +101,18 @@ const CustomNavbar = () => {
                                         <TouchableOpacity onPress={() => navigation.navigate('subscribe/index' as never)}>
                                             <Text style={styles.dropdownNavItem}>Planes</Text>
                                         </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => setUserMenuOpen(!userMenuOpen)}>
+                                        <TouchableOpacity onPress={() => {
+                                            setUserMenuOpen(false);
+                                            navigation.navigate('profile/index' as never);
+                                        }}>
                                             <Text style={styles.dropdownNavItem}>{userName}</Text>
                                         </TouchableOpacity>
-                                        {userMenuOpen && (
-                                            <View style={styles.dropdown}>
-                                                <TouchableOpacity onPress={() => {
-                                                    setUserMenuOpen(false);
-                                                    navigation.navigate('profile/index' as never);
-                                                }}>
-                                                    <Text style={styles.dropdownNavItem}>Mi Perfil</Text>
-                                                </TouchableOpacity>
-                                                <TouchableOpacity onPress={() => {
-                                                    setUserMenuOpen(false);
-                                                    setIsLogoutModalVisible(true);
-                                                }}>
-                                                    <Text style={styles.dropdownNavItem}>Cerrar sesión</Text>
-                                                </TouchableOpacity>
-                                            </View>
-                                        )}
+                                        <TouchableOpacity onPress={() => {
+                                            setUserMenuOpen(false);
+                                            setIsLogoutModalVisible(true);
+                                        }}>
+                                            <Text style={styles.dropdownNavItem}>Cerrar sesión</Text>
+                                        </TouchableOpacity>
                                     </>
                                 )}
                             </View>
@@ -283,7 +276,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 10,
         paddingVertical: 5,
         borderBottomWidth: 1,
-        borderBottomColor: GlobalStyles.lightGrey, 
+        borderBottomColor: GlobalStyles.lightGrey,
     },
     modalContent: {
         width: 'auto',
