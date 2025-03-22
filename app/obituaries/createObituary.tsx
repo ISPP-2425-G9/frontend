@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   StyleSheet,
@@ -19,6 +19,7 @@ import {
   NavigationProp,
   useRoute,
   RouteProp,
+  useFocusEffect,
 } from "@react-navigation/native";
 import CustomModal from "@/components/CustomModal";
 import { GlobalStyles } from "@/constants/Colors";
@@ -108,12 +109,31 @@ function EsquelaCustomizer() {
     customImage: null as string | null,
   });
 
+
+  useFocusEffect(
+    useCallback(() => {
+      if (is_newObituary) {
+        setFormData({
+          name: "",
+          birthDate: "",
+          deathDate: "",
+          farewellMessage: "",
+          farewellPhrase: "",
+          customImage: null,
+          imageTemplate_id: imageId || 1,
+        });
+      }
+    }, [is_newObituary, imageId])
+  );
+  
+
   useEffect(() => {
     const initializeForm = async () => {
       setLoading(true);
       setSelectedColor("")
+      
 
-      if (jsonData !== undefined) {
+      if (jsonData && jsonData.trim() !== "") {
         try {
           const parsedData = JSON.parse(jsonData);
           setFormData((prev) => ({
@@ -128,20 +148,7 @@ function EsquelaCustomizer() {
         return;
       }
 
-      if (is_newObituary) {
-        console.log("imageId", imageId);
-        setFormData({
-          name: "",
-          birthDate: "",
-          deathDate: "",
-          farewellMessage: "",
-          farewellPhrase: "",
-          customImage: null,
-          imageTemplate_id: imageId || 1,
-        });
-        setLoading(false);
-        return;
-      }
+  
 
       if (!is_newObituary && obituaryId !== undefined) {
         try {
@@ -182,8 +189,7 @@ function EsquelaCustomizer() {
 
           setSelectedColor(`rgb(${data.wordColor})`);
           setIsMine(data.isMine);
-
-          isMine ? setIsSended(false) : setIsSended(true);
+          data.isMine ? setIsSended(false) : setIsSended(true);
 
           setFormData({
             name: data.name || "",
@@ -332,9 +338,9 @@ function EsquelaCustomizer() {
       <View style={styles.container}>
         <View style={styles.formSection}>
           <Text style={{ fontSize: 30, fontWeight: "bold", marginBottom: 30 }}>
-            { is_mine ?
+            { isMine ?
               is_newObituary ? "Cree su esquela" : "Edite su esquela" :
-              is_newObituary ? "Cree la esquela para un ser querido" : "Edite la esquela para un ser querido"
+              is_newObituary ? "Cree la esquela para un ser querido" : "Información de la esquela"
             }
           </Text>
           <Text style={styles.formText}>Nombre del fallecido:</Text>
@@ -624,19 +630,19 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   previewText: {
-    fontSize: width > 600 ? RFValue(6) : RFValue(8.5),
+    fontSize: width > 600 ? RFValue(5) : RFValue(7),
     maxWidth: width > 600 ? 400 : "80%",
     marginTop: 8,
     textAlign: "justify",
   },
   previewName: {
-    fontSize: width > 600 ? 20 : 16,
+    fontSize: width > 600 ? RFValue(6) : RFValue(8.5),
     fontWeight: "bold",
     marginTop: 8,
-    maxWidth: 400,
+    maxWidth: width > 600 ? 400: '80%',
   },
   previewDate: {
-    fontSize: width > 600 ? 18 : 14,
+    fontSize: width > 600 ? RFValue(6) : RFValue(8.5),
     marginBottom: 8,
     maxWidth: 400,
     marginTop: 8,
@@ -651,7 +657,7 @@ const styles = StyleSheet.create({
   },
   previewPhrase: {
     marginTop: 15,
-    fontSize: width > 600 ? RFValue(6) : RFValue(8),
+    fontSize: width > 600 ? RFValue(6.5) : RFValue(8.5),
     fontStyle: "italic",
     maxWidth: width > 600 ? 400 : "80%",
     justifyContent: "center",

@@ -184,7 +184,7 @@ function ObituaryIndex() {
                     ) : (
                       <>
                         <CustomButton
-                          title="Visualiza tu esquela"
+                          title="Visualiza la esquela"
                           onPress={() =>
                             handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id)
                           }                          />

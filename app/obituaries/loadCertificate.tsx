@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Image } from "react-native";
-import { useNavigation, NavigationProp, useRoute, RouteProp } from "@react-navigation/native";
+import { useNavigation, NavigationProp, useRoute, RouteProp, useFocusEffect } from "@react-navigation/native";
 import { Dimensions } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { AUTHORITIES } from "../_util/Authorities";
@@ -88,6 +88,16 @@ function LoadCertificate() {
     void initializeForm();
   }, [is_newObituary]);
 
+
+  useFocusEffect(
+      useCallback(() => {
+        setDni("");
+        setCertificateImage(null);
+        setFileName(null);
+        setDniError("");
+      }, [])
+    );
+  
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
