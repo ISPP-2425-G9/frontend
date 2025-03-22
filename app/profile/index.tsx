@@ -23,7 +23,7 @@ function ProfileScreen() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [customImageUrl, setCustomImageUrl] = useState('');
-  
+
 
   const fetchProfile = async () => {
     try {
@@ -255,7 +255,7 @@ function ProfileScreen() {
       Alert.alert('Error', 'Las contraseñas no coinciden');
       return;
     }
-    
+
     try {
       const userDataStr = await AsyncStorage.getItem('user_data');
       if (!userDataStr) {
@@ -265,12 +265,12 @@ function ProfileScreen() {
       const userData = JSON.parse(userDataStr);
       const token = userData.token;
       const userId = userData.id;
-  
+
       const requestBody = {
         newPassword: newPassword,
         confirmPassword: confirmPassword,
       };
-  
+
       const response = await fetch(`${BACKEND_API}/api/auth/password/${userId}`, {
         method: 'PUT',
         headers: {
@@ -279,20 +279,20 @@ function ProfileScreen() {
         },
         body: JSON.stringify(requestBody),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.text();
         Alert.alert('Error', errorData || 'Error mientras se actualizaba la contraseña');
         return;
       }
-  
+
       const data = await response.json();
-  
+
       await AsyncStorage.setItem('user_data', JSON.stringify({
         ...userData,
         token: data.token || userData.token,
       }));
-  
+
       Alert.alert('Éxito', 'Contraseña actualizada correctamente');
       setShowPasswordModal(false);
       setNewPassword('');
@@ -371,64 +371,40 @@ function ProfileScreen() {
         <>
           <View style={styles.profileContainer}>
             {role === "CUSTOMER" ? (
-              <View style={styles.twoColumnsContainer}>
-                <View style={styles.columnData}>
-                  <ThemedText style={styles.title}>Mis datos</ThemedText>
+              <View style={styles.columnData}>
+                <ThemedText style={styles.title}>Mis datos</ThemedText>
 
-                  {renderEditableField('Nombre', editedCustomer.name, 'name', 'Nombre de usuario')}
-                  {renderEditableField('Email', editedCustomer.email, 'email', 'Email')}
-                  {renderEditableField('Teléfono', editedCustomer.telephone, 'telephone', 'Número de teléfono')}
-                  <ThemedText style={styles.label}>DNI</ThemedText>
-                  <ThemedText style={styles.value}>{editedCustomer.dni}</ThemedText>
-                  {isEditing ? (
-                    <View style={styles.buttonContainer}>
-                      <DeleteAccountButton />
-                      <CustomButton
-                        title="Guardar"
-                        onPress={handleSave}
-                        color="blue"
-                      />
-                    </View>
-                  ) : (
-                    <View style={styles.buttonContainer}>
-                      <LogoutButton />
-                      <CustomButton
-                        title="Editar usuario"
-                        onPress={() => setIsEditing(true)}
-                        color="blue"
-                      />
-                    </View>
-                  )}
-
-                  <ThemedText style={styles.changePasswordText}>
-                    ¿Desea cambiar su contraseña?{' '}
-                    <Pressable onPress={() => setShowPasswordModal(true)}>
-                      <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
-                    </Pressable>
-                  </ThemedText>
-                </View>
-
-                <View style={styles.column}>
-                  <ThemedText style={styles.title}>Contactos de emergencia</ThemedText>
-                  <ThemedText style={styles.label}>Nombre de contacto</ThemedText>
-                  <ThemedText style={styles.value}>Juan Pérez</ThemedText>
-                  <ThemedText style={styles.label}>Teléfono de contacto</ThemedText>
-                  <ThemedText style={styles.value}>123-456-789</ThemedText>
-                  <ThemedText style={styles.label}>Email de contacto</ThemedText>
-                  <ThemedText style={styles.value}>juanperes@hotmail.es</ThemedText>
+                {renderEditableField('Nombre', editedCustomer.name, 'name', 'Nombre de usuario')}
+                {renderEditableField('Email', editedCustomer.email, 'email', 'Email')}
+                {renderEditableField('Teléfono', editedCustomer.telephone, 'telephone', 'Número de teléfono')}
+                <ThemedText style={styles.label}>DNI</ThemedText>
+                <ThemedText style={styles.value}>{editedCustomer.dni}</ThemedText>
+                {isEditing ? (
                   <View style={styles.buttonContainer}>
+                    <DeleteAccountButton />
                     <CustomButton
-                      title="Eliminar"
-                      onPress={() => console.log("Eliminar contacto")}
-                      color="red"
-                    />
-                    <CustomButton
-                      title="Añadir"
-                      onPress={() => console.log("Añadir contacto")}
+                      title="Guardar"
+                      onPress={handleSave}
                       color="blue"
                     />
                   </View>
-                </View>
+                ) : (
+                  <View style={styles.buttonContainer}>
+                    <LogoutButton />
+                    <CustomButton
+                      title="Editar usuario"
+                      onPress={() => setIsEditing(true)}
+                      color="blue"
+                    />
+                  </View>
+                )}
+
+                <ThemedText style={styles.changePasswordText}>
+                  ¿Desea cambiar su contraseña?{' '}
+                  <Pressable onPress={() => setShowPasswordModal(true)}>
+                    <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
+                  </Pressable>
+                </ThemedText>
               </View>
             ) : (
               <View style={styles.companyContainer}>
@@ -747,7 +723,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    width: '40%',
+    width: '35%',
     backgroundColor: '#fff',
     padding: 20,
     borderRadius: 12,
