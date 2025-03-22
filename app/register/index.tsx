@@ -1,45 +1,164 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, Platform, Dimensions } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import CustomModal from '@/components/CustomModal';
-import TextInputArraysForm from '@/components/TextInputArraysForm';
-import { GlobalStyles } from '@/constants/Colors';
-import { InputField } from '@/components/TextInputArraysForm';
-import { BACKEND_API } from '@/constants/Mysc';
-import { withAuth } from '../_util/withAuth';
-import { AUTHORITIES } from '../_util/Authorities';
-import { parseErrors} from '../_util/utils'
-import { useAuth } from '../_util/useAuth';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  Platform,
+  Dimensions,
+  Modal,
+  TouchableOpacity
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
+import CustomButton from "@/components/CustomButton";
+import { GlobalStyles } from "@/constants/Colors";
+import { CustomTextInput } from "@/components/CustomTextInput";
+import { BACKEND_API } from "@/constants/Mysc";
+import { withAuth } from "../_util/withAuth";
+import { AUTHORITIES } from "../_util/Authorities";
+import { useAuth } from "../_util/useAuth";
+import Checkbox from 'expo-checkbox';
+import TermsAndConditions from '@/components/TermsAndConditions';
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
+const deviceWidth = Dimensions.get("window").width;
 
 const RegisterScreen: React.FC = () => {
-  const [modalVisible, setModalVisible] = useState(true);
-  const [userType, setUserType] = useState<'Empresa' | 'Cliente' | null>(null);
+  const isMobile = deviceWidth < 768;
+  const [userType, setUserType] = useState<"Empresa" | "Cliente" | null>(null);
+  const [formValues, setFormValues] = useState<Record<string, string>>({});
+  const [formErrors, setFormErrors] = useState<string[]>([]);
+  const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
   const navigation = useNavigation();
   const { login } = useAuth();
 
-  useFocusEffect(
-    useCallback(() => {
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
       setUserType(null);
-      setModalVisible(true);
-    }, [])
-  );
+      setFormValues({});
+      setFormErrors([]);
+      setAcceptedTerms(false);
+    });
+    return unsubscribe;
+  }, [navigation]);
 
-  const handleUserTypeSelection = (type: 'Empresa' | 'Cliente') => {
+  // Company fields for the form
+  const companyFields = [
+    {
+      name: "name",
+      placeholder: "Floristería Loli S.L.",
+      description: "Nombre de la empresa",
+    },
+    { name: "nif", placeholder: "F12345678", description: "NIF de la empresa" },
+    {
+      name: "zipCode",
+      placeholder: "41001",
+      description: "Código postal",
+      keyboardType: "numeric",
+    },
+    {
+      name: "telephone",
+      placeholder: "600100200",
+      keyboardType: "phone-pad",
+      description: "Teléfono",
+    },
+    { name: "city", placeholder: "Sevilla", description: "Ciudad" },
+    {
+      name: "address",
+      placeholder: "C/ Arquímedes, 3",
+      description: "Dirección",
+    },
+    {
+      name: "description",
+      placeholder: "Descripción de la empresa...",
+      description: "Descripción",
+    },
+    {
+      name: "email",
+      placeholder: "floresloli@gmail.com",
+      keyboardType: "email-address",
+      description: "Email",
+    },
+    {
+      name: "password1",
+      placeholder: "******",
+      secureTextEntry: true,
+      description: "Contraseña",
+    },
+    {
+      name: "password2",
+      placeholder: "******",
+      secureTextEntry: true,
+      description: "Confirmar contraseña",
+    },
+  ];
+
+  // Customer fields for the form
+  const clientFields = [
+    {
+      name: "name",
+      placeholder: "Jesús García",
+      description: "Nombre completo",
+    },
+    { name: "dni", placeholder: "12345678P", description: "DNI" },
+    {
+      name: "telephone",
+      placeholder: "600100200",
+      keyboardType: "phone-pad",
+      description: "Teléfono",
+    },
+    {
+      name: "email",
+      placeholder: "jesus@gmail.com",
+      keyboardType: "email-address",
+      description: "Email",
+    },
+    {
+      name: "password1",
+      placeholder: "******",
+      secureTextEntry: true,
+      description: "Contraseña",
+    },
+    {
+      name: "password2",
+      placeholder: "******",
+      secureTextEntry: true,
+      description: "Confirmar contraseña",
+    },
+  ];
+
+  const handleUserTypeSelection = (type: "Empresa" | "Cliente") => {
     setUserType(type);
-    setModalVisible(false);
-  };
-
-  const handleCloseModal = () => {
-    setModalVisible(false);
-    if (!userType) {
-      navigation.navigate('home' as never);
+    setFormErrors([]);
+    const initialValues: Record<string, string> = {};
+    if (type === "Empresa") {
+      companyFields.forEach((field) => {
+        initialValues[field.name] = "";
+      });
+    } else {
+      clientFields.forEach((field) => {
+        initialValues[field.name] = "";
+      });
     }
+    setFormValues(initialValues);
   };
 
-  const validateData = async (values: Record<string, string | { uri: string; name: string; type: string }>, uType: String | null) => {
+  const handleGoBack = () => {
+    setUserType(null);
+    setFormErrors([]);
+    setFormValues({});
+  };
+
+  const validateData = async (
+    values: Record<
+      string,
+      string | { uri: string; name: string; type: string }
+    >,
+    uType: String | null
+  ) => {
     const errors: string[] = [];
 
     const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -48,163 +167,282 @@ const RegisterScreen: React.FC = () => {
     const phoneRegex = /^\+?\d{9,15}$/;
     const dniRegex = /^\d{8}[A-Z]$/;
 
-
-    if(uType === 'Empresa' ){
-
-      if (!values.nif || typeof values.nif !== 'string' || !nifRegex.test(values.nif)) {
-        errors.push('El NIF no es válido.');
+    if (uType === "Empresa") {
+      if (
+        !values.nif ||
+        typeof values.nif !== "string" ||
+        !nifRegex.test(values.nif)
+      ) {
+        errors.push("El NIF no es válido.");
       }
 
-      if (!values.zipCode || typeof values.zipCode !== 'string' || !zipCodeRegex.test(values.zipCode)) {
-          errors.push('El código postal debe tener 5 dígitos.');
+      if (
+        !values.zipCode ||
+        typeof values.zipCode !== "string" ||
+        !zipCodeRegex.test(values.zipCode)
+      ) {
+        errors.push("El código postal debe tener 5 dígitos.");
       }
 
-      if (!values.city || typeof values.city !== 'string' || values.city.trim() === '') {
-        errors.push('La ciudad es obligatoria.');
+      if (
+        !values.city ||
+        typeof values.city !== "string" ||
+        values.city.trim() === ""
+      ) {
+        errors.push("La ciudad es obligatoria.");
       }
 
-      if (!values.address || typeof values.address !== 'string' || values.address.trim() === '') {
-          errors.push('La dirección es obligatoria.');
+      if (
+        !values.address ||
+        typeof values.address !== "string" ||
+        values.address.trim() === ""
+      ) {
+        errors.push("La dirección es obligatoria.");
       }
 
-      if (!values.description || typeof values.description !== 'string' || values.description.trim() === '') {
-          errors.push('La descripción es obligatoria.');
+      if (
+        !values.description ||
+        typeof values.description !== "string" ||
+        values.description.trim() === ""
+      ) {
+        errors.push("La descripción es obligatoria.");
       }
-
     }
-    if(uType === 'Cliente') {
-      if (!values.dni || typeof values.dni !== 'string' || !dniRegex.test(values.dni)) {
-        errors.push('El DNI debe tener 8 números y una letra mayúscula.');
+    if (uType === "Cliente") {
+      if (
+        !values.dni ||
+        typeof values.dni !== "string" ||
+        !dniRegex.test(values.dni)
+      ) {
+        errors.push("El DNI debe tener 8 números y una letra mayúscula.");
       }
     }
-    if (!values.name || typeof values.name !== 'string' || values.name.trim() === '') {
-        errors.push('El nombre es obligatorio.');
+    if (
+      !values.name ||
+      typeof values.name !== "string" ||
+      values.name.trim() === ""
+    ) {
+      errors.push("El nombre es obligatorio.");
     }
 
-    if (!values.telephone || typeof values.telephone !== 'string' || !phoneRegex.test(values.telephone)) {
-        errors.push('Por favor, introduce un teléfono válido.');
+    if (
+      !values.telephone ||
+      typeof values.telephone !== "string" ||
+      !phoneRegex.test(values.telephone)
+    ) {
+      errors.push("Por favor, introduce un teléfono válido.");
     }
 
-
-    if (!values.email || typeof values.email !== 'string' || !emailRegex.test(values.email)) {
-        errors.push('El email no es válido.');
+    if (
+      !values.email ||
+      typeof values.email !== "string" ||
+      !emailRegex.test(values.email)
+    ) {
+      errors.push("El email no es válido.");
     }
 
-    if (!values.password1 || typeof values.password1 !== 'string' || values.password1.length < 6) {
-        errors.push('La contraseña debe tener al menos 6 caracteres.');
+    if (
+      !values.password1 ||
+      typeof values.password1 !== "string" ||
+      values.password1.length < 6
+    ) {
+      errors.push("La contraseña debe tener al menos 6 caracteres.");
     }
 
     if (values.password1 !== values.password2) {
-        errors.push('Las contraseñas no coinciden.');
+      errors.push("Las contraseñas no coinciden.");
     }
 
     return errors;
-};
+  };
 
-
-  const handleSubmit = async (values: Record<string, string | { uri: string; name: string; type: string }>) => {
+  const handleSubmit = async (values: Record<string, string>) => {
     try {
-      const errors: String[] = await validateData(values, userType);
-      if(errors.length != 0){
-        throw new Error(`Hay error(es) en su formulario: ${errors}`)
+      if (!acceptedTerms) {
+        setFormErrors(["Debe aceptar los términos y condiciones"]);
+        return;
       }
-      const reqUrl = userType == 'Empresa' ? 'api/auth/companies/signup' : 'api/auth/customers/signup';
-      const response = await fetch(BACKEND_API+`/${reqUrl}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      console.log("handleSubmit llamado con:", values);
+      if (Object.keys(values).length === 0) {
+        Alert.alert("Información", "Debe completar el formulario");
+        return;
+      }
+      const errors: string[] = await validateData(values, userType);
+      if (errors.length !== 0) {
+        setFormErrors(errors);
+        return;
+      } else {
+        setFormErrors([]);
+      }
+      const reqUrl =
+        userType === "Empresa"
+          ? "api/auth/companies/signup"
+          : "api/auth/customers/signup";
+      const response = await fetch(BACKEND_API + `/${reqUrl}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
-      
-      if (!response.ok) {
-        const errors = await response.json()
-        const errorList = parseErrors(errors)
-        throw new Error(`Hubo un problema al registrarse: \n ${errorList}`);
-      }
-      
       const data = await response.json();
-      await AsyncStorage.setItem('authToken', data.token);
-      await AsyncStorage.setItem('userId', data.id);
-      await AsyncStorage.setItem('email', data.username);
-      await AsyncStorage.setItem('roles', JSON.stringify(data.roles));
-      await AsyncStorage.setItem('authToken', data.token);
-      login(data.id, data.token, data.roles);
-      navigation.navigate('home' as never);
-    } catch (error: any) {
-      if (Platform.OS === 'web') {
-        window.alert('Error: ' + error);
-      } else {
-        Alert.alert('Error', error);
+      if (!response.ok) {
+        let errorMessage = "Hubo un error inesperado.";
+        if (data.errors) {
+          errorMessage = Object.values(data.errors).flat().join("\n");
+        } else if (data.error) {
+          if (data.error.toLowerCase().includes("dni")) {
+            errorMessage = "El DNI ya ha sido registrado.";
+          } else if (data.error.toLowerCase().includes("email")) {
+            errorMessage = "El email ya ha sido registrado.";
+          } else {
+            errorMessage = data.error;
+          }
+        }
+        throw new Error(errorMessage);
       }
+      if (!data.token) {
+        throw new Error("No se recibió token de autenticación.");
+      }
+      await AsyncStorage.setItem("authToken", data.token);
+      login(data.id, data.token, data.roles);
+      navigation.navigate("home" as never);
+    } catch (error: any) {
+      setFormErrors([error.message || error]);
+      Alert.alert("Error", error.message || error);
     }
   };
 
-  const companyFields: InputField[] = [
-    { name: 'name', placeholder: 'Floristería Loli S.L.', keyboardType: 'default', description: 'Introduce el nombre de tu empresa' },
-    { name: 'nif', placeholder: 'F12345678', keyboardType: 'default', description: 'Introduce el NIF de tu empresa' },
-    { name: 'zipCode', placeholder: '12345', keyboardType: 'default', description: 'Introduce el código postal de tu empresa' },
-    { name: 'telephone', placeholder: '123456789', keyboardType: 'phone-pad', description: 'Introduce el teléfono de tu empresa' },
-    { name: 'city', placeholder: 'Sevilla', keyboardType: 'default', description: 'Introduce la ciudad de tu empresa' },
-    { name: 'address', placeholder: 'C/ Arquimedes, 3', keyboardType: 'default', description: 'Introduce la dirección de tu empresa' },
-    { name: 'description', placeholder: 'Lo mejor para tí', keyboardType: 'default', description: 'Introduce una descripción de tu empresa' },
-    { name: 'email', placeholder: 'floresloli@gmail.com', keyboardType: 'email-address', description: 'Introduce el email de tu empresa' },
-    { name: 'password1', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Introduce una contraseña' },
-    { name: 'password2', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Repite la contraseña' },
-  ];
-
-  const clientFields: InputField[] = [
-    { name: 'name', placeholder: 'Jesús García', keyboardType: 'default', description: 'Introduce tu nombre' },
-    { name: 'telephone', placeholder: '123456789', keyboardType: 'phone-pad', description: 'Introduce tu teléfono' },
-    { name: 'dni', placeholder: '12345678P', keyboardType: 'default' , description: 'Introduce tu DNI' },
-    { name: 'email', placeholder: 'jesusgar@gmail.com', keyboardType: 'email-address', description: 'Introduce tu email' },
-    { name: 'password1', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Introduce una contraseña' },
-    { name: 'password2', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Repite la contraseña' },
-  ];
-
-
   return (
     <View style={styles.container}>
-      <CustomModal
-        visible={modalVisible}
-        onClose={handleCloseModal}
-        title="¿Qué tipo de usuario quieres ser?"
-        style={styles.modalStyle}
-      >
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={() => handleUserTypeSelection('Empresa')}>
-            <Text style={styles.buttonText}>Empresa</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => handleUserTypeSelection('Cliente')}>
-            <Text style={styles.buttonText}>Cliente</Text>
-          </TouchableOpacity>
+      {!userType ? (
+        <View style={styles.selectionContainer}>
+          <Text style={styles.formTitle}>¿Qué tipo de usuario eres?</Text>
+          <View style={styles.optionsContainer}>
+            <View style={styles.optionCard}>
+              <Text style={styles.optionTitle}>Soy cliente</Text>
+              <Text style={styles.optionDescription}>
+                Accede a una experiencia personalizada para comprar y disfrutar de nuestros servicios.
+              </Text>
+              <CustomButton
+                title="Registrarme como cliente"
+                onPress={() => handleUserTypeSelection("Cliente")}
+                color="blue"
+                style={{ ...styles.typeButton, ...(isMobile ? {} : { width: 400 }) }}
+              />
+            </View>
+            <View style={styles.optionCard}>
+              <Text style={styles.optionTitle}>Soy empresa</Text>
+              <Text style={styles.optionDescription}>
+                Registra tu negocio y llega a más clientes ofreciendo tus productos.
+              </Text>
+              <CustomButton
+                title="Registrar mi empresa"
+                onPress={() => handleUserTypeSelection("Empresa")}
+                color="blue"
+                style={{ ...styles.typeButton, ...(isMobile ? {} : { width: 400 }) }}
+              />
+            </View>
+          </View>
         </View>
-      </CustomModal>
-
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {userType === 'Empresa' && (
-          <TextInputArraysForm
-            title="Cuenta de empresa"
-            inputs={companyFields}
-            //imageFields={['logo']} Deactivate Temporally
-            onSubmit={handleSubmit}
-            handleFormClose={ async ()=> { setUserType(null); setModalVisible(true);}}
-            buttonText="Registrarse"
-            style={styles.formStyle}
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <CustomButton
+            title="Volver"
+            onPress={handleGoBack}
+            color="grey"
+            style={styles.backButton}
           />
-        )}
 
-        {userType === 'Cliente' && (
-          <TextInputArraysForm
-            title="Cuenta de usuario"
-            inputs={clientFields}
-            onSubmit={handleSubmit}
-            handleFormClose={ async ()=> { setUserType(null); setModalVisible(true); }}
-            buttonText="Registrarse"
-            style={styles.formStyle}
+          <Text style={styles.formTitle}>
+            {userType === "Empresa"
+              ? "Registro de empresa"
+              : "Registro de cliente"}
+          </Text>
+
+          {userType === "Empresa"
+            ? companyFields.map((field, index) => (
+                <View key={`company-${field.name}-${index}`} style={[styles.inputContainer, !isMobile && { width: 400, alignSelf: "center" }]}>
+                  <Text>{field.description}</Text>
+                  <CustomTextInput
+                    placeholder={field.placeholder}
+                    secureTextEntry={field.secureTextEntry}
+                    value={formValues[field.name] || ""}
+                    onChangeText={(text) =>
+                      setFormValues({ ...formValues, [field.name]: text })
+                    }
+                    style={{ width: "100%" }}
+                  />
+                </View>
+              ))
+            : clientFields.map((field, index) => (
+                <View key={`client-${field.name}-${index}`} style={[styles.inputContainer, !isMobile && { width: 400, alignSelf: "center" }]}>
+                  <Text>{field.description}</Text>
+                  <CustomTextInput
+                    placeholder={field.placeholder}
+                    secureTextEntry={field.secureTextEntry}
+                    value={formValues[field.name] || ""}
+                    onChangeText={(text) =>
+                      setFormValues({ ...formValues, [field.name]: text })
+                    }
+                    style={{ width: "100%" }}
+                  />
+                </View>
+              ))}
+
+          {formErrors.length > 0 && (
+            <View style={styles.errorContainer}>
+              {formErrors.map((error, index) => (
+                <Text key={`error-${index}`} style={styles.errorText}>
+                  {error}
+                </Text>
+              ))}
+            </View>
+          )}
+
+          <View style={styles.checkboxContainer}>
+            <Checkbox
+              value={acceptedTerms}
+              onValueChange={setAcceptedTerms}
+              color={acceptedTerms ? GlobalStyles.blue : undefined}
+            />
+            <Text style={styles.checkboxLabel}>Acepto los</Text>
+            <TouchableOpacity onPress={() => setModalVisible(true)}>
+              <Text style={[styles.checkboxLabel, { textDecorationLine: 'underline', color: GlobalStyles.blue }]}>
+                términos y condiciones de uso
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <CustomButton
+            title="Completar registro"
+            onPress={() => handleSubmit(formValues)}
+            color="blue"
+            style={{ ...styles.submitButton, ...(isMobile ? {} : { width: 400 }) }}
           />
-        )}
-      </ScrollView>
+
+          <Modal
+            visible={modalVisible}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <ScrollView>
+                  <Text style={styles.modalTitle}>Términos y condiciones de uso</Text>
+                  <TermsAndConditions />
+                </ScrollView>
+                <CustomButton
+                  title="Cerrar"
+                  onPress={() => setModalVisible(false)}
+                  color="blue"
+                  style={styles.modalButton}
+                />
+              </View>
+            </View>
+          </Modal>
+
+        </ScrollView>
+      )}
     </View>
   );
 };
@@ -212,55 +450,149 @@ const RegisterScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: GlobalStyles.grey,
+    backgroundColor: GlobalStyles.white,
     padding: 20,
+    paddingTop: deviceWidth < 375 ? 50 : 100,
+  },
+  selectionContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    backgroundColor: "#f2f2f2",
+    
+    elevation: 5,
+    padding: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: GlobalStyles.blue,
+    marginBottom: 20,
+  },
+  subtitle: {
+    fontSize: 18,
+    color: GlobalStyles.darkGrey,
+    marginBottom: 40,
+  },
+  buttonBox: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    paddingHorizontal: 10,
+    marginTop: 20,
+  },
+  typeButton: {
+    width: "90%",
+    marginHorizontal: 5,
+    marginVertical: 10,
+    minHeight: 50,
+    alignSelf: "center",
   },
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingBottom: 20,
+    paddingBottom: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
   },
-  modalStyle: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 15,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 5,
-    width: width > 600 ? '40%' : '80%', // Responsive modal width
+  formTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginVertical: 20,
+    textAlign: "center",
   },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginTop: 10,
+  inputContainer: {
+    marginBottom: 20,
+    width: "100%",
   },
-  button: {
-    backgroundColor: GlobalStyles.blue,
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 8,
-    alignItems: 'center',
+  backButton: {
+    width: 100,
+    marginBottom: 20,
+    alignSelf: "flex-start",
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+  submitButton: {
+    marginTop: 20,
+    width: "90%",
+    alignSelf: "center",
   },
-  formStyle: {
-    marginTop: 70,
-    backgroundColor: '#fff',
+  errorContainer: {
+    backgroundColor: "#ffe6e6",
+    padding: 10,
+    marginBottom: 20,
+    borderRadius: 4,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 14,
+  },
+  optionsContainer: {
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  optionCard: {
+    width: deviceWidth < 375 ? "95%" : "90%",
+    backgroundColor: "#fff",
     padding: 20,
     borderRadius: 10,
-    width: width > 600 ? '50%' : '90%', // Ajuste de ancho en móvil y escritorio
-    shadowColor: '#000',
+    marginVertical: 10,
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 8,
     elevation: 3,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  optionTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: GlobalStyles.blue,
+  },
+  optionDescription: {
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 12,
+    color: GlobalStyles.darkGrey,
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  checkboxLabel: {
+    marginLeft: 8,
+    fontSize: 16,
+    color: GlobalStyles.darkGrey,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    width: deviceWidth < 375 ? "95%" : "90%",
+    maxHeight: "80%",
+    backgroundColor: GlobalStyles.white,
+    padding: 20,
+    borderRadius: 10,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  modalText: {
+    fontSize: 16,
+    color: GlobalStyles.darkGrey,
+    marginBottom: 20,
+  },
+  modalButton: {
+    alignSelf: "center",
   },
 });
 
-export default withAuth(RegisterScreen, [AUTHORITIES.ANONYMOUS])
+export default withAuth(RegisterScreen, [AUTHORITIES.ANONYMOUS]);
