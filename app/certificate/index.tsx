@@ -111,8 +111,8 @@ function LoadCertificate() {
       }
 
       setTimeout(() => {
-        setSuccessMessageVisible(false);  // Ocultar el mensaje
-        navigation.navigate("home");  // Redirigir
+        setSuccessMessageVisible(false);  
+        navigation.navigate("home");  
       }, 2000);
     } catch (error) {
       console.error("Error al enviar datos:", error);
@@ -122,7 +122,6 @@ function LoadCertificate() {
     }
   };
 
-  // Función para enviar los datos al backend
   const sendDataToBackend = async (authToken: string | null, dataToSend: { dni: string; file: string; }) => {
     const url = authToken
       ? BACKEND_API + '/api/deathCertificate/upload/loggedInUser'
@@ -130,7 +129,7 @@ function LoadCertificate() {
 
     const headers = {
       "Content-Type": "application/json",
-      ...(authToken && { "Authorization": `Bearer ${authToken}` }), // Añadir el token si está presente
+      ...(authToken && { "Authorization": `Bearer ${authToken}` }), 
     };
 
     return await fetch(url, {
@@ -322,6 +321,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
     width: width > 600 ? "40%" : "80%",
+    height: width > 600 ? "25%" : "40%",
   },
   successModal: {
     backgroundColor: 'white',
