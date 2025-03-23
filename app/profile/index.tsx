@@ -3,6 +3,7 @@ import DeleteAccountButton from '@/components/DeleteAccountButton';
 import LogoutButton from '@/components/LogoutButton';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
@@ -456,22 +457,22 @@ function ProfileScreen() {
 
                 {isEditing ? (
                   <View style={styles.buttonContainer}>
-                    <DeleteAccountButton />
                     <CustomButton
                       title="Guardar"
                       onPress={handleSaveCompany}
                       color="blue"
                     />
+                    <DeleteAccountButton />
                   </View>
                 ) : (
                   <View>
                     <View style={styles.buttonContainer}>
-                      <LogoutButton />
                       <CustomButton
                         title="Editar información"
                         onPress={() => setIsEditing(true)}
                         color="blue"
                       />
+                      <LogoutButton />
                     </View>
                     <ThemedText style={styles.changePasswordText}>
                       ¿Desea cambiar su contraseña?{' '}
@@ -525,7 +526,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: GlobalStyles.white,
   },
   profileContainer: {
     padding: 20,
@@ -536,18 +537,10 @@ const styles = StyleSheet.create({
   },
   companyContainer: {
     padding: 20,
-    elevation: 5,
     width: '100%',
     height: '80%',
     alignItems: 'center',
-  },
-  twoColumnsContainer: {
-    alignSelf: 'center',
-    marginTop: '5%',
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '90%',
+    justifyContent: 'center',
   },
   twoColumnsContainerCompany: {
     flexDirection: 'row',
@@ -613,7 +606,7 @@ const styles = StyleSheet.create({
   },
   input: {
     width: '90%',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: GlobalStyles.lightGrey,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
@@ -626,7 +619,7 @@ const styles = StyleSheet.create({
   inputImage: {
     width: '50%',
     alignSelf: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: GlobalStyles.lightGrey,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
@@ -685,6 +678,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'column',
     justifyContent: 'space-around',
+    alignContent: 'center',
+    alignSelf: 'center',
     marginTop: 20,
     marginBottom: 20,
     gap: 20,

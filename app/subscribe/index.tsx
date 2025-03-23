@@ -1,5 +1,6 @@
 import PlanCard from '@/components/PlanCard';
 import { ThemedView } from '@/components/ThemedView';
+import { GlobalStyles } from '@/constants/Colors';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -69,8 +70,8 @@ const styles = StyleSheet.create({
     padding: 8,
     flex: 1,
     alignItems: 'center',
-    paddingTop: 120,
-    backgroundColor: '#ffff',
+    paddingTop: 20,
+    backgroundColor: GlobalStyles.white,
   },
   title: {
     fontSize: 30,

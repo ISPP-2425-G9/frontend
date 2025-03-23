@@ -92,11 +92,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: GlobalStyles.white,
-    paddingVertical: 120,
+    paddingVertical: 20,
   },
   scrollContainer: {
     flexGrow: 1,
-    padding: 16,
+    padding: 10,
     alignItems: 'center',
   },
   introContainer: {
