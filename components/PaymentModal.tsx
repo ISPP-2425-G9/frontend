@@ -103,7 +103,7 @@ const SecureField: React.FC<SecureFieldProps> = ({
         }),
       ]).start();
     }
-    setIsComplete(event.complete || false);
+    setIsComplete(event.complete ?? false);
   };
 
   const getCardIcon = () => {
