@@ -1,65 +1,129 @@
-import { StyleSheet, Text } from 'react-native';
-
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView } from 'react-native';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
+import CustomTextInput from '@/components/CustomTextInput';
+import { useState } from 'react';
+import CustomButton from '@/components/CustomButton';
 
-function TabTwoScreen() {
+function MessageCreation() {
+  const [formData, setFormData] = useState({
+    title: '',
+    text: '',
+  });
+
+  const handleChange = (field: string, value: string) => {
+    setFormData({ ...formData, [field]: value });
+  };
+
+  const handleSaveMessage = () => {
+    console.log('Mensaje guardado:', formData);
+  };
+
+  const handleSelectContacts = () => {
+    console.log('Seleccionar contactos');
+  };
+
   return (
-    <ThemedView style={styles.container}>
-      <Text style={styles.title}>Página en construcción</Text>
-      <ThemedText type="default">Esta página aún no está disponible.</ThemedText>
-    </ThemedView>
-  );
+    <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.formContainer}>
+        <CustomTextInput
+          style={{ width: '100%' }}
+          placeholder="Título del mensaje"
+          maxLength={100}
+          value={formData.title}
+          onChangeText={(text) => handleChange('title', text)}
+        />
 
+        <CustomTextInput
+          style={styles.textArea}
+          placeholder="Texto personalizado"
+          maxLength={20000}
+          multiline={true}
+          value={formData.text}
+          onChangeText={(text) => handleChange('text', text)}
+        />
+
+
+        <CustomButton
+            color="blue"
+            style={styles.selecContactButton}
+            title="Seleccionar archivos"
+            onPress={handleSelectContacts}
+          />
+        <View style={styles.buttonContainer}>
+          <CustomButton
+            color="blue"
+            style={styles.button}
+            title="Guardar mensaje"
+            onPress={handleSaveMessage}
+          />
+
+          <CustomButton
+            color="blue"
+            style={styles.button}
+            title="Seleccionar contactos"
+            onPress={handleSelectContacts}
+          />
+        </View>
+              <View style={styles.divider} />
+        
+      </View>
+    </ScrollView>
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 8,
-    flex: 1,
-    alignItems: 'center',
-    paddingTop: 120,
-    backgroundColor: '#ffff',
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    marginBottom: 30,
-  },
-  scrollContainer: {
+    paddingTop: 105,
+    backgroundColor: '#fff',
     flexGrow: 1,
-    alignItems: 'center',
-  },
-  listContainer: {
-    width: '100%',
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
+    justifyContent: 'space-between',
+    marginLeft: 50,
   },
-  obituaryCard: {
-    padding: 10,
-    margin: 8,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
-    alignItems: 'center',
-    overflow: 'hidden',
+  formContainer: {
+    width: '45%',
+    justifyContent: 'flex-start',
   },
-  image: {
+  textArea: {
     width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
+    height: 400,
+    textAlignVertical: 'top',
+    backgroundColor: '#e5e5e5',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
   },
-  centeredContainer: {
-    flex: 1,
-    justifyContent: 'center',
+  buttonContainer: {
+    flexDirection: 'row',
+    width: '100%',
+    alignSelf: 'center',
+    gap: 10,
+    marginTop: 30,
+    justifyContent: 'center'
+  },
+  textPreview: {
+    backgroundColor: '#e5e5e5',
+    borderRadius: 12,
+    padding: 12,
+    width: '80%',
+    marginBottom: 20,
+  },
+  previewButton: {
+    backgroundColor: '#4DB5F4',
+    padding: 12,
+    borderRadius: 20,
+    width: '60%',
     alignItems: 'center',
+  },
+  selecContactButton: {
+    width: '50%',
+    marginTop: 12,
+    alignSelf: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
   divider: {
     height: 1,
@@ -67,12 +131,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#ccc',
     marginVertical: 20,
   },
-  buttonContainer: {
-    width: '90%',
-    alignItems: 'flex-end', 
-    marginBottom: '0.5%', 
-    marginRight: '6%',
+  button: {
+    width: '30%', 
+    alignSelf: 'center',
+    height: 50,
   },
 });
 
-export default withAuth(TabTwoScreen, [AUTHORITIES.CUSTOMER_PREMIUM])
+export default withAuth(MessageCreation, [AUTHORITIES.CUSTOMER]);
