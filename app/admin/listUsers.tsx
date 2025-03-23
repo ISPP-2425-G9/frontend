@@ -107,13 +107,13 @@ function AdminListUsers() {
       <ThemedView style={styles.buttonContainer}>
         <CustomButton
           title="Clientes"
-          onPress={() => setMostrarClientes(true)}
+          onPress={() => { setMostrarClientes(true); }}
           color={mostrarClientes ? 'blue' : 'grey'}
           style={styles.smallButton}
         />
         <CustomButton
           title="Empresas"
-          onPress={() => setMostrarClientes(false)}
+          onPress={() => { setMostrarClientes(false); }}
           color={!mostrarClientes ? 'blue' : 'grey'}
           style={styles.smallButton}
         />
@@ -144,7 +144,7 @@ function AdminListUsers() {
                     </ThemedText>
                     <ThemedText style={styles.cell}>{item.telephone}</ThemedText>
                     <View style={styles.actions}>
-                      <CustomButton title="Editar" onPress={() => handleEdit(item.id)} color="blue" />
+                      <CustomButton title="Editar" onPress={() => { handleEdit(item.id); }} color="blue" />
                       <CustomButton
                         title="Eliminar"
                         onPress={() => {
@@ -162,10 +162,10 @@ function AdminListUsers() {
         )}
       </ThemedView>
 
-      <CustomModal visible={modalVisible} onClose={() => setModalVisible(false)} title="Confirmar Eliminación">
+      <CustomModal visible={modalVisible} onClose={() => { setModalVisible(false); } } title="Confirmar Eliminación">
         <ThemedText>¿Estás seguro de que deseas eliminar este usuario?</ThemedText>
         <View style={styles.modalButtons}>
-          <CustomButton title="Cancelar" onPress={() => setModalVisible(false)} color="grey" />
+          <CustomButton title="Cancelar" onPress={() => { setModalVisible(false);} } color="grey" />
           <CustomButton title="Eliminar" onPress={handleDelete} color="red" />
         </View>
       </CustomModal>

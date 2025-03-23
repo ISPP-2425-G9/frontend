@@ -56,7 +56,7 @@ const AddRecipientsModal: React.FC<AddRecipientsModalProps> = ({ visible, onClos
             renderItem={({ item }) => (
               <View style={styles.emailItem}>
                 <Text style={styles.emailText}>{item}</Text>
-                <TouchableOpacity onPress={() => removeEmail(item)}>
+                <TouchableOpacity onPress={() => {removeEmail(item)}}>
                   <Ionicons name="trash" size={20} color={GlobalStyles.red} />
                 </TouchableOpacity>
               </View>
@@ -67,7 +67,7 @@ const AddRecipientsModal: React.FC<AddRecipientsModalProps> = ({ visible, onClos
             <TouchableOpacity onPress={onClose} style={styles.cancelButton}>
               <Text style={styles.buttonText}>Cancelar</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => onConfirm(emailList)} style={styles.confirmButton}>
+            <TouchableOpacity onPress={() => {onConfirm(emailList)}} style={styles.confirmButton}>
               <Text style={styles.buttonText}>Confirmar</Text>
             </TouchableOpacity>
           </View>

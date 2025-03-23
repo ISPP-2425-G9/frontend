@@ -165,7 +165,7 @@ function ObituaryIndex() {
                     {item.deathDate === null ? (
                       <>
                         <CustomButton title="Edita la esquela" onPress={() => {handleObituaryPress(item.imageTemplate.imageId,item.imageTemplate.imageUrl,item.id)}} />
-                        <CustomButton title="Eliminar" color="red" onPress={() => showConfirmationModal(item.id)} />
+                        <CustomButton title="Eliminar" color="red" onPress={() => {showConfirmationModal(item.id);}} />
 
                       </>
                     ) : (
@@ -190,7 +190,7 @@ function ObituaryIndex() {
       </ScrollView>
       <View style={styles.divider} />
       <View style={styles.buttonContainer}>
-        <CustomButton title="Crea una esquela" onPress={() => navigation.navigate('obituaries/index')} />
+        <CustomButton title="Crea una esquela" onPress={() => {navigation.navigate('obituaries/index');}} />
       </View>
       {modalVisible && (
         <CustomModal
@@ -200,10 +200,10 @@ function ObituaryIndex() {
           style={styles.modalStyle}
         >
           <View style={styles.buttonModalContainer}>
-            <TouchableOpacity style={styles.button} onPress={() => handleSubmit()}>
+            <TouchableOpacity style={styles.button} onPress={() => { handleSubmit(); }}>
               <Text style={styles.buttonText}>Aceptar</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => handleCloseModal()}>
+            <TouchableOpacity style={styles.button} onPress={() => { handleCloseModal(); }}>
               <Text style={styles.buttonText}>Cancelar</Text>
             </TouchableOpacity>
           </View>

@@ -136,13 +136,13 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           {isPremium ? (
             <TouchableOpacity 
               style={styles.buttonCancel}
-              onPress={() => setIsCancelModalVisible(true)}>
+              onPress={() => {setIsCancelModalVisible(true)}}>
               <Text style={styles.buttonText}>Darte de baja</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity 
               style={styles.buttonSubscribe} 
-              onPress={() => setIsModalVisible(true)}
+              onPress={() => {setIsModalVisible(true)}}
             >
               <Text style={styles.buttonText}>Contratar plan</Text>
             </TouchableOpacity>
@@ -157,7 +157,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           <Text style={styles.price}>{esquelasDetails.price}</Text>
         </View>
       )}
-      <CustomModal visible={isModalVisible} onClose={() => setIsModalVisible(false)} title="Confirmar contratación">
+      <CustomModal visible={isModalVisible} onClose={() => {setIsModalVisible(false)}} title="Confirmar contratación">
         <View style={styles.modalContent}>
           <ThemedText style={styles.modalText}>
             ¿Estás seguro que deseas contratar este plan?
@@ -165,7 +165,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           <View style={styles.modalButtons}>
             <CustomButton
               title="Cancelar"
-              onPress={() => setIsModalVisible(false)}
+              onPress={() => {setIsModalVisible(false)}}
               style={styles.modalButton}
               color="red"
             />
@@ -178,7 +178,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           </View>
         </View>
       </CustomModal>
-      <CustomModal visible={isCancelModalVisible} onClose={() => setIsCancelModalVisible(false)} title="Cancelar suscripción">
+      <CustomModal visible={isCancelModalVisible} onClose={() => {setIsCancelModalVisible(false)}} title="Cancelar suscripción">
         <View style={styles.modalContent}>
           <ThemedText style={styles.modalText}>
             ¿Estás seguro que deseas cancelar tu suscripción?
@@ -186,7 +186,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           <View style={styles.modalButtons}>
             <CustomButton
               title="Cancelar"
-              onPress={() => setIsCancelModalVisible(false)}
+              onPress={() => {setIsCancelModalVisible(false)}}
               style={styles.modalButton}
               color="red"
             />

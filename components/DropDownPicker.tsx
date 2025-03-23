@@ -15,7 +15,7 @@ const DropDownPicker: React.FC<DropDownPickerProps> = ({ options, onSelect, styl
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
 
-  const toggleDropdown = () => setIsOpen(!isOpen);
+  const toggleDropdown = () => {setIsOpen(!isOpen)};
   const handleSelect = (value: string | null) => {
     setSelected(value);
     onSelect(value);
@@ -32,7 +32,7 @@ const DropDownPicker: React.FC<DropDownPickerProps> = ({ options, onSelect, styl
         <View style={styles.dropdown}>
           <Pressable 
             style={({ hovered }) => [styles.option, hovered && { backgroundColor: GlobalStyles.blue }]} 
-            onPress={() => handleSelect(null)}
+            onPress={() => {handleSelect(null)}}
           >
             <Text style={styles.text}>-</Text>
           </Pressable>
@@ -40,7 +40,7 @@ const DropDownPicker: React.FC<DropDownPickerProps> = ({ options, onSelect, styl
             <Pressable 
               key={option.value} 
               style={({ hovered }) => [styles.option, hovered && { backgroundColor: GlobalStyles.blue }]} 
-              onPress={() => handleSelect(option.value)}
+              onPress={() => {handleSelect(option.value)}}
             >
               <Text style={styles.text}>{option.label}</Text>
             </Pressable>

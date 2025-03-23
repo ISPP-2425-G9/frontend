@@ -97,7 +97,7 @@ function ObituaryIndex() {
         {obituaries.map((item) => (
           <TouchableOpacity
             key={item.id}  
-            onPress={() => handleObituaryPress(item.id, item.imageUrl)} 
+            onPress={() => {handleObituaryPress(item.id, item.imageUrl); }} 
             style={[styles.obituaryCard]} 
           >
             <Image source={{ uri: item.imageUrl }} style={styles.image} />
@@ -107,7 +107,7 @@ function ObituaryIndex() {
       </ScrollView>
       <View style={styles.divider} />
         <View style={styles.buttonContainer}>
-          <CustomButton title="Sus esquelas" onPress={() => navigation.navigate('obituaries/listMyObituaries')} />
+          <CustomButton title="Sus esquelas" onPress={() => { navigation.navigate('obituaries/listMyObituaries'); }} />
         </View>   
       </ThemedView>
   ) : (

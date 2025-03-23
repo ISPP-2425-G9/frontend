@@ -233,13 +233,13 @@ function LoadCertificate() {
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => handleSubmit()}
+              onPress={() => { handleSubmit(); }}
             >
               <Text style={styles.buttonText}>Aceptar</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => { handleCloseModal() }}
+              onPress={() => { handleCloseModal(); }}
             >
               <Text style={styles.buttonText}>Cancelar</Text>
             </TouchableOpacity>

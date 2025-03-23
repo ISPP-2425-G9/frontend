@@ -313,7 +313,7 @@ const RegisterScreen: React.FC = () => {
               </Text>
               <CustomButton
                 title="Registrarme como cliente"
-                onPress={() => handleUserTypeSelection("Cliente")}
+                onPress={() => {handleUserTypeSelection("Cliente")}}
                 color="blue"
                 style={{ ...styles.typeButton, ...(isMobile ? {} : { width: 400 }) }}
               />
@@ -325,7 +325,7 @@ const RegisterScreen: React.FC = () => {
               </Text>
               <CustomButton
                 title="Registrar mi empresa"
-                onPress={() => handleUserTypeSelection("Empresa")}
+                onPress={() => {handleUserTypeSelection("Empresa")}}
                 color="blue"
                 style={{ ...styles.typeButton, ...(isMobile ? {} : { width: 400 }) }}
               />
@@ -394,7 +394,7 @@ const RegisterScreen: React.FC = () => {
               color={acceptedTerms ? GlobalStyles.blue : undefined}
             />
             <Text style={styles.checkboxLabel}>Acepto los</Text>
-            <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <TouchableOpacity onPress={() => {setModalVisible(true)}}>
               <Text style={[styles.checkboxLabel, { textDecorationLine: 'underline', color: GlobalStyles.blue }]}>
                 términos y condiciones de uso
               </Text>
@@ -403,7 +403,7 @@ const RegisterScreen: React.FC = () => {
 
           <CustomButton
             title="Completar registro"
-            onPress={() => handleSubmit(formValues)}
+            onPress={() => {handleSubmit(formValues)}}
             color="blue"
             style={{ ...styles.submitButton, ...(isMobile ? {} : { width: 400 }) }}
           />
@@ -412,7 +412,7 @@ const RegisterScreen: React.FC = () => {
             visible={modalVisible}
             animationType="slide"
             transparent={true}
-            onRequestClose={() => setModalVisible(false)}
+            onRequestClose={() => {setModalVisible(false)}}
           >
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
@@ -422,7 +422,7 @@ const RegisterScreen: React.FC = () => {
                 </ScrollView>
                 <CustomButton
                   title="Cerrar"
-                  onPress={() => setModalVisible(false)}
+                  onPress={() => {setModalVisible(false)}}
                   color="blue"
                   style={styles.modalButton}
                 />

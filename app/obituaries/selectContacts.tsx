@@ -380,7 +380,7 @@ function SelectContacts() {
                 <CustomButton
                   title="Eliminar"
                   color="red"
-                  onPress={() => removeContact(item.id)}
+                  onPress={() => {removeContact(item.id);}}
                   style={styles.deleteButton}
                 />
               )}
@@ -400,13 +400,13 @@ function SelectContacts() {
           <>
             <CustomButton
               title={"Cree su propia esquela"}
-              onPress={() => showConfirmationModal(true)}
+              onPress={() => {showConfirmationModal(true)}}
               style={styles.saveButton}
             />
 
             <CustomButton
               title={"Cree y envie su esquela para un ser querido"}
-              onPress={() => showConfirmationModal(false)}
+              onPress={() => {showConfirmationModal(false)}}
               style={styles.saveButton}
             />
           </>
@@ -426,7 +426,7 @@ function SelectContacts() {
         ) : (
           <CustomButton
             title={"Actualice el certificado de defunción"}
-            onPress={() => showConfirmationModal(false)}
+            onPress={() => {showConfirmationModal(false)}}
             style={styles.saveButton}
           />
         )
@@ -446,13 +446,13 @@ function SelectContacts() {
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => handleSubmit()}
+              onPress={() => {handleSubmit()}}
             >
             <Text style={styles.buttonText}>Aceptar</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => handleCloseModal()}
+              onPress={() => {handleCloseModal()}}
             >
               <Text style={styles.buttonText}>Cancelar</Text>
             </TouchableOpacity>

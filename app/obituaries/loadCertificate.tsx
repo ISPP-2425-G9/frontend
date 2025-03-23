@@ -259,7 +259,7 @@ function LoadCertificate() {
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => handleSubmit()}
+              onPress={() => {handleSubmit(); }}
             >
               <Text style={styles.buttonText}>Aceptar</Text>
             </TouchableOpacity>
