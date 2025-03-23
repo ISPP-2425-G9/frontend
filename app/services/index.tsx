@@ -1,12 +1,13 @@
-import { StyleSheet, Text, ScrollView, ActivityIndicator, View } from 'react-native';
+import AdvertisementSponsor from '@/components/AdvertisementSponsor';
 import { ThemedView } from '@/components/ThemedView';
+import { GlobalStyles } from '@/constants/Colors';
+import { BACKEND_API } from '@/constants/Mysc';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
-import { useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GlobalStyles } from '@/constants/Colors';
-import AdvertisementSponsor from '@/components/AdvertisementSponsor';
-import { BACKEND_API } from '@/constants/Mysc';
 
 
 type Sponsor = {
@@ -53,6 +54,12 @@ const ListServiceScreen: React.FC = () => {
     fetchSponsors();
   }, []);
 
+  useFocusEffect(
+      React.useCallback(() => {
+        document.title = 'Servicios';
+      }, [])
+    );
+
   return (
     <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -85,11 +92,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: GlobalStyles.white,
-    paddingVertical: 120,
+    paddingVertical: 20,
   },
   scrollContainer: {
     flexGrow: 1,
-    padding: 16,
+    padding: 10,
     alignItems: 'center',
   },
   introContainer: {

@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react';
-import { StyleSheet, Image, View, ScrollView, TouchableOpacity, Text, Dimensions } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { useNavigation, NavigationProp, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp, useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import CustomButton from '@/components/CustomButton';
-import useAuth from "@/hooks/useAuth";
 import { BACKEND_API } from '@/constants/Mysc';
-import { withAuth } from '../_util/withAuth';
+import useAuth from "@/hooks/useAuth";
+import React, { useEffect, useState } from 'react';
+import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { AUTHORITIES } from '../_util/Authorities';
 import CustomModal from "@/components/CustomModal";
 import { GlobalStyles } from "@/constants/Colors";
+import { withAuth } from '../_util/withAuth';
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
@@ -79,6 +79,12 @@ function ObituaryIndex() {
   }, []);
 
 
+  useFocusEffect(
+      React.useCallback(() => {
+        document.title = 'Esquelas';
+      }, [])
+    );
+
   const showConfirmationModal = (id: number, imageUrl: string) => {
 
     setSelectedObituary({ id, imageUrl });
@@ -143,7 +149,7 @@ function ObituaryIndex() {
 
   return isAuthenticated ? (
     <ThemedView style={styles.container}>
-      <Text style={styles.title}>Elija el diseño</Text>
+      <Text style={styles.title}>Elige un diseño</Text>
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.listContainer}>
         {obituaries.map((item) => (
@@ -196,7 +202,7 @@ function ObituaryIndex() {
 
       <View style={styles.divider} />
         <View style={styles.buttonContainer}>
-          <CustomButton title="Sus esquelas" onPress={() => navigation.navigate('obituaries/listMyObituaries')} />
+          <CustomButton title="Tus esquelas" onPress={() => navigation.navigate('obituaries/listMyObituaries')} />
         </View>   
       </ThemedView>
   ) : (
@@ -209,11 +215,11 @@ function ObituaryIndex() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    fontFamily: GlobalStyles.font,
     padding: 8,
     alignItems: 'center',
-    paddingTop: 120,
-    backgroundColor: '#ffff',
+    paddingTop: 20,
+    backgroundColor: GlobalStyles.white,
   },
   title: {
     fontSize: 30,
