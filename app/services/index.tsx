@@ -9,6 +9,7 @@ import { BACKEND_API } from '@/constants/Mysc';
 import AdvertisementSponsor from '@/components/AdvertisementSponsor';
 import CustomTextInput from '@/components/CustomTextInput';
 import CustomButton from '@/components/CustomButton';
+import { useWindowDimensions } from 'react-native';
 
 
 type Sponsor = {
@@ -31,6 +32,9 @@ const ListServiceScreen: React.FC = () => {
   const [companyType, setCompanyType] = useState('');
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+
+  const { width } = useWindowDimensions();
+  const isMobile = width < 768;
 
 
   const fetchSponsors = async () => {
@@ -84,7 +88,7 @@ const ListServiceScreen: React.FC = () => {
           </Text>
         </View>
         {/* FILTRADO */}
-        <View style={{ width: '90%', alignItems: 'center', marginBottom: 10 }}>
+        <View style={[styles.filterContainer, isMobile && styles.filterContainerMobile]}>
           <CustomTextInput
             placeholder="Buscar por ciudad"
             value={city}
@@ -114,7 +118,7 @@ const ListServiceScreen: React.FC = () => {
           </View>
         )}
         {/* PAGINACIÓN */}
-        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 20, gap: 10 }}>
+        <View style={[styles.paginationContainer, isMobile && styles.paginationContainerMobile]}>
           <CustomButton
             title="Anterior"
             onPress={() => setPage(page - 1)}
@@ -183,6 +187,26 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 16,
   },
+  filterContainer: {
+    width: 400,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  filterContainerMobile: {
+    width: '100%',
+    paddingHorizontal: 16,
+  },  
+  paginationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 20,
+  },
+  paginationContainerMobile: {
+    flexDirection: 'column',
+    gap: 10,
+  },  
 });
 
 export default withAuth(ListServiceScreen, [AUTHORITIES.CUSTOMER, AUTHORITIES.COMPANY]);
