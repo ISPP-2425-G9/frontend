@@ -11,7 +11,9 @@ import { ThemedText } from './ThemedText';
 
 const CustomNavbar = () => {
     const navigation = useNavigation();
-    const currentRoute = useNavigationState(state => state.routes[state.index].name);
+    const currentRoute = useNavigationState(
+        (state) => state?.routes?.[state.index]?.name || ''
+    ); 
     const { width } = useWindowDimensions();
     const [menuOpen, setMenuOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
