@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
-import { GlobalStyles } from '@/constants/Colors';
-import CustomModal from '@/components/CustomModal';
 import CustomButton from '@/components/CustomButton';
+import CustomModal from '@/components/CustomModal';
 import { ThemedText } from '@/components/ThemedText';
+import { GlobalStyles } from '@/constants/Colors';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 
 interface PlanCardProps {
@@ -137,7 +136,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
             <TouchableOpacity 
               style={styles.buttonCancel}
               onPress={() => setIsCancelModalVisible(true)}>
-              <Text style={styles.buttonText}>Darte de baja</Text>
+              <Text style={styles.buttonText}>Darse de baja</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity 
@@ -157,7 +156,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           <Text style={styles.price}>{esquelasDetails.price}</Text>
         </View>
       )}
-      <CustomModal visible={isModalVisible} onClose={() => setIsModalVisible(false)} title="Confirmar contratación">
+      <CustomModal visible={isModalVisible} onClose={() => setIsModalVisible(false)} title="Confirmar contratación" style={styles.modal}>
         <View style={styles.modalContent}>
           <ThemedText style={styles.modalText}>
             ¿Estás seguro que deseas contratar este plan?
@@ -178,7 +177,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           </View>
         </View>
       </CustomModal>
-      <CustomModal visible={isCancelModalVisible} onClose={() => setIsCancelModalVisible(false)} title="Cancelar suscripción">
+      <CustomModal visible={isCancelModalVisible} onClose={() => setIsCancelModalVisible(false)} title="Cancelar suscripción" style={styles.modal}>
         <View style={styles.modalContent}>
           <ThemedText style={styles.modalText}>
             ¿Estás seguro que deseas cancelar tu suscripción?
@@ -274,17 +273,13 @@ const styles = StyleSheet.create({
       color: GlobalStyles.white,
       fontFamily: GlobalStyles.fontBold,
     },
+    modal: {
+      width: 'auto',
+    },
     modalContent: {
       padding: 20,
       alignItems: 'center',
-      backgroundColor: 'white',
-      borderRadius: 10,
-      width: '90%',
       alignSelf: 'center',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
       elevation: 5,
     },
     modalText: {
@@ -296,7 +291,6 @@ const styles = StyleSheet.create({
     modalButtons: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      width: '100%',
       marginTop: 10,
     },
     modalButton: {
