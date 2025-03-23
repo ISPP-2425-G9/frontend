@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Dimensions } from 'react-native';
 import { GlobalStyles } from '@/constants/Colors';
 import CustomModal from '@/components/CustomModal';
 import CustomButton from '@/components/CustomButton';
-import { CardField, useStripe } from '@stripe/stripe-react-native';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_API } from '@/constants/Mysc';
 
 const { width } = Dimensions.get('window');
+
+const STRIPE_PUBLISHABLE_KEY = 'pk_test_51R1uerGa0d4217RGhYHV7bLOxmAPTyZklTeE72bfrrvfFdAS2aQOhF73AjpfBduudppxm4i7pb66DCNDQU6Hiyou00yD5rsLWb';
 
 interface PaymentModalProps {
   visible: boolean;
@@ -18,33 +21,67 @@ interface PaymentModalProps {
   onSuccess?: (paymentMethodId: string) => void;
 }
 
-const PaymentModal: React.FC<PaymentModalProps> = ({
+const CheckoutForm: React.FC<PaymentModalProps> = ({
   visible,
   onClose,
   amount,
-  planType,
   description,
   onSuccess,
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const { createPaymentMethod } = useStripe();
+  const stripe = useStripe();
+  const elements = useElements();
 
   const handlePayment = async () => {
+    if (!stripe || !elements) {
+      return;
+    }
+
     setIsProcessing(true);
     try {
-      // Crear el PaymentMethod con Stripe
-      const { paymentMethod, error } = await createPaymentMethod({
-        type: 'Card',
+      const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: 'card',
+        card: elements.getElement(CardElement)!,
       });
 
       if (error) {
-        console.error('Error al crear el método de pago:', error);
+        console.error('Error:', error);
         return;
       }
 
       if (paymentMethod) {
-        onSuccess?.(paymentMethod.id);
-        onClose();
+        try {
+          const authToken = await AsyncStorage.getItem('authToken');
+          if (!authToken) {
+            throw new Error('No se encontró un token de autenticación');
+          }
+
+          const userId = await AsyncStorage.getItem('userId');
+          if (!userId) {
+            throw new Error('No se encontró el ID de usuario');
+          }
+
+          const response = await fetch(`${BACKEND_API}/api/plans/${userId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({
+              paymentMethodId: paymentMethod.id,
+              planType: 'PREMIUM',
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Error al actualizar el plan');
+          }
+
+          onSuccess?.(paymentMethod.id);
+          onClose();
+        } catch (err: any) {
+          console.error('Error en el servidor:', err.message);
+        }
       }
     } catch (err) {
       console.error('Error al procesar el pago:', err);
@@ -60,16 +97,21 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         <Text style={styles.amount}>{amount.toFixed(2)}€/mes</Text>
 
         <View style={styles.cardContainer}>
-          <CardField
-            postalCodeEnabled={false}
-            placeholder={{
-              number: '4242 4242 4242 4242',
+          <CardElement
+            options={{
+              style: {
+                base: {
+                  fontSize: '16px',
+                  color: '#424770',
+                  '::placeholder': {
+                    color: '#aab7c4',
+                  },
+                },
+                invalid: {
+                  color: '#9e2146',
+                },
+              },
             }}
-            cardStyle={{
-              backgroundColor: '#FFFFFF',
-              textColor: '#000000',
-            }}
-            style={styles.cardField}
           />
         </View>
 
@@ -96,6 +138,14 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     </CustomModal>
   );
 };
+
+const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
+
+const PaymentModal: React.FC<PaymentModalProps> = (props) => (
+  <Elements stripe={stripePromise}>
+    <CheckoutForm {...props} />
+  </Elements>
+);
 
 const styles = StyleSheet.create({
   container: {
