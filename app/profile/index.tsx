@@ -376,7 +376,6 @@ function ProfileScreen() {
             {role === "CUSTOMER" ? (
               <View style={styles.columnData}>
                 <ThemedText style={styles.title}>Mis datos</ThemedText>
-
                 {renderEditableField('Nombre', editedCustomer.name, 'name', 'Nombre de usuario')}
                 {renderEditableField('Email', editedCustomer.email, 'email', 'Email')}
                 {renderEditableField('Teléfono', editedCustomer.telephone, 'telephone', 'Número de teléfono')}
@@ -384,21 +383,21 @@ function ProfileScreen() {
                 <ThemedText style={styles.value}>{editedCustomer.dni}</ThemedText>
                 {isEditing ? (
                   <View style={styles.buttonContainer}>
-                    <DeleteAccountButton />
                     <CustomButton
                       title="Guardar"
                       onPress={handleSave}
                       color="blue"
                     />
+                    <DeleteAccountButton />
                   </View>
                 ) : (
                   <View style={styles.buttonContainer}>
-                    <LogoutButton />
                     <CustomButton
                       title="Editar usuario"
                       onPress={() => setIsEditing(true)}
                       color="blue"
                     />
+                    <LogoutButton />
                   </View>
                 )}
 
@@ -556,7 +555,8 @@ const styles = StyleSheet.create({
     width: '70%',
   },
   columnData: {
-    width: '50%',
+    maxWidth: 400,
+    width: '100%',
     alignItems: 'center',
     height: '100%',
   },
@@ -570,7 +570,7 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 5,
     textAlign: 'left',
-    width: '50%',
+    width: '100%',
     marginLeft: '15%',
   },
   labelCompany: {
@@ -586,7 +586,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     fontWeight: 'bold',
     textAlign: 'left',
-    width: '50%',
+    width: '100%',
     marginLeft: '15%',
   },
   valueCompany: {
@@ -612,7 +612,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   input: {
-    width: '40%',
+    width: '90%',
     backgroundColor: '#f0f0f0',
     paddingVertical: 12,
     paddingHorizontal: 16,
@@ -683,7 +683,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonContainer: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-around',
     marginTop: 20,
     marginBottom: 20,
