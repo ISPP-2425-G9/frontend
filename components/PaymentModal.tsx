@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, ActivityIndicator, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, Dimensions } from 'react-native';
 import { GlobalStyles } from '@/constants/Colors';
 import CustomModal from '@/components/CustomModal';
 import CustomButton from '@/components/CustomButton';
-import { ThemedText } from '@/components/ThemedText';
+import { CardField, useStripe } from '@stripe/stripe-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_API } from '@/constants/Mysc';
 
@@ -15,7 +15,7 @@ interface PaymentModalProps {
   amount: number;
   planType: string;
   description: string;
-  onSuccess?: () => void;
+  onSuccess?: (paymentMethodId: string) => void;
 }
 
 const PaymentModal: React.FC<PaymentModalProps> = ({
@@ -26,74 +26,30 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   description,
   onSuccess,
 }) => {
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
-  const [cvv, setCvv] = useState('');
-  const [cardHolder, setCardHolder] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-
-  const validateCard = () => {
-    if (cardNumber.length !== 16) return 'Número de tarjeta inválido';
-    if (expiryDate.length !== 5) return 'Fecha de expiración inválida';
-    if (cvv.length !== 3) return 'CVV inválido';
-    if (cardHolder.length < 3) return 'Nombre del titular inválido';
-    return null;
-  };
+  const { createPaymentMethod } = useStripe();
 
   const handlePayment = async () => {
-    if (!validateCard()) {
-      return;
-    }
-
     setIsProcessing(true);
     try {
-      const authToken = await AsyncStorage.getItem('authToken');
-      if (!authToken) {
-        throw new Error('No se encontró un token de autenticación');
-      }
-
-      const response = await fetch(`${BACKEND_API}/api/payments/process`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({
-          amount,
-          planType,
-          paymentDetails: {
-            cardNumber,
-            expiryDate,
-            cvv,
-            cardHolder,
-          },
-        }),
+      // Crear el PaymentMethod con Stripe
+      const { paymentMethod, error } = await createPaymentMethod({
+        type: 'Card',
       });
 
-      if (!response.ok) {
-        throw new Error('Error al procesar el pago');
+      if (error) {
+        console.error('Error al crear el método de pago:', error);
+        return;
       }
 
-      onSuccess?.();
-      onClose();
+      if (paymentMethod) {
+        onSuccess?.(paymentMethod.id);
+        onClose();
+      }
     } catch (err) {
-      console.error('Error en el pago:', err);
+      console.error('Error al procesar el pago:', err);
     } finally {
       setIsProcessing(false);
-    }
-  };
-
-  const formatCardNumber = (text: string) => {
-    const cleaned = text.replace(/\D/g, '');
-    setCardNumber(cleaned.slice(0, 16));
-  };
-
-  const formatExpiryDate = (text: string) => {
-    const cleaned = text.replace(/\D/g, '');
-    if (cleaned.length >= 2) {
-      setExpiryDate(cleaned.slice(0, 2) + '/' + cleaned.slice(2, 4));
-    } else {
-      setExpiryDate(cleaned);
     }
   };
 
@@ -103,53 +59,17 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         <Text style={styles.description}>{description}</Text>
         <Text style={styles.amount}>{amount.toFixed(2)}€/mes</Text>
 
-        <View style={styles.inputContainer}>
-          <ThemedText style={styles.label}>Número de tarjeta</ThemedText>
-          <TextInput
-            style={styles.input}
-            value={cardNumber}
-            onChangeText={formatCardNumber}
-            placeholder="1234 5678 9012 3456"
-            keyboardType="numeric"
-            maxLength={16}
-          />
-        </View>
-
-        <View style={styles.row}>
-          <View style={[styles.inputContainer, { flex: 1, marginRight: 10 }]}>
-            <ThemedText style={styles.label}>Fecha exp.</ThemedText>
-            <TextInput
-              style={styles.input}
-              value={expiryDate}
-              onChangeText={formatExpiryDate}
-              placeholder="MM/YY"
-              keyboardType="numeric"
-              maxLength={5}
-            />
-          </View>
-
-          <View style={[styles.inputContainer, { flex: 1 }]}>
-            <ThemedText style={styles.label}>CVV</ThemedText>
-            <TextInput
-              style={styles.input}
-              value={cvv}
-              onChangeText={(text) => { setCvv(text.replace(/\D/g, '').slice(0, 3)); }}
-              placeholder="123"
-              keyboardType="numeric"
-              maxLength={3}
-              secureTextEntry
-            />
-          </View>
-        </View>
-
-        <View style={styles.inputContainer}>
-          <ThemedText style={styles.label}>Titular de la tarjeta</ThemedText>
-          <TextInput
-            style={styles.input}
-            value={cardHolder}
-            onChangeText={setCardHolder}
-            placeholder="NOMBRE APELLIDOS"
-            autoCapitalize="characters"
+        <View style={styles.cardContainer}>
+          <CardField
+            postalCodeEnabled={false}
+            placeholder={{
+              number: '4242 4242 4242 4242',
+            }}
+            cardStyle={{
+              backgroundColor: '#FFFFFF',
+              textColor: '#000000',
+            }}
+            style={styles.cardField}
           />
         </View>
 
@@ -197,31 +117,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-  inputContainer: {
-    marginBottom: 15,
+  cardContainer: {
     width: '100%',
     maxWidth: 400,
     alignSelf: 'center',
+    marginBottom: 20,
   },
-  label: {
-    fontSize: 14,
-    marginBottom: 5,
-    color: GlobalStyles.darkGrey,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: GlobalStyles.lightGrey,
-    borderRadius: 8,
-    padding: 10,
-    fontSize: 16,
-    backgroundColor: GlobalStyles.white,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  cardField: {
     width: '100%',
-    maxWidth: 400,
-    alignSelf: 'center',
+    height: 50,
+    marginVertical: 10,
   },
   buttonContainer: {
     flexDirection: 'row',

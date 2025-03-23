@@ -7,15 +7,22 @@ import { ThemedText } from '@/components/ThemedText';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import PaymentModal from './PaymentModal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BACKEND_API } from '@/constants/Mysc';
 
 const { width } = Dimensions.get('window');
 
 interface PlanCardProps {
-  role: 'CUSTOMER_FREE' | 'CUSTOMER_PREMIUM' | 'COMPANY_FREE' | 'COMPANY_PREMIUM';
+  role: string;
   fechaExpiracion?: string;
+  userId: string;
 }
 
-const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
+const PlanCard: React.FC<PlanCardProps> = ({ 
+  role, 
+  fechaExpiracion,
+  userId 
+}) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
@@ -129,9 +136,35 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
     setIsCancelModalVisible(false);
   };
 
-  const handlePaymentSuccess = () => {
-    // TODO: Actualizar el estado del usuario después del pago exitoso
-    setShowPaymentModal(false);
+  const handlePaymentSuccess = async (paymentId: string) => {
+    try {
+      const authToken = await AsyncStorage.getItem('authToken');
+      if (!authToken) {
+        throw new Error('No se encontró un token de autenticación');
+      }
+
+      const response = await fetch(`${BACKEND_API}/api/plans/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          paymentMethodId: paymentId,
+          planType: 'PREMIUM',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al actualizar el plan');
+      }
+
+      setShowPaymentModal(false);
+      // Aquí podrías añadir lógica adicional como actualizar el estado del usuario
+      // o mostrar un mensaje de éxito
+    } catch (err) {
+      console.error('Error al procesar la suscripción:', err);
+    }
   };
   
   return (
@@ -212,10 +245,10 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
 
       <PaymentModal
         visible={showPaymentModal}
-        onClose={() => { setShowPaymentModal(false); }}
-        amount={isCustomer ? 0.99 : 9.99}
-        planType={isCustomer ? 'CUSTOMER_PREMIUM' : 'COMPANY_PREMIUM'}
-        description={`Suscripción al ${isCustomer ? 'plan mensual - Mensajes de despedida' : 'Plan Premium - Publicita tu Empresa'}`}
+        onClose={() => setShowPaymentModal(false)}
+        amount={isPremium ? 4.99 : 0.99}
+        planType={isPremium ? 'premium' : 'basic'}
+        description={`Suscripción al Plan ${isPremium ? 'Premium' : 'Básico'}`}
         onSuccess={handlePaymentSuccess}
       />
     </View>
