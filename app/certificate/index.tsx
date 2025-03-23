@@ -260,13 +260,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-start",
-    backgroundColor: "#ffff",
+    backgroundColor: GlobalStyles.white,
   },
   dataContainer: {
     flex: 1,
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingTop: 120,
+    paddingTop: 20,
   },
   infoText: {
     fontSize: 14,

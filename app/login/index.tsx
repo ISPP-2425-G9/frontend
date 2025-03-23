@@ -105,7 +105,7 @@ const LoginScreen: React.FC = () => {
 const styles = StyleSheet.create({
   ThemedText: {
     fontSize: 28,
-    fontFamily: GlobalStyles.fontBold,
+    fontFamily: GlobalStyles.font,
     textAlign: "center",
     color: GlobalStyles.darkGrey,
     marginTop: 20,

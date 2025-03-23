@@ -19,7 +19,7 @@ const CustomNavbar = () => {
     const [userMenuOpen, setUserMenuOpen] = useState(false);
     const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
     const [activeItem, setActiveItem] = useState<string>('');
-    const isNarrow = width < 500;
+    const isNarrow = width < 450;
     const { isAuthenticated, roles, name } = useAuth();
     let userRoles: string[] | null = null;
     let userName: string | null = null;

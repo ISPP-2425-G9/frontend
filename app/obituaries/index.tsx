@@ -1,6 +1,7 @@
 import CustomButton from '@/components/CustomButton';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
 import useAuth from "@/hooks/useAuth";
 import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
@@ -96,7 +97,7 @@ function ObituaryIndex() {
 
   return isAuthenticated ? (
     <ThemedView style={styles.container}>
-      <Text style={styles.title}>Elija el diseño</Text>
+      <Text style={styles.title}>Elige un diseño</Text>
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.listContainer}>
         {obituaries.map((item) => (
@@ -112,7 +113,7 @@ function ObituaryIndex() {
       </ScrollView>
       <View style={styles.divider} />
         <View style={styles.buttonContainer}>
-          <CustomButton title="Sus esquelas" onPress={() => navigation.navigate('obituaries/listMyObituaries')} />
+          <CustomButton title="Tus esquelas" onPress={() => navigation.navigate('obituaries/listMyObituaries')} />
         </View>   
       </ThemedView>
   ) : (
@@ -124,11 +125,12 @@ function ObituaryIndex() {
 
 const styles = StyleSheet.create({
   container: {
+    fontFamily: GlobalStyles.font,
     padding: 8,
     flex: 1,
     alignItems: 'center',
-    paddingTop: 120,
-    backgroundColor: '#ffff',
+    paddingTop: 20,
+    backgroundColor: GlobalStyles.white,
   },
   title: {
     fontSize: 30,

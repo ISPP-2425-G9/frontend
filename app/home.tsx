@@ -97,9 +97,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 20,
-    paddingBottom: 300,
-    marginTop: 30,
+    paddingTop: 20,
   },
   container: {
     width: "90%",
