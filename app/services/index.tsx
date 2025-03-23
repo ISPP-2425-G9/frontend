@@ -10,6 +10,7 @@ import AdvertisementSponsor from '@/components/AdvertisementSponsor';
 import CustomTextInput from '@/components/CustomTextInput';
 import CustomButton from '@/components/CustomButton';
 import { useWindowDimensions } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 
 
 type Sponsor = {
@@ -30,6 +31,7 @@ const ListServiceScreen: React.FC = () => {
   const [city, setCity] = useState('');
   const [name, setName] = useState('');
   const [companyType, setCompanyType] = useState('');
+  const [companyTypes, setCompanyTypes] = useState<string[]>([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -75,6 +77,29 @@ const ListServiceScreen: React.FC = () => {
   useEffect(() => {
     fetchSponsors();
   }, [page, city, name, companyType]);
+
+  const fetchCompanyTypes = async () => {
+    try {
+      const authToken = await AsyncStorage.getItem('authToken');
+      if (!authToken) throw new Error('No se encontró un token de autenticación');
+      const response = await fetch(`${BACKEND_API}/api/companies/companiesTypes`, {
+        headers: {
+          'Authorization': `Bearer ${authToken.trim()}`
+        }
+      });
+      if (!response.ok) throw new Error(`Error al obtener los tipos: ${response.status}`);
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        setCompanyTypes(data);
+      }
+    } catch (error) {
+      console.error('Error fetching company types:', error);
+    }
+  };
+  
+  useEffect(() => {
+    fetchCompanyTypes();
+  }, []);
   
 
   return (
@@ -99,11 +124,21 @@ const ListServiceScreen: React.FC = () => {
             value={name}
             onChangeText={setName}
           />
-          <CustomTextInput
-            placeholder="Tipo de empresa (FLORIST, NOTARIES...)"
-            value={companyType}
-            onChangeText={setCompanyType}
-          />
+          <View style={styles.pickerWrapper}>
+            <Picker
+              selectedValue={companyType}
+              onValueChange={(itemValue) => {
+                setCompanyType(itemValue);
+                setPage(0);
+              }}
+              style={styles.picker}
+            >
+              <Picker.Item label="Tipo de empresa" value="" />
+              {companyTypes.map((type) => (
+                <Picker.Item key={type} label={type} value={type} />
+              ))}
+            </Picker>
+          </View>
         </View>
         {/* LISTADO DE SPONSORS */}
         {loading ? (
@@ -210,6 +245,22 @@ const styles = StyleSheet.create({
   paginationContainerMobile: {
     flexDirection: 'column',
     gap: 10,
+  },  
+  pickerWrapper: {
+    width: '100%',
+    backgroundColor: GlobalStyles.lightGrey,
+    borderRadius: 15,
+    marginVertical: 7.5,
+    overflow: 'hidden',
+    height: 40,
+    justifyContent: 'center',
+  },
+  picker: {
+    width: '100%',
+    height: 40,
+    color: GlobalStyles.darkGrey,
+    paddingHorizontal: 10,
+    fontSize: 16,
   },  
 });
 
