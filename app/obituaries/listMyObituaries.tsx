@@ -14,8 +14,8 @@ import { AUTHORITIES } from '../_util/Authorities';
 import useAuth from "@/hooks/useAuth";
 
 
-const { width } = Dimensions.get('window');
-const { height } = Dimensions.get('window');
+const width = Dimensions.get("window").width;
+const height = Dimensions.get("window").height;
 
 type RootStackParamList = {
   'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number };
@@ -28,7 +28,6 @@ function ObituaryIndex() {
 
   const { isAuthenticated } = useAuth();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { width, height } = useWindowDimensions();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
@@ -41,12 +40,16 @@ function ObituaryIndex() {
     imageTemplate: {
       imageId: number;
       imageUrl: string;
-    };
+    }, 
+    deathCertificate: {
+      isVerified: boolean;
+    }
   }
 
   const [obituaries, setObituaries] = useState<Obituary[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedObituaryId, setSelectedObituaryId] = useState<number | null>(null);
+  const [ isVerified, setIsVerified ] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -143,6 +146,7 @@ function ObituaryIndex() {
   return isAuthenticated ? (
     <ThemedView style={styles.container}>
       <Text style={styles.title}>Sus esquelas</Text>
+  
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.listContainer}>
           {obituaries.map((item) => (
@@ -160,24 +164,35 @@ function ObituaryIndex() {
                 <Text style={styles.overlayText}>
                   {item.isMine ? `${item.name} (Su propia esquela)` : item.name}
                 </Text>
+  
                 <View style={{ flex: 1, justifyContent: 'flex-end' }}>
                   <View style={styles.buttonsContainer}>
-                    {item.deathDate === null ? (
+                    {item.isMine ? (
                       <>
-                        <CustomButton title="Edita la esquela" onPress={() => {handleObituaryPress(item.imageTemplate.imageId,item.imageTemplate.imageUrl,item.id)}} />
-                        <CustomButton title="Eliminar" color="red" onPress={() => {showConfirmationModal(item.id);}} />
-
+                        <CustomButton
+                          title="Edita la esquela"
+                          onPress={() =>
+                            {handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id)}
+                          }
+                        />
+                        <CustomButton
+                          title="Eliminar"
+                          color="red"
+                          onPress={() =>{showConfirmationModal(item.id)}}
+                        />
                       </>
                     ) : (
                       <>
-                        <CustomButton title="Esquela ya enviada" onPress={() => { }} />
                         <CustomButton
                           title="Visualiza la esquela"
-                          color="green"
                           onPress={() =>
-                            handleObituaryPress(item.imageTemplate?.imageId, item.imageTemplate?.imageUrl, item.id)
-                          }
-                        />
+                          {handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id)}
+                          }                          />
+                        {item.deathCertificate?.isVerified ? (
+                          <CustomButton title="Esquela ya enviada" color = "green" onPress={() => { }} />
+                        ) : (
+                          <CustomButton title="Pendiente de aceptar" color= "orange" onPress={() => { }} />
+                        )}
                       </>
                     )}
                   </View>
@@ -185,13 +200,14 @@ function ObituaryIndex() {
               </View>
             </View>
           ))}
-
         </View>
       </ScrollView>
+  
       <View style={styles.divider} />
       <View style={styles.buttonContainer}>
         <CustomButton title="Crea una esquela" onPress={() => {navigation.navigate('obituaries/index');}} />
       </View>
+  
       {modalVisible && (
         <CustomModal
           visible={modalVisible}
@@ -200,10 +216,10 @@ function ObituaryIndex() {
           style={styles.modalStyle}
         >
           <View style={styles.buttonModalContainer}>
-            <TouchableOpacity style={styles.button} onPress={() => { handleSubmit(); }}>
+            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
               <Text style={styles.buttonText}>Aceptar</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => { handleCloseModal(); }}>
+            <TouchableOpacity style={styles.button} onPress={handleCloseModal}>
               <Text style={styles.buttonText}>Cancelar</Text>
             </TouchableOpacity>
           </View>
@@ -215,7 +231,7 @@ function ObituaryIndex() {
       <Text style={styles.title}>Debes iniciar sesión para poder acceder a esta sección</Text>
     </ThemedView>
   );
-}
+}  
 
 const styles = StyleSheet.create({
   container: {
@@ -244,7 +260,7 @@ const styles = StyleSheet.create({
   obituaryCard: {
     padding: 10,
     margin: 8,
-    borderRadius: 20,
+    borderRadius: 8,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
@@ -252,9 +268,8 @@ const styles = StyleSheet.create({
     elevation: 3,
     alignItems: 'center',
     overflow: 'hidden',
-    width: width * 0.20,
-    height: height * 0.65,
-    borderWidth: 6,
+    width: width > 600 ?  width* 0.20 : width * 0.95, 
+    height: height * 0.65 
   },
   image: {
     width: '100%',

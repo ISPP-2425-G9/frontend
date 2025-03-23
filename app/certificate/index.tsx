@@ -1,30 +1,29 @@
+import { useState } from "react";
+import { View, Text, TextInput, Button, StyleSheet, Image } from "react-native";
+import { useNavigation, NavigationProp, useRoute, RouteProp } from "@react-navigation/native";
+import { Dimensions } from "react-native";
+import { TouchableOpacity } from "react-native";
+import { AUTHORITIES } from "../_util/Authorities";
+import { withAuth } from "../_util/withAuth";
+import * as ImagePicker from "expo-image-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomButton from "@/components/CustomButton";
 import CustomModal from "@/components/CustomModal";
 import { CustomTextInput } from "@/components/CustomTextInput";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { NavigationProp, useFocusEffect, useNavigation } from "@react-navigation/native";
-import * as ImagePicker from "expo-image-picker";
-import React, { useState } from "react";
-import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { AUTHORITIES } from "../_util/Authorities";
-import { withAuth } from "../_util/withAuth";
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 type RootStackParamList = {
   "obituaries/loadCertificate": { jsonData: string },
   "home": undefined,
 };
 
-
 const { width } = Dimensions.get("window");
 
 function LoadCertificate() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [formData, setFormData] = useState({
-    dni: "",
-    certificateImage: "",
-  });
 
   const [dni, setDni] = useState<string>("");
   const [certificateImage, setCertificateImage] = useState<string | null>(null);
@@ -32,6 +31,7 @@ function LoadCertificate() {
   const [dniError, setDniError] = useState<string>("");
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [successMessageVisible, setSuccessMessageVisible] = useState(false);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -43,11 +43,19 @@ function LoadCertificate() {
     if (!result.canceled) {
       const fileUri = result.assets[0].uri;
       const fileName = result.assets[0].fileName || null;
-      setFormData({ ...formData, certificateImage: fileUri });
       setCertificateImage(fileUri);
       setFileName(fileName);
     }
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      setDni("");
+      setCertificateImage(null);
+      setFileName(null);
+      setDniError("");
+    }, [])
+  );
 
   const convertToBase64 = async (uri: string) => {
     const response = await fetch(uri);
@@ -69,7 +77,6 @@ function LoadCertificate() {
     return dniRegex.test(dni);
   };
 
-
   const showConfirmationModal = async () => {
     if (!dni || !certificateImage) {
       alert("Por favor, introduce el DNI y selecciona un archivo.");
@@ -80,7 +87,7 @@ function LoadCertificate() {
       setDniError("El DNI no es válido. Debe tener el formato 12345678A.");
       return;
     }
-    setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido. Podrá modificar su esquela hasta que sea enviada a todos los contactos que usted eligió.")
+    setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido. Podrá modificar su esquela hasta que sea enviada a todos los contactos que usted eligió.");
     setModalVisible(true);
   };
 
@@ -88,85 +95,53 @@ function LoadCertificate() {
     setModalVisible(false);
   };
 
-
   const handleSubmit = async () => {
-
     const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
     const authToken = await AsyncStorage.getItem("authToken");
-    console.log("authToken:", authToken);
-    const dataToSend = {
-      dni,
-      file: base64File,
-    };
+    const dataToSend = { dni, file: base64File };
 
-    if (authToken !== null) {
-      try {
-        const response = await fetch(BACKEND_API + '/api/deathCertificate/upload/loggedInUser', {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${authToken}`,
-          },
-          body: JSON.stringify(dataToSend),
-        });
+    setModalVisible(false);
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          setModalVisible(false);
-          await new Promise((resolve) => setTimeout(resolve, 200));
-
-          throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
-        }
-        setModalVisible(false);
-        navigation.navigate("home");
-
-
-      } catch (error) {
-        console.error("Error al enviar datos:", error);
-        const errorMessage = (error as Error).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
-        setModalVisible(false);
-        alert(errorMessage);
+    try {
+      const response = await sendDataToBackend(authToken, dataToSend);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
       }
 
-    } else {
-      try {
-        const response = await fetch(BACKEND_API + '/api/deathCertificate/upload', {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(dataToSend),
-        });
+    else{ 
+      setSuccessMessageVisible(true);
+      setTimeout(() => {
+        setSuccessMessageVisible(false);  
+        navigation.navigate("home");  
+      }, 2000);
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          setModalVisible(false);
-          // Asegurar que el modal se pong aen false
-          await new Promise((resolve) => setTimeout(resolve, 200));
-
-          throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
-        }
-
-        setModalVisible(false);
-        navigation.navigate("home");
-
-      } catch (error) {
-        console.error("Error al enviar datos:", error);
-        const errorMessage = (error as Error).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
-        setModalVisible(false);
-        alert(errorMessage);
-      }
     }
 
-  }
+    } catch (error) {
+      console.error("Error al enviar datos:", error);
+      setModalVisible(false);
+      const errorMessage = (error as any).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
+      alert(errorMessage);
+    }
+  };
 
+  const sendDataToBackend = async (authToken: string | null, dataToSend: { dni: string; file: string; }) => {
+    const url = authToken
+      ? BACKEND_API + '/api/deathCertificate/upload/loggedInUser'
+      : BACKEND_API + '/api/deathCertificate/upload';
 
-  useFocusEffect(
-    React.useCallback(() => {
-      document.title = 'Cargar certificado';
-    }, [])
-  );
+    const headers = {
+      "Content-Type": "application/json",
+      ...(authToken && { "Authorization": `Bearer ${authToken}` }), 
+    };
 
+    return await fetch(url, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(dataToSend),
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -224,6 +199,7 @@ function LoadCertificate() {
         <CustomButton title="Seleccionar archivo" onPress={pickImage} />
         <CustomButton title="Subir certificado" onPress={showConfirmationModal} />
       </View>
+
       {modalVisible && (
         <CustomModal
           visible={modalVisible}
@@ -248,9 +224,28 @@ function LoadCertificate() {
         </CustomModal>
       )}
 
+      {successMessageVisible && (
+        <CustomModal
+          visible={successMessageVisible}
+          onClose={() => setSuccessMessageVisible(false)}
+          title="¡Datos enviados con éxito!✅"
+          style={styles.successModal}
+        >
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => {
+                setSuccessMessageVisible(false);
+                navigation.navigate("home");
+              }}
+            >
+              <Text style={styles.buttonText}>Aceptar</Text>
+            </TouchableOpacity>
+          </View>
+        </CustomModal>
+      )}
+
     </View>
-
-
   );
 }
 
@@ -266,18 +261,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingTop: 20,
-  },
-  infoText: {
-    fontSize: 14,
-    color: GlobalStyles.white,
-    textAlign: "center",
-    marginTop: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
+    paddingTop: 120,
   },
   title: {
-    fontSize: 22,
+    fontSize: 30,
     fontWeight: "bold",
     marginBottom: 10,
   },
@@ -288,7 +275,7 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     paddingHorizontal: 8,
     marginBottom: 16,
-    fontSize: 12,
+    fontSize: 16,
   },
   divider: {
     height: 1,
@@ -315,11 +302,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     resizeMode: "contain"
   },
-  errorText: {
-    fontSize: 8,
-    color: "red",
-    marginTop: 5,
-  },
   buttonText: {
     color: "#fff",
     fontSize: 16,
@@ -343,6 +325,15 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
     width: width > 600 ? "40%" : "80%",
+    height: width > 600 ? "15%" : "32%",
+  },
+  successModal: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: width > 600 ? '40%': '80%',
   },
 });
 
