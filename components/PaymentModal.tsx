@@ -1,19 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Dimensions, TouchableOpacity, Animated, ViewStyle } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Dimensions, Animated, StyleProp } from 'react-native';
 import { GlobalStyles } from '@/constants/Colors';
 import CustomModal from '@/components/CustomModal';
 import CustomButton from '@/components/CustomButton';
 import { loadStripe } from '@stripe/stripe-js';
-import {
-  Elements,
-  CardElement,
-  useStripe,
-  useElements,
-  CardNumberElement,
-  CardExpiryElement,
-  CardCvcElement,
-  StripeElementType
-} from '@stripe/react-stripe-js';
+import { Elements, useStripe, useElements, CardNumberElement, CardExpiryElement, CardCvcElement } from '@stripe/react-stripe-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_API } from '@/constants/Mysc';
 import { FontAwesome } from '@expo/vector-icons';
@@ -53,7 +44,7 @@ interface PaymentModalProps {
 interface SecureFieldProps {
   label: string;
   element: typeof CardNumberElement | typeof CardExpiryElement | typeof CardCvcElement;
-  style?: unknown;
+  style?: StyleProp<CustomViewStyle>;
   isCardNumber?: boolean;
 }
 
@@ -63,9 +54,9 @@ interface CardChangeEvent {
   value?: string;
 }
 
-type ViewStyle = {
+type CustomViewStyle = {
   flex?: number;
-  width?: string;
+  width?: number | `${number}%` | 'auto';
   marginBottom?: number;
   [key: string]: unknown;
 };
