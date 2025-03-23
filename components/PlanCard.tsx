@@ -148,7 +148,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           ) : (
             <TouchableOpacity
               style={styles.buttonSubscribe}
-              onPress={() => {setIsModalVisible(true)}}
+              onPress={() => {() => alert('Esta función estará disponible muy pronto.')}}
             >
               <Text style={styles.buttonText}>Contratar plan</Text>
             </TouchableOpacity>
