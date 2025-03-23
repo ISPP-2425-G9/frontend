@@ -37,14 +37,14 @@ export default function DeleteAccountButton() {
     <>
       <CustomButton
         title="Eliminar cuenta"
-        onPress={() => setIsModalVisible(true)}
+        onPress={() => {setIsModalVisible(true)}}
         color="red"
         style={styles.button}
       />
 
       <CustomModal
         visible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
+        onClose={() => {setIsModalVisible(false)}}
         title="Eliminar cuenta"
         style={styles.modal}
       >
@@ -61,7 +61,7 @@ export default function DeleteAccountButton() {
             />
             <CustomButton
               title="Cancelar"
-              onPress={() => setIsModalVisible(false)}
+              onPress={() => {setIsModalVisible(false)}}
               style={StyleSheet.flatten([styles.modalButton, styles.cancelButton])}
             />
           </View>

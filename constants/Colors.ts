@@ -3,8 +3,8 @@
  * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
  */
 
-import { useFonts,  DMSans_500Medium, DMSans_700Bold } from '@expo-google-fonts/dm-sans';
-import { linkTo } from "expo-router/build/global-state/routing";
+// import { useFonts,  DMSans_500Medium, DMSans_700Bold } from '@expo-google-fonts/dm-sans';
+// import { linkTo } from "expo-router/build/global-state/routing";
 
 const tintColorLight = '#0a7ea4';
 const tintColorDark = '#fff';

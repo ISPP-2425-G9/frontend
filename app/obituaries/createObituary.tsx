@@ -1,26 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  StyleSheet,
-  View,
-  Text,
-  Image,
-  Dimensions,
-  Alert,
-  Platform,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+import { StyleSheet, View, Text, Image, Dimensions, Alert, Platform, TouchableOpacity, ScrollView } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import CustomButton from "@/components/CustomButton";
 import { CustomTextInput } from "@/components/CustomTextInput";
-import {
-  useNavigation,
-  NavigationProp,
-  useRoute,
-  RouteProp,
-  useFocusEffect,
-} from "@react-navigation/native";
+import { useNavigation, NavigationProp, useRoute, RouteProp, useFocusEffect } from "@react-navigation/native";
 import CustomModal from "@/components/CustomModal";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
@@ -548,13 +532,13 @@ function EsquelaCustomizer() {
             <View style={styles.buttonContainer}>
               <TouchableOpacity
                 style={styles.button}
-                onPress={() => handleSubmit()}
+                onPress={() => { handleSubmit(); }}
               >
                 <Text style={styles.buttonText}>Aceptar</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.button}
-                onPress={() => handleCloseModal()}
+                onPress={() => { handleCloseModal(); }}
               >
                 <Text style={styles.buttonText}>Cancelar</Text>
               </TouchableOpacity>

@@ -395,7 +395,7 @@ function ProfileScreen() {
                   <View style={styles.buttonContainer}>
                     <CustomButton
                       title="Editar usuario"
-                      onPress={() => setIsEditing(true)}
+                      onPress={() => {setIsEditing(true)}}
                       color="blue"
                     />
                     <LogoutButton />
@@ -404,7 +404,7 @@ function ProfileScreen() {
 
                 <ThemedText style={styles.changePasswordText}>
                   ¿Desea cambiar su contraseña?{' '}
-                  <Pressable onPress={() => setShowPasswordModal(true)}>
+                  <Pressable onPress={() => {setShowPasswordModal(true)}}>
                     <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
                   </Pressable>
                 </ThemedText>
@@ -469,14 +469,14 @@ function ProfileScreen() {
                     <View style={styles.buttonContainer}>
                       <CustomButton
                         title="Editar información"
-                        onPress={() => setIsEditing(true)}
+                        onPress={() => {setIsEditing(true)}}
                         color="blue"
                       />
                       <LogoutButton />
                     </View>
                     <ThemedText style={styles.changePasswordText}>
                       ¿Desea cambiar su contraseña?{' '}
-                      <Pressable onPress={() => setShowPasswordModal(true)}>
+                      <Pressable onPress={() => {setShowPasswordModal(true)}}>
                         <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
                       </Pressable>
                     </ThemedText>
@@ -507,7 +507,7 @@ function ProfileScreen() {
                   onChangeText={setConfirmPassword}
                 />
                 <CustomButton title="Guardar" onPress={handleChangePassword} color="blue" />
-                <CustomButton title="Cancelar" onPress={() => setShowPasswordModal(false)} color="red" />
+                <CustomButton title="Cancelar" onPress={() => {setShowPasswordModal(false)}} color="red" />
               </View>
             </View>
           </Modal>

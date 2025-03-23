@@ -26,14 +26,14 @@ export default function LogoutButton() {
     <>
       <CustomButton
         title="Cerrar sesión"
-        onPress={() => setIsModalVisible(true)}
+        onPress={() => {setIsModalVisible(true)}}
         color="red"
         style={styles.button}
       />
 
       <CustomModal
         visible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
+        onClose={() => {setIsModalVisible(false)}}
         title="Cerrar sesión"
       >
         <View style={styles.modalContent}>
@@ -43,7 +43,7 @@ export default function LogoutButton() {
           <View style={styles.modalButtons}>
             <CustomButton
               title="Cancelar"
-              onPress={() => setIsModalVisible(false)}
+              onPress={() => {setIsModalVisible(false)}}
               style={styles.modalButton}
               color="red"
             />

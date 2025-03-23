@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Image, View, useWindowDimensions, ScrollView, TouchableOpacity, Text, Dimensions } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -172,13 +172,13 @@ function ObituaryIndex() {
                         <CustomButton
                           title="Edita la esquela"
                           onPress={() =>
-                            handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id)
+                            {handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id)}
                           }
                         />
                         <CustomButton
                           title="Eliminar"
                           color="red"
-                          onPress={() => showConfirmationModal(item.id)}
+                          onPress={() =>{showConfirmationModal(item.id)}}
                         />
                       </>
                     ) : (
@@ -186,7 +186,7 @@ function ObituaryIndex() {
                         <CustomButton
                           title="Visualiza la esquela"
                           onPress={() =>
-                            handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id)
+                          {handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id)}
                           }                          />
                         {item.deathCertificate?.isVerified ? (
                           <CustomButton title="Esquela ya enviada" color = "green" onPress={() => { }} />
@@ -205,7 +205,7 @@ function ObituaryIndex() {
   
       <View style={styles.divider} />
       <View style={styles.buttonContainer}>
-        <CustomButton title="Crea una esquela" onPress={() => navigation.navigate('obituaries/index')} />
+        <CustomButton title="Crea una esquela" onPress={() => {navigation.navigate('obituaries/index');}} />
       </View>
   
       {modalVisible && (

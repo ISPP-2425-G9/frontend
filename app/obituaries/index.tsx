@@ -202,7 +202,7 @@ function ObituaryIndex() {
 
       <View style={styles.divider} />
         <View style={styles.buttonContainer}>
-          <CustomButton title="Tus esquelas" onPress={() => navigation.navigate('obituaries/listMyObituaries')} />
+          <CustomButton title="Tus esquelas" onPress={() => {navigation.navigate('obituaries/listMyObituaries')}} />
         </View>   
       </ThemedView>
   ) : (

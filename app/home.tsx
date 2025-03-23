@@ -75,15 +75,15 @@ export default function HomeScreen() {
           <View style={styles.buttonContainer}>
             <View style={[styles.buttonWrapper, { width: width > 800 ? "30%" : "90%" }]}>
               <Text style={styles.buttonText}>Pulsa aquí, si quieres personalizar la esquela para un familiar o amigo que haya fallecido</Text>
-              <CustomButton title="Personalizar esquela" onPress={() => navigation.navigate("obituaries/index" as never)} color="blue" />
+              <CustomButton title="Personalizar esquela" onPress={() => {navigation.navigate("obituaries/index" as never) }} color="blue" />
             </View>
             <View style={[styles.buttonWrapper, { width: width > 800 ? "30%" : "90%" }]}>
               <Text style={styles.buttonText}>Pulsa aquí, si quieres pagar el plan para personalizar mensajes para familiares o amigos una vez que haya fallecido o para promocionar tu empresa relacionada con el sector funerario.</Text>
-              <CustomButton title="Suscribirse" onPress={() => navigation.navigate("subscribe/index" as never)} color="blue" />
+              <CustomButton title="Suscribirse" onPress={() => {navigation.navigate("subscribe/index" as never) }} color="blue" />
             </View>
             <View style={[styles.buttonWrapper, { width: width > 800 ? "30%" : "90%" }]}>
               <Text style={styles.buttonText}>Si quieres ver los servicios que ofrecen empresas del sector funerario, pulsa aquí</Text>
-              <CustomButton title="Ver servicios" onPress={() => navigation.navigate("services/index" as never)} color="blue" />
+              <CustomButton title="Ver servicios" onPress={() => {navigation.navigate("services/index" as never) }} color="blue" />
             </View>
           </View>
         </View>
