@@ -38,12 +38,25 @@ export const useAuth = () => {
   }, []);
 
   // ✅ Función para iniciar sesión y guardar en AsyncStorage
-  const login = async ( id: string, token: string, roles: AuthorityType[], username: string, name: string) => {
+  const login = async (
+    id: string,
+    token: string,
+    roles: AuthorityType[],
+    username: string,
+    name: string
+  ) => {
     const userData = { id, token, roles, username, name };
-    setUser(userData);
-    await AsyncStorage.setItem('authToken', token);
-    await AsyncStorage.setItem('userId', id);
-    await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+
+    try {
+      setUser(userData);
+
+      await AsyncStorage.setItem('authToken', token);
+      await AsyncStorage.setItem('userId', id);
+      await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+    } catch (error) {
+      console.error('Error during login:', error);
+      throw error;
+    }
   };
 
   // ✅ Función para cerrar sesión y eliminar datos del usuario
