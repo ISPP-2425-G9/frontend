@@ -501,7 +501,7 @@ function EsquelaCustomizer() {
               </View>
               <CustomButton
                 color="grey"
-                style={{ marginTop: 12, width: "75%" }}
+                style={{ marginTop: 12, width: "75%", marginBottom: width > 600 ? 0 : 30 }}
                 title={is_newObituary ? "Seleccionar contactos" : "Actualice sus contactos"}
                 onPress={showConfirmationModal}
               />
@@ -671,8 +671,8 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   templateImage: {
-    width: width > 600 ? width * 0.6 : width * 0.90,
-    height: width > 600 ? height * 0.86 : height * 0.90,
+    width: width > 600 ? width * 0.3 : width * 0.9,
+    height: width > 600 ? height * 0.86 : height * 0.9,
     resizeMode: "contain",
   },
   overlayContent: {
@@ -712,7 +712,7 @@ const styles = StyleSheet.create({
   customButtonStyle: {
     marginTop: 12,
     width: "32%",
-    height: width > 600 ? 40 : 60
+    height: 40,
   },
   formText: {
     alignSelf: "flex-start",
