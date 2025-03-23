@@ -201,7 +201,7 @@ const CustomNavbar = () => {
                                     </TouchableOpacity>
                                 </>
                             )}
-                            {isAuthenticated && (userRoles?.includes("CUSTOMER") || userRoles?.includes("COMPANY")) && (
+                            {isAuthenticated && (userRoles?.includes("CUSTOMER") ?? userRoles?.includes("COMPANY")) && (
                                 <>
                                     <TouchableOpacity onPress={() => {handleNavigation('services/index')}}>
                                         <View>
