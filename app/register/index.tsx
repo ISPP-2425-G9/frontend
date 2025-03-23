@@ -647,7 +647,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 8,
-    backgroundColor: GlobalStyles.white,
+    backgroundColor: GlobalStyles.lightGrey,
     height: 48,
     justifyContent: "center",
     paddingHorizontal: 10,
@@ -655,7 +655,11 @@ const styles = StyleSheet.create({
   },
   picker: {
     fontSize: 16,
+    fontFamily: GlobalStyles.font,
     color: GlobalStyles.darkGrey,
+    backgroundColor: GlobalStyles.lightGrey,
+    borderColor: GlobalStyles.lightGrey,
+    borderWidth: 0,
   },
 });
 
