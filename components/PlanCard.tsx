@@ -138,7 +138,13 @@ const PlanCard: React.FC<PlanCardProps> = ({
 
   const handlePaymentSuccess = async (paymentId: string) => {
     try {
-      const authToken = await AsyncStorage.getItem('authToken');
+      const userDataStr = await AsyncStorage.getItem('user_data');
+      if (!userDataStr) {
+        throw new Error('No se encontraron datos de usuario');
+      }
+      
+      const userData = JSON.parse(userDataStr);
+      const authToken = userData.token;
       if (!authToken) {
         throw new Error('No se encontró un token de autenticación');
       }
@@ -154,14 +160,15 @@ const PlanCard: React.FC<PlanCardProps> = ({
           planType: 'PREMIUM',
         }),
       });
-
+      
       if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Error en la respuesta del servidor:', errorData);
         throw new Error('Error al actualizar el plan');
       }
 
+      console.log('Plan actualizado exitosamente en PlanCard');
       setShowPaymentModal(false);
-      // Aquí podrías añadir lógica adicional como actualizar el estado del usuario
-      // o mostrar un mensaje de éxito
     } catch (err) {
       console.error('Error al procesar la suscripción:', err);
     }

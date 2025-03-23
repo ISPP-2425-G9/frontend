@@ -51,12 +51,19 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
 
       if (paymentMethod) {
         try {
-          const authToken = await AsyncStorage.getItem('authToken');
+          const userDataStr = await AsyncStorage.getItem('user_data');
+          
+          if (!userDataStr) {
+            throw new Error('No se encontraron datos de usuario');
+          }
+          const userData = JSON.parse(userDataStr);
+          const authToken = userData.token;
+          const userId = await AsyncStorage.getItem('userId'); 
+
           if (!authToken) {
-            throw new Error('No se encontró un token de autenticación');
+            throw new Error('No se encontró el token de autenticación');
           }
 
-          const userId = await AsyncStorage.getItem('userId');
           if (!userId) {
             throw new Error('No se encontró el ID de usuario');
           }
@@ -72,8 +79,10 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
               planType: 'PREMIUM',
             }),
           });
-
+          
           if (!response.ok) {
+            const errorData = await response.text();
+            console.error('Error en la respuesta:', errorData);
             throw new Error('Error al actualizar el plan');
           }
 
