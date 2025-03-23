@@ -121,16 +121,20 @@ const ListServiceScreen: React.FC = () => {
         <View style={[styles.paginationContainer, isMobile && styles.paginationContainerMobile]}>
           <CustomButton
             title="Anterior"
-            onPress={() => setPage(page - 1)}
+            onPress={() => {
+              if (page > 0) setPage(page - 1);
+            }}
             color="grey"
-            style={{ opacity: page === 0 ? 0.5 : 1 }}
+            style={{ opacity: page === 0 || totalPages <= 1 ? 0.5 : 1 }}
           />
           <Text style={{ marginHorizontal: 10 }}>{page + 1} / {totalPages}</Text>
           <CustomButton
             title="Siguiente"
-            onPress={() => setPage(page + 1)}
+            onPress={() => {
+              if (page + 1 < totalPages) setPage(page + 1);
+            }}
             color="blue"
-            style={{ opacity: page + 1 >= totalPages ? 0.5 : 1 }}
+            style={{ opacity: page + 1 >= totalPages || totalPages <= 1 ? 0.5 : 1 }}
           />
         </View>
       </ScrollView>
