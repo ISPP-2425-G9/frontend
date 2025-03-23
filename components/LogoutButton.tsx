@@ -13,9 +13,9 @@ export default function LogoutButton() {
 
   const handleLogout = () => {
     try {
-        // localStorage.removeItem('authToken');
-        logout()
-        navigation.navigate('home' as never);
+      // localStorage.removeItem('authToken');
+      logout()
+      navigation.navigate('home' as never);
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     }
@@ -24,17 +24,17 @@ export default function LogoutButton() {
 
   return (
     <>
-      <CustomButton 
-        title="Cerrar Sesión" 
-        onPress={() => {setIsModalVisible(true)}}
+      <CustomButton
+        title="Cerrar sesión"
+        onPress={() => setIsModalVisible(true)}
         color="red"
         style={styles.button}
       />
 
       <CustomModal
         visible={isModalVisible}
-        onClose={() => {setIsModalVisible(false)}}
-        title="Cerrar Sesión"
+        onClose={() => setIsModalVisible(false)}
+        title="Cerrar sesión"
       >
         <View style={styles.modalContent}>
           <ThemedText style={styles.modalText}>
@@ -65,7 +65,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   modalContent: {
-    padding: 20,
+    width: 'auto',
+    padding: '2%',
   },
   modalText: {
     textAlign: 'center',
@@ -75,12 +76,12 @@ const styles = StyleSheet.create({
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 10,
     marginTop: 20,
   },
   modalButton: {
     flex: 1,
     paddingVertical: 12,
     borderRadius: 8,
-  }
+    marginHorizontal: 5,
+  },
 }); 

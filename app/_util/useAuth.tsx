@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
 import { AuthorityType } from "./Authorities";
 
 const USER_STORAGE_KEY = "user_data";
@@ -37,12 +37,25 @@ export const useAuth = () => {
     };
   }, []);
 
-  const login = async ( id: string, token: string, roles: AuthorityType[]) => {
-    const userData = { id, token, roles };
-    setUser(userData);
-    await AsyncStorage.setItem('authToken', token);
-    await AsyncStorage.setItem('userId', id);
-    await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+  const login = async (
+    id: string,
+    token: string,
+    roles: AuthorityType[],
+    username: string,
+    name: string
+  ) => {
+    const userData = { id, token, roles, username, name };
+
+    try {
+      setUser(userData);
+
+      await AsyncStorage.setItem('authToken', token);
+      await AsyncStorage.setItem('userId', id);
+      await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
+    } catch (error) {
+      console.error('Error during login:', error);
+      throw error;
+    }
   };
 
   const logout = async () => {

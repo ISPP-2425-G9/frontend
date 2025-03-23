@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
-import { GlobalStyles } from '@/constants/Colors';
-import CustomModal from '@/components/CustomModal';
 import CustomButton from '@/components/CustomButton';
+import CustomModal from '@/components/CustomModal';
 import { ThemedText } from '@/components/ThemedText';
+import { GlobalStyles } from '@/constants/Colors';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 
 interface PlanCardProps {
@@ -21,13 +20,20 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
   const isPremium = plan === 'premium';
   const isCustomer = role.includes('CUSTOMER');
   let expirationDate = fechaExpiracion ? fechaExpiracion : null;
-  const isDesktop = Dimensions.get('window').width > 768;
-
+  const [isDesktop, setIsDesktop] = useState(Dimensions.get('window').width > 768);
   useFocusEffect(
     useCallback(() => {
+      const updateIsDesktop = () => {
+        setIsDesktop(Dimensions.get('window').width > 768);
+      };
+      const subscription = Dimensions.addEventListener('change', updateIsDesktop);
+      updateIsDesktop();
+
       return () => {
-        setIsModalVisible(false); 
-        setIsCancelModalVisible(false); 
+        subscription.remove();
+
+        setIsModalVisible(false);
+        setIsCancelModalVisible(false);
       };
     }, [])
   );
@@ -98,7 +104,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
   };
 
   const { title, description, price, nextPayment, borderColor, backgroundColor } = getPlanDetails() || {};
-  
+
   const esquelasDetails = {
     title: 'ESQUELAS DIGITALES',
     description: `
@@ -123,7 +129,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
     // TODO: Implementar lógica de suscripción aquí en el futuro
     console.log('Dándote de baja...');
   };
-  
+
   return (
     <View style={[styles.cardContainer, isDesktop ? styles.cardContainerDesktop : styles.cardContainerMobile]}>
       {/* plan específico según el rol */}
@@ -134,15 +140,15 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           <Text style={styles.price}>{price}</Text>
           {nextPayment && <Text style={styles.payment}>Próximo pago: {nextPayment}</Text>}
           {isPremium ? (
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.buttonCancel}
-              onPress={() => {setIsCancelModalVisible(true)}}>
-              <Text style={styles.buttonText}>Darte de baja</Text>
+              onPress={() => setIsCancelModalVisible(true)}>
+              <Text style={styles.buttonText}>Darse de baja</Text>
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity 
-              style={styles.buttonSubscribe} 
-              onPress={() => {setIsModalVisible(true)}}
+            <TouchableOpacity
+              style={styles.buttonSubscribe}
+              onPress={() => setIsModalVisible(true)}
             >
               <Text style={styles.buttonText}>Contratar plan</Text>
             </TouchableOpacity>
@@ -157,7 +163,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           <Text style={styles.price}>{esquelasDetails.price}</Text>
         </View>
       )}
-      <CustomModal visible={isModalVisible} onClose={() => {setIsModalVisible(false)}} title="Confirmar contratación">
+      <CustomModal visible={isModalVisible} onClose={() => {setIsModalVisible(false)}} title="Confirmar contratación" style={styles.modal}>
         <View style={styles.modalContent}>
           <ThemedText style={styles.modalText}>
             ¿Estás seguro que deseas contratar este plan?
@@ -178,7 +184,7 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           </View>
         </View>
       </CustomModal>
-      <CustomModal visible={isCancelModalVisible} onClose={() => {setIsCancelModalVisible(false)}} title="Cancelar suscripción">
+      <CustomModal visible={isCancelModalVisible} onClose={() => {setIsCancelModalVisible(false)}} title="Cancelar suscripción" style={styles.modal}>
         <View style={styles.modalContent}>
           <ThemedText style={styles.modalText}>
             ¿Estás seguro que deseas cancelar tu suscripción?
@@ -205,107 +211,102 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
 
 
 const styles = StyleSheet.create({
-    cardContainer: {
-      width: '100%',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    cardContainerMobile: {
-      flexDirection: 'column',
-    },
-    cardContainerDesktop: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      width: '100%',
-      flexWrap: 'wrap',
-      gap: 50,
-    },
-    card: {
-      borderWidth: 2,
-      padding: 20,
-      borderRadius: 8,
-      marginVertical: 10,
-      alignItems: 'center',
-      width: '100%',
-      maxWidth: 520,
-      marginHorizontal: 15,
-    },
-    title: {
-      fontSize: 18,
-      fontFamily: GlobalStyles.fontBold,
-      color: GlobalStyles.darkGrey,
-      marginBottom: 8,
-      textAlign: 'center',
-    },
-    description: {
-      fontSize: 14,
-      fontFamily: GlobalStyles.font,
-      color: GlobalStyles.grey,
-      textAlign: 'center',
-      marginBottom: 8,
-    },
-    payment: {
-      fontSize: 16,
-      fontFamily: GlobalStyles.fontBold,
-      color: GlobalStyles.darkGrey,
-    },
-    price: {
-      fontSize: 20,
-      fontFamily: GlobalStyles.fontBold,
-      color: GlobalStyles.blue,
-      fontWeight: 'bold',
-    },
-    buttonSubscribe: {
-      marginTop: 10,
-      backgroundColor: GlobalStyles.blue,
-      paddingVertical: 8,
-      paddingHorizontal: 16,
-      borderRadius: 5,
-    },
-    buttonCancel: {
-      marginTop: 10,
-      backgroundColor: GlobalStyles.red,
-      paddingVertical: 8,
-      paddingHorizontal: 16,
-      borderRadius: 5,
-    },
-    buttonText: {
-      color: GlobalStyles.white,
-      fontFamily: GlobalStyles.fontBold,
-    },
-    modalContent: {
-      padding: 20,
-      alignItems: 'center',
-      backgroundColor: 'white',
-      borderRadius: 10,
-      width: '90%',
-      alignSelf: 'center',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
-      elevation: 5,
-    },
-    modalText: {
-      fontSize: 16,
-      textAlign: 'center',
-      marginBottom: 20,
-      color: '#333',
-    },
-    modalButtons: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      width: '100%',
-      marginTop: 10,
-    },
-    modalButton: {
-      flex: 1,
-      marginHorizontal: 5,
-      paddingVertical: 10,
-      borderRadius: 5,
-      alignItems: 'center',
-    },
-  });
+  cardContainer: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardContainerMobile: {
+    flexDirection: 'column',
+  },
+  cardContainerDesktop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    flexWrap: 'wrap',
+    gap: 50,
+  },
+  card: {
+    borderWidth: 2,
+    padding: 20,
+    borderRadius: 8,
+    marginVertical: 10,
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: 520,
+    marginHorizontal: 15,
+  },
+  title: {
+    fontSize: 18,
+    fontFamily: GlobalStyles.fontBold,
+    color: GlobalStyles.darkGrey,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  description: {
+    fontSize: 14,
+    fontFamily: GlobalStyles.font,
+    color: GlobalStyles.grey,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  payment: {
+    fontSize: 16,
+    fontFamily: GlobalStyles.fontBold,
+    color: GlobalStyles.darkGrey,
+  },
+  price: {
+    fontSize: 20,
+    fontFamily: GlobalStyles.fontBold,
+    color: GlobalStyles.blue,
+    fontWeight: 'bold',
+  },
+  buttonSubscribe: {
+    marginTop: 10,
+    backgroundColor: GlobalStyles.blue,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 5,
+  },
+  buttonCancel: {
+    marginTop: 10,
+    backgroundColor: GlobalStyles.red,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: GlobalStyles.white,
+    fontFamily: GlobalStyles.fontBold,
+  },
+  modal: {
+    width: 'auto',
+  },
+  modalContent: {
+    padding: 20,
+    alignItems: 'center',
+    alignSelf: 'center',
+    elevation: 5,
+  },
+  modalText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#333',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  modalButton: {
+    flex: 1,
+    marginHorizontal: 5,
+    paddingVertical: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+});
 
 export default PlanCard;
