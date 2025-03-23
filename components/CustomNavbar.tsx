@@ -2,8 +2,8 @@ import { GlobalStyles } from '@/constants/Colors';
 import useAuth from '@/hooks/useAuth';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import { useNavigation, useNavigationState } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import CustomButton from './CustomButton';
 import CustomModal from './CustomModal';
@@ -11,6 +11,7 @@ import { ThemedText } from './ThemedText';
 
 const CustomNavbar = () => {
     const navigation = useNavigation();
+    const currentRoute = useNavigationState(state => state.routes[state.index].name);
     const { width } = useWindowDimensions();
     const [menuOpen, setMenuOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -25,6 +26,10 @@ const CustomNavbar = () => {
         userName = name;
     }
 
+    useEffect(() => {
+        if (currentRoute) setActiveItem(currentRoute);
+    }, [currentRoute]);
+
     const handleLogout = () => {
         try {
             AsyncStorage.clear();
@@ -38,6 +43,7 @@ const CustomNavbar = () => {
     const handleNavigation = (route: string) => {
         setActiveItem(route);
         navigation.navigate(route as never);
+        setMenuOpen(false);
     };
 
     return (
