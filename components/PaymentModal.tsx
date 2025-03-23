@@ -54,7 +54,7 @@ interface CardChangeEvent {
   value?: string;
 }
 
-type CustomViewStyle = {
+interface CustomViewStyle {
   flex?: number;
   width?: number | `${number}%` | 'auto';
   marginBottom?: number;
