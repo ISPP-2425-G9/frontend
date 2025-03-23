@@ -29,20 +29,21 @@ const ListServiceScreen: React.FC = () => {
     const fetchSponsors = async () => {
       try {
         const authToken = await AsyncStorage.getItem('authToken');
-        if (!authToken) throw new Error('No se encontró un token de autenticación');
-        AsyncStorage.getItem('authToken').then(token => console.log('Token almacenado:', token));
-
+        if (!authToken) throw new Error('No se encontró un token de autenticación');  
         const response = await fetch(BACKEND_API + '/api/companies/premium', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${authToken.trim()}`
           }
         });
-
         if (!response.ok) throw new Error(`Error en la solicitud: ${response.status}`);
-
         const data = await response.json();
-        setSponsors(data);
+        if (Array.isArray(data.content)) {
+          setSponsors(data.content);
+        } else {
+          console.warn('La respuesta no contiene un array en "content"');
+          setSponsors([]);
+        }
       } catch (error) {
         console.error('Error fetching sponsors:', error);
       } finally {
