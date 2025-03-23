@@ -1,17 +1,16 @@
 import AdvertisementSponsor from '@/components/AdvertisementSponsor';
+import CustomButton from '@/components/CustomButton';
+import CustomTextInput from '@/components/CustomTextInput';
 import { ThemedView } from '@/components/ThemedView';
 import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Picker } from '@react-native-picker/picker';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
-import CustomTextInput from '@/components/CustomTextInput';
-import CustomButton from '@/components/CustomButton';
-import { useWindowDimensions } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 
 
 type Sponsor = {
@@ -39,6 +38,10 @@ const ListServiceScreen: React.FC = () => {
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
 
+  const formatCompanyType = (type: string) => {
+    const formatted = type.toLowerCase().replace(/_/g, ' ');
+    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  };
 
   const fetchSponsors = async () => {
     try {
@@ -97,15 +100,11 @@ const ListServiceScreen: React.FC = () => {
       console.error('Error fetching company types:', error);
     }
   };
-  
-  useEffect(() => {
-    fetchCompanyTypes();
-  }, []);
-  
 
   useFocusEffect(
       React.useCallback(() => {
         document.title = 'Servicios';
+        fetchCompanyTypes();
       }, [])
     );
 
@@ -142,7 +141,7 @@ const ListServiceScreen: React.FC = () => {
             >
               <Picker.Item label="Tipo de empresa" value="" />
               {companyTypes.map((type) => (
-                <Picker.Item key={type} label={type} value={type} />
+                <Picker.Item key={type} label={formatCompanyType(type)} value={type} />
               ))}
             </Picker>
           </View>
@@ -265,7 +264,11 @@ const styles = StyleSheet.create({
   picker: {
     width: '100%',
     height: 40,
+    fontFamily: GlobalStyles.font,
     color: GlobalStyles.darkGrey,
+    borderColor: GlobalStyles.lightGrey,
+    backgroundColor: GlobalStyles.lightGrey,
+    borderWidth: 0,
     paddingHorizontal: 10,
     fontSize: 16,
   },  
