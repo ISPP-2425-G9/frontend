@@ -64,7 +64,7 @@ const LoginScreen: React.FC = () => {
 
   const loginFields: InputField[] = [
     { name: 'identifier', placeholder: 'NIF, DNI o email', keyboardType: 'default', description: 'Introduce tu NIF, DNI o email' },
-    { name: 'password', placeholder: '****', keyboardType: 'default', secureTextEntry: true, description: 'Introduce tu contraseña' },
+    { name: 'password', placeholder: '******', keyboardType: 'default', secureTextEntry: true, description: 'Introduce tu contraseña' },
   ];
 
 

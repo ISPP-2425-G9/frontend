@@ -524,7 +524,7 @@ function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    paddingTop: 20,
     alignItems: 'center',
     backgroundColor: GlobalStyles.white,
   },
@@ -536,6 +536,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   companyContainer: {
+    paddingTop: 120,
     padding: 20,
     width: '100%',
     height: '80%',
@@ -631,7 +632,7 @@ const styles = StyleSheet.create({
   },
   inputCompany: {
     width: '70%',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: GlobalStyles.lightGrey,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
@@ -644,7 +645,7 @@ const styles = StyleSheet.create({
   inputCompanyDescription: {
     width: '70%',
     height: '50%',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: GlobalStyles.lightGrey,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
@@ -715,13 +716,12 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    width: '100%',
+    width: 'auto',
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
-    width: '35%',
     backgroundColor: '#fff',
     padding: 20,
     borderRadius: 12,
