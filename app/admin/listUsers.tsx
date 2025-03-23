@@ -178,7 +178,7 @@ function AdminListUsers() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 120,
+    marginTop: 10,
     backgroundColor: GlobalStyles.white,
   },
   buttonContainer: {
