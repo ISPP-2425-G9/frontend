@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  Alert,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-  Platform,
-} from "react-native";
+import { View, Text, Alert, FlatList, StyleSheet, TouchableOpacity, Dimensions, Platform } from "react-native";
 import CustomButton from "@/components/CustomButton";
 import { CustomTextInput } from "@/components/CustomTextInput";
 import { useRoute, RouteProp } from "@react-navigation/native";

@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Alert,
-  Platform,
-  Dimensions,
-  Modal,
-  TouchableOpacity
-} from "react-native";
+import { View, Text, StyleSheet, ScrollView, Alert, Dimensions, Modal, TouchableOpacity } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import CustomButton from "@/components/CustomButton";
@@ -22,7 +12,6 @@ import { useAuth } from "../_util/useAuth";
 import Checkbox from 'expo-checkbox';
 import TermsAndConditions from '@/components/TermsAndConditions';
 
-const { width } = Dimensions.get("window");
 const deviceWidth = Dimensions.get("window").width;
 
 const RegisterScreen: React.FC = () => {

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { AUTHORITIES, AuthorityType } from "./Authorities";
+import { AuthorityType } from "./Authorities";
 
-const USER_STORAGE_KEY = "user_data"; // Clave de almacenamiento
+const USER_STORAGE_KEY = "user_data";
 
 type UserType = {
   id: string;
@@ -37,7 +37,6 @@ export const useAuth = () => {
     };
   }, []);
 
-  // ✅ Función para iniciar sesión y guardar en AsyncStorage
   const login = async ( id: string, token: string, roles: AuthorityType[]) => {
     const userData = { id, token, roles };
     setUser(userData);
@@ -46,13 +45,11 @@ export const useAuth = () => {
     await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
   };
 
-  // ✅ Función para cerrar sesión y eliminar datos del usuario
   const logout = async () => {
     setUser(null);
     await AsyncStorage.clear();
   };
 
-  // ✅ Función para actualizar datos del usuario (ej: cambiar nombre o rol)
   const updateUser = async (newUserData: Partial<UserType>) => {
     if (!user) return;
     const updatedUser = { ...user, ...newUserData };
@@ -62,7 +59,6 @@ export const useAuth = () => {
     await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
   };
 
-  // ✅ Función para obtener los datos del usuario en cualquier momento
   const getUserFromStorage = async () => {
     try {
       const storedUser = await AsyncStorage.getItem(USER_STORAGE_KEY);

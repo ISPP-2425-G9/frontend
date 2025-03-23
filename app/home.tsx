@@ -1,4 +1,4 @@
-import { View, Text, Image, StyleSheet, Dimensions, ScrollView } from "react-native";
+import { View, Text, StyleSheet, Dimensions, ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { GlobalStyles } from "@/constants/Colors";
 import { MaterialIcons } from "@expo/vector-icons";

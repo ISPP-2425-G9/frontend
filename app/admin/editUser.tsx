@@ -222,8 +222,7 @@ function EditUserScreen() {
       setHasChanges(false);
       setOriginalProfile(editedProfile);
   
-      // Redirección según el tipo de usuario
-      navigation.navigate('admin/listUsers');
+      navigation.navigate('admin/listUsers' as never);
   
     } catch (error: any) {
       console.error('Error al guardar los cambios:', error.message);

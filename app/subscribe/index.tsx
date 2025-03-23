@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, ScrollView, View, Dimensions } from 'react-native';
+import { StyleSheet, Text, ScrollView, View } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES, AuthorityType } from '../_util/Authorities';

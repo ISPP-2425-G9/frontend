@@ -1,33 +1,16 @@
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  StyleSheet,
-  TextInput,
-  View,
-  Text,
-  Button,
-  Image,
-  Dimensions,
-  Alert,
-  Platform,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+import { StyleSheet, View, Text, Image, Dimensions, Alert, Platform, TouchableOpacity, ScrollView } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import CustomButton from "@/components/CustomButton";
 import { CustomTextInput } from "@/components/CustomTextInput";
-import {
-  useNavigation,
-  NavigationProp,
-  useRoute,
-  RouteProp,
-} from "@react-navigation/native";
+import { useNavigation, NavigationProp, useRoute, RouteProp } from "@react-navigation/native";
 import CustomModal from "@/components/CustomModal";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
 import { withAuth } from "../_util/withAuth";
 import { AUTHORITIES } from "../_util/Authorities";
-import { RFPercentage, RFValue, } from "react-native-responsive-fontsize";
+import { RFValue } from "react-native-responsive-fontsize";
 import useAuth from "@/hooks/useAuth";
 import { ThemedView } from "@/components/ThemedView";
 

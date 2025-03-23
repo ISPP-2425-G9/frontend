@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { GlobalStyles } from '@/constants/Colors';
 import { AntDesign } from '@expo/vector-icons';
-import { blue } from 'react-native-reanimated/lib/typescript/Colors';
 
 type DropDownPickerProps = {
   options: { label: string; value: string }[];
