@@ -6,7 +6,7 @@ type CustomButtonProps = {
   title: string;
   onPress: () => void;
   style?: ViewStyle;
-  color?: 'blue' | 'grey' | 'red' | 'white' | 'green';
+  color?: 'blue' | 'grey' | 'red' | 'white' | 'green' | 'orange';
 };
 
 const CustomButton: React.FC<CustomButtonProps> = ({ title, onPress, style, color = 'blue' }) => {
@@ -45,6 +45,10 @@ const styles = StyleSheet.create({
   green: {
     backgroundColor: GlobalStyles.green,
   },
+  orange: {
+    backgroundColor: GlobalStyles.orange,
+  },
+
   text: {
     textAlign: 'center', 
     fontWeight: 'bold',

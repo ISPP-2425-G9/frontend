@@ -24,7 +24,8 @@ const styles = StyleSheet.create({
   input: {
     fontFamily: GlobalStyles.font,
     fontSize: 16,
-    width: 400,
+    width: '100%',
+    minWidth: 200,
     height: 40,
     borderColor: GlobalStyles.lightGrey,
     borderWidth: 1,
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginVertical: 7.5,
     backgroundColor: GlobalStyles.lightGrey,
-    color: GlobalStyles.darkGrey
+    color: GlobalStyles.darkGrey,
   },
 });
 

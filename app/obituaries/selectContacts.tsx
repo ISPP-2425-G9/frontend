@@ -1,19 +1,10 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  Alert,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-  Platform,
-} from "react-native";
+import { View, Text, Alert, FlatList, StyleSheet, TouchableOpacity, Dimensions, Platform } from "react-native";
 import CustomButton from "@/components/CustomButton";
 import { CustomTextInput } from "@/components/CustomTextInput";
 import { useRoute, RouteProp } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation, NavigationProp  } from "@react-navigation/native";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
 import CustomModal from "@/components/CustomModal";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
@@ -23,6 +14,8 @@ import { withAuth } from "../_util/withAuth";
 import { AUTHORITIES } from "../_util/Authorities";
 import useAuth from "@/hooks/useAuth";
 import { ThemedView } from "@/components/ThemedView";
+import { green } from "react-native-reanimated/lib/typescript/Colors";
+import { ScrollView } from "react-native-gesture-handler";
 
 const { width } = Dimensions.get("window");
 
@@ -33,14 +26,15 @@ type RootStackParamList = {
     jsonData: string,
     is_newObituary: boolean,
     obituaryId: number,
-    is_mine: boolean
+    is_mine: boolean,
+    isMine: boolean
   };
   "obituaries/listMyObituaries": undefined;
-  "obituaries/loadCertificate": { 
-    jsonData: string, 
-    is_newObituary: boolean, 
+  "obituaries/loadCertificate": {
+    jsonData: string,
+    is_newObituary: boolean,
     obituaryId: number,
-    isMine: boolean
+    is_mine: boolean
   };
 };
 
@@ -64,17 +58,22 @@ function SelectContacts() {
   const jsonData = route.params?.jsonData ?? "";
   const is_newObituary = route.params?.is_newObituary;
   const obituaryId = route.params?.obituaryId;
-  const is_mine = route.params?.is_mine;
-
-  const [isMine, setIsMine] = useState(false);
-
+  const is_mine = route.params?.is_mine ?? route.params?.isMine;
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-  const [contacts, setContacts] = useState<Contact[]>([
-    { id: Date.now(), name: "", phone: "", email: "" },
-  ]);
+  const [newContact, setNewContact] = useState<Contact>({
+    id: Date.now(),
+    name: "",
+    phone: "",
+    email: "",
+  });
+  const [contacts, setContacts] = useState<Contact[]>([]);
+
   const [combinedData, setCombinedData] = useState<any>({});
   const [userRole, setUserRole] = useState<string | null>(null);
+
+  const [editingContact, setEditingContact] = useState<Contact | null>(null);
+
 
   const hasError =
     jsonData === "" ||
@@ -84,7 +83,8 @@ function SelectContacts() {
   useFocusEffect(
     useCallback(() => {
       if (is_newObituary) {
-        setContacts([{ id: Date.now(), name: "", phone: "", email: "" }]);
+        setNewContact({ id: Date.now(), name: "", phone: "", email: "" });
+        setContacts([]);
         setCombinedData({});
       }
     }, [is_newObituary])
@@ -109,7 +109,7 @@ function SelectContacts() {
     fetchUserRole();
 
     return () => {
-      setContacts([{ id: Date.now(), name: '', phone: '', email: '' }]);
+      setContacts([]);
       setCombinedData({});
     };
   }, []);
@@ -117,63 +117,73 @@ function SelectContacts() {
 
   useEffect(() => {
     if (is_newObituary) {
-      setContacts([{ id: Date.now(), name: "", phone: "", email: "" }]);
+      setContacts([]);
     } else {
-      const fetchContactData = async () => {
-        try {
-          const authToken = await AsyncStorage.getItem("authToken");
-          if (!authToken)
-            throw new Error("No se encontró un token de autenticación");
+      if (obituaryId !== undefined) {
+        const fetchContactData = async () => {
+          try {
+            const authToken = await AsyncStorage.getItem("authToken");
+            if (!authToken)
+              throw new Error("No se encontró un token de autenticación");
 
-          const response = await fetch(
-            BACKEND_API + `/api/receiver/getReceivers/obituary/${obituaryId}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${authToken.trim()}`,
-              },
-            }
-          );
+            const response = await fetch(
+              BACKEND_API + `/api/receiver/getReceivers/obituary/${obituaryId}`,
+              {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${authToken.trim()}`,
+                },
+              }
+            );
 
-          if (!response.ok) throw new Error("Error al obtener los datos");
+            if (!response.ok) throw new Error("Error al obtener los datos");
 
-          const contactData = await response.json();
-          contactData.forEach((contact: any) => {
-            contact.phone = contact.telephone;
-            delete contact.telephone;
-          });
+            const contactData = await response.json();
+            contactData.forEach((contact: any) => {
+              const rawPhone = contact.telephone;
+              contact.phone = rawPhone.replace(/(\d{3})(?=\d)/g, '$1 ').trim();
 
-          setContacts(contactData);
-        } catch (error) {
-          console.error("Error al cargar los contactos:");
-        }
-      };
+              delete contact.telephone;
+            });
 
-      fetchContactData();
+
+            setContacts(contactData);
+          } catch (error) {
+            console.error("Error al cargar los contactos:");
+          }
+        };
+
+        fetchContactData();
+      }
     }
   }, [is_newObituary, obituaryId]);
 
   useEffect(() => {
-    const updateData = {
-      ...JSON.parse(jsonData),
-      contacts,
-    };
+    let updateData = {};
+    if (jsonData && jsonData.trim() !== '') {
+      try {
+        updateData = Object.assign({}, JSON.parse(jsonData), { contacts });
+      } catch (e) {
+        console.error('Error al analizar JSON:', e);
+      }
+    } else {
+      console.error('jsonData es inválido:', jsonData);
+    }
     setCombinedData(updateData);
   }, [contacts, jsonData]);
 
-  const handleChange = (id: number, field: keyof Contact, value: string) => {
-    setContacts((prevContacts) =>
-      prevContacts.map((contact) =>
-        contact.id === id ? { ...contact, [field]: value } : contact
-      )
-    );
+  const handleChange = (field: keyof Contact, value: string) => {
+    setNewContact((prev) => ({ ...prev, [field]: value }));
   };
 
   const validateData = (values: Contact) => {
     const errors: string[] = [];
     const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const phoneRegex = /^\+?\d{9,15}$/;
+    const phoneRegex = /^\d{3} \d{3} \d{3}$/;
+
+    const phoneSet = new Set();
+    const emailSet = new Set();
 
     if (!values.name || values.name.trim() === "") {
       errors.push("El nombre es obligatorio para el contacto");
@@ -187,57 +197,83 @@ function SelectContacts() {
       errors.push("El email no es válido.");
     }
 
+    contacts.forEach((contact) => {
+      phoneSet.add(contact.phone);
+    });
+
+    if (phoneSet.has(values.phone)) {
+      errors.push("El teléfono ya ha sido añadido");
+    }
+
+    contacts.forEach((contact) => {
+      emailSet.add(contact.email);
+    }
+    );
+
+    if (emailSet.has(values.email)) {
+      errors.push("El email ya ha sido añadido");
+    }
+
+
+
     return errors;
   };
 
   const addContact = () => {
-    setContacts([
-      { id: Date.now(), name: "", phone: "", email: "" },
-      ...contacts,
-    ]);
+
+    if (!newContact.name || !newContact.phone || !newContact.email) {
+      window.alert("Todos los campos son obligatorios");
+      return;
+    }
+    if (validateData(newContact)) {
+      if (validateData(newContact).length > 0) {
+        window.alert(validateData(newContact).join("\n"));
+        return;
+      }
+    }
+
+
+    setNewContact({ id: Date.now(), name: "", phone: "", email: "" });
+    setContacts([...contacts, newContact]);
+    console.log("newContact", newContact);
   };
 
   const removeContact = (id: number) => {
-    if (contacts.length > 1) {
-      setContacts(contacts.filter((contact) => contact.id !== id));
-    } else {
-      window.alert("Debe haber al menos un contacto.");
-    }
+    setContacts(contacts.filter((contact) => contact.id !== id));
   };
 
 
-  const showConfirmationModal = async (isMine: boolean) => {
-    const errors: string[] = [];
-    setIsMine(isMine);
+  const handleEditContact = (contact: { id: number; name: string; phone: string; email: string; }) => {
+    removeContact(contact.id);
+    setEditingContact(contact);
+    setNewContact({
+      id: contact.id,
+      name: contact.name,
+      phone: contact.phone,
+      email: contact.email,
+    });
+  };
 
+
+
+
+  const showConfirmationModal = async () => {
+    const errors: string[] = [];
     const phoneSet = new Set();
     const emailSet = new Set();
 
     try {
-      for (const contact of contacts) {
-        const contactErrors = validateData(contact);
-        if (emailSet.has(contact.email)) {
-          errors.push("No se pueden repetir los correos electrónicos");
-        } else {
-          emailSet.add(contact.email);
-        }
 
-        if (phoneSet.has(contact.phone)) {
-          errors.push("No se pueden repetir los números de teléfono");
-        } else {
-          phoneSet.add(contact.phone);
-        }
-
-        if (contactErrors.length > 0) {
-          errors.push(...contactErrors.slice(0, 3 - errors.length));
-        }
+      if (contacts.length < 1) {
+        window.alert("Por favor, añada al menos un contacto");
+        return;
       }
 
       if (errors.length !== 0) {
         throw new Error(`Hay error(es) en su formulario: ${errors.join(", ")}`);
       }
 
-      if (isMine) {
+      if (is_mine) {
         if (userRole === 'CUSTOMER_FREE') {
 
           setModalMessage("¿Desea guardar su propia esquela?\n ⚠️¡Recuerde que debe contratar nuestro plan para que su esquela sea enviada!");
@@ -263,9 +299,9 @@ function SelectContacts() {
   };
 
   const handleSubmit = async () => {
-  
+
     try {
-      if (isMine) {
+      if (is_mine) {
         await createObituary();
       } else {
         moveToNextScreen();
@@ -281,11 +317,16 @@ function SelectContacts() {
   };
 
   const createObituary = async () => {
-    const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
+
+    const contactsWithoutIds = contacts.map(({ id, phone, ...rest }) => ({
+      ...rest,
+      phone: phone.replace(/\s+/g, '')
+    }));
+
     const dataToSend = {
       ...combinedData,
       contacts: contactsWithoutIds,
-      isMine: isMine,
+      isMine: is_mine,
     };
 
     const url = is_newObituary
@@ -319,22 +360,25 @@ function SelectContacts() {
     }
   };
 
-
   const moveToNextScreen = () => {
-    const contactsWithoutIds = contacts.map(({ id, ...rest }) => rest);
+
+    const contactsWithoutIds = contacts.map(({ id, phone, ...rest }) => ({
+      ...rest,
+      phone: phone.replace(/\s+/g, '')
+    }));
 
     const dataToSend = {
-        ...combinedData,
-        contacts: contactsWithoutIds,
+      ...combinedData,
+      contacts: contactsWithoutIds,
     };
 
-    navigation.navigate("obituaries/loadCertificate", { 
-        jsonData: JSON.stringify(dataToSend) ,
-        is_newObituary, 
-        obituaryId,
-        isMine
+    navigation.navigate("obituaries/loadCertificate", {
+      jsonData: JSON.stringify(dataToSend),
+      is_newObituary,
+      obituaryId,
+      is_mine
     });
-};
+  };
 
 
   return isAuthenticated ? (
@@ -345,106 +389,100 @@ function SelectContacts() {
         ) : (
           <Text style={styles.title}>Edita a tus contactos</Text>
         )}
+        <View style={styles.contactContainer}>
+          <CustomTextInput
+            placeholder="Nombre"
+            value={newContact.name}
+            maxLength={50}
+            onChangeText={(text) => handleChange("name", text)}
+            style={styles.input}
+          />
+          <CustomTextInput
+            placeholder="Teléfono (sin prefijo)"
+            value={newContact.phone}
+            maxLength={11}
+            keyboardType="phone-pad"
+            onChangeText={(text) => {
+              const numericText = text.replace(/\D/g, "");
+              const formattedText = numericText.replace(/(\d{3})/g, "$1 ").trim();
+              handleChange("phone", formattedText);
+            }}
 
-        <FlatList
-          data={contacts}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item, index }) => (
-            <View style={styles.contactContainer}>
-              <Text style={styles.contactNumber}>{index + 1}.</Text>
-              <CustomTextInput
-                placeholder="Nombre"
-                value={item.name}
-                onChangeText={(text) => handleChange(item.id, "name", text)}
-                style={styles.input}
-              />
-              <CustomTextInput
-                placeholder="Teléfono (sin prefijo)"
-                value={item.phone}
-                maxLength={9}
-                keyboardType="phone-pad"
-                onChangeText={(text) => {
-                  const numericText = text.replace(/\D/g, "");
-                  handleChange(item.id, "phone", numericText);
-                }}
-                style={styles.input}
-              />
-              <CustomTextInput
-                placeholder="Email"
-                value={item.email}
-                keyboardType="email-address"
-                onChangeText={(text) => handleChange(item.id, "email", text)}
-                style={styles.input}
-              />
+            style={styles.input}
+          />
+          <CustomTextInput
+            placeholder="Email"
+            value={newContact.email}
+            maxLength={50}
+            keyboardType="email-address"
+            onChangeText={(text) => handleChange("email", text)}
+            style={styles.input}
+          />
+          <CustomButton style={styles.button} title="Añadir" onPress={addContact} />
+        </View>
 
-              {index === 0 && (
-                <CustomButton
-                  title="Añadir otro"
-                  onPress={() => alert("Esta función no está disponible aún")}
-                  style={styles.deleteButton}
-                />
-              )}
 
-              {index !== 0 && (
-                <CustomButton
-                  title="Eliminar"
-                  color="red"
-                  onPress={() => removeContact(item.id)}
-                  style={styles.deleteButton}
-                />
-              )}
+        <Text style={styles.title}>Lista de contactos añadidos</Text>
+        <ScrollView style={styles.tableContainer} horizontal>
+          <View>
+
+            <View style={styles.tableHeader}>
+              <Text style={styles.headerCell}>Nombre</Text>
+              <Text style={styles.headerCell}>Teléfono</Text>
+              <Text style={styles.headerCell}>Email</Text>
+              <Text style={styles.headerCell}>Acción</Text>
             </View>
-          )}
-        />
-      </View>
 
-      <View style={styles.divider} />
+            <FlatList
+              data={contacts}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => (
+                <View style={styles.tableRow}>
+                  <Text style={styles.cell}>{item.name}</Text>
+                  <Text style={styles.cell}>{item.phone}</Text>
+                  <Text style={styles.cell}>{item.email}</Text>
+                  <CustomButton
+                    title="Eliminar"
+                    style={styles.deleteButton}
+                    color="red"
+                    onPress={() => removeContact(item.id)}
+                  />
+                  <CustomButton
+                    title="Editar"
+                    style={styles.editButton}
+                    onPress={() => handleEditContact(item)}
+                  />
+
+                </View>
+              )}
+            />
+          </View>
+        </ScrollView>
+
+
+
+      </View><View style={styles.divider} />
       <View style={styles.buttonContainer}>
 
-        
 
-
-      {
-        is_newObituary ? (
-          <>
+        {
+          is_newObituary ? (
             <CustomButton
-              title={"Cree su propia esquela"}
-              onPress={() => showConfirmationModal(true)}
+              title={is_mine ? "Crear esquela" : "Subir certificado"}
+              onPress={() => {showConfirmationModal()}}
               style={styles.saveButton}
             />
-
-            <CustomButton
-              title={"Cree y envie su esquela para un ser querido"}
-              onPress={() => showConfirmationModal(false)}
-              style={styles.saveButton}
-            />
-          </>
-        ) : is_mine ? (
-          <CustomButton
-          title="Actualice su esquela"
-          onPress={() => {
-            if (is_mine) {
-              showConfirmationModal(true); 
-            } else {
-              window.alert("Función deshabilitada temporalmente"); 
-            }
-          }}
-          style={styles.saveButton}
-        />
-        
-        ) : (
-          <CustomButton
-            title={"Actualice el certificado de defunción"}
-            onPress={() => showConfirmationModal(false)}
-            style={styles.saveButton}
-          />
-        )
-      }
-
-
-
+          ) : (
+            is_mine && (
+              <CustomButton
+                title={"Actualizar esquela"}
+                onPress={() =>{showConfirmationModal()}}
+                style={styles.saveButton}
+              />
+            )
+          )
+        }
       </View>
-
       {modalVisible && (
         <CustomModal
           visible={modalVisible}
@@ -455,13 +493,13 @@ function SelectContacts() {
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => handleSubmit()}
+              onPress={() => {handleSubmit()}}
             >
-            <Text style={styles.buttonText}>Aceptar</Text>
+              <Text style={styles.buttonText}>Aceptar</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => handleCloseModal()}
+              onPress={() => {handleCloseModal()}}
             >
               <Text style={styles.buttonText}>Cancelar</Text>
             </TouchableOpacity>
@@ -470,11 +508,12 @@ function SelectContacts() {
       )}
     </View>
   ) : (
-      <ThemedView style={styles.container}>
-        <Text style={styles.title}>Debes iniciar sesión para poder acceder a esta sección</Text>
-      </ThemedView>
-    );
+    <ThemedView style={styles.container}>
+      <Text style={styles.title}>Debes iniciar sesión para poder acceder a esta sección</Text>
+    </ThemedView>
+  );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -494,32 +533,32 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
-  contactNumber: {
-    marginRight: 8,
-    fontWeight: "bold",
-    fontSize: 20,
-  },
   contactContainer: {
     alignSelf: "center",
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    width: width > 600 ? "100%" : "80%",
+    width: width > 600 ? "100%" : 1000,
     marginBottom: 10,
-    flexDirection: "row",
+    flexDirection: width > 600 ? "row" : "column",
   },
   deleteButton: {
     marginLeft: 10,
     alignSelf: "center",
     width: "20%",
   },
+  editButton: {
+    marginLeft: 5,
+    marginRight: 10,
+    alignSelf: "center",
+    width: "20%",
+  },
   input: {
-    marginLeft: 10,
+    marginRight: 10,
     width: "30%",
   },
   saveButton: {
     width: width > 600 ? "60%" : 160,
-    height: width > 600 ? "100%" : 70,
+    height: width > 600 ? "100%" : 50,
     textAlign: "center",
     justifyContent: "center",
     alignItems: "center",
@@ -548,7 +587,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 5,
-    width: width > 600 ? "40%" : "80%",
+    width: width > 600 ? "40%" : "90%",
   },
   buttonText: {
     color: "#fff",
@@ -562,7 +601,51 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     borderRadius: 8,
     alignItems: "center",
+    marginTop: width > 600 ? 0 : 10,
+  },
+  headerCell: {
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
+    marginHorizontal: 10,
+    flex: 1,
+  },
+  tableRow: {
+    flexDirection: "row",
+    paddingVertical: 10,
+    alignItems: "center",
+    flex: 1,
+    borderRadius: 10,
+    flexWrap: "wrap",
+    borderWidth: 1,
+    borderColor: GlobalStyles.blue,
+    overflow: "hidden",
+    width: "100%",
+  },
+  cell: {
+    flex: 1,
+    textAlign: "center",
+    padding: 5,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    flexWrap: "nowrap",
+  },
+  tableContainer: {
+    flex: 1,
+    padding: 10,
+    overflow: "hidden",
+    flexWrap: "wrap",
+    maxWidth: width * 0.9,
+  },
+  tableHeader: {
+    flexDirection: "row",
+    backgroundColor: GlobalStyles.blue,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    gap: width > 600 ? 120 : 0,
   },
 });
+
 
 export default withAuth(SelectContacts, [AUTHORITIES.CUSTOMER])

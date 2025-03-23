@@ -1,6 +1,5 @@
 import { GlobalStyles } from '@/constants/Colors';
 import React from 'react';
-import { ViewStyle } from 'react-native';
 import Svg, { Defs, G, Path, Polygon } from "react-native-svg"
 
 type LogoProps = {
