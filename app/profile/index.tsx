@@ -395,7 +395,7 @@ function ProfileScreen() {
                   <View style={styles.buttonContainer}>
                     <CustomButton
                       title="Editar usuario"
-                      onPress={() => setIsEditing(true)}
+                      onPress={() => {setIsEditing(true)}}
                       color="blue"
                     />
                     <LogoutButton />
@@ -404,7 +404,7 @@ function ProfileScreen() {
 
                 <ThemedText style={styles.changePasswordText}>
                   ¿Desea cambiar su contraseña?{' '}
-                  <Pressable onPress={() => setShowPasswordModal(true)}>
+                  <Pressable onPress={() => {setShowPasswordModal(true)}}>
                     <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
                   </Pressable>
                 </ThemedText>

@@ -93,7 +93,7 @@ const LoginScreen: React.FC = () => {
         )}
         <ThemedText style={styles.registerText}>
           ¿Aún no tienes cuenta?{' '}
-          <Pressable onPress={() => navigation.navigate('register/index' as never)}>
+          <Pressable onPress={() => {navigation.navigate('register/index' as never)}}>
           <ThemedText style={styles.registerLink}>Regístrate</ThemedText>
           </Pressable>
         </ThemedText>

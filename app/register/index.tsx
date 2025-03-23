@@ -330,7 +330,7 @@ const RegisterScreen: React.FC = () => {
               </Text>
               <CustomButton
                 title="Registrarse como cliente"
-                onPress={() => handleUserTypeSelection("Cliente") }
+                onPress={() => {handleUserTypeSelection("Cliente")} }
                 color="blue"
                 style={{ ...styles.typeButton, ...(isMobile ? {} : { width: 400 }) }}
               />
@@ -342,7 +342,7 @@ const RegisterScreen: React.FC = () => {
               </Text>
               <CustomButton
                 title="Registrarse como empresa"
-                onPress={() => handleUserTypeSelection("Empresa")}
+                onPress={() => {handleUserTypeSelection("Empresa")} }
                 color="blue"
                 style={{ ...styles.typeButton, ...(isMobile ? {} : { width: 400 }) }}
               />
