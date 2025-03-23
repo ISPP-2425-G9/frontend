@@ -1,11 +1,11 @@
 import CustomButton from "@/components/CustomButton";
 import { CustomTextInput } from "@/components/CustomTextInput";
-import TermsAndConditions from '@/components/TermsAndConditions';
+import TermsAndConditions from "@/components/TermsAndConditions";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import Checkbox from 'expo-checkbox';
+import Checkbox from "expo-checkbox";
 import { useFocusEffect } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -16,13 +16,14 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { AUTHORITIES } from "../_util/Authorities";
 import { useAuth } from "../_util/useAuth";
 import { withAuth } from "../_util/withAuth";
 
 import { Picker } from "@react-native-picker/picker";
+import CustomPicker from "@/components/CustomPicker";
 
 const { width } = Dimensions.get("window");
 const deviceWidth = Dimensions.get("window").width;
@@ -38,7 +39,7 @@ const RegisterScreen: React.FC = () => {
   const { login } = useAuth();
 
   useFocusEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
+    const unsubscribe = navigation.addListener("focus", () => {
       setUserType(null);
       setFormValues({});
       setFormErrors([]);
@@ -49,7 +50,7 @@ const RegisterScreen: React.FC = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      document.title = 'Registrarse';
+      document.title = "Registrarse";
     }, [])
   );
 
@@ -222,10 +223,15 @@ const RegisterScreen: React.FC = () => {
         errors.push("La descripción es obligatoria.");
       }
       if (
-
         !values.companyType ||
         typeof values.companyType !== "string" ||
-        !["FLORISTERIA", "NOTARIA", "FUNERARIA", "DESPACHO_DE_ABOGADOS", "OTRO"].includes(values.companyType)
+        ![
+          "FLORISTERIA",
+          "NOTARIA",
+          "FUNERARIA",
+          "DESPACHO_DE_ABOGADOS",
+          "OTRO",
+        ].includes(values.companyType)
       ) {
         errors.push("El tipo de empresa no es válido.");
       }
@@ -342,25 +348,33 @@ const RegisterScreen: React.FC = () => {
             <View style={styles.optionCard}>
               <Text style={styles.optionTitle}>Soy cliente</Text>
               <Text style={styles.optionDescription}>
-                Gestiona el envío de mensajes finales y esquelas digitales a una lista de contactos personalizada.
+                Gestiona el envío de mensajes finales y esquelas digitales a una
+                lista de contactos personalizada.
               </Text>
               <CustomButton
                 title="Registrarse como cliente"
                 onPress={() => handleUserTypeSelection("Cliente")}
                 color="blue"
-                style={{ ...styles.typeButton, ...(isMobile ? {} : { width: 400 }) }}
+                style={{
+                  ...styles.typeButton,
+                  ...(isMobile ? {} : { width: 400 }),
+                }}
               />
             </View>
             <View style={styles.optionCard}>
               <Text style={styles.optionTitle}>Soy empresa</Text>
               <Text style={styles.optionDescription}>
-                Llega a más clientes ofreciendo tus soluciones y servicios especializados en el sector funerario.
+                Llega a más clientes ofreciendo tus soluciones y servicios
+                especializados en el sector funerario.
               </Text>
               <CustomButton
                 title="Registrarse como empresa"
                 onPress={() => handleUserTypeSelection("Empresa")}
                 color="blue"
-                style={{ ...styles.typeButton, ...(isMobile ? {} : { width: 400 }) }}
+                style={{
+                  ...styles.typeButton,
+                  ...(isMobile ? {} : { width: 400 }),
+                }}
               />
             </View>
           </View>
@@ -371,7 +385,6 @@ const RegisterScreen: React.FC = () => {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-
           <Text style={styles.formTitle}>
             {userType === "Empresa"
               ? "Registro de empresa"
@@ -380,23 +393,33 @@ const RegisterScreen: React.FC = () => {
 
           {userType === "Empresa"
             ? companyFields.map((field, index) => (
-                <View key={`company-${field.name}-${index}`} style={[styles.inputContainer, !isMobile && { width: 400, alignSelf: "center" }]}>
+                <View
+                  key={`company-${field.name}-${index}`}
+                  style={[
+                    styles.inputContainer,
+                    !isMobile && { width: 400, alignSelf: "center" },
+                  ]}
+                >
                   <Text>{field.description}</Text>
-                  { field.name === "companyType" ? (
-                    <View style={styles.pickerContainer}>
-                      <Picker
-                        style={styles.picker}
-                        selectedValue={formValues[field.name] || ""}
-                        onValueChange={(value) => setFormValues({ ...formValues, [field.name]: value }  )}
-                      >
-                        <Picker.Item label="Seleccione un tipo de empresa" value="" />
-                        <Picker.Item label="Floristería" value="FLORISTERIA" />
-                        <Picker.Item label="Notaría" value="NOTARIA" />
-                        <Picker.Item label="Funeraria" value="FUNERARIA" />
-                        <Picker.Item label="Despacho de Abogados" value="DESPACHO_DE_ABOGADOS" />
-                        <Picker.Item label="Otro" value="OTRO" />
-                      </Picker>
-                    </View>
+                  {field.name === "companyType" ? (
+                    <CustomPicker
+                      selectedValue={formValues[field.name] || ""}
+                      onValueChange={(value) =>
+                        setFormValues({ ...formValues, [field.name]: value })
+                      }
+                      placeholder="Seleccione un tipo de empresa"
+                      items={[
+                        { label: "Floristería", value: "FLORISTERIA" },
+                        { label: "Notaría", value: "NOTARIA" },
+                        { label: "Funeraria", value: "FUNERARIA" },
+                        {
+                          label: "Despacho de Abogados",
+                          value: "DESPACHO_DE_ABOGADOS",
+                        },
+                        { label: "Otro", value: "OTRO" },
+                      ]}
+                      style={styles.pickerContainer}
+                    />
                   ) : (
                     <CustomTextInput
                       placeholder={field.placeholder}
@@ -411,19 +434,25 @@ const RegisterScreen: React.FC = () => {
                 </View>
               ))
             : clientFields.map((field, index) => (
-              <View key={`client-${field.name}-${index}`} style={[styles.inputContainer, !isMobile && { width: 400, alignSelf: "center" }]}>
-                <Text>{field.description}</Text>
-                <CustomTextInput
-                  placeholder={field.placeholder}
-                  secureTextEntry={field.secureTextEntry}
-                  value={formValues[field.name] || ""}
-                  onChangeText={(text) =>
-                    setFormValues({ ...formValues, [field.name]: text })
-                  }
-                  style={{ width: "100%" }}
-                />
-              </View>
-            ))}
+                <View
+                  key={`client-${field.name}-${index}`}
+                  style={[
+                    styles.inputContainer,
+                    !isMobile && { width: 400, alignSelf: "center" },
+                  ]}
+                >
+                  <Text>{field.description}</Text>
+                  <CustomTextInput
+                    placeholder={field.placeholder}
+                    secureTextEntry={field.secureTextEntry}
+                    value={formValues[field.name] || ""}
+                    onChangeText={(text) =>
+                      setFormValues({ ...formValues, [field.name]: text })
+                    }
+                    style={{ width: "100%" }}
+                  />
+                </View>
+              ))}
 
           {formErrors.length > 0 && (
             <View style={styles.errorContainer}>
@@ -443,7 +472,12 @@ const RegisterScreen: React.FC = () => {
             />
             <Text style={styles.checkboxLabel}>Acepto los</Text>
             <TouchableOpacity onPress={() => setModalVisible(true)}>
-              <Text style={[styles.checkboxLabel, { textDecorationLine: 'underline', color: GlobalStyles.blue }]}>
+              <Text
+                style={[
+                  styles.checkboxLabel,
+                  { textDecorationLine: "underline", color: GlobalStyles.blue },
+                ]}
+              >
                 términos y condiciones de uso
               </Text>
             </TouchableOpacity>
@@ -453,7 +487,10 @@ const RegisterScreen: React.FC = () => {
             title="Completar registro"
             onPress={() => handleSubmit(formValues)}
             color="blue"
-            style={{ ...styles.submitButton, ...(isMobile ? {} : { width: 400 }) }}
+            style={{
+              ...styles.submitButton,
+              ...(isMobile ? {} : { width: 400 }),
+            }}
           />
 
           <CustomButton
@@ -472,7 +509,9 @@ const RegisterScreen: React.FC = () => {
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
                 <ScrollView>
-                  <Text style={styles.modalTitle}>Términos y condiciones de uso</Text>
+                  <Text style={styles.modalTitle}>
+                    Términos y condiciones de uso
+                  </Text>
                   <TermsAndConditions />
                 </ScrollView>
                 <CustomButton
@@ -484,7 +523,6 @@ const RegisterScreen: React.FC = () => {
               </View>
             </View>
           </Modal>
-
         </ScrollView>
       )}
     </View>
