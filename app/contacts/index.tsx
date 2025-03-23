@@ -2,8 +2,9 @@ import { StyleSheet, Text } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { withAuth } from '../_util/withAuth';
+import { GlobalStyles } from '@/constants/Colors';
 import { AUTHORITIES } from "../_util/Authorities";
+import { withAuth } from '../_util/withAuth';
 
 
 function TabTwoScreen() {
@@ -22,7 +23,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingTop: 120,
-    backgroundColor: '#ffff',
+    backgroundColor: GlobalStyles.white,
   },
   title: {
     fontSize: 30,

@@ -1,18 +1,15 @@
-import { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Image } from "react-native";
-import { useNavigation, NavigationProp, useRoute, RouteProp } from "@react-navigation/native";
-import { Dimensions } from "react-native";
-import { TouchableOpacity } from "react-native";
-import { AUTHORITIES } from "../_util/Authorities";
-import { withAuth } from "../_util/withAuth";
-import * as ImagePicker from "expo-image-picker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomButton from "@/components/CustomButton";
+import CustomModal from "@/components/CustomModal";
 import { CustomTextInput } from "@/components/CustomTextInput";
 import { GlobalStyles } from "@/constants/Colors";
-import { ThemedView } from "@/components/ThemedView";
-import CustomModal from "@/components/CustomModal";
 import { BACKEND_API } from "@/constants/Mysc";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { NavigationProp, useFocusEffect, useNavigation } from "@react-navigation/native";
+import * as ImagePicker from "expo-image-picker";
+import React, { useState } from "react";
+import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { AUTHORITIES } from "../_util/Authorities";
+import { withAuth } from "../_util/withAuth";
 
 type RootStackParamList = {
   "obituaries/loadCertificate": { jsonData: string },
@@ -164,7 +161,11 @@ function LoadCertificate() {
   }
 
 
-
+  useFocusEffect(
+    React.useCallback(() => {
+      document.title = 'Cargar certificado';
+    }, [])
+  );
 
 
   return (
@@ -259,13 +260,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-start",
-    backgroundColor: "#ffff",
+    backgroundColor: GlobalStyles.white,
   },
   dataContainer: {
     flex: 1,
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingTop: 120,
+    paddingTop: 20,
   },
   infoText: {
     fontSize: 14,

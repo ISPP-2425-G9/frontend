@@ -1,10 +1,9 @@
-import { Link, useRouter } from "expo-router";
-import { FC, useEffect, useState } from "react";
+import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { FC, useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet } from "react-native";
 import { AUTHORITIES, AuthorityType } from "./Authorities";
 import { useAuth } from "./useAuth";
-import { StyleSheet, ActivityIndicator } from "react-native";
-import { ThemedView } from "@/components/ThemedView";
-import { ThemedText } from "@/components/ThemedText";
 
 export function withAuth<T extends object>(
   Component: FC<T>,
@@ -12,10 +11,11 @@ export function withAuth<T extends object>(
 ) {
   return function ProtectedScreen(props: T) {
     const router = useRouter();
+    const navigation = useNavigation();
     const { user, getUserFromStorage } = useAuth();
     const [storedUser, setStoredUser] = useState(user);
-    const [loading, setLoading] = useState(true); // To handle the loading state
-    const [mounted, setMounted] = useState(false); // Track if the component is mounted
+    const [loading, setLoading] = useState(true);
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
       const fetchUser = async () => {
@@ -25,41 +25,35 @@ export function withAuth<T extends object>(
         } else {
           setStoredUser(user);
         }
-        setLoading(false); // Set loading to false once the user is fetched
+        setLoading(false);
       };
 
       fetchUser();
-    }, [user]); // Dependency on user state
+    }, [user]);
 
     const roles = storedUser ? storedUser.roles : [AUTHORITIES.ANONYMOUS];
 
     useEffect(() => {
-      // Mark the component as mounted
       setMounted(true);
     }, []);
 
-    useEffect(() => {
-      if (mounted && allowedRoles.length > 0 && !roles.some(role => allowedRoles.includes(role))) {
-        router.replace("/"); 
-      }
-    }, [roles, allowedRoles, router, mounted]); // Ensure navigation happens only after mounting
+    useFocusEffect(
+      React.useCallback(() => {
+        if (mounted && allowedRoles.length > 0 && !roles.some(role => allowedRoles.includes(role))) {
+          navigation.navigate('home' as never);
+        }
+      }, [mounted, allowedRoles, roles, navigation])
+    );
 
     if (loading) {
-      return <ActivityIndicator size="large" />; // Show loading indicator until the user is fetched
+      return <ActivityIndicator size="large" />;
     }
 
     if (allowedRoles.length > 0 && !roles.some(role => allowedRoles.includes(role))) {
-      return (
-        <ThemedView style={styles.container}>
-          <ThemedText type="title">This screen doesn't exist.</ThemedText>
-          <Link href="/" style={styles.link}>
-            <ThemedText>Go to home screen!</ThemedText>
-          </Link>
-        </ThemedView>
-      );
+      return null;
     }
 
-    return <Component {...props} />; // Render the protected component
+    return <Component {...props} />;
   };
 }
 
