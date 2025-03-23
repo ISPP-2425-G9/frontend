@@ -3,9 +3,11 @@ import DeleteAccountButton from '@/components/DeleteAccountButton';
 import LogoutButton from '@/components/LogoutButton';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useState } from 'react';
 import { ActivityIndicator, Alert, Image, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
@@ -23,7 +25,7 @@ function ProfileScreen() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [customImageUrl, setCustomImageUrl] = useState('');
-  
+
 
   const fetchProfile = async () => {
     try {
@@ -86,10 +88,12 @@ function ProfileScreen() {
     }
   };
 
-
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchProfile();
+      document.title = 'Perfil';
+    }, [])
+  );
 
   interface CustomerProfile {
     name: string;
@@ -255,7 +259,7 @@ function ProfileScreen() {
       Alert.alert('Error', 'Las contraseñas no coinciden');
       return;
     }
-    
+
     try {
       const userDataStr = await AsyncStorage.getItem('user_data');
       if (!userDataStr) {
@@ -265,12 +269,12 @@ function ProfileScreen() {
       const userData = JSON.parse(userDataStr);
       const token = userData.token;
       const userId = userData.id;
-  
+
       const requestBody = {
         newPassword: newPassword,
         confirmPassword: confirmPassword,
       };
-  
+
       const response = await fetch(`${BACKEND_API}/api/auth/password/${userId}`, {
         method: 'PUT',
         headers: {
@@ -279,20 +283,20 @@ function ProfileScreen() {
         },
         body: JSON.stringify(requestBody),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.text();
         Alert.alert('Error', errorData || 'Error mientras se actualizaba la contraseña');
         return;
       }
-  
+
       const data = await response.json();
-  
+
       await AsyncStorage.setItem('user_data', JSON.stringify({
         ...userData,
         token: data.token || userData.token,
       }));
-  
+
       Alert.alert('Éxito', 'Contraseña actualizada correctamente');
       setShowPasswordModal(false);
       setNewPassword('');
@@ -371,64 +375,39 @@ function ProfileScreen() {
         <>
           <View style={styles.profileContainer}>
             {role === "CUSTOMER" ? (
-              <View style={styles.twoColumnsContainer}>
-                <View style={styles.columnData}>
-                  <ThemedText style={styles.title}>Mis datos</ThemedText>
-
-                  {renderEditableField('Nombre', editedCustomer.name, 'name', 'Nombre de usuario')}
-                  {renderEditableField('Email', editedCustomer.email, 'email', 'Email')}
-                  {renderEditableField('Teléfono', editedCustomer.telephone, 'telephone', 'Número de teléfono')}
-                  <ThemedText style={styles.label}>DNI</ThemedText>
-                  <ThemedText style={styles.value}>{editedCustomer.dni}</ThemedText>
-                  {isEditing ? (
-                    <View style={styles.buttonContainer}>
-                      <DeleteAccountButton />
-                      <CustomButton
-                        title="Guardar"
-                        onPress={handleSave}
-                        color="blue"
-                      />
-                    </View>
-                  ) : (
-                    <View style={styles.buttonContainer}>
-                      <LogoutButton />
-                      <CustomButton
-                        title="Editar usuario"
-                        onPress={() => setIsEditing(true)}
-                        color="blue"
-                      />
-                    </View>
-                  )}
-
-                  <ThemedText style={styles.changePasswordText}>
-                    ¿Desea cambiar su contraseña?{' '}
-                    <Pressable onPress={() => setShowPasswordModal(true)}>
-                      <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
-                    </Pressable>
-                  </ThemedText>
-                </View>
-
-                <View style={styles.column}>
-                  <ThemedText style={styles.title}>Contactos de emergencia</ThemedText>
-                  <ThemedText style={styles.label}>Nombre de contacto</ThemedText>
-                  <ThemedText style={styles.value}>Juan Pérez</ThemedText>
-                  <ThemedText style={styles.label}>Teléfono de contacto</ThemedText>
-                  <ThemedText style={styles.value}>123-456-789</ThemedText>
-                  <ThemedText style={styles.label}>Email de contacto</ThemedText>
-                  <ThemedText style={styles.value}>juanperes@hotmail.es</ThemedText>
+              <View style={styles.columnData}>
+                <ThemedText style={styles.title}>Mis datos</ThemedText>
+                {renderEditableField('Nombre', editedCustomer.name, 'name', 'Nombre de usuario')}
+                {renderEditableField('Email', editedCustomer.email, 'email', 'Email')}
+                {renderEditableField('Teléfono', editedCustomer.telephone, 'telephone', 'Número de teléfono')}
+                <ThemedText style={styles.label}>DNI</ThemedText>
+                <ThemedText style={styles.value}>{editedCustomer.dni}</ThemedText>
+                {isEditing ? (
                   <View style={styles.buttonContainer}>
                     <CustomButton
-                      title="Eliminar"
-                      onPress={() => console.log("Eliminar contacto")}
-                      color="red"
-                    />
-                    <CustomButton
-                      title="Añadir"
-                      onPress={() => console.log("Añadir contacto")}
+                      title="Guardar"
+                      onPress={handleSave}
                       color="blue"
                     />
+                    <DeleteAccountButton />
                   </View>
-                </View>
+                ) : (
+                  <View style={styles.buttonContainer}>
+                    <CustomButton
+                      title="Editar usuario"
+                      onPress={() => {setIsEditing(true)}}
+                      color="blue"
+                    />
+                    <LogoutButton />
+                  </View>
+                )}
+
+                <ThemedText style={styles.changePasswordText}>
+                  ¿Desea cambiar su contraseña?{' '}
+                  <Pressable onPress={() => {setShowPasswordModal(true)}}>
+                    <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
+                  </Pressable>
+                </ThemedText>
               </View>
             ) : (
               <View style={styles.companyContainer}>
@@ -478,26 +457,26 @@ function ProfileScreen() {
 
                 {isEditing ? (
                   <View style={styles.buttonContainer}>
-                    <DeleteAccountButton />
                     <CustomButton
                       title="Guardar"
                       onPress={handleSaveCompany}
                       color="blue"
                     />
+                    <DeleteAccountButton />
                   </View>
                 ) : (
                   <View>
                     <View style={styles.buttonContainer}>
-                      <LogoutButton />
                       <CustomButton
                         title="Editar información"
-                        onPress={() => setIsEditing(true)}
+                        onPress={() => {setIsEditing(true)}}
                         color="blue"
                       />
+                      <LogoutButton />
                     </View>
                     <ThemedText style={styles.changePasswordText}>
                       ¿Desea cambiar su contraseña?{' '}
-                      <Pressable onPress={() => setShowPasswordModal(true)}>
+                      <Pressable onPress={() => {setShowPasswordModal(true)}}>
                         <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
                       </Pressable>
                     </ThemedText>
@@ -528,7 +507,7 @@ function ProfileScreen() {
                   onChangeText={setConfirmPassword}
                 />
                 <CustomButton title="Guardar" onPress={handleChangePassword} color="blue" />
-                <CustomButton title="Cancelar" onPress={() => setShowPasswordModal(false)} color="red" />
+                <CustomButton title="Cancelar" onPress={() => {setShowPasswordModal(false)}} color="red" />
               </View>
             </View>
           </Modal>
@@ -545,9 +524,9 @@ function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    paddingTop: 20,
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: GlobalStyles.white,
   },
   profileContainer: {
     padding: 20,
@@ -557,19 +536,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   companyContainer: {
+    paddingTop: 120,
     padding: 20,
-    elevation: 5,
     width: '100%',
     height: '80%',
     alignItems: 'center',
-  },
-  twoColumnsContainer: {
-    alignSelf: 'center',
-    marginTop: '5%',
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '90%',
+    justifyContent: 'center',
   },
   twoColumnsContainerCompany: {
     flexDirection: 'row',
@@ -577,7 +549,8 @@ const styles = StyleSheet.create({
     width: '70%',
   },
   columnData: {
-    width: '50%',
+    maxWidth: 400,
+    width: '100%',
     alignItems: 'center',
     height: '100%',
   },
@@ -591,7 +564,7 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 5,
     textAlign: 'left',
-    width: '50%',
+    width: '100%',
     marginLeft: '15%',
   },
   labelCompany: {
@@ -607,7 +580,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     fontWeight: 'bold',
     textAlign: 'left',
-    width: '50%',
+    width: '100%',
     marginLeft: '15%',
   },
   valueCompany: {
@@ -633,8 +606,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   input: {
-    width: '40%',
-    backgroundColor: '#f0f0f0',
+    width: '90%',
+    backgroundColor: GlobalStyles.lightGrey,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
@@ -647,7 +620,7 @@ const styles = StyleSheet.create({
   inputImage: {
     width: '50%',
     alignSelf: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: GlobalStyles.lightGrey,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
@@ -659,7 +632,7 @@ const styles = StyleSheet.create({
   },
   inputCompany: {
     width: '70%',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: GlobalStyles.lightGrey,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
@@ -672,7 +645,7 @@ const styles = StyleSheet.create({
   inputCompanyDescription: {
     width: '70%',
     height: '50%',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: GlobalStyles.lightGrey,
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 12,
@@ -704,8 +677,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonContainer: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-around',
+    alignContent: 'center',
+    alignSelf: 'center',
     marginTop: 20,
     marginBottom: 20,
     gap: 20,
@@ -741,13 +716,12 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    width: '100%',
+    width: 'auto',
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
-    width: '40%',
     backgroundColor: '#fff',
     padding: 20,
     borderRadius: 12,

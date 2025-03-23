@@ -6,9 +6,10 @@ interface CustomButtonProps {
   title: string;
   onPress: () => void;
   style?: ViewStyle;
-  color?: 'blue' | 'grey' | 'red' | 'white' | 'green';
+
+  color?: 'blue' | 'grey' | 'red' | 'white' | 'green' | 'orange';
   disabled?: boolean;
-}
+};
 
 const CustomButton: React.FC<CustomButtonProps> = ({ title, onPress, style, color = 'blue', disabled = false }) => {
   const textStyles = [styles.text, color === 'white' ? styles.textGrey : styles.textWhite];
@@ -58,6 +59,10 @@ const styles = StyleSheet.create({
   disabled: {
     opacity: 0.5,
   },
+  orange: {
+    backgroundColor: GlobalStyles.orange,
+  },
+  
   text: {
     textAlign: 'center', 
     fontWeight: 'bold',

@@ -1,7 +1,7 @@
-import React from 'react';
-import { Modal, View, Text, Pressable, StyleSheet, ViewStyle } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
 import { GlobalStyles } from '@/constants/Colors';
+import { AntDesign } from '@expo/vector-icons';
+import React from 'react';
+import { Modal, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
 
 type ModalProps = {
   visible: boolean;
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContainer: {
-    width: '80%',
+    width: 'auto',
     backgroundColor: GlobalStyles.lightGrey,
     padding: 20,
     borderRadius: 10,
@@ -55,7 +55,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: GlobalStyles.darkGrey,
     marginBottom: 15,
-    textAlign: 'center'
+    textAlign: 'center', 
+    marginTop: 20
   },
   content: {
     width: '100%',
