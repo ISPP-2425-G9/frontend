@@ -40,7 +40,7 @@ const ListServiceScreen: React.FC = () => {
   
       const params = new URLSearchParams();
       params.append('page', String(page));
-      params.append('size', '5'); // o lo que prefieras
+      params.append('size', '5');
   
       if (city) params.append('city', city);
       if (name) params.append('name', name);
@@ -57,7 +57,7 @@ const ListServiceScreen: React.FC = () => {
   
       if (Array.isArray(data.content)) {
         setSponsors(data.content);
-        setTotalPages(data.totalPages); // para el control de paginación
+        setTotalPages(data.totalPages);
       } else {
         setSponsors([]);
       }
@@ -101,6 +101,18 @@ const ListServiceScreen: React.FC = () => {
             onChangeText={setCompanyType}
           />
         </View>
+        {/* LISTADO DE SPONSORS */}
+        {loading ? (
+          <ActivityIndicator size="large" color={GlobalStyles.blue} />
+        ) : (
+          <View style={styles.listContainer}>
+            {sponsors.map((item) => (
+              <View key={item.nif} style={styles.sponsorWrapper}>
+                <AdvertisementSponsor sponsor={item} />
+              </View>
+            ))}
+          </View>
+        )}
         {/* PAGINACIÓN */}
         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 20, gap: 10 }}>
           <CustomButton
@@ -117,18 +129,6 @@ const ListServiceScreen: React.FC = () => {
             style={{ opacity: page + 1 >= totalPages ? 0.5 : 1 }}
           />
         </View>
-        {/* LISTADO DE SPONSORS */}
-        {loading ? (
-          <ActivityIndicator size="large" color={GlobalStyles.blue} />
-        ) : (
-          <View style={styles.listContainer}>
-            {sponsors.map((item) => (
-              <View key={item.nif} style={styles.sponsorWrapper}>
-                <AdvertisementSponsor sponsor={item} />
-              </View>
-            ))}
-          </View>
-        )}
       </ScrollView>
     </ThemedView>
   );
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: GlobalStyles.white,
-    paddingVertical: 120,
+    paddingTop: 120,
   },
   scrollContainer: {
     flexGrow: 1,
