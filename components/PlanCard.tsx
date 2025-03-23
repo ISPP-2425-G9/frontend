@@ -132,7 +132,6 @@ const PlanCard: React.FC<PlanCardProps> = ({
 
   const handleUnsubscribe = () => {
 
-    // TODO: Implementar lógica de cancelación de suscripción
     setIsCancelModalVisible(false);
   };
 
@@ -242,7 +241,7 @@ const PlanCard: React.FC<PlanCardProps> = ({
             />
             <CustomButton
               title={isProcessing ? 'Procesando...' : 'Confirmar'}
-              onPress={handleUnsubscribe} // Llamar función para cancelar suscripción
+              onPress={handleUnsubscribe}
               style={styles.button}
               color="blue"
             />
@@ -255,7 +254,7 @@ const PlanCard: React.FC<PlanCardProps> = ({
         onClose={() => setShowPaymentModal(false)}
         amount={isPremium ? 4.99 : 0.99}
         planType={isPremium ? 'premium' : 'basic'}
-        description={`Suscripción al Plan ${isPremium ? 'Premium' : 'Básico'}`}
+        description={`Suscripción al Plan ${isPremium ? 'mensual empresa' : 'mensual'}`}
         onSuccess={handlePaymentSuccess}
       />
     </View>
