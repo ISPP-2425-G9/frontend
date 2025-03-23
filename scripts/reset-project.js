@@ -103,7 +103,7 @@ rl.question(
   (answer) => {
     const userInput = answer.trim().toLowerCase() || "y";
     if (userInput === "y" || userInput === "n") {
-      moveDirectories(userInput).finally(() => rl.close());
+      moveDirectories(userInput).finally(() => {rl.close()});
     } else {
       console.log("❌ Invalid input. Please enter 'Y' or 'N'.");
       rl.close();

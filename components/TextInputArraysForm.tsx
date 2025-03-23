@@ -103,7 +103,7 @@ const TextInputArraysForm: React.FC<CustomFormProps> = ({
 
       {imageFields.map((field) => (
         <View key={field} style={styles.imageContainer}>
-          <TouchableOpacity style={styles.uploadButton} onPress={() => pickImage(field)}>
+          <TouchableOpacity style={styles.uploadButton} onPress={() => {pickImage(field)}}>
             <Text style={styles.buttonText}>Seleccionar {field}</Text>
           </TouchableOpacity>
           {images[field] && <Image source={{ uri: images[field] }} style={styles.imagePreview} />}

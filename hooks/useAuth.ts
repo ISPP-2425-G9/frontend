@@ -43,7 +43,7 @@ const useAuth = () => {
 
     const intervalId = setInterval(checkAuth, 500); // Revisa cada 0,5 segundos
 
-    return () => clearInterval(intervalId);
+    return () => {clearInterval(intervalId)};
   }, []); // Se ejecuta solo una vez al cargar el componente
 
 

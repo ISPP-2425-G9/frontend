@@ -142,13 +142,13 @@ const PlanCard: React.FC<PlanCardProps> = ({ role, fechaExpiracion }) => {
           {isPremium ? (
             <TouchableOpacity
               style={styles.buttonCancel}
-              onPress={() => setIsCancelModalVisible(true)}>
+              onPress={() => {setIsCancelModalVisible(true)}}>
               <Text style={styles.buttonText}>Darse de baja</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
               style={styles.buttonSubscribe}
-              onPress={() => setIsModalVisible(true)}
+              onPress={() => {setIsModalVisible(true)}}
             >
               <Text style={styles.buttonText}>Contratar plan</Text>
             </TouchableOpacity>
