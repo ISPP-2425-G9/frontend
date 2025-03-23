@@ -3,7 +3,6 @@ import CustomModal from '@/components/CustomModal';
 import { ThemedText } from '@/components/ThemedText';
 import { GlobalStyles } from '@/constants/Colors';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
 import PaymentModal from './PaymentModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_API } from '@/constants/Mysc';
@@ -270,6 +269,21 @@ const PlanCard: React.FC<PlanCardProps> = ({
 
 
 const styles = StyleSheet.create({
+    buttonContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      width: '100%',
+      paddingHorizontal: 10,
+      marginTop: 15,
+      gap: 10,
+      maxWidth: 400,
+      alignSelf: 'center',
+    },
+    button: {
+      flex: 1,
+      marginHorizontal: 5,
+      maxWidth: 160,
+    },
     cardContainer: {
       width: '100%',
       alignItems: 'center',
@@ -339,138 +353,35 @@ const styles = StyleSheet.create({
       color: GlobalStyles.white,
       fontFamily: GlobalStyles.fontBold,
     },
+    modal: {
+      width: 'auto',
+    },
     modalContent: {
       padding: 20,
       alignItems: 'center',
-      backgroundColor: 'white',
-      borderRadius: 10,
-      width: width > 600 ? '80%': '102%',
       alignSelf: 'center',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
       elevation: 5,
     },
     modalText: {
       fontSize: 16,
       textAlign: 'center',
-      marginBottom: 15,
+      marginBottom: 20,
       color: '#333',
-      paddingHorizontal: 10,
     },
-    buttonContainer: {
+    modalButtons: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      width: '100%',
-      paddingHorizontal: 10,
-      marginTop: 15,
-      gap: 10,
-      maxWidth: 400,
-      alignSelf: 'center',
+      marginTop: 10,
     },
-    button: {
+    modalButton: {
       flex: 1,
       marginHorizontal: 5,
-      maxWidth: 160,
+      paddingVertical: 10,
+      borderRadius: 5,
+      alignItems: 'center',
     },
+  
   });
-  cardContainer: {
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cardContainerMobile: {
-    flexDirection: 'column',
-  },
-  cardContainerDesktop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '100%',
-    flexWrap: 'wrap',
-    gap: 50,
-  },
-  card: {
-    borderWidth: 2,
-    padding: 20,
-    borderRadius: 8,
-    marginVertical: 10,
-    alignItems: 'center',
-    width: '100%',
-    maxWidth: 520,
-    marginHorizontal: 15,
-  },
-  title: {
-    fontSize: 18,
-    fontFamily: GlobalStyles.fontBold,
-    color: GlobalStyles.darkGrey,
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  description: {
-    fontSize: 14,
-    fontFamily: GlobalStyles.font,
-    color: GlobalStyles.grey,
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  payment: {
-    fontSize: 16,
-    fontFamily: GlobalStyles.fontBold,
-    color: GlobalStyles.darkGrey,
-  },
-  price: {
-    fontSize: 20,
-    fontFamily: GlobalStyles.fontBold,
-    color: GlobalStyles.blue,
-    fontWeight: 'bold',
-  },
-  buttonSubscribe: {
-    marginTop: 10,
-    backgroundColor: GlobalStyles.blue,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 5,
-  },
-  buttonCancel: {
-    marginTop: 10,
-    backgroundColor: GlobalStyles.red,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: GlobalStyles.white,
-    fontFamily: GlobalStyles.fontBold,
-  },
-  modal: {
-    width: 'auto',
-  },
-  modalContent: {
-    padding: 20,
-    alignItems: 'center',
-    alignSelf: 'center',
-    elevation: 5,
-  },
-  modalText: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 20,
-    color: '#333',
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  modalButton: {
-    flex: 1,
-    marginHorizontal: 5,
-    paddingVertical: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-});
+
 
 export default PlanCard;
