@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Dimensions, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Dimensions, TouchableOpacity, Animated, ViewStyle } from 'react-native';
 import { GlobalStyles } from '@/constants/Colors';
 import CustomModal from '@/components/CustomModal';
 import CustomButton from '@/components/CustomButton';
@@ -11,16 +11,16 @@ import {
   useElements,
   CardNumberElement,
   CardExpiryElement,
-  CardCvcElement
+  CardCvcElement,
+  StripeElementType
 } from '@stripe/react-stripe-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_API } from '@/constants/Mysc';
 import { FontAwesome } from '@expo/vector-icons';
+import { STRIPE_PUBLISHABLE_KEY } from '@/constants/Stripe';
 
 const { width } = Dimensions.get('window');
 const isMobile = width < 768;
-
-const STRIPE_PUBLISHABLE_KEY = 'pk_test_51R1uerGa0d4217RGhYHV7bLOxmAPTyZklTeE72bfrrvfFdAS2aQOhF73AjpfBduudppxm4i7pb66DCNDQU6Hiyou00yD5rsLWb';
 
 const cardElementStyle = {
   style: {
@@ -52,10 +52,23 @@ interface PaymentModalProps {
 
 interface SecureFieldProps {
   label: string;
-  element: any;
-  style?: any;
+  element: typeof CardNumberElement | typeof CardExpiryElement | typeof CardCvcElement;
+  style?: unknown;
   isCardNumber?: boolean;
 }
+
+interface CardChangeEvent {
+  brand?: string;
+  complete?: boolean;
+  value?: string;
+}
+
+type ViewStyle = {
+  flex?: number;
+  width?: string;
+  marginBottom?: number;
+  [key: string]: unknown;
+};
 
 const SecureField: React.FC<SecureFieldProps> = ({ 
   label, 
@@ -66,7 +79,6 @@ const SecureField: React.FC<SecureFieldProps> = ({
   const [isFocused, setIsFocused] = useState(false);
   const [cardBrand, setCardBrand] = useState<string>('');
   const [isComplete, setIsComplete] = useState(false);
-  const [value, setValue] = useState('');
   const fadeAnim = useState(new Animated.Value(0))[0];
   const scaleAnim = useState(new Animated.Value(1))[0];
 
@@ -84,7 +96,7 @@ const SecureField: React.FC<SecureFieldProps> = ({
     }
   }, [isFocused]);
 
-  const handleCardChange = (event: any) => {
+  const handleCardChange = (event: CardChangeEvent) => {
     if (isCardNumber && event.brand) {
       setCardBrand(event.brand);
       Animated.sequence([
@@ -101,7 +113,6 @@ const SecureField: React.FC<SecureFieldProps> = ({
       ]).start();
     }
     setIsComplete(event.complete || false);
-    setValue(event.value || '');
   };
 
   const getCardIcon = () => {
@@ -160,8 +171,8 @@ const SecureField: React.FC<SecureFieldProps> = ({
             }
           }}
           onChange={handleCardChange}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onFocus={() => { setIsFocused(true); }}
+          onBlur={() => { setIsFocused(false); }}
         />
       </View>
     </Animated.View>
@@ -345,13 +356,21 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
           onSuccess?.(paymentMethod.id);
           setShowSuccess(true);
           onClose(); 
-        } catch (err: any) {
-          console.error('Error en el servidor:', err.message);
+        } catch (err: unknown) {
+          if (err instanceof Error) {
+            console.error('Error en el servidor:', err.message);
+          } else {
+            console.error('Error desconocido en el servidor');
+          }
           setIsProcessing(false);
         }
       }
-    } catch (err) {
-      console.error('Error al procesar el pago:', err);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error('Error al procesar el pago:', err.message);
+      } else {
+        console.error('Error desconocido al procesar el pago');
+      }
       setIsProcessing(false);
     }
   };
