@@ -220,7 +220,7 @@ const PlanCard: React.FC<PlanCardProps> = ({
           <View style={styles.buttonContainer}>
             <CustomButton
               title="Cancelar"
-              onPress={() => setIsModalVisible(false)}
+              onPress={() => { setIsModalVisible(false); }}
               style={styles.button}
               color="red"
             />
