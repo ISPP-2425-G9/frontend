@@ -70,6 +70,11 @@ function LoadCertificate() {
       } else {
         const authToken = await AsyncStorage.getItem("authToken");
         const obituaryId = route.params?.obituaryId ?? "";
+        console.log("obituaryId", obituaryId);
+        if (!obituaryId) {
+          console.error("Obituary ID es necesario y no está presente.");
+          return;
+        }
         const response = await fetch(`${BACKEND_API}/api/deathCertificate/obituary/${obituaryId}`, {
           method: "GET",
           headers: {
@@ -78,6 +83,10 @@ function LoadCertificate() {
           },
         }
         );
+
+        console.log('Status Code:', response.status); // Verifica el código de estado
+        console.log('Response:', await response.text()); // Verifica el contenido de la respuesta
+
         if (!response.ok) throw new Error("Error al obtener los datos");
         const data = await response.json();
         setDni(data.dni);
@@ -90,14 +99,14 @@ function LoadCertificate() {
 
 
   useFocusEffect(
-      useCallback(() => {
-        setDni("");
-        setCertificateImage(null);
-        setFileName(null);
-        setDniError("");
-      }, [])
-    );
-  
+    useCallback(() => {
+      setDni("");
+      setCertificateImage(null);
+      setFileName(null);
+      setDniError("");
+    }, [])
+  );
+
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({

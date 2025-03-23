@@ -35,13 +35,13 @@ type RootStackParamList = {
     jsonData: string,
     is_newObituary: boolean,
     obituaryId: number,
-    is_mine: boolean, 
+    is_mine: boolean,
     isMine: boolean
   };
   "obituaries/listMyObituaries": undefined;
-  "obituaries/loadCertificate": { 
-    jsonData: string, 
-    is_newObituary: boolean, 
+  "obituaries/loadCertificate": {
+    jsonData: string,
+    is_newObituary: boolean,
     obituaryId: number,
     is_mine: boolean
   };
@@ -128,49 +128,57 @@ function SelectContacts() {
     if (is_newObituary) {
       setContacts([]);
     } else {
-      const fetchContactData = async () => {
-        try {
-          const authToken = await AsyncStorage.getItem("authToken");
-          if (!authToken)
-            throw new Error("No se encontró un token de autenticación");
+      if (obituaryId !== undefined) {
+        const fetchContactData = async () => {
+          try {
+            const authToken = await AsyncStorage.getItem("authToken");
+            if (!authToken)
+              throw new Error("No se encontró un token de autenticación");
 
-          const response = await fetch(
-            BACKEND_API + `/api/receiver/getReceivers/obituary/${obituaryId}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${authToken.trim()}`,
-              },
-            }
-          );
+            const response = await fetch(
+              BACKEND_API + `/api/receiver/getReceivers/obituary/${obituaryId}`,
+              {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${authToken.trim()}`,
+                },
+              }
+            );
 
-          if (!response.ok) throw new Error("Error al obtener los datos");
+            if (!response.ok) throw new Error("Error al obtener los datos");
 
-          const contactData = await response.json();
-          contactData.forEach((contact: any) => {
-            const rawPhone = contact.telephone;
-            contact.phone = rawPhone.replace(/(\d{3})(?=\d)/g, '$1 ').trim();
-            
-            delete contact.telephone;
-          });
-          
+            const contactData = await response.json();
+            contactData.forEach((contact: any) => {
+              const rawPhone = contact.telephone;
+              contact.phone = rawPhone.replace(/(\d{3})(?=\d)/g, '$1 ').trim();
 
-          setContacts(contactData);
-        } catch (error) {
-          console.error("Error al cargar los contactos:");
-        }
-      };
+              delete contact.telephone;
+            });
 
-      fetchContactData();
+
+            setContacts(contactData);
+          } catch (error) {
+            console.error("Error al cargar los contactos:");
+          }
+        };
+
+        fetchContactData();
+      }
     }
   }, [is_newObituary, obituaryId]);
 
   useEffect(() => {
-    const updateData = {
-      ...JSON.parse(jsonData),
-      contacts,
-    };
+    let updateData = {};
+    if (jsonData && jsonData.trim() !== '') {
+      try {
+        updateData = Object.assign({}, JSON.parse(jsonData), { contacts });
+      } catch (e) {
+        console.error('Error al analizar JSON:', e);
+      }
+    } else {
+      console.error('jsonData es inválido:', jsonData);
+    }
     setCombinedData(updateData);
   }, [contacts, jsonData]);
 
@@ -246,7 +254,7 @@ function SelectContacts() {
 
   const handleEditContact = (contact: { id: number; name: string; phone: string; email: string; }) => {
     removeContact(contact.id);
-    setEditingContact(contact); 
+    setEditingContact(contact);
     setNewContact({
       id: contact.id,
       name: contact.name,
@@ -254,8 +262,8 @@ function SelectContacts() {
       email: contact.email,
     });
   };
-  
-  
+
+
 
 
   const showConfirmationModal = async () => {
@@ -269,7 +277,7 @@ function SelectContacts() {
         window.alert("Por favor, añada al menos un contacto");
         return;
       }
-      
+
       if (errors.length !== 0) {
         throw new Error(`Hay error(es) en su formulario: ${errors.join(", ")}`);
       }
@@ -321,9 +329,9 @@ function SelectContacts() {
 
     const contactsWithoutIds = contacts.map(({ id, phone, ...rest }) => ({
       ...rest,
-      phone: phone.replace(/\s+/g, '') 
-    }));    
-    
+      phone: phone.replace(/\s+/g, '')
+    }));
+
     const dataToSend = {
       ...combinedData,
       contacts: contactsWithoutIds,
@@ -365,21 +373,21 @@ function SelectContacts() {
 
     const contactsWithoutIds = contacts.map(({ id, phone, ...rest }) => ({
       ...rest,
-      phone: phone.replace(/\s+/g, '') 
-    }));    
+      phone: phone.replace(/\s+/g, '')
+    }));
 
     const dataToSend = {
-        ...combinedData,
-        contacts: contactsWithoutIds,
+      ...combinedData,
+      contacts: contactsWithoutIds,
     };
 
-    navigation.navigate("obituaries/loadCertificate", { 
-        jsonData: JSON.stringify(dataToSend) ,
-        is_newObituary, 
-        obituaryId,
-        is_mine
+    navigation.navigate("obituaries/loadCertificate", {
+      jsonData: JSON.stringify(dataToSend),
+      is_newObituary,
+      obituaryId,
+      is_mine
     });
-};
+  };
 
 
   return isAuthenticated ? (
@@ -419,7 +427,7 @@ function SelectContacts() {
             onChangeText={(text) => handleChange("email", text)}
             style={styles.input}
           />
-          <CustomButton  style={styles.button} title="Añadir" onPress={addContact} />
+          <CustomButton style={styles.button} title="Añadir" onPress={addContact} />
         </View>
 
 
@@ -448,11 +456,11 @@ function SelectContacts() {
                     color="red"
                     onPress={() => removeContact(item.id)}
                   />
-               <CustomButton
-                  title="Editar"
-                  style={styles.editButton}
-                  onPress={() => handleEditContact(item)}
-                />
+                  <CustomButton
+                    title="Editar"
+                    style={styles.editButton}
+                    onPress={() => handleEditContact(item)}
+                  />
 
                 </View>
               )}
@@ -465,24 +473,24 @@ function SelectContacts() {
       </View><View style={styles.divider} />
       <View style={styles.buttonContainer}>
 
-      
-      {
-        is_newObituary ? (
-          <CustomButton
-            title={is_mine ? "Crear esquela": "Subir certificado"}
-            onPress={() => showConfirmationModal()}
-            style={styles.saveButton}
-          />
-        ) : (
-          is_mine && (
+
+        {
+          is_newObituary ? (
             <CustomButton
-              title={"Actualizar esquela"}
+              title={is_mine ? "Crear esquela" : "Subir certificado"}
               onPress={() => showConfirmationModal()}
               style={styles.saveButton}
             />
+          ) : (
+            is_mine && (
+              <CustomButton
+                title={"Actualizar esquela"}
+                onPress={() => showConfirmationModal()}
+                style={styles.saveButton}
+              />
+            )
           )
-        )
-      }
+        }
       </View>
       {modalVisible && (
         <CustomModal
@@ -602,7 +610,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: width > 600 ? 0: 10,
+    marginTop: width > 600 ? 0 : 10,
   },
   headerCell: {
     fontWeight: "bold",
@@ -628,7 +636,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     padding: 5,
     overflow: "hidden",
-    textOverflow: "ellipsis", 
+    textOverflow: "ellipsis",
     flexWrap: "nowrap",
   },
   tableContainer: {
@@ -636,7 +644,7 @@ const styles = StyleSheet.create({
     padding: 10,
     overflow: "hidden",
     flexWrap: "wrap",
-    maxWidth: width*0.9,
+    maxWidth: width * 0.9,
   },
   tableHeader: {
     flexDirection: "row",

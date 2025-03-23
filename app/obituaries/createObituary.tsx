@@ -38,7 +38,7 @@ type RootStackParamList = {
     jsonData: string,
     is_newObituary: boolean,
     obituaryId: number,
-    is_mine: boolean | undefined, 
+    is_mine: boolean | undefined,
     isMine: boolean | undefined
   };
   "obituaries/createObituary": {
@@ -60,8 +60,8 @@ type RootStackParamList = {
 
 function EsquelaCustomizer() {
 
-  
-  const [selectedColor, setSelectedColor] = useState(""); 
+
+  const [selectedColor, setSelectedColor] = useState("");
 
   const [colorPickerVisible, setColorPickerVisible] = useState(false);
 
@@ -89,7 +89,7 @@ function EsquelaCustomizer() {
 
   const is_mine = route.params?.is_mine;
 
-  const [ isMine, setIsMine] = useState();
+  const [isMine, setIsMine] = useState();
 
   const [is_sended, setIsSended] = useState(false);
 
@@ -125,13 +125,13 @@ function EsquelaCustomizer() {
       }
     }, [is_newObituary, imageId])
   );
-  
+
 
   useEffect(() => {
     const initializeForm = async () => {
       setLoading(true);
       setSelectedColor("")
-      
+
 
       if (jsonData && jsonData.trim() !== "") {
         try {
@@ -148,7 +148,7 @@ function EsquelaCustomizer() {
         return;
       }
 
-  
+
 
       if (!is_newObituary && obituaryId !== undefined) {
         try {
@@ -200,7 +200,7 @@ function EsquelaCustomizer() {
             customImage: data.customImageUrl || null,
             imageTemplate_id: imageId || 1,
           });
-       
+
         } catch (error) {
           console.error("Error al cargar la esquela:", error);
         } finally {
@@ -314,19 +314,19 @@ function EsquelaCustomizer() {
     if (validateForm()) {
       const jsonData = JSON.stringify(formData, null, 2);
       const parsedJsonData = JSON.parse(jsonData);
-  
+
       const rgbMatch = selectedColor.match(/\d+/g);
-      const rgbString = rgbMatch ? rgbMatch.join(",") : "0,0,0";  
-  
+      const rgbString = rgbMatch ? rgbMatch.join(",") : "0,0,0";
+
       parsedJsonData.wordColor = rgbString;
-  
+
       const finalJsonData = JSON.stringify(parsedJsonData, null, 2);
-  
+
       navigation.navigate("obituaries/selectContacts" as never, {
         jsonData: finalJsonData,
         is_newObituary,
         obituaryId,
-        is_mine, 
+        is_mine,
         isMine
       });
     }
@@ -337,8 +337,8 @@ function EsquelaCustomizer() {
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <View style={styles.container}>
         <View style={styles.formSection}>
-          <Text style={{ fontSize: 30, fontWeight: "bold", marginBottom: 30 }}>
-            { isMine ?
+          <Text style={styles.titlePage}>
+            {isMine ?
               is_newObituary ? "Cree su esquela" : "Edite su esquela" :
               is_newObituary ? "Cree la esquela para un ser querido" : "Información de la esquela"
             }
@@ -472,7 +472,7 @@ function EsquelaCustomizer() {
             onChangeText={(text) => handleChange("farewellPhrase", text)}
           />
 
-          { !is_sended && (
+          {!is_sended && (
             <>
               <View
                 style={{
@@ -639,7 +639,7 @@ const styles = StyleSheet.create({
     fontSize: width > 600 ? RFValue(6) : RFValue(8.5),
     fontWeight: "bold",
     marginTop: 8,
-    maxWidth: width > 600 ? 400: '80%',
+    maxWidth: width > 600 ? 400 : '80%',
   },
   previewDate: {
     fontSize: width > 600 ? RFValue(6) : RFValue(8.5),
@@ -744,6 +744,13 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     marginTop: 10,
     borderWidth: 1,
+  },
+  titlePage: {
+    fontSize: 30,
+    fontWeight: "bold",
+    marginBottom: 30,
+    textAlign: width > 600 ? "left" : "center",
+    width: "100%",
   },
 });
 
