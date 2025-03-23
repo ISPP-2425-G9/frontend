@@ -13,7 +13,7 @@ const CustomNavbar = () => {
     const navigation = useNavigation();
     const currentRoute = useNavigationState(
         (state) => state?.routes?.[state.index]?.name || ''
-    ); 
+    );
     const { width } = useWindowDimensions();
     const [menuOpen, setMenuOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -59,8 +59,7 @@ const CustomNavbar = () => {
             {
                 isNarrow ? (
                     <View>
-                        <TouchableOpacity onPress={() => setMenuOpen(!menuOpen)}>
-                            <Ionicons name="menu" size={28} color="#333" />
+                        <TouchableOpacity onPress={() => { setMenuOpen(!menuOpen); }}>                            <Ionicons name="menu" size={28} color="#333" />
                         </TouchableOpacity>
                         {menuOpen && (
                             <View style={styles.dropdown}>
@@ -107,7 +106,7 @@ const CustomNavbar = () => {
                                         </TouchableOpacity>
                                     </>
                                 )}
-                                {isAuthenticated && (userRoles?.includes("CUSTOMER") || userRoles?.includes("COMPANY")) && (
+                                {isAuthenticated && (userRoles?.includes("CUSTOMER") ?? userRoles?.includes("COMPANY")) && (
                                     <>
                                         <TouchableOpacity onPress={() => { handleNavigation('services/index'); setMenuOpen(false); }}>
                                             <Text style={styles.dropdownNavItem}>Servicios</Text>
@@ -136,7 +135,7 @@ const CustomNavbar = () => {
                 ) : (
                     <React.Fragment>
                         <View style={styles.navItems}>
-                            <TouchableOpacity onPress={() => handleNavigation('certificate/index')}>
+                            <TouchableOpacity onPress={() => {handleNavigation('certificate/index')}}>
                                 <View>
                                     <Text style={styles.navItem}>Cargar certificado</Text>
                                     {activeItem === 'certificate/index' && <View style={styles.activeIndicator} />}
@@ -144,13 +143,13 @@ const CustomNavbar = () => {
                             </TouchableOpacity>
                             {!isAuthenticated && (
                                 <>
-                                    <TouchableOpacity onPress={() => handleNavigation('login/index')}>
+                                    <TouchableOpacity onPress={() => {handleNavigation('login/index')}}>
                                         <View>
                                             <Text style={styles.navItem}>Iniciar sesión</Text>
                                             {activeItem === 'login/index' && <View style={styles.activeIndicator} />}
                                         </View>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => handleNavigation('register/index')}>
+                                    <TouchableOpacity onPress={() => {handleNavigation('register/index')}}>
                                         <View>
                                             <Text style={styles.navItem}>Registrarse</Text>
                                             {activeItem === 'register/index' && <View style={styles.activeIndicator} />}
@@ -160,7 +159,7 @@ const CustomNavbar = () => {
                             )}
                             {isAuthenticated && userRoles?.includes("ADMIN") && (
                                 <>
-                                    <TouchableOpacity onPress={() => handleNavigation('admin/listUsers')}>
+                                    <TouchableOpacity onPress={() => {handleNavigation('admin/listUsers')}}>
                                         <View>
                                             <Text style={styles.navItem}>Usuarios</Text>
                                             {activeItem === 'admin/listUsers' && <View style={styles.activeIndicator} />}
@@ -178,7 +177,7 @@ const CustomNavbar = () => {
                             )}
                             {isAuthenticated && userRoles?.includes("CUSTOMER") && (
                                 <>
-                                    <TouchableOpacity onPress={() => handleNavigation('obituaries/index')}>
+                                    <TouchableOpacity onPress={() => {handleNavigation('obituaries/index')}}>
                                         <View>
                                             <Text style={styles.navItem}>Esquelas</Text>
                                             {activeItem === 'obituaries/index' && <View style={styles.activeIndicator} />}
@@ -188,13 +187,13 @@ const CustomNavbar = () => {
                             )}
                             {isAuthenticated && userRoles?.includes("CUSTOMER_PREMIUM") && (
                                 <>
-                                    <TouchableOpacity onPress={() => handleNavigation('messages/index')}>
+                                    <TouchableOpacity onPress={() => {handleNavigation('messages/index')}}>
                                         <View>
                                             <Text style={styles.navItem}>Mensajes</Text>
                                             {activeItem === 'messages/index' && <View style={styles.activeIndicator} />}
                                         </View>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => handleNavigation('contacts/index')}>
+                                    <TouchableOpacity onPress={() => {handleNavigation('contacts/index')}}>
                                         <View>
                                             <Text style={styles.navItem}>Contactos</Text>
                                             {activeItem === 'contacts/index' && <View style={styles.activeIndicator} />}
@@ -204,19 +203,19 @@ const CustomNavbar = () => {
                             )}
                             {isAuthenticated && (userRoles?.includes("CUSTOMER") || userRoles?.includes("COMPANY")) && (
                                 <>
-                                    <TouchableOpacity onPress={() => handleNavigation('services/index')}>
+                                    <TouchableOpacity onPress={() => {handleNavigation('services/index')}}>
                                         <View>
                                             <Text style={styles.navItem}>Servicios</Text>
                                             {activeItem === 'services/index' && <View style={styles.activeIndicator} />}
                                         </View>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => handleNavigation('subscribe/index')}>
+                                    <TouchableOpacity onPress={() => {handleNavigation('subscribe/index')}}>
                                         <View>
                                             <Text style={styles.navItem}>Planes</Text>
                                             {activeItem === 'subscribe/index' && <View style={styles.activeIndicator} />}
                                         </View>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => setUserMenuOpen(!userMenuOpen)}>
+                                    <TouchableOpacity onPress={() => {setUserMenuOpen(!userMenuOpen)}}>
                                         <View>
                                             <Text style={styles.navItem}>{userName}</Text>
                                             {activeItem === 'profile/index' && <View style={styles.activeIndicator} />}
@@ -246,7 +245,7 @@ const CustomNavbar = () => {
             }
             <CustomModal
                 visible={isLogoutModalVisible}
-                onClose={() => setIsLogoutModalVisible(false)}
+                onClose={() => {setIsLogoutModalVisible(false)}}
                 title="Cerrar sesión"
                 style={styles.modalContent}
             >
@@ -257,7 +256,7 @@ const CustomNavbar = () => {
                     <View style={styles.modalButtons}>
                         <CustomButton
                             title="Cancelar"
-                            onPress={() => setIsLogoutModalVisible(false)}
+                            onPress={() => {setIsLogoutModalVisible(false)}}
                             style={styles.modalButton}
                             color="red"
                         />
