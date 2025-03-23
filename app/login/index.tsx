@@ -55,8 +55,7 @@ const LoginScreen: React.FC = () => {
         throw new Error('Credenciales incorrectas.');
       }
       const data = await response.json();
-      console.log(data);
-      login(data.id, data.token, data.roles, data.username);
+      login(data.id, data.token, data.roles, data.username, data.name);
       navigation.navigate('home' as never);
     } catch (error: any) {
       setErrorMessage('Credenciales incorrectas. Por favor, inténtalo de nuevo.');

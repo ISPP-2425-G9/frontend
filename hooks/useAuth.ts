@@ -24,7 +24,7 @@ const useAuth = () => {
 
           // TODO
           const userEmail = "email_test";
-          const userName = "name_test";
+          const userName = user.name;
           setName(userName)
           setEmail(userEmail)
         } else {

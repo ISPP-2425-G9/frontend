@@ -38,8 +38,8 @@ export const useAuth = () => {
   }, []);
 
   // ✅ Función para iniciar sesión y guardar en AsyncStorage
-  const login = async ( id: string, token: string, roles: AuthorityType[], username: string) => {
-    const userData = { id, token, roles, username };
+  const login = async ( id: string, token: string, roles: AuthorityType[], username: string, name: string) => {
+    const userData = { id, token, roles, username, name };
     setUser(userData);
     await AsyncStorage.setItem('authToken', token);
     await AsyncStorage.setItem('userId', id);
