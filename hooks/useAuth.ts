@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
 
 const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [roles, setRoles] = useState<any | null>(null);
   const [email, setEmail] = useState<string | null>(null);
+  const [name, setName] = useState<string | null>(null);
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -23,11 +24,14 @@ const useAuth = () => {
 
           // TODO
           const userEmail = "email_test";
+          const userName = user.name;
+          setName(userName)
           setEmail(userEmail)
         } else {
           await AsyncStorage.clear();
           setRoles(null);
           setEmail(null);
+          setName(null);
           setIsAuthenticated(false);
         }
       } catch (error) {
@@ -43,7 +47,7 @@ const useAuth = () => {
   }, []); // Se ejecuta solo una vez al cargar el componente
 
 
-  return { isAuthenticated, roles, email };
+  return { isAuthenticated, roles, email, name };
 };
 
 export default useAuth;

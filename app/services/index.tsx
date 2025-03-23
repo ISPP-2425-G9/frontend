@@ -1,12 +1,13 @@
-import { StyleSheet, Text, ScrollView, ActivityIndicator, View } from 'react-native';
+import AdvertisementSponsor from '@/components/AdvertisementSponsor';
 import { ThemedView } from '@/components/ThemedView';
-import { AUTHORITIES } from '../_util/Authorities';
-import { withAuth } from '../_util/withAuth';
-import { useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
-import AdvertisementSponsor from '@/components/AdvertisementSponsor';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AUTHORITIES } from '../_util/Authorities';
+import { withAuth } from '../_util/withAuth';
 import CustomTextInput from '@/components/CustomTextInput';
 import CustomButton from '@/components/CustomButton';
 import { useWindowDimensions } from 'react-native';
@@ -102,6 +103,12 @@ const ListServiceScreen: React.FC = () => {
   }, []);
   
 
+  useFocusEffect(
+      React.useCallback(() => {
+        document.title = 'Servicios';
+      }, [])
+    );
+
   return (
     <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -186,7 +193,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    padding: 16,
+    padding: 10,
     alignItems: 'center',
   },
   introContainer: {
