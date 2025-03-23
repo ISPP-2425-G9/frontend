@@ -61,6 +61,11 @@ const RegisterScreen: React.FC = () => {
       description: "Nombre de la empresa",
     },
     {
+      name: "description",
+      placeholder: "Descripción de la empresa...",
+      description: "Descripción",
+    },
+    {
       name: "companyType",
       placeholder: "Tipo de empresa",
       description: "Tipo de empresa",
@@ -72,12 +77,6 @@ const RegisterScreen: React.FC = () => {
       keyboardType: "email-address",
       description: "Email",
     },
-    {
-      name: "description",
-      placeholder: "Descripción de la empresa...",
-      description: "Descripción",
-    },
-    { name: "nif", placeholder: "F12345678", description: "NIF de la empresa" },
     {
       name: "telephone",
       placeholder: "600100200",
