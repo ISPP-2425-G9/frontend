@@ -338,7 +338,7 @@ function EsquelaCustomizer() {
       <View style={styles.container}>
         <View style={styles.formSection}>
           <Text style={styles.titlePage}>
-            {isMine ?
+            {is_mine ?
               is_newObituary ? "Cree su esquela" : "Edite su esquela" :
               is_newObituary ? "Cree la esquela para un ser querido" : "Información de la esquela"
             }
