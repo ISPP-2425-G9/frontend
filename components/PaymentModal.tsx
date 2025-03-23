@@ -196,14 +196,14 @@ const SuccessModal: React.FC<{ visible: boolean; onClose: () => void }> = ({ vis
   });
 
   return (
-    <CustomModal visible={visible} onClose={onClose} title="¡Pago Exitoso!">
+    <CustomModal visible={visible} onClose={onClose} title="¡Pago exitoso!">
       <View style={styles.successContainer}>
         <Animated.View style={[styles.checkmarkContainer, { transform: [{ scale: scaleAnim }] }]}>
           <Animated.View style={[styles.checkmarkCircle, { transform: [{ rotate: spin }] }]}>
             <FontAwesome name="check" size={40} color="#fff" />
           </Animated.View>
         </Animated.View>
-        <Text style={styles.successTitle}>¡Plan Premium Activado!</Text>
+        <Text style={styles.successTitle}>¡Plan mensual activado!</Text>
         <Text style={styles.successText}>
           Tu cuenta ha sido actualizada exitosamente. Ahora puedes disfrutar de todas las características premium.
         </Text>
