@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Image } from "react-native";
-import { useNavigation, NavigationProp, useRoute, RouteProp } from "@react-navigation/native";
+import { useNavigation, NavigationProp, useRoute, RouteProp, useFocusEffect } from "@react-navigation/native";
 import { Dimensions } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { AUTHORITIES } from "../_util/Authorities";
@@ -20,7 +20,7 @@ type RootStackParamList = {
     jsonData: string
     is_newObituary: boolean,
     obituaryId: string,
-    isMine: boolean
+    is_mine: boolean
   };
   "obituaries/index": undefined;
 };
@@ -47,9 +47,12 @@ function LoadCertificate() {
   const [dniError, setDniError] = useState<string>("");
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-  const [combinedData, setCombinedData] = useState<unknown>({});
 
-  const isMine = route.params?.isMine;
+
+  const json = route.params?.jsonData;
+
+
+  const is_mine = route.params?.is_mine;
   const [formData, setFormData] = useState({
     dni: "",
     certificateImage: "",
@@ -65,9 +68,13 @@ function LoadCertificate() {
         });
         return;
       } else {
-
         const authToken = await AsyncStorage.getItem("authToken");
         const obituaryId = route.params?.obituaryId ?? "";
+        console.log("obituaryId", obituaryId);
+        if (!obituaryId) {
+          console.error("Obituary ID es necesario y no está presente.");
+          return;
+        }
         const response = await fetch(`${BACKEND_API}/api/deathCertificate/obituary/${obituaryId}`, {
           method: "GET",
           headers: {
@@ -76,16 +83,29 @@ function LoadCertificate() {
           },
         }
         );
+
+        console.log('Status Code:', response.status); // Verifica el código de estado
+        console.log('Response:', await response.text()); // Verifica el contenido de la respuesta
+
         if (!response.ok) throw new Error("Error al obtener los datos");
         const data = await response.json();
         setDni(data.dni);
         setCertificateImage(data.deathCertificate.url);
       }
-      console.log("Datos del formulario:", certificateImage);
     };
 
     void initializeForm();
   }, [is_newObituary]);
+
+
+  useFocusEffect(
+    useCallback(() => {
+      setDni("");
+      setCertificateImage(null);
+      setFileName(null);
+      setDniError("");
+    }, [])
+  );
 
 
   const pickImage = async () => {
@@ -135,7 +155,7 @@ function LoadCertificate() {
       setDniError("El DNI debe tener el formato 12345678A.");
       return;
     }
-    setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido. Podrá modificar su esquela hasta que se hayan enviado a los contactos que eligió.")
+    setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido.")
     setModalVisible(true);
   };
 
@@ -149,14 +169,14 @@ function LoadCertificate() {
     const authToken = await AsyncStorage.getItem("authToken");
     const jsonData = route.params.jsonData ?? '';
     const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
-
+    console.log("adios", jsonData);
     const dataToSend = {
       ...JSON.parse(jsonData),
       deathCertificate: {
         dni: dni,
         file: base64File
       },
-      isMine
+      isMine: is_mine
     };
 
     try {
@@ -189,7 +209,7 @@ function LoadCertificate() {
       <View style={styles.dataContainer}>
         <Text style={styles.title}>Carga el certificado de defunción</Text>
 
-        <Text>DNI:</Text>
+        <Text style={{ textAlign: 'left' }}>DNI:</Text>
         <CustomTextInput
           placeholder={dniError ? dniError : "Dni del fallecido"}
           value={dni}
@@ -306,7 +326,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   title: {
-    fontSize: 22,
+    fontSize: 30,
     fontWeight: "bold",
     marginBottom: 10,
   },

@@ -38,4 +38,5 @@ export const GlobalStyles = {
   font: 'DMSans_500Medium',
   fontBold: 'DMSans_700Bold',
   green: '#29ba68',
+  orange: '#f59622',
 }
