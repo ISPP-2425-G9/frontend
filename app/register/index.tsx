@@ -22,7 +22,6 @@ import { AUTHORITIES } from "../_util/Authorities";
 import { useAuth } from "../_util/useAuth";
 import { withAuth } from "../_util/withAuth";
 
-import { Picker } from "@react-native-picker/picker";
 import CustomPicker from "@/components/CustomPicker";
 
 const { width } = Dimensions.get("window");
@@ -683,17 +682,12 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   pickerContainer: {
-    borderWidth: 1,
-    borderColor: "#ddd", // igual que los otros inputs
-    borderRadius: 8,
-    backgroundColor: GlobalStyles.white,
-    height: 48,
+    borderWidth: 0,
+    borderRadius: 15,
+    backgroundColor: GlobalStyles.lightGrey,
     justifyContent: "center",
-    paddingHorizontal: 10,
-    marginTop: 5,
   },
   picker: {
-    fontSize: 16,
     color: GlobalStyles.darkGrey,
   },
 });

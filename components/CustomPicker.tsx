@@ -1,7 +1,7 @@
-import React from "react";
-import { View, StyleSheet, Platform } from "react-native";
-import { Picker } from "@react-native-picker/picker";
 import { GlobalStyles } from "@/constants/Colors";
+import { Picker } from "@react-native-picker/picker";
+import React from "react";
+import { Platform, StyleSheet, View } from "react-native";
 
 interface PickerItem {
   label: string;
@@ -55,7 +55,11 @@ const styles = StyleSheet.create({
   },
   picker: {
     fontSize: 16,
+    fontFamily: GlobalStyles.font,
     color: GlobalStyles.darkGrey,
+    backgroundColor: GlobalStyles.lightGrey,
+    borderColor: GlobalStyles.lightGrey,
+    borderWidth: 0,
     ...Platform.select({
       android: {
         height: 48,
