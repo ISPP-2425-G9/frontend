@@ -12,6 +12,8 @@ const { width } = Dimensions.get("window");
 
 function MessageCreation() {
 
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
   const [formData, setFormData] = useState({
     title: '',
     text: '',
@@ -28,7 +30,6 @@ function MessageCreation() {
       setFormData({
         ...formData, customImages: [...formData.customImages, ...result.assets.map(asset => asset.uri)]
       });
-      console.log("Data", formData)
     };
   }
 
@@ -39,6 +40,10 @@ function MessageCreation() {
 
   const handleSaveMessage = () => {
     console.log('Mensaje guardado:', formData);
+  };
+
+  const handleImagePress = (uri: string) => {
+    setSelectedImage(uri);
   };
 
 
@@ -158,10 +163,6 @@ function MessageCreation() {
   };
 
 
-
-
-  // Fin modal to Select contacts
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.formContainer}>
@@ -183,43 +184,54 @@ function MessageCreation() {
           onChangeText={(text) => setFormData({ ...formData, text: text })}
         />
 
-        <CustomButton
-          color="blue"
-          style={styles.selecContactButton}
-          title="Seleccionar archivos"
-          onPress={pickImage}
-        />
-
         <View style={styles.buttonContainer}>
+
           <CustomButton
             color="blue"
-            style={styles.button}
-            title="Guardar mensaje"
-            onPress={handleSaveMessage}
+            style={styles.customButton1}
+            title="Seleccionar archivos"
+            onPress={pickImage}
           />
+
           <CustomButton
             color="blue"
-            style={styles.button}
+            style={styles.customButton1}
             title="Seleccionar contactos"
             onPress={handleSelectContacts}
           />
         </View>
+
+        <CustomButton
+          color="grey"
+          style={styles.customButton2}
+          title="Guardar mensaje"
+          onPress={handleSaveMessage}
+        />
+
+
       </View>
 
       <View style={styles.mediaContainer}>
-        <Text>Contenedor Media</Text>
         <View style={styles.mediaVisualizer}>
-          <Text>Previsualizador de media</Text>
+          {selectedImage ? (
+            <Image source={{ uri: selectedImage }} style={styles.selectedMedia} />
+          ) : (
+            <Text style={styles.previewMessage}>No se ha seleccionado ninguna imagen</Text>
+          )}
         </View>
         <View style={styles.mediaItems}>
-          {formData.customImages.length > 0 &&  
-            formData.customImages.map((uri, index) => (
-              <Image
-                key={index}
-                source={{ uri }}
-                style={styles.customImage}
-              />
-            ))}
+          <ScrollView horizontal>
+            {formData.customImages.length > 0 &&
+              formData.customImages.map((uri, index) => (
+                <TouchableOpacity key={index} onPress={() => handleImagePress(uri)}>
+                  <Image
+                    key={index}
+                    source={{ uri }}
+                    style={styles.customImage}
+                  />
+                </TouchableOpacity>
+              ))}
+          </ScrollView>
         </View>
       </View>
 
@@ -229,7 +241,7 @@ function MessageCreation() {
             <AntDesign name="close" size={24} color="#434343" />
           </Pressable>
 
-          <Text style={styles.title}>Agrega a tus contactos</Text>
+          <Text style={styles.contactTitle}>Agrega a tus contactos</Text>
 
           <View style={styles.contactContainer}>
             <CustomTextInput
@@ -262,7 +274,7 @@ function MessageCreation() {
             <CustomButton style={styles.addButton} title="Añadir" onPress={addContact} />
           </View>
 
-          <Text style={styles.title}>Lista de contactos añadidos</Text>
+          <Text style={styles.contactTitle}>Lista de contactos añadidos</Text>
           <View style={styles.tableContainer}>
             <View style={styles.tableHeader}>
               <Text style={styles.headerCell}>Nombre</Text>
@@ -312,69 +324,65 @@ const styles = StyleSheet.create({
   formContainer: {
     width: '45%',
     justifyContent: 'flex-start',
-    backgroundColor: GlobalStyles.grey,
     padding: 20,
   },
   mediaContainer: {
-    backgroundColor: GlobalStyles.green,
     width: '55%',
     padding: 20,
   },
   mediaVisualizer: {
-    borderWidth: 2,
-    backgroundColor: GlobalStyles.lightGrey,
+    borderWidth: 5,
+    borderColor: GlobalStyles.lightGrey,
     height: "65%",
     borderRadius: 10,
   },
   mediaItems: {
-    backgroundColor: GlobalStyles.darkGrey,
     height: "25%",
-    borderWidth: 2,
+    borderColor: GlobalStyles.lightGrey,
+    borderWidth: 5,
     borderRadius: 10,
     marginTop: 20,
     flexDirection: 'row',
   },
   customImage: {
-    width: width > 600 ? 100 : 60,
-    height: width > 600 ? 100 : 60,
+    width: width > 600 ? 140 : 60,
+    height: width > 600 ? 140 : 60,
     borderRadius: 10,
     margin: 20,
   },
+  selectedMedia: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 10,
+    resizeMode: "contain",
+  },
   textArea: {
     width: '100%',
-    height: 400,
+    height: 500,
     textAlignVertical: 'top',
-    backgroundColor: '#e5e5e5',
     borderRadius: 12,
     padding: 12,
-    marginBottom: 16,
   },
   buttonContainer: {
     flexDirection: 'row',
     width: '100%',
     alignSelf: 'center',
-    gap: '6%',
+    gap: '2%',
     marginTop: 30,
     justifyContent: 'center'
   },
-  textPreview: {
-    backgroundColor: '#e5e5e5',
-    borderRadius: 12,
-    padding: 12,
-    width: '80%',
-    marginBottom: 20,
+  previewMessage: {
+    textAlign: 'center',
+    fontSize: 30,
+    alignContent: 'center',
+    justifyContent: 'center',
+    color: 'grey',
+    flex: 1,
   },
   textTitle: {
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
-  },
-  previewButton: {
-    backgroundColor: '#4DB5F4',
-    padding: 12,
-    borderRadius: 20,
-    width: '60%',
-    alignItems: 'center',
   },
   selecContactButton: {
     width: '50%',
@@ -385,38 +393,37 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
   },
-  divider: {
-    height: 1,
-    width: '100%',
-    backgroundColor: '#ccc',
-    marginVertical: 20,
-  },
-  button: {
-    width: '30%',
-    alignSelf: 'center',
-    marginLeft: 10,
-    height: 50
-  },
   addButton: {
     width: '8%',
     alignSelf: 'center',
     marginLeft: 10,
     height: 35
   },
-
+  customButton1: {
+    width: '49%',
+    alignSelf: 'center',
+  },
+  customButton2: {
+    width: '100%',
+    alignSelf: 'center',
+    marginTop: 20,
+    backgroundColor: GlobalStyles.grey,
+  },
 
   //Modal styles
 
   modalContactContainer: {
     padding: 20,
-    backgroundColor: GlobalStyles.lightGrey,
+    backgroundColor: GlobalStyles.white,
     borderRadius: 10,
     width: '50%',
     alignSelf: 'center',
     position: 'absolute',
-    top: '25%',
+    top: '25  %',
     left: '25%',
-    height: '50%'
+    height: "60%",
+    borderWidth: 5,
+    borderColor: GlobalStyles.lightGrey,
   },
   contactContainer: {
     alignSelf: "center",
@@ -492,7 +499,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     flex: 1,
   },
-  title: {
+  contactTitle: {
     fontSize: 22,
     fontWeight: "bold",
     marginBottom: 10,
