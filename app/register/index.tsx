@@ -22,6 +22,8 @@ import { AUTHORITIES } from "../_util/Authorities";
 import { useAuth } from "../_util/useAuth";
 import { withAuth } from "../_util/withAuth";
 
+import { Picker } from "@react-native-picker/picker";
+
 const { width } = Dimensions.get("window");
 const deviceWidth = Dimensions.get("window").width;
 
@@ -58,6 +60,12 @@ const RegisterScreen: React.FC = () => {
       placeholder: "Floristería Loli S.L.",
       description: "Nombre de la empresa",
     },
+    {
+      name: "companyType",
+      placeholder: "Tipo de empresa",
+      description: "Tipo de empresa",
+    },
+    { name: "nif", placeholder: "F12345678", description: "NIF de la empresa" },
     {
       name: "email",
       placeholder: "floresloli@gmail.com",
@@ -214,6 +222,14 @@ const RegisterScreen: React.FC = () => {
       ) {
         errors.push("La descripción es obligatoria.");
       }
+      if (
+
+        !values.companyType ||
+        typeof values.companyType !== "string" ||
+        !["FLORISTERIA", "NOTARIA", "FUNERARIA", "DESPACHO_DE_ABOGADOS", "OTRO"].includes(values.companyType)
+      ) {
+        errors.push("El tipo de empresa no es válido.");
+      }
     }
     if (uType === "Cliente") {
       if (
@@ -365,19 +381,36 @@ const RegisterScreen: React.FC = () => {
 
           {userType === "Empresa"
             ? companyFields.map((field, index) => (
-              <View key={`company-${field.name}-${index}`} style={[styles.inputContainer, !isMobile && { width: 400, alignSelf: "center" }]}>
-                <Text>{field.description}</Text>
-                <CustomTextInput
-                  placeholder={field.placeholder}
-                  secureTextEntry={field.secureTextEntry}
-                  value={formValues[field.name] || ""}
-                  onChangeText={(text) =>
-                    setFormValues({ ...formValues, [field.name]: text })
-                  }
-                  style={{ width: "100%" }}
-                />
-              </View>
-            ))
+                <View key={`company-${field.name}-${index}`} style={[styles.inputContainer, !isMobile && { width: 400, alignSelf: "center" }]}>
+                  <Text>{field.description}</Text>
+                  { field.name === "companyType" ? (
+                    <View style={styles.pickerContainer}>
+                      <Picker
+                        style={styles.picker}
+                        selectedValue={formValues[field.name] || ""}
+                        onValueChange={(value) => setFormValues({ ...formValues, [field.name]: value }  )}
+                      >
+                        <Picker.Item label="Seleccione un tipo de empresa" value="" />
+                        <Picker.Item label="Floristería" value="FLORISTERIA" />
+                        <Picker.Item label="Notaría" value="NOTARIA" />
+                        <Picker.Item label="Funeraria" value="FUNERARIA" />
+                        <Picker.Item label="Despacho de Abogados" value="DESPACHO_DE_ABOGADOS" />
+                        <Picker.Item label="Otro" value="OTRO" />
+                      </Picker>
+                    </View>
+                  ) : (
+                    <CustomTextInput
+                      placeholder={field.placeholder}
+                      secureTextEntry={field.secureTextEntry}
+                      value={formValues[field.name] || ""}
+                      onChangeText={(text) =>
+                        setFormValues({ ...formValues, [field.name]: text })
+                      }
+                      style={{ width: "100%" }}
+                    />
+                  )}
+                </View>
+              ))
             : clientFields.map((field, index) => (
               <View key={`client-${field.name}-${index}`} style={[styles.inputContainer, !isMobile && { width: 400, alignSelf: "center" }]}>
                 <Text>{field.description}</Text>
@@ -611,6 +644,20 @@ const styles = StyleSheet.create({
   modalButton: {
     marginTop: 20,
     alignSelf: "center",
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: "#ddd", // igual que los otros inputs
+    borderRadius: 8,
+    backgroundColor: GlobalStyles.white,
+    height: 48,
+    justifyContent: "center",
+    paddingHorizontal: 10,
+    marginTop: 5,
+  },
+  picker: {
+    fontSize: 16,
+    color: GlobalStyles.darkGrey,
   },
 });
 
