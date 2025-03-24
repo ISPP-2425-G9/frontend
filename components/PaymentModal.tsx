@@ -39,7 +39,7 @@ interface PaymentModalProps {
   amount: number;
   planType: string;
   description: string;
-  onSuccess?: (paymentMethodId: string, responseData: any) => void;
+  onSuccess?: (paymentMethodId: string, responseData: unknown) => void;
 }
 
 interface SecureFieldProps {
