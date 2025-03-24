@@ -26,12 +26,28 @@ function MessageCreation() {
       allowsEditing: true,
       quality: 1,
     });
+  
+    console.log(result);
+  
     if (!result.canceled) {
-      setFormData({
-        ...formData, customImages: [...formData.customImages, ...result.assets.map(asset => asset.uri)]
+      
+      const allowedFormats = ["png", "jpg", "jpeg"];
+      const filteredAssets = result.assets.filter(asset => {
+        const fileExtension = asset.mimeType ? asset.mimeType.split("/")[1] : '';
+        return allowedFormats.includes(fileExtension);
       });
-    };
-  }
+  
+      if (filteredAssets.length === 0) {
+        alert("Solo se permiten imágenes en formato PNG, JPG o JPEG.");
+        return;
+      }
+  
+      setFormData({
+        ...formData,
+        customImages: [...formData.customImages, ...filteredAssets.map(asset => asset.uri)]
+      });
+    }
+  };
 
 
   const handleChange = (field: string, value: string) => {
@@ -335,6 +351,7 @@ const styles = StyleSheet.create({
     borderColor: GlobalStyles.lightGrey,
     height: "65%",
     borderRadius: 10,
+    marginTop: 20,
   },
   mediaItems: {
     height: "25%",
