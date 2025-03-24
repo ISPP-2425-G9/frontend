@@ -7,6 +7,8 @@ import PaymentModal from './PaymentModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useCallback, useState } from 'react';
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BACKEND_API } from '@/constants/Mysc';
+import { useAuth } from '@/app/_util/useAuth';
 
 const { width } = Dimensions.get('window');
 
@@ -25,6 +27,7 @@ const PlanCard: React.FC<PlanCardProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const { login } = useAuth();
   const plan = role.split('_')[1].toLowerCase();
   const isPremium = plan === 'premium';
   const isCustomer = role.includes('CUSTOMER');
@@ -135,9 +138,57 @@ const PlanCard: React.FC<PlanCardProps> = ({
     setShowPaymentModal(true);
   };
 
-  const handleUnsubscribe = () => {
+  const handleUnsubscribe = async () => {
+    setIsProcessing(true);
+    try {
+      const userDataStr = await AsyncStorage.getItem('user_data');
+      
+      if (!userDataStr) {
+        throw new Error('No se encontraron datos de usuario');
+      }
+      const userData = JSON.parse(userDataStr);
+      const authToken = userData.token;
 
-    setIsCancelModalVisible(false);
+      if (!authToken) {
+        throw new Error('No se encontró el token de autenticación');
+      }
+
+      const response = await fetch(`${BACKEND_API}/api/plans/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({
+          paymentMethodId: null,
+          planType: 'FREE',
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Error en la respuesta:', errorData);
+        throw new Error('Error al cancelar el plan');
+      }
+
+      const responseData = await response.json();
+      console.log('Plan cancelado exitosamente:', responseData);
+      
+      // Actualizar los roles usando login
+      void login(
+        responseData.id,
+        responseData.token,
+        responseData.roles,
+        responseData.username,
+        responseData.name
+      );
+
+      setIsCancelModalVisible(false);
+      setIsProcessing(false);
+    } catch (err) {
+      console.error('Error al cancelar la suscripción:', err);
+      setIsProcessing(false);
+    }
   };
 
   const handlePaymentSuccess = async () => {

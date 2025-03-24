@@ -344,7 +344,6 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
           const responseData = await response.json();
           console.log('Plan actualizado exitosamente:', responseData);
           
-          // Actualizar los roles usando login
           void login(
             responseData.id,
             responseData.token,
