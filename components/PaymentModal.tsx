@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Dimensions, Animated, StyleProp } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Dimensions, Animated, StyleProp, Image } from 'react-native';
 import { GlobalStyles } from '@/constants/Colors';
 import CustomModal from '@/components/CustomModal';
 import CustomButton from '@/components/CustomButton';
@@ -385,7 +385,20 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
 
   return (
     <>
-      <CustomModal visible={visible} onClose={onClose} title="Pago seguro">
+      <CustomModal 
+        visible={visible} 
+        onClose={onClose} 
+        title={
+          <View style={styles.titleContainer}>
+            <Text style={styles.titleText}>Pago seguro con</Text>
+            <Image 
+              source={{ uri: 'https://stripe.com/img/about/logos/logos/blue@2x.png' }}
+              style={styles.stripeLogo}
+              resizeMode="contain"
+            />
+          </View>
+        }
+      >
         <View style={styles.container}>
           <Text style={styles.description}>{description}</Text>
           <Text style={styles.amount}>{amount.toFixed(2)}€/mes</Text>
@@ -612,6 +625,21 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: GlobalStyles.blue,
     fontSize: 14,
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  titleText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#424770',
+  },
+  stripeLogo: {
+    width: 60,
+    height: 20,
   },
 });
 

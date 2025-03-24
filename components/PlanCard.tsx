@@ -407,7 +407,7 @@ const PlanCard: React.FC<PlanCardProps> = ({
         onClose={() => { setShowPaymentModal(false); }}
         amount={!isCustomer ? 9.99 : 0.99}
         planType={!isCustomer ? 'premium' : 'basic'}
-        description={`Suscripción al Plan ${!isCustomer ? 'mensual empresa' : 'mensual'}`}
+        description={`Suscripción al Plan ${!isCustomer ? 'mensual de empresa' : 'mensual'}`}
         onSuccess={handlePaymentSuccess}
       />
     </View>
