@@ -39,7 +39,7 @@ interface PaymentModalProps {
   amount: number;
   planType: string;
   description: string;
-  onSuccess?: (paymentMethodId: string, responseData: any) => void;
+  onSuccess?: (paymentMethodId: string, responseData: unknown) => void;
 }
 
 interface SecureFieldProps {
@@ -60,7 +60,7 @@ interface CustomViewStyle {
   width?: number | `${number}%` | 'auto';
   marginBottom?: number;
   [key: string]: unknown;
-};
+}
 
 const SecureField: React.FC<SecureFieldProps> = ({ 
   label, 
