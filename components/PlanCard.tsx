@@ -5,10 +5,11 @@ import { GlobalStyles } from '@/constants/Colors';
 import { useFocusEffect } from '@react-navigation/native';
 import PaymentModal from './PaymentModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useCallback, useState } from 'react';
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useState, useEffect } from 'react';
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View, Animated, ActivityIndicator } from 'react-native';
 import { BACKEND_API } from '@/constants/Mysc';
 import { useAuth } from '@/app/_util/useAuth';
+import { FontAwesome } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 
@@ -17,6 +18,103 @@ interface PlanCardProps {
   fechaExpiracion?: string;
   userId: string;
 }
+
+const SuccessCancelModal: React.FC<{ visible: boolean; onClose: () => void }> = ({ visible, onClose }) => {
+  const [scaleAnim] = useState(new Animated.Value(0));
+  const [rotateAnim] = useState(new Animated.Value(0));
+  const [fadeAnim] = useState(new Animated.Value(0));
+  const [slideAnim] = useState(new Animated.Value(50));
+
+  useEffect(() => {
+    if (visible) {
+      Animated.parallel([
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          friction: 8,
+          tension: 40,
+          useNativeDriver: true,
+        }),
+        Animated.timing(rotateAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.spring(slideAnim, {
+          toValue: 0,
+          friction: 8,
+          tension: 40,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [visible]);
+
+  const spin = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
+  return (
+    <CustomModal visible={visible} onClose={onClose} title="¡Cancelación exitosa!">
+      <View style={styles.successContainer}>
+        <Animated.View 
+          style={[
+            styles.checkmarkContainer, 
+            { 
+              transform: [
+                { scale: scaleAnim },
+                { translateY: slideAnim }
+              ] 
+            }
+          ]}
+        >
+          <Animated.View 
+            style={[
+              styles.checkmarkCircle, 
+              { 
+                transform: [{ rotate: spin }],
+                shadowColor: '#43a047',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+                elevation: 5,
+              }
+            ]}
+          >
+            <FontAwesome name="check" size={40} color="#fff" />
+          </Animated.View>
+        </Animated.View>
+        <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
+          <Text style={styles.successTitle}>¡Plan cancelado!</Text>
+          <Text style={styles.successText}>
+            Tu suscripción ha sido cancelada exitosamente. Volverás a tener acceso a las características básicas.
+          </Text>
+        </Animated.View>
+        <Animated.View 
+          style={[
+            styles.successButtonContainer,
+            { 
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }]
+            }
+          ]}
+        >
+          <CustomButton
+            title="Continuar"
+            onPress={onClose}
+            color="blue"
+            style={styles.successButton}
+          />
+        </Animated.View>
+      </View>
+    </CustomModal>
+  );
+};
 
 const PlanCard: React.FC<PlanCardProps> = ({ 
   role, 
@@ -33,6 +131,8 @@ const PlanCard: React.FC<PlanCardProps> = ({
   const isCustomer = role.includes('CUSTOMER');
   let expirationDate = fechaExpiracion ? fechaExpiracion : null;
   const [isDesktop, setIsDesktop] = useState(Dimensions.get('window').width > 768);
+  const [showCancelSuccess, setShowCancelSuccess] = useState(false);
+
   useFocusEffect(
     useCallback(() => {
       const updateIsDesktop = () => {
@@ -184,7 +284,7 @@ const PlanCard: React.FC<PlanCardProps> = ({
 
       setIsCancelModalVisible(false);
       setIsProcessing(false);
-      window.location.reload();
+      setShowCancelSuccess(true);
     } catch (err) {
       console.error('Error al cancelar la suscripción:', err);
       setIsProcessing(false);
@@ -210,6 +310,11 @@ const PlanCard: React.FC<PlanCardProps> = ({
     } catch (err) {
       console.error('Error al procesar la suscripción:', err);
     }
+  };
+
+  const handleCancelSuccessClose = () => {
+    setShowCancelSuccess(false);
+    window.location.reload();
   };
 
   return (
@@ -279,14 +384,23 @@ const PlanCard: React.FC<PlanCardProps> = ({
               color="red"
             />
             <CustomButton
-              title={isProcessing ? 'Procesando...' : 'Confirmar'}
+              title={isProcessing ? 'Procesando cancelación...' : 'Confirmar'}
               onPress={handleUnsubscribe}
               style={styles.button}
               color="blue"
+              disabled={isProcessing}
             />
           </View>
+          {isProcessing && (
+            <View style={styles.loaderContainer}>
+              <ActivityIndicator size="large" color={GlobalStyles.blue} style={styles.loader} />
+              <Text style={styles.loaderText}>Procesando tu cancelación...</Text>
+            </View>
+          )}
         </View>
       </CustomModal>
+
+      <SuccessCancelModal visible={showCancelSuccess} onClose={handleCancelSuccessClose} />
 
       <PaymentModal
         visible={showPaymentModal}
@@ -413,7 +527,56 @@ const styles = StyleSheet.create({
       borderRadius: 5,
       alignItems: 'center',
     },
-  
+    successContainer: {
+      padding: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: 300,
+    },
+    checkmarkContainer: {
+      marginBottom: 20,
+    },
+    checkmarkCircle: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      backgroundColor: '#43a047',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    successTitle: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: '#43a047',
+      marginBottom: 10,
+      textAlign: 'center',
+    },
+    successText: {
+      fontSize: 16,
+      color: '#666',
+      textAlign: 'center',
+      marginBottom: 20,
+      lineHeight: 24,
+    },
+    successButtonContainer: {
+      width: '100%',
+      maxWidth: 200,
+    },
+    successButton: {
+      width: '100%',
+    },
+    loaderContainer: {
+      alignItems: 'center',
+      marginTop: 20,
+    },
+    loader: {
+      marginTop: 20,
+    },
+    loaderText: {
+      marginTop: 10,
+      color: GlobalStyles.blue,
+      fontSize: 14,
+    },
   });
 
 
