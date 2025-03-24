@@ -60,7 +60,7 @@ interface CustomViewStyle {
   width?: number | `${number}%` | 'auto';
   marginBottom?: number;
   [key: string]: unknown;
-};
+}
 
 const SecureField: React.FC<SecureFieldProps> = ({ 
   label, 
