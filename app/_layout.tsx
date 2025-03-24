@@ -47,8 +47,6 @@ export default function TabLayout() {
             <Tabs.Screen name="login/index" options={{ title: "" }} />,
             <Tabs.Screen name="register/index" options={{ title: "" }} />,
             <Tabs.Screen name="obituaries/loadCertificate" options={{ href: null }} />,
-
-
           ]
         }
 
@@ -88,7 +86,7 @@ export default function TabLayout() {
         {
           isAuthenticated && userRoles?.includes("CUSTOMER_PREMIUM") ? [
             <Tabs.Screen name="messages/index" options={{ title: "" }} />,
-            <Tabs.Screen name="contacts/index" options={{ title: "" }} />,
+            <Tabs.Screen name="contacts/index" options={{ title: "Contactos de emergencia" }} />,
           ] : [
             <Tabs.Screen name="messages/index" options={{ href: null }} />,
             <Tabs.Screen name="contacts/index" options={{ href: null }} />,
