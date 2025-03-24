@@ -109,14 +109,14 @@ function LoadCertificate() {
         throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
       }
 
-    else{ 
-      setSuccessMessageVisible(true);
-      setTimeout(() => {
-        setSuccessMessageVisible(false);  
-        navigation.navigate("home");  
-      }, 2000);
+      else {
+        setSuccessMessageVisible(true);
+        setTimeout(() => {
+          setSuccessMessageVisible(false);
+          navigation.navigate("home");
+        }, 2000);
 
-    }
+      }
 
     } catch (error) {
       console.error("Error al enviar datos:", error);
@@ -133,7 +133,7 @@ function LoadCertificate() {
 
     const headers = {
       "Content-Type": "application/json",
-      ...(authToken && { "Authorization": `Bearer ${authToken}` }), 
+      ...(authToken && { "Authorization": `Bearer ${authToken}` }),
     };
 
     return await fetch(url, {
@@ -145,6 +145,16 @@ function LoadCertificate() {
 
   return (
     <View style={styles.container}>
+
+      <View style={styles.introContainer}>
+        <Text style={styles.introTitle}>Certificados de defunción 📜</Text>
+        <Text style={styles.introText}>
+          En esta sección, puedes cargar el certificado de defunción de un ser querido que haya contratado nuestros servicios.
+        </Text>
+        <Text style={styles.introText}>
+          Una vez verificado, las esquelas y/o mensajes previamente creados serán enviados a los contactos seleccionados.
+        </Text>
+      </View>
       <View style={styles.dataContainer}>
         <Text style={styles.title}>Carga el certificado de defunción</Text>
 
@@ -333,7 +343,30 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    width: width > 600 ? '40%': '80%',
+    width: width > 600 ? '40%' : '80%',
+  },
+  introContainer: {
+    width: '90%',
+    backgroundColor: GlobalStyles.lightGrey,
+    padding: 20,
+    borderRadius: 10,
+    marginBottom: 20,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  introTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: GlobalStyles.darkGrey,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  introText: {
+    fontSize: 20,
+    color: GlobalStyles.darkGrey,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 3,
   },
 });
 

@@ -206,6 +206,18 @@ function LoadCertificate() {
 
   return isAuthenticated ? (
     <View style={styles.container}>
+      <View style={styles.introContainer}>
+        <Text style={styles.introTitle}>Certificados de defunción 📜</Text>
+        <Text style={styles.introText}>
+          En esta sección, tiene que cargar el certificado de defunción de la persona fallecida.
+        </Text>
+        <Text style={styles.introText}>
+          Este certificado será verificado por un administrador del sistema para garantizar su autenticidad.
+        </Text>
+        <Text style={styles.introText}>
+          Una vez verificado, la esquela será enviada a los familiares y amigos seleccionados.
+        </Text>
+      </View>
       <View style={styles.dataContainer}>
         <Text style={styles.title}>Carga el certificado de defunción</Text>
 
@@ -279,7 +291,7 @@ function LoadCertificate() {
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => {handleSubmit(); }}
+              onPress={() => { handleSubmit(); }}
             >
               <Text style={styles.buttonText}>Aceptar</Text>
             </TouchableOpacity>
@@ -392,6 +404,29 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
     width: width > 600 ? "40%" : "80%",
+  },
+  introContainer: {
+    width: '90%',
+    backgroundColor: GlobalStyles.lightGrey,
+    padding: 20,
+    borderRadius: 10,
+    marginBottom: 20,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  introTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: GlobalStyles.darkGrey,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  introText: {
+    fontSize: 20,
+    color: GlobalStyles.darkGrey,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 3,
   },
 });
 
