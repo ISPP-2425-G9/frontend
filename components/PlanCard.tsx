@@ -5,7 +5,6 @@ import { GlobalStyles } from '@/constants/Colors';
 import { useFocusEffect } from '@react-navigation/native';
 import PaymentModal from './PaymentModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BACKEND_API } from '@/constants/Mysc';
 import React, { useCallback, useState } from 'react';
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -141,7 +140,7 @@ const PlanCard: React.FC<PlanCardProps> = ({
     setIsCancelModalVisible(false);
   };
 
-  const handlePaymentSuccess = async (paymentId: string) => {
+  const handlePaymentSuccess = async () => {
     try {
       const userDataStr = await AsyncStorage.getItem('user_data');
       if (!userDataStr) {
@@ -154,25 +153,8 @@ const PlanCard: React.FC<PlanCardProps> = ({
         throw new Error('No se encontró un token de autenticación');
       }
 
-      const response = await fetch(`${BACKEND_API}/api/plans/${userId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({
-          paymentMethodId: paymentId,
-          planType: 'PREMIUM',
-        }),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error('Error en la respuesta del servidor:', errorData);
-        throw new Error('Error al actualizar el plan');
-      }
-
       console.log('Plan actualizado exitosamente en PlanCard');
+      console.log('Rol del usuario', userData.roles);
       setShowPaymentModal(false);
     } catch (err) {
       console.error('Error al procesar la suscripción:', err);
