@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
     fontFamily: GlobalStyles.font,
     padding: 8,
     alignItems: 'center',
-    paddingTop: 20,
+    paddingTop: 30,
     backgroundColor: GlobalStyles.white,
   },
   title: {

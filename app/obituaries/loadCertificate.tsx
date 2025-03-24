@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingTop: 120,
+    paddingTop: 30,
   },
   infoText: {
     fontSize: 14,
