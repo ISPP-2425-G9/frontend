@@ -39,7 +39,7 @@ interface PaymentModalProps {
   amount: number;
   planType: string;
   description: string;
-  onSuccess?: (responseData: unknown) => void;
+  onSuccess?: () => void;
 }
 
 interface SecureFieldProps {
@@ -354,7 +354,7 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
           
           await new Promise(resolve => setTimeout(resolve, 3000));
           
-          onSuccess?.(responseData);
+          onSuccess?.();
           setShowSuccess(true);
           onClose();
         } catch (err: unknown) {
