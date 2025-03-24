@@ -589,7 +589,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: width > 600 ? "row" : "column",
-    paddingTop: 105,
+    paddingTop: 30,
   },
   formSection: {
     flex: 1,
