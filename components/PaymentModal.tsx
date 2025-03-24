@@ -380,6 +380,7 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
     setShowSuccess(false);
     setIsProcessing(false);
     onClose();
+    window.location.reload();
   };
 
   return (

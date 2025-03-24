@@ -174,7 +174,6 @@ const PlanCard: React.FC<PlanCardProps> = ({
       const responseData = await response.json();
       console.log('Plan cancelado exitosamente:', responseData);
       
-      // Actualizar los roles usando login
       void login(
         responseData.id,
         responseData.token,
@@ -185,6 +184,7 @@ const PlanCard: React.FC<PlanCardProps> = ({
 
       setIsCancelModalVisible(false);
       setIsProcessing(false);
+      window.location.reload();
     } catch (err) {
       console.error('Error al cancelar la suscripción:', err);
       setIsProcessing(false);
