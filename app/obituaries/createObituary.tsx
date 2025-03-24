@@ -182,7 +182,7 @@ function EsquelaCustomizer() {
             farewellMessage: data.farewellMessage || "",
             farewellPhrase: data.farewellPhrase || "",
             customImage: data.customImageUrl || null,
-            imageTemplate_id: imageId || 1,
+            imageTemplate_id: data.imageTemplate.id || 1,
           });
 
         } catch (error) {
