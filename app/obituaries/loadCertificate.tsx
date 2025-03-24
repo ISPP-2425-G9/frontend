@@ -214,7 +214,7 @@ function LoadCertificate() {
           placeholder={dniError ? dniError : "Dni del fallecido"}
           value={dni}
           maxLength={9}
-          keyboardType="numeric"
+          keyboardType="default"
           onChangeText={(value) => {
             let newValue = value.replace(/[^0-9A-Za-z]/g, "");
 
