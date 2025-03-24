@@ -11,8 +11,6 @@ import { BACKEND_API } from '@/constants/Mysc';
 import { useAuth } from '@/app/_util/useAuth';
 import { FontAwesome } from '@expo/vector-icons';
 
-const { width } = Dimensions.get('window');
-
 interface PlanCardProps {
   role: string;
   fechaExpiracion?: string;
