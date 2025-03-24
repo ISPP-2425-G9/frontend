@@ -46,7 +46,7 @@ function EmergencyContactScreen() {
           />
         </View>
 
-        <ScrollView horizontal contentContainerStyle={styles.tableScroll}>
+        <ScrollView horizontal style={styles.horizontalScroll}>
           <View style={styles.tableWrapper}>
             <CustomTable
               columns={['NOMBRE', 'EMAIL', 'TELÉFONO', 'ACCIONES']}
@@ -139,9 +139,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     marginBottom: 20,
   },
-  tableScroll: {
-    flexGrow: 1,
-    minWidth: Dimensions.get('window').width,
+  horizontalScroll: {
+    width: '100%',
   },
   tableWrapper: {
     width: '100%',
