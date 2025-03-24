@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_API } from '@/constants/Mysc';
 import { FontAwesome } from '@expo/vector-icons';
 import { STRIPE_PUBLISHABLE_KEY } from '@/constants/Stripe';
+import { useAuth } from '@/app/_util/useAuth';
 
 const { width } = Dimensions.get('window');
 const isMobile = width < 768;
@@ -38,7 +39,7 @@ interface PaymentModalProps {
   amount: number;
   planType: string;
   description: string;
-  onSuccess?: (paymentMethodId: string) => void;
+  onSuccess?: (paymentMethodId: string, responseData: any) => void;
 }
 
 interface SecureFieldProps {
@@ -278,6 +279,7 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
   const [showSuccess, setShowSuccess] = useState(false);
   const stripe = useStripe();
   const elements = useElements();
+  const { login } = useAuth();
 
   const handlePayment = async () => {
     if (!stripe || !elements) {
@@ -342,9 +344,18 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
           const responseData = await response.json();
           console.log('Plan actualizado exitosamente:', responseData);
           
+          // Actualizar los roles usando login
+          void login(
+            responseData.id,
+            responseData.token,
+            responseData.roles,
+            responseData.username,
+            responseData.name
+          );
+          
           await new Promise(resolve => setTimeout(resolve, 3000));
           
-          onSuccess?.(paymentMethod.id);
+          onSuccess?.(paymentMethod.id, responseData);
           setShowSuccess(true);
           onClose(); 
         } catch (err: unknown) {
