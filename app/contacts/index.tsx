@@ -28,7 +28,10 @@ function EmergencyContactScreen() {
   const [contactName, setContactName] = useState('');
   const [contactEmail, setContactEmail] = useState('');
   const [contactPhone, setContactPhone] = useState('');
+  const [formErrors, setFormErrors] = useState<string[]>([]);
 
+  
+  
   const validateEmergencyContact = async (
     values: Record<string, string>
   ): Promise<string[]> => {
@@ -44,6 +47,14 @@ function EmergencyContactScreen() {
     ) {
       errors.push("El nombre es obligatorio.");
     }
+
+    if (
+      !values.email ||
+      typeof values.email !== "string" ||
+      !emailRegex.test(values.email)
+    ) {
+      errors.push("El email no es válido.");
+    }
   
     if (
       !values.telephone ||
@@ -51,14 +62,6 @@ function EmergencyContactScreen() {
       !phoneRegex.test(values.telephone)
     ) {
       errors.push("Por favor, introduce un teléfono válido.");
-    }
-  
-    if (
-      !values.email ||
-      typeof values.email !== "string" ||
-      !emailRegex.test(values.email)
-    ) {
-      errors.push("El email no es válido.");
     }
   
     return errors;
@@ -73,13 +76,14 @@ function EmergencyContactScreen() {
     };
   
     const errors = await validateEmergencyContact(values);
-    console.log(errors)
   
     if (errors.length > 0) {
-      Alert.alert("Errores en el formulario", errors.join("\n"));
+      setFormErrors(errors);
       return;
     }
   
+    setFormErrors([]);
+
     const contactToSend = {
       fullName: contactName,
       email: contactEmail,
@@ -92,6 +96,7 @@ function EmergencyContactScreen() {
     setContactEmail('');
     setContactPhone('');
   };
+  
   
   
 
@@ -168,6 +173,16 @@ function EmergencyContactScreen() {
           <View style={styles.modalContentStyled}>
             <ThemedText style={styles.modalTitleStyled}>Añadir contacto de emergencia</ThemedText>
 
+            {formErrors.length > 0 && (
+              <View style={styles.errorContainer}>
+                {formErrors.map((error, index) => (
+                  <Text key={index} style={styles.errorText}>
+                    {error}
+                  </Text>
+                ))}
+              </View>
+            )}
+
             <TextInput
               style={styles.modalInput}
               placeholder="Nombre completo"
@@ -201,6 +216,7 @@ function EmergencyContactScreen() {
           </View>
         </View>
       </Modal>
+
     </ThemedView>
   );
 }
@@ -351,6 +367,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
+  errorContainer: {
+    backgroundColor: '#ffe6e6',
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 6,
+    width: '100%',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+  },
+  
   
   
 });
