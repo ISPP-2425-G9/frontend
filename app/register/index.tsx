@@ -365,7 +365,7 @@ const RegisterScreen: React.FC = () => {
         throw new Error("No se recibió token de autenticación.");
       }
       await AsyncStorage.setItem("authToken", data.token);
-      void login(data.id, data.token, data.roles, data.username, data.name);
+      await login(data.id, data.token, data.roles, data.username, data.name);
       navigation.navigate("home" as never);
     } catch (error: any) {
       setFormErrors([error.message || error]);
