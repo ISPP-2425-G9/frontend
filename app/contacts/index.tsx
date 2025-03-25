@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, StyleSheet, ScrollView, Dimensions, Text } from 'react-native';
+import { View, StyleSheet, ScrollView, Dimensions, Text, Modal, TextInput, Alert } from 'react-native';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
 import { ThemedView } from '@/components/ThemedView';
@@ -24,6 +24,77 @@ function EmergencyContactScreen() {
   ]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedContactId, setSelectedContactId] = useState<number | null>(null);
+  const [showAddContactModal, setShowAddContactModal] = useState(false);
+  const [contactName, setContactName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+
+  const validateEmergencyContact = async (
+    values: Record<string, string>
+  ): Promise<string[]> => {
+    const errors: string[] = [];
+  
+    const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const phoneRegex = /^\+?\d{9,15}$/;
+  
+    if (
+      !values.name ||
+      typeof values.name !== "string" ||
+      values.name.trim() === ""
+    ) {
+      errors.push("El nombre es obligatorio.");
+    }
+  
+    if (
+      !values.telephone ||
+      typeof values.telephone !== "string" ||
+      !phoneRegex.test(values.telephone)
+    ) {
+      errors.push("Por favor, introduce un teléfono válido.");
+    }
+  
+    if (
+      !values.email ||
+      typeof values.email !== "string" ||
+      !emailRegex.test(values.email)
+    ) {
+      errors.push("El email no es válido.");
+    }
+  
+    return errors;
+  };
+  
+
+  const handleAddContact = async () => {
+    const values = {
+      name: contactName,
+      email: contactEmail,
+      telephone: contactPhone,
+    };
+  
+    const errors = await validateEmergencyContact(values);
+    console.log(errors)
+  
+    if (errors.length > 0) {
+      Alert.alert("Errores en el formulario", errors.join("\n"));
+      return;
+    }
+  
+    const contactToSend = {
+      fullName: contactName,
+      email: contactEmail,
+      telephone: contactPhone,
+    };
+  
+    console.log("Contacto de emergencia guardado:", contactToSend);
+    setShowAddContactModal(false);
+    setContactName('');
+    setContactEmail('');
+    setContactPhone('');
+  };
+  
+  
+
 
   return (
     <ThemedView style={styles.container}>
@@ -41,7 +112,7 @@ function EmergencyContactScreen() {
         <View style={styles.buttonContainer}>
           <CustomButton
             title="Añadir nuevo contacto"
-            onPress={() => console.log("Crear nuevo contacto")}
+            onPress={() => setShowAddContactModal(true) }
             color="green"
           />
         </View>
@@ -91,6 +162,45 @@ function EmergencyContactScreen() {
           </View>
         </CustomModal>
       </ScrollView>
+
+      <Modal visible={showAddContactModal} transparent animationType="fade">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContentStyled}>
+            <ThemedText style={styles.modalTitleStyled}>Añadir contacto de emergencia</ThemedText>
+
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Nombre completo"
+              placeholderTextColor="#666"
+              value={contactName}
+              onChangeText={setContactName}
+            />
+
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Correo electrónico"
+              placeholderTextColor="#666"
+              keyboardType="email-address"
+              value={contactEmail}
+              onChangeText={setContactEmail}
+            />
+
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Teléfono"
+              placeholderTextColor="#666"
+              keyboardType="phone-pad"
+              value={contactPhone}
+              onChangeText={setContactPhone}
+            />
+
+            <View style={styles.verticalButtonContainer}>
+              <CustomButton title="Guardar" onPress={handleAddContact} color="blue" />
+              <CustomButton title="Cancelar" onPress={() => setShowAddContactModal(false)} color="red" />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ThemedView>
   );
 }
@@ -174,6 +284,75 @@ const styles = StyleSheet.create({
     gap: 10,
     marginTop: 20,
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+  },
+  input: {
+    width: '100%',
+    backgroundColor: '#f0f0f0',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    fontSize: 16,
+    color: '#333',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    textAlign: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+  },
+  modalContentStyled: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    width: '85%',
+    gap: 10,
+  },
+  
+  modalTitleStyled: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  
+  modalInput: {
+    width: '100%',
+    backgroundColor: '#eee',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    fontSize: 16,
+    color: '#000',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    textAlign: 'left',
+  },
+  
+  verticalButtonContainer: {
+    flexDirection: 'column',
+    gap: 10,
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  
+  
 });
 
 export default withAuth(EmergencyContactScreen, [AUTHORITIES.CUSTOMER_PREMIUM]);
