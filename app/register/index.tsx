@@ -7,7 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import Checkbox from "expo-checkbox";
 import { useFocusEffect } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Alert,
   Dimensions,
@@ -35,6 +35,13 @@ const RegisterScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const navigation = useNavigation();
   const { login } = useAuth();
+
+  useEffect(() => {
+    setUserType(null);
+    setFormValues({});
+    setFormErrors([]);
+    setAcceptedTerms(false);
+  }, []);
 
   useFocusEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
