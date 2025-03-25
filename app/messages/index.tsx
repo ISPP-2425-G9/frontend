@@ -5,20 +5,23 @@ import { withAuth } from '../_util/withAuth';
 import CustomTextInput from '@/components/CustomTextInput';
 import { useState } from 'react';
 import CustomButton from '@/components/CustomButton';
-import { GlobalStyles } from '@/constants/Colors';
 import { AntDesign } from '@expo/vector-icons';
 import * as ImagePicker from "expo-image-picker";
+import { Video, ResizeMode } from "expo-av";
+
+
 
 const { width } = Dimensions.get("window");
 
 function MessageCreation() {
 
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedMedia, setSelectedMedia] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     title: '',
     text: '',
     customImages: [] as string[],
+    customVideos: [] as string[],
   });
 
   const pickImage = async () => {
@@ -27,28 +30,71 @@ function MessageCreation() {
       allowsEditing: true,
       quality: 1,
     });
-  
+
     console.log(result);
-  
+
     if (!result.canceled) {
-      
-      const allowedFormats = ["png", "jpg", "jpeg"];
+
+      const allowedFormats = ["jpg", "jpeg", "png"];
+      const maxSizeMB = 5;
+      const maxSizeBytes = maxSizeMB * 1024 * 1024;
+
       const filteredAssets = result.assets.filter(asset => {
-        const fileExtension = asset.mimeType ? asset.mimeType.split("/")[1] : '';
-        return allowedFormats.includes(fileExtension);
+        const fileExtension = asset.mimeType ? asset.mimeType.split("/")[1] : "";
+        const isFormatAllowed = allowedFormats.includes(fileExtension);
+        const isSizeAllowed = asset.fileSize ? asset.fileSize <= maxSizeBytes : true;
+        return isFormatAllowed && isSizeAllowed;
       });
-  
-      if (filteredAssets.length === 0) {
-        alert("Solo se permiten imágenes en formato PNG, JPG o JPEG.");
+
+      if (formData.customImages.length >= 5) {
+        alert("No puedes añadir más de 5 imágenes.");
         return;
       }
-  
+
+      if (filteredAssets.length === 0) {
+        alert(`Solo se permiten fotos en formato jpg, jpeg y png. El tamaño máximo es de ${maxSizeMB} MB.`);
+        return;
+      }
+
       setFormData({
         ...formData,
         customImages: [...formData.customImages, ...filteredAssets.map(asset => asset.uri)]
       });
     }
   };
+
+  const pickVideo = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+      quality: 0.5,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      const allowedFormats = ["mp4"];
+      const maxSizeMB = 30;
+      const maxSizeBytes = maxSizeMB * 1024 * 1024;
+
+      const filteredAssets = result.assets.filter(asset => {
+        const fileExtension = asset.mimeType ? asset.mimeType.split("/")[1] : "";
+        const isFormatAllowed = allowedFormats.includes(fileExtension);
+        const isSizeAllowed = asset.fileSize ? asset.fileSize <= maxSizeBytes : true;
+        return isFormatAllowed && isSizeAllowed;
+      });
+
+      if (filteredAssets.length === 0) {
+        alert(`Solo se permiten videos en formato MP4 y con un tamaño máximo de ${maxSizeMB} MB.`);
+        return;
+      }
+
+      setFormData({
+        ...formData,
+        customVideos: [...formData.customVideos, ...filteredAssets.map(asset => asset.uri)],
+      });
+    }
+  };
+
 
 
   const handleChange = (field: string, value: string) => {
@@ -59,13 +105,9 @@ function MessageCreation() {
     console.log('Mensaje guardado:', formData);
   };
 
-  const handleImagePress = (uri: string) => {
-    setSelectedImage(uri);
+  const handleMediaPress = (uri: string) => {
+    setSelectedMedia(uri);
   };
-
-
-
-
 
 
   // Modal to Select contacts y su lógica
@@ -95,7 +137,6 @@ function MessageCreation() {
 
 
 
-
   const addContact = () => {
 
     if (!newContact.name || !newContact.phone || !newContact.email) {
@@ -108,7 +149,6 @@ function MessageCreation() {
         return;
       }
     }
-
 
     setNewContact({ id: Date.now(), name: "", phone: "", email: "" });
     setContacts([...contacts, newContact]);
@@ -158,8 +198,6 @@ function MessageCreation() {
       errors.push("El email ya ha sido añadido");
     }
 
-
-
     return errors;
   };
 
@@ -206,8 +244,15 @@ function MessageCreation() {
           <CustomButton
             color="blue"
             style={styles.customButton1}
-            title="Seleccionar archivos"
+            title="Seleccionar imagenes"
             onPress={pickImage}
+          />
+
+          <CustomButton
+            color="blue"
+            style={styles.customButton1}
+            title="Seleccionar video"
+            onPress={pickVideo}
           />
 
           <CustomButton
@@ -225,26 +270,48 @@ function MessageCreation() {
           onPress={handleSaveMessage}
         />
 
-
       </View>
 
       <View style={styles.mediaContainer}>
+        {/* Zona de previsualización (imagen o video seleccionado) */}
         <View style={styles.mediaVisualizer}>
-          {selectedImage ? (
-            <Image source={{ uri: selectedImage }} style={styles.selectedMedia} />
+          {selectedMedia ? (
+            selectedMedia.includes("image") ? (
+              <Image source={{ uri: selectedMedia }} style={styles.selectedMedia} />
+            ) : (
+              <Video
+                source={{ uri: selectedMedia }}
+                videoStyle={styles.selectedMedia}
+                useNativeControls
+                shouldPlay={false}
+                style={styles.selectedMedia}
+                resizeMode={ResizeMode.CONTAIN}
+              />
+            )
           ) : (
-            <Text style={styles.previewMessage}>No se ha seleccionado ninguna imagen</Text>
+            <Text style={styles.previewMessage}>No se ha seleccionado ningún archivo</Text>
           )}
         </View>
+
         <View style={styles.mediaItems}>
           <ScrollView horizontal>
             {formData.customImages.length > 0 &&
               formData.customImages.map((uri, index) => (
-                <TouchableOpacity key={index} onPress={() => handleImagePress(uri)}>
-                  <Image
-                    key={index}
+                <TouchableOpacity key={index} onPress={() => handleMediaPress(uri)}>
+                  <Image source={{ uri }} style={styles.customImage} />
+                </TouchableOpacity>
+              ))}
+
+            {formData.customVideos.length > 0 &&
+              formData.customVideos.map((uri, index) => (
+                <TouchableOpacity key={index} onPress={() => handleMediaPress(uri)}>
+                  <Video
                     source={{ uri }}
-                    style={styles.customImage}
+                    style={styles.customVideo}
+                    useNativeControls={false}
+                    shouldPlay={false}
+                    videoStyle={styles.customVideo}
+                    resizeMode={ResizeMode.COVER}
                   />
                 </TouchableOpacity>
               ))}
@@ -332,30 +399,30 @@ function MessageCreation() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 110,
+    paddingTop: 30,
     flexGrow: 1,
-    flexDirection: 'row',
+    flexDirection: width > 600 ? 'row' : 'column',
     justifyContent: 'space-between',
     padding: "1%",
   },
   formContainer: {
-    width: '45%',
+    width: width > 600 ? '45%' : "100%",
     justifyContent: 'flex-start',
     padding: 20,
   },
   mediaContainer: {
-    width: '55%',
+    width: width > 600 ? '55%' : "100%",
     padding: 20,
   },
   mediaVisualizer: {
     borderWidth: 5,
     borderColor: GlobalStyles.lightGrey,
-    height: "65%",
+    height: width > 600 ? "65%" : 400,
     borderRadius: 10,
-    marginTop: 20,
+    marginTop: 30,
   },
   mediaItems: {
-    height: "25%",
+    height: width > 600 ? "25%" : 100,
     borderColor: GlobalStyles.lightGrey,
     borderWidth: 5,
     borderRadius: 10,
@@ -363,6 +430,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   customImage: {
+    width: width > 600 ? 140 : 60,
+    height: width > 600 ? 140 : 60,
+    borderRadius: 10,
+    margin: 20,
+  },
+  customVideo: {
     width: width > 600 ? 140 : 60,
     height: width > 600 ? 140 : 60,
     borderRadius: 10,
@@ -398,7 +471,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   textTitle: {
-    fontSize: 20,
+    fontSize: 26,
     fontWeight: "bold",
     marginBottom: 10,
   },
@@ -418,7 +491,7 @@ const styles = StyleSheet.create({
     height: 35
   },
   customButton1: {
-    width: '49%',
+    width: '32%',
     alignSelf: 'center',
   },
   customButton2: {
