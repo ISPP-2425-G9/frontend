@@ -33,6 +33,8 @@ const RegisterScreen: React.FC = () => {
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  // Agregar nuevo estado para rastrear si el usuario visitó los términos
+  const [hasVisitedTerms, setHasVisitedTerms] = useState<boolean>(false);
   const navigation = useNavigation();
   const { login } = useAuth();
 
@@ -277,7 +279,7 @@ const RegisterScreen: React.FC = () => {
       errors.push("El nombre es obligatorio.");
     }
 
-    if (typeof values.name === "string" && values.name.length > 3) {
+    if (typeof values.name === "string" && values.name.length > 100) {
       errors.push("El nombre debe tener 100 caracteres como máximo.");
     }
 
@@ -592,7 +594,12 @@ const RegisterScreen: React.FC = () => {
           <View style={styles.checkboxContainer}>
             <Checkbox
               value={acceptedTerms}
-              onValueChange={setAcceptedTerms}
+              disabled={!hasVisitedTerms}
+              onValueChange={(value) => {
+                if (hasVisitedTerms) {
+                  setAcceptedTerms(value);
+                }
+              }}
               color={acceptedTerms ? GlobalStyles.blue : undefined}
             />
             <Text style={styles.checkboxLabel}>Acepto los</Text>
@@ -641,7 +648,7 @@ const RegisterScreen: React.FC = () => {
                 </ScrollView>
                 <CustomButton
                   title="Cerrar"
-                  onPress={() => setModalVisible(false)}
+                  onPress={() => { setModalVisible(false); setHasVisitedTerms(true); }}
                   color="blue"
                   style={styles.modalButton}
                 />
