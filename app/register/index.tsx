@@ -45,19 +45,14 @@ const RegisterScreen: React.FC = () => {
     setAcceptedTerms(false);
   }, []);
 
-  useFocusEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
+  useFocusEffect(
+    React.useCallback(() => {
+      document.title = "Registrarse";
       setUserType(null);
       setFormValues({});
       setFormErrors([]);
       setAcceptedTerms(false);
-    });
-    return unsubscribe;
-  });
-
-  useFocusEffect(
-    React.useCallback(() => {
-      document.title = "Registrarse";
+      setHasVisitedTerms(false);
     }, [])
   );
 
