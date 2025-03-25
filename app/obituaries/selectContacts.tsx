@@ -80,6 +80,7 @@ function SelectContacts() {
     is_newObituary === undefined ||
     obituaryId === undefined ||
     is_mine === undefined;
+    
   useFocusEffect(
     useCallback(() => {
       if (is_newObituary) {
@@ -259,8 +260,6 @@ function SelectContacts() {
 
   const showConfirmationModal = async () => {
     const errors: string[] = [];
-    const phoneSet = new Set();
-    const emailSet = new Set();
 
     try {
 
@@ -423,42 +422,47 @@ function SelectContacts() {
 
 
         <Text style={styles.title}>Lista de contactos añadidos</Text>
-        <ScrollView style={styles.tableContainer} horizontal>
-          <View>
+        <ScrollView 
+          style={styles.tableContainer} 
+          horizontal
+        >
+  <View>
+    <View style={styles.tableHeader}>
+      <Text style={styles.headerCell}>Nombre</Text>
+      <Text style={styles.headerCell}>Teléfono</Text>
+      <Text style={styles.headerCell}>Email</Text>
+      <Text style={styles.headerCell}>Acción</Text>
+    </View>
 
-            <View style={styles.tableHeader}>
-              <Text style={styles.headerCell}>Nombre</Text>
-              <Text style={styles.headerCell}>Teléfono</Text>
-              <Text style={styles.headerCell}>Email</Text>
-              <Text style={styles.headerCell}>Acción</Text>
+    <ScrollView style={{ maxHeight: width > 600 ? width * 0.1 : width * 0.4 }}>   
+      <FlatList
+        data={contacts}
+        keyExtractor={(item) => item.id.toString()}
+        nestedScrollEnabled={true}  
+        renderItem={({ item }) => (
+          <View style={styles.tableRow}>
+            <Text style={styles.cell}>{item.name}</Text>
+            <Text style={styles.cell}>{item.phone}</Text>
+            <Text style={styles.cell}>{item.email}</Text>
+            <View style={styles.actionCell}>
+              <CustomButton
+                title="Eliminar"
+                style={styles.deleteButton}
+                color="red"
+                onPress={() => removeContact(item.id)}
+              />
+              <CustomButton
+                title="Editar"
+                style={styles.editButton}
+                onPress={() => handleEditContact(item)}
+              />
             </View>
-
-            <FlatList
-              data={contacts}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => (
-                <View style={styles.tableRow}>
-                  <Text style={styles.cell}>{item.name}</Text>
-                  <Text style={styles.cell}>{item.phone}</Text>
-                  <Text style={styles.cell}>{item.email}</Text>
-                  <CustomButton
-                    title="Eliminar"
-                    style={styles.deleteButton}
-                    color="red"
-                    onPress={() => removeContact(item.id)}
-                  />
-                  <CustomButton
-                    title="Editar"
-                    style={styles.editButton}
-                    onPress={() => handleEditContact(item)}
-                  />
-
-                </View>
-              )}
-            />
           </View>
-        </ScrollView>
-
+        )}
+      />
+    </ScrollView>
+  </View>
+</ScrollView>
 
 
       </View><View style={styles.divider} />
@@ -534,23 +538,24 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   contactContainer: {
+    flex: 1,
     alignSelf: "center",
     justifyContent: "center",
     alignItems: "center",
-    width: width > 600 ? "100%" : 1000,
+    width: width > 600 ? "100%" : "90%",
     marginBottom: 10,
     flexDirection: width > 600 ? "row" : "column",
   },
   deleteButton: {
     marginLeft: 10,
     alignSelf: "center",
-    width: "20%",
+    width: width > 600 ? "20%" : "40%",
   },
   editButton: {
     marginLeft: 5,
     marginRight: 10,
     alignSelf: "center",
-    width: "20%",
+    width: width > 600 ? "20%" : "30%",
   },
   input: {
     marginRight: 10,
@@ -572,7 +577,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-end",
     marginBottom: "1%",
     flexDirection: "row",
     width: "35%",
@@ -610,6 +615,17 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     flex: 1,
   },
+  actionCell: {
+    flex: 1,
+    flexDirection: "row",  
+    gap: 10,
+    alignItems: "center",
+    justifyContent: "flex-end",
+    width: width * 0.6,
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  
   tableRow: {
     flexDirection: "row",
     paddingVertical: 10,
@@ -633,9 +649,9 @@ const styles = StyleSheet.create({
   tableContainer: {
     flex: 1,
     padding: 10,
-    overflow: "hidden",
     flexWrap: "wrap",
     maxWidth: width * 0.9,
+    flexGrow: 1,
   },
   tableHeader: {
     flexDirection: "row",

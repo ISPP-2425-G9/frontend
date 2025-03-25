@@ -58,8 +58,6 @@ function ObituaryIndex() {
 
   const changeDesign = route.params?.changeDesign ?? false;
 
-  const is_mine = route.params?.is_mine ?? false;
-
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -215,6 +213,7 @@ function ObituaryIndex() {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     fontFamily: GlobalStyles.font,
     padding: 8,
     alignItems: 'center',
@@ -227,7 +226,6 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   scrollContainer: {
-    flexGrow: 1,
     alignItems: 'center',
   },
   listContainer: {
@@ -247,7 +245,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     alignItems: 'center',
-    overflow: 'hidden',
     width: width > 600 ?  width* 0.20 : width * 0.95, 
     height: height * 0.65 
   },
@@ -294,6 +291,7 @@ const styles = StyleSheet.create({
       paddingHorizontal: 25,
       borderRadius: 8,
       alignItems: "center",
+      width: width > 600 ? "100%" : width * 0.4,
     },
     modalStyle: {
       backgroundColor: "#fff",
