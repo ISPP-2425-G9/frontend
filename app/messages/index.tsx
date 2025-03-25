@@ -7,7 +7,6 @@ import { useState } from 'react';
 import CustomButton from '@/components/CustomButton';
 import { AntDesign } from '@expo/vector-icons';
 import * as ImagePicker from "expo-image-picker";
-import { Video, ResizeMode } from "expo-av";
 
 
 
@@ -21,7 +20,6 @@ function MessageCreation() {
     title: '',
     text: '',
     customImages: [] as string[],
-    customVideos: [] as string[],
   });
 
   const pickImage = async () => {
@@ -59,38 +57,6 @@ function MessageCreation() {
       setFormData({
         ...formData,
         customImages: [...formData.customImages, ...filteredAssets.map(asset => asset.uri)]
-      });
-    }
-  };
-
-  const pickVideo = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-      quality: 0.5,
-    });
-
-    console.log(result);
-
-    if (!result.canceled) {
-      const allowedFormats = ["mp4"];
-      const maxSizeMB = 30;
-      const maxSizeBytes = maxSizeMB * 1024 * 1024;
-
-      const filteredAssets = result.assets.filter(asset => {
-        const fileExtension = asset.mimeType ? asset.mimeType.split("/")[1] : "";
-        const isFormatAllowed = allowedFormats.includes(fileExtension);
-        const isSizeAllowed = asset.fileSize ? asset.fileSize <= maxSizeBytes : true;
-        return isFormatAllowed && isSizeAllowed;
-      });
-
-      if (filteredAssets.length === 0) {
-        alert(`Solo se permiten videos en formato MP4 y con un tamaño máximo de ${maxSizeMB} MB.`);
-        return;
-      }
-
-      setFormData({
-        ...formData,
-        customVideos: [...formData.customVideos, ...filteredAssets.map(asset => asset.uri)],
       });
     }
   };
@@ -248,12 +214,6 @@ function MessageCreation() {
             onPress={pickImage}
           />
 
-          <CustomButton
-            color="blue"
-            style={styles.customButton1}
-            title="Seleccionar video"
-            onPress={pickVideo}
-          />
 
           <CustomButton
             color="blue"
@@ -273,21 +233,9 @@ function MessageCreation() {
       </View>
 
       <View style={styles.mediaContainer}>
-        {/* Zona de previsualización (imagen o video seleccionado) */}
         <View style={styles.mediaVisualizer}>
-          {selectedMedia ? (
-            selectedMedia.includes("image") ? (
+          {selectedMedia ?  (
               <Image source={{ uri: selectedMedia }} style={styles.selectedMedia} />
-            ) : (
-              <Video
-                source={{ uri: selectedMedia }}
-                videoStyle={styles.selectedMedia}
-                useNativeControls
-                shouldPlay={false}
-                style={styles.selectedMedia}
-                resizeMode={ResizeMode.CONTAIN}
-              />
-            )
           ) : (
             <Text style={styles.previewMessage}>No se ha seleccionado ningún archivo</Text>
           )}
@@ -299,20 +247,6 @@ function MessageCreation() {
               formData.customImages.map((uri, index) => (
                 <TouchableOpacity key={index} onPress={() => handleMediaPress(uri)}>
                   <Image source={{ uri }} style={styles.customImage} />
-                </TouchableOpacity>
-              ))}
-
-            {formData.customVideos.length > 0 &&
-              formData.customVideos.map((uri, index) => (
-                <TouchableOpacity key={index} onPress={() => handleMediaPress(uri)}>
-                  <Video
-                    source={{ uri }}
-                    style={styles.customVideo}
-                    useNativeControls={false}
-                    shouldPlay={false}
-                    videoStyle={styles.customVideo}
-                    resizeMode={ResizeMode.COVER}
-                  />
                 </TouchableOpacity>
               ))}
           </ScrollView>
@@ -435,12 +369,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     margin: 20,
   },
-  customVideo: {
-    width: width > 600 ? 140 : 60,
-    height: width > 600 ? 140 : 60,
-    borderRadius: 10,
-    margin: 20,
-  },
   selectedMedia: {
     width: '100%',
     height: '100%',
@@ -491,7 +419,7 @@ const styles = StyleSheet.create({
     height: 35
   },
   customButton1: {
-    width: '32%',
+    width: '49%',
     alignSelf: 'center',
   },
   customButton2: {
