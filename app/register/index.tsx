@@ -1,28 +1,29 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Alert,
-  Platform,
-  Dimensions,
-  Modal,
-  TouchableOpacity
-} from "react-native";
+import CustomButton from "@/components/CustomButton";
+import { CustomTextInput } from "@/components/CustomTextInput";
+import TermsAndConditions from '@/components/TermsAndConditions';
+import { GlobalStyles } from "@/constants/Colors";
+import { BACKEND_API } from "@/constants/Mysc";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
-import CustomButton from "@/components/CustomButton";
-import { GlobalStyles } from "@/constants/Colors";
-import { CustomTextInput } from "@/components/CustomTextInput";
-import { BACKEND_API } from "@/constants/Mysc";
-import { withAuth } from "../_util/withAuth";
+import Checkbox from 'expo-checkbox';
+import { useFocusEffect } from "expo-router";
+import React, { useState } from "react";
+import {
+  Alert,
+  Dimensions,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
 import { AUTHORITIES } from "../_util/Authorities";
 import { useAuth } from "../_util/useAuth";
-import Checkbox from 'expo-checkbox';
-import TermsAndConditions from '@/components/TermsAndConditions';
+import { withAuth } from "../_util/withAuth";
 
-const { width } = Dimensions.get("window");
+import { Picker } from "@react-native-picker/picker";
+
 const deviceWidth = Dimensions.get("window").width;
 
 const RegisterScreen: React.FC = () => {
@@ -35,7 +36,7 @@ const RegisterScreen: React.FC = () => {
   const navigation = useNavigation();
   const { login } = useAuth();
 
-  useEffect(() => {
+  useFocusEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       setUserType(null);
       setFormValues({});
@@ -43,7 +44,13 @@ const RegisterScreen: React.FC = () => {
       setAcceptedTerms(false);
     });
     return unsubscribe;
-  }, [navigation]);
+  });
+
+  useFocusEffect(
+    React.useCallback(() => {
+      document.title = 'Registrarse';
+    }, [])
+  );
 
   // Company fields for the form
   const companyFields = [
@@ -52,12 +59,22 @@ const RegisterScreen: React.FC = () => {
       placeholder: "Floristería Loli S.L.",
       description: "Nombre de la empresa",
     },
+    {
+      name: "description",
+      placeholder: "Descripción de la empresa...",
+      description: "Descripción",
+    },
+    {
+      name: "companyType",
+      placeholder: "Tipo de empresa",
+      description: "Tipo de empresa",
+    },
     { name: "nif", placeholder: "F12345678", description: "NIF de la empresa" },
     {
-      name: "zipCode",
-      placeholder: "41001",
-      description: "Código postal",
-      keyboardType: "numeric",
+      name: "email",
+      placeholder: "floresloli@gmail.com",
+      keyboardType: "email-address",
+      description: "Email",
     },
     {
       name: "telephone",
@@ -65,22 +82,18 @@ const RegisterScreen: React.FC = () => {
       keyboardType: "phone-pad",
       description: "Teléfono",
     },
-    { name: "city", placeholder: "Sevilla", description: "Ciudad" },
     {
       name: "address",
       placeholder: "C/ Arquímedes, 3",
       description: "Dirección",
     },
+    { name: "city", placeholder: "Sevilla", description: "Ciudad" },
+
     {
-      name: "description",
-      placeholder: "Descripción de la empresa...",
-      description: "Descripción",
-    },
-    {
-      name: "email",
-      placeholder: "floresloli@gmail.com",
-      keyboardType: "email-address",
-      description: "Email",
+      name: "zipCode",
+      placeholder: "41001",
+      description: "Código postal",
+      keyboardType: "numeric",
     },
     {
       name: "password1",
@@ -103,18 +116,18 @@ const RegisterScreen: React.FC = () => {
       placeholder: "Jesús García",
       description: "Nombre completo",
     },
+    {
+      name: "email",
+      placeholder: "jesus@gmail.com",
+      keyboardType: "email-address",
+      description: "Email",
+    },
     { name: "dni", placeholder: "12345678P", description: "DNI" },
     {
       name: "telephone",
       placeholder: "600100200",
       keyboardType: "phone-pad",
       description: "Teléfono",
-    },
-    {
-      name: "email",
-      placeholder: "jesus@gmail.com",
-      keyboardType: "email-address",
-      description: "Email",
     },
     {
       name: "password1",
@@ -206,6 +219,14 @@ const RegisterScreen: React.FC = () => {
         values.description.trim() === ""
       ) {
         errors.push("La descripción es obligatoria.");
+      }
+      if (
+
+        !values.companyType ||
+        typeof values.companyType !== "string" ||
+        !["FLORISTERIA", "NOTARIA", "FUNERARIA", "DESPACHO_DE_ABOGADOS", "OTRO"].includes(values.companyType)
+      ) {
+        errors.push("El tipo de empresa no es válido.");
       }
     }
     if (uType === "Cliente") {
@@ -303,7 +324,7 @@ const RegisterScreen: React.FC = () => {
         throw new Error("No se recibió token de autenticación.");
       }
       await AsyncStorage.setItem("authToken", data.token);
-      login(data.id, data.token, data.roles);
+      void login(data.id, data.token, data.roles, data.username, data.name);
       navigation.navigate("home" as never);
     } catch (error: any) {
       setFormErrors([error.message || error]);
@@ -320,10 +341,10 @@ const RegisterScreen: React.FC = () => {
             <View style={styles.optionCard}>
               <Text style={styles.optionTitle}>Soy cliente</Text>
               <Text style={styles.optionDescription}>
-                Accede a una experiencia personalizada para comprar y disfrutar de nuestros servicios.
+                Gestiona el envío de mensajes finales y esquelas digitales a una lista de contactos personalizada.
               </Text>
               <CustomButton
-                title="Registrarme como cliente"
+                title="Registrarse como cliente"
                 onPress={() => handleUserTypeSelection("Cliente")}
                 color="blue"
                 style={{ ...styles.typeButton, ...(isMobile ? {} : { width: 400 }) }}
@@ -332,10 +353,10 @@ const RegisterScreen: React.FC = () => {
             <View style={styles.optionCard}>
               <Text style={styles.optionTitle}>Soy empresa</Text>
               <Text style={styles.optionDescription}>
-                Registra tu negocio y llega a más clientes ofreciendo tus productos.
+                Llega a más clientes ofreciendo tus soluciones y servicios especializados en el sector funerario.
               </Text>
               <CustomButton
-                title="Registrar mi empresa"
+                title="Registrarse como empresa"
                 onPress={() => handleUserTypeSelection("Empresa")}
                 color="blue"
                 style={{ ...styles.typeButton, ...(isMobile ? {} : { width: 400 }) }}
@@ -344,13 +365,11 @@ const RegisterScreen: React.FC = () => {
           </View>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <CustomButton
-            title="Volver"
-            onPress={handleGoBack}
-            color="grey"
-            style={styles.backButton}
-          />
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
 
           <Text style={styles.formTitle}>
             {userType === "Empresa"
@@ -360,8 +379,24 @@ const RegisterScreen: React.FC = () => {
 
           {userType === "Empresa"
             ? companyFields.map((field, index) => (
-                <View key={`company-${field.name}-${index}`} style={[styles.inputContainer, !isMobile && { width: 400, alignSelf: "center" }]}>
-                  <Text>{field.description}</Text>
+              <View key={`company-${field.name}-${index}`} style={[styles.inputContainer, !isMobile && { width: 400, alignSelf: "center" }]}>
+                <Text>{field.description}</Text>
+                {field.name === "companyType" ? (
+                  <View style={styles.pickerContainer}>
+                    <Picker
+                      style={styles.picker}
+                      selectedValue={formValues[field.name] || ""}
+                      onValueChange={(value) => setFormValues({ ...formValues, [field.name]: value })}
+                    >
+                      <Picker.Item label="Selecciona un tipo de empresa" value="" />
+                      <Picker.Item label="Floristería" value="FLORISTERIA" />
+                      <Picker.Item label="Notaría" value="NOTARIA" />
+                      <Picker.Item label="Funeraria" value="FUNERARIA" />
+                      <Picker.Item label="Despacho de Abogados" value="DESPACHO_DE_ABOGADOS" />
+                      <Picker.Item label="Otro" value="OTRO" />
+                    </Picker>
+                  </View>
+                ) : (
                   <CustomTextInput
                     placeholder={field.placeholder}
                     secureTextEntry={field.secureTextEntry}
@@ -371,22 +406,23 @@ const RegisterScreen: React.FC = () => {
                     }
                     style={{ width: "100%" }}
                   />
-                </View>
-              ))
+                )}
+              </View>
+            ))
             : clientFields.map((field, index) => (
-                <View key={`client-${field.name}-${index}`} style={[styles.inputContainer, !isMobile && { width: 400, alignSelf: "center" }]}>
-                  <Text>{field.description}</Text>
-                  <CustomTextInput
-                    placeholder={field.placeholder}
-                    secureTextEntry={field.secureTextEntry}
-                    value={formValues[field.name] || ""}
-                    onChangeText={(text) =>
-                      setFormValues({ ...formValues, [field.name]: text })
-                    }
-                    style={{ width: "100%" }}
-                  />
-                </View>
-              ))}
+              <View key={`client-${field.name}-${index}`} style={[styles.inputContainer, !isMobile && { width: 400, alignSelf: "center" }]}>
+                <Text>{field.description}</Text>
+                <CustomTextInput
+                  placeholder={field.placeholder}
+                  secureTextEntry={field.secureTextEntry}
+                  value={formValues[field.name] || ""}
+                  onChangeText={(text) =>
+                    setFormValues({ ...formValues, [field.name]: text })
+                  }
+                  style={{ width: "100%" }}
+                />
+              </View>
+            ))}
 
           {formErrors.length > 0 && (
             <View style={styles.errorContainer}>
@@ -419,9 +455,16 @@ const RegisterScreen: React.FC = () => {
             style={{ ...styles.submitButton, ...(isMobile ? {} : { width: 400 }) }}
           />
 
+          <CustomButton
+            title="Volver"
+            onPress={handleGoBack}
+            color="grey"
+            style={styles.backButton}
+          />
+
           <Modal
             visible={modalVisible}
-            animationType="slide"
+            animationType="fade"
             transparent={true}
             onRequestClose={() => setModalVisible(false)}
           >
@@ -449,18 +492,21 @@ const RegisterScreen: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
+    fontFamily: GlobalStyles.font,
     flex: 1,
     backgroundColor: GlobalStyles.white,
     padding: 20,
-    paddingTop: deviceWidth < 375 ? 50 : 100,
+    maxWidth: 700,
+    alignSelf: "center",
+    paddingTop: 20,
   },
   selectionContainer: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     backgroundColor: "#f2f2f2",
-    
+
     elevation: 5,
     padding: 20,
   },
@@ -492,7 +538,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     paddingBottom: 40,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
     paddingHorizontal: 20,
   },
@@ -507,12 +553,15 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   backButton: {
-    width: 100,
-    marginBottom: 20,
-    alignSelf: "flex-start",
+    marginTop: 20,
+    backgroundColor: GlobalStyles.grey,
+    width: "90%",
+    maxWidth: 350,
+    alignSelf: "center",
   },
   submitButton: {
     marginTop: 20,
+    maxWidth: 350,
     width: "90%",
     alignSelf: "center",
   },
@@ -591,7 +640,26 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   modalButton: {
+    marginTop: 20,
     alignSelf: "center",
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    backgroundColor: GlobalStyles.lightGrey,
+    height: 48,
+    justifyContent: "center",
+    paddingHorizontal: 10,
+    marginTop: 5,
+  },
+  picker: {
+    fontSize: 16,
+    fontFamily: GlobalStyles.font,
+    color: GlobalStyles.darkGrey,
+    backgroundColor: GlobalStyles.lightGrey,
+    borderColor: GlobalStyles.lightGrey,
+    borderWidth: 0,
   },
 });
 

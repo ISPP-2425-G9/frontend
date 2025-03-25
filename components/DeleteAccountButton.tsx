@@ -1,10 +1,11 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { GlobalStyles } from '@/constants/Colors';
+import { BACKEND_API } from '@/constants/Mysc';
 import { useRouter } from 'expo-router';
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import CustomButton from './CustomButton';
 import CustomModal from './CustomModal';
 import { ThemedText } from './ThemedText';
-import { BACKEND_API } from '@/constants/Mysc';
 
 export default function DeleteAccountButton() {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
@@ -15,7 +16,7 @@ export default function DeleteAccountButton() {
       const token = localStorage.getItem('authToken');
       const userId = localStorage.getItem('userId');
 
-      const response = await fetch(BACKEND_API+`/api/auth/${userId}`, {
+      const response = await fetch(BACKEND_API + `/api/auth/${userId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -34,33 +35,34 @@ export default function DeleteAccountButton() {
 
   return (
     <>
-      <CustomButton 
-        title="Eliminar Cuenta" 
-        onPress={() => setIsModalVisible(true)}
+      <CustomButton
+        title="Eliminar cuenta"
+        onPress={() => {setIsModalVisible(true)}}
         color="red"
         style={styles.button}
       />
 
       <CustomModal
         visible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
-        title="Eliminar Cuenta"
+        onClose={() => {setIsModalVisible(false)}}
+        title="Eliminar cuenta"
+        style={styles.modal}
       >
         <View style={styles.modalContent}>
           <ThemedText style={styles.modalText}>
-            ¿Estás seguro que deseas eliminar tu cuenta permanentemente?
-            Esta acción no se puede deshacer.
+            <p>¿Estás seguro que deseas eliminar tu cuenta permanentemente?</p>
+            <p>Esta acción no se puede deshacer.</p>
           </ThemedText>
           <View style={styles.modalButtons}>
             <CustomButton
-              title="Cancelar"
-              onPress={() => setIsModalVisible(false)}
-              style={[styles.modalButton, styles.cancelButton]}
-            />
-            <CustomButton
               title="Eliminar"
               onPress={handleDeleteAccount}
-              style={[styles.modalButton, styles.deleteButton]}
+              style={StyleSheet.flatten([styles.modalButton, styles.deleteButton])}
+            />
+            <CustomButton
+              title="Cancelar"
+              onPress={() => {setIsModalVisible(false)}}
+              style={StyleSheet.flatten([styles.modalButton, styles.cancelButton])}
             />
           </View>
         </View>
@@ -73,12 +75,15 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
   },
-  modalContent: {
+  modal: {
     padding: 20,
+    width: 'auto',
+  },
+  modalContent: {
+    padding: 10,
   },
   modalText: {
     textAlign: 'center',
-    marginBottom: 20,
     fontSize: 16,
   },
   modalButtons: {
@@ -93,9 +98,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   cancelButton: {
-    backgroundColor: '#4A4A4A',
+    backgroundColor: GlobalStyles.blue,
   },
   deleteButton: {
-    backgroundColor: '#E53935',
+    backgroundColor: GlobalStyles.red,
   }
 });

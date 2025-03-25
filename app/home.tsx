@@ -1,38 +1,44 @@
-import { View, Text, Image, StyleSheet, Dimensions, ScrollView } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { GlobalStyles } from "@/constants/Colors";
-import { MaterialIcons } from "@expo/vector-icons";
 import CustomButton from "@/components/CustomButton";
-import Logo from "@/components/Logo";
-import useAuth from "@/hooks/useAuth";
 import LineBreak from "@/components/LineBreack";
-
-
-const { width } = Dimensions.get("window");
+import Logo from "@/components/Logo";
+import { GlobalStyles } from "@/constants/Colors";
+import useAuth from "@/hooks/useAuth";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import React from 'react';
+import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 
 export default function HomeScreen() {
   const { isAuthenticated, roles } = useAuth();
-  let userRoles: string[] | null = null
-  if(isAuthenticated){
-    userRoles = roles
+  const { width } = useWindowDimensions();
+  let userRoles: string[] | null = null;
+  if (isAuthenticated) {
+    userRoles = roles;
   }
+
+  useFocusEffect(
+    React.useCallback(() => {
+      document.title = 'Inicio';
+    }, [])
+  );
+
   const navigation = useNavigation();
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={[styles.container, width > 800 ? styles.rowLayout : styles.columnLayout]}>
         <View style={styles.logoContainer}>
-          <Logo size={250}/>
+          <Logo size={250} />
           <LineBreak />
           <Text style={styles.tagline}>Honrando memorias,</Text>
           <Text style={styles.tagline}>facilitando despedidas</Text>
           <LineBreak />
           <LineBreak />
         </View>
-        
+
         <View style={styles.spacer} />
-        
-        <View style={styles.infoBox}>
+
+        <View style={[styles.infoBox, { width: width > 800 ? 900 : "90%" }]}>
           <Text style={styles.title}>¿Qué es CARONTE?</Text>
           <View style={styles.infoItem}>
             <MaterialIcons name="check-circle" size={24} color={GlobalStyles.blue} style={styles.icon} />
@@ -64,25 +70,24 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      { isAuthenticated && userRoles?.includes("CUSTOMER") &&
+      {isAuthenticated && userRoles?.includes("CUSTOMER") && (
         <View style={styles.buttonSection}>
           <View style={styles.buttonContainer}>
-            <View style={styles.buttonWrapper}>
+            <View style={[styles.buttonWrapper, { width: width > 800 ? "30%" : "90%" }]}>
               <Text style={styles.buttonText}>Pulsa aquí, si quieres personalizar la esquela para un familiar o amigo que haya fallecido</Text>
-              <CustomButton title="Personalizar esquela" onPress={() => navigation.navigate("obituaries/index" as never)} color="blue" />
+              <CustomButton title="Personalizar esquela" onPress={() => {navigation.navigate("obituaries/index" as never) }} color="blue" />
             </View>
-            <View style={styles.buttonWrapper}>
+            <View style={[styles.buttonWrapper, { width: width > 800 ? "30%" : "90%" }]}>
               <Text style={styles.buttonText}>Pulsa aquí, si quieres pagar el plan para personalizar mensajes para familiares o amigos una vez que haya fallecido o para promocionar tu empresa relacionada con el sector funerario.</Text>
-              <CustomButton title="Suscribirse" onPress={() => navigation.navigate("subscribe/index" as never)} color="blue" />
+              <CustomButton title="Suscribirse" onPress={() => {navigation.navigate("subscribe/index" as never) }} color="blue" />
             </View>
-            <View style={styles.buttonWrapper}>
+            <View style={[styles.buttonWrapper, { width: width > 800 ? "30%" : "90%" }]}>
               <Text style={styles.buttonText}>Si quieres ver los servicios que ofrecen empresas del sector funerario, pulsa aquí</Text>
-              <CustomButton title="Ver servicios" onPress={() => navigation.navigate("services/index" as never)} color="blue" />
+              <CustomButton title="Ver servicios" onPress={() => {navigation.navigate("services/index" as never) }} color="blue" />
             </View>
           </View>
         </View>
-      }
-      
+      )}
     </ScrollView>
   );
 }
@@ -92,9 +97,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 120,
-    paddingBottom: 300,
-    marginTop: 30,
+    paddingTop: 20,
   },
   container: {
     width: "90%",
@@ -103,7 +106,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   rowLayout: {
-    flexDirection: width > 800 ? "row" : "column",
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -125,23 +128,22 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   spacer: {
-    width: width > 800 ? 100 : 0,
+    width: 100,
   },
   infoBox: {
     flex: 1,
     backgroundColor: GlobalStyles.lightGrey,
-    padding: width > 800 ? 40 : 20,
+    padding: 40,
     borderRadius: 20,
     shadowColor: "#000",
     shadowOpacity: 0.15,
     shadowRadius: 6,
-    width: width > 800 ? 900 : "100%",
     alignSelf: "center",
     minHeight: "auto",
     marginBottom: 30,
   },
   title: {
-    fontSize: width > 800 ? 28 : 22,
+    fontSize: 28,
     fontFamily: GlobalStyles.fontBold,
     textAlign: "center",
     marginBottom: 12,
@@ -160,7 +162,6 @@ const styles = StyleSheet.create({
   },
   buttonWrapper: {
     alignItems: "center",
-    width: "30%",
     minWidth: 250,
   },
   buttonText: {
@@ -181,7 +182,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   description: {
-    fontSize: width > 800 ? 20 : 16,
+    fontSize: 20,
     fontFamily: GlobalStyles.font,
     textAlign: "left",
     color: GlobalStyles.grey,

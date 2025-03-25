@@ -32,14 +32,14 @@ function EditUserScreen() {
     };
   }
   // Definir el tipo de los parámetros esperados
-  type RouteParams = {
+  interface RouteParams {
     userId?: string;
     isCustomer?: boolean;
   };
   const [selectedPlan, setSelectedPlan] = useState<string>('FREE');
   const navigation = useNavigation();
   const route = useRoute();
-  const { userId = '', isCustomer = false } = (route.params as RouteParams) ?? {};
+  const { userId = '', isCustomer = false } = route.params as RouteParams;
   const [showPlanModal, setShowPlanModal] = useState(false);
 
   const [originalProfile, setOriginalProfile] = useState<Profile | null>(null);
@@ -76,7 +76,9 @@ function EditUserScreen() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       });
 
-      if (!response.ok) throw new Error(`Error ${response.status}: No se pudo obtener los datos del perfil.`);
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: No se pudo obtener los datos del perfil.`);
+      }
 
       const data = await response.json();
       
@@ -108,8 +110,10 @@ function EditUserScreen() {
   
 
   useEffect(() => {
-    if (!userId) return; // Evita ejecutar la lógica si userId es undefined o vacío
-    fetchProfile();
+    if (!userId) {
+      return
+    };
+    void fetchProfile();
   }, [userId, isCustomer]);
 
   useFocusEffect(
@@ -137,7 +141,6 @@ function EditUserScreen() {
       const token = await AsyncStorage.getItem('authToken');
       if (!token) throw new Error('No se encontró el token de autenticación.');
   
-        // Si el usuario ha cambiado a Free o Premium, usar los endpoints específicos
       const planEndpoint = `${BACKEND_API}/api/plans/${userId}/${editedProfile.plan?.planType.toLowerCase()}`;
   
       const response = await fetch(planEndpoint, {
@@ -182,14 +185,12 @@ function EditUserScreen() {
         profileToSend.dni = editedProfile.dni;
       }
   
-      // Detectar si la contraseña ha cambiado
       const passwordChanged = editedProfile.password && editedProfile.password !== originalProfile?.password;
   
       if (passwordChanged) {
         profileToSend.password = editedProfile.password;
       }
   
-      // Enviar la actualización del perfil
       const response = await fetch(endpoint, {
         method: 'PUT',
         headers: {
@@ -210,8 +211,8 @@ function EditUserScreen() {
           },
           body: JSON.stringify({
             userId,  
-            newPassword: editedProfile.password,  // Nombre correcto según el backend
-            confirmPassword: editedProfile.password, // Si el backend lo requiere, envía el mismo valor
+            newPassword: editedProfile.password,
+            confirmPassword: editedProfile.password,
           }),
         });
   
@@ -222,8 +223,7 @@ function EditUserScreen() {
       setHasChanges(false);
       setOriginalProfile(editedProfile);
   
-      // Redirección según el tipo de usuario
-      navigation.navigate('admin/listUsers');
+      navigation.navigate('admin/listUsers' as never);
   
     } catch (error: any) {
       console.error('Error al guardar los cambios:', error.message);
@@ -301,7 +301,7 @@ function EditUserScreen() {
           <View style={styles.buttonContainer}>
           <ThemedText style={styles.changePlanText}>
               ¿Desea cambiar su plan?{' '}
-              <Pressable onPress={() => setShowPlanModal(true)}>
+              <Pressable onPress={() => { setShowPlanModal(true); } }>
                 <ThemedText style={styles.changePlanLink}>Cambiar plan</ThemedText>
               </Pressable>
           </ThemedText>
@@ -379,7 +379,7 @@ function EditUserScreen() {
               />
               <CustomButton 
                 title="Cancelar" 
-                onPress={() => setShowPlanModal(false)} 
+                onPress={() => { setShowPlanModal(false); }} 
                 color="red" 
                 style={styles.smallButton} 
               />
@@ -396,7 +396,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingVertical: 120,
+    paddingVertical: 10,
   },
   twoColumnsContainer: { 
     flexDirection: 'row', 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, Pressable, StyleSheet, ViewStyle, ImageSourcePropType } from 'react-native';
+import { Text, Image, Pressable, StyleSheet, ViewStyle, ImageSourcePropType } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 type ImageWithTextProps = {

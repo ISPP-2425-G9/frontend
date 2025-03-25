@@ -1,14 +1,14 @@
-import { useState, useEffect,useCallback } from 'react';
-import { StyleSheet, View, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation,useFocusEffect } from '@react-navigation/native';
-import CustomTable from '@/components/CustomTable';
 import CustomButton from '@/components/CustomButton';
 import CustomModal from '@/components/CustomModal';
+import CustomTable from '@/components/CustomTable';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useCallback, useState } from 'react';
+import { ActivityIndicator, Dimensions, ScrollView, StyleSheet, View } from 'react-native';
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
 
@@ -69,6 +69,7 @@ function AdminListUsers() {
   // Ejecutar fetchData cuando se entra en la pantalla
   useFocusEffect(
     useCallback(() => {
+      document.title = mostrarClientes ? 'Clientes' : 'Empresas';
       fetchData();
     }, [mostrarClientes])
   );
@@ -107,13 +108,13 @@ function AdminListUsers() {
       <ThemedView style={styles.buttonContainer}>
         <CustomButton
           title="Clientes"
-          onPress={() => setMostrarClientes(true)}
+          onPress={() => { setMostrarClientes(true); }}
           color={mostrarClientes ? 'blue' : 'grey'}
           style={styles.smallButton}
         />
         <CustomButton
           title="Empresas"
-          onPress={() => setMostrarClientes(false)}
+          onPress={() => { setMostrarClientes(false); }}
           color={!mostrarClientes ? 'blue' : 'grey'}
           style={styles.smallButton}
         />
@@ -144,7 +145,7 @@ function AdminListUsers() {
                     </ThemedText>
                     <ThemedText style={styles.cell}>{item.telephone}</ThemedText>
                     <View style={styles.actions}>
-                      <CustomButton title="Editar" onPress={() => handleEdit(item.id)} color="blue" />
+                      <CustomButton title="Editar" onPress={() => { handleEdit(item.id); }} color="blue" />
                       <CustomButton
                         title="Eliminar"
                         onPress={() => {
@@ -162,10 +163,10 @@ function AdminListUsers() {
         )}
       </ThemedView>
 
-      <CustomModal visible={modalVisible} onClose={() => setModalVisible(false)} title="Confirmar Eliminación">
+      <CustomModal visible={modalVisible} onClose={() => { setModalVisible(false); } } title="Confirmar Eliminación">
         <ThemedText>¿Estás seguro de que deseas eliminar este usuario?</ThemedText>
         <View style={styles.modalButtons}>
-          <CustomButton title="Cancelar" onPress={() => setModalVisible(false)} color="grey" />
+          <CustomButton title="Cancelar" onPress={() => { setModalVisible(false);} } color="grey" />
           <CustomButton title="Eliminar" onPress={handleDelete} color="red" />
         </View>
       </CustomModal>
@@ -177,7 +178,7 @@ function AdminListUsers() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 120,
+    marginTop: 10,
     backgroundColor: GlobalStyles.white,
   },
   buttonContainer: {

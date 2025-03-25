@@ -1,6 +1,7 @@
 import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView, FlatList, Pressable, Dimensions, Image } from 'react-native';
-import { withAuth } from '../_util/withAuth';
+import { GlobalStyles } from '@/constants/Colors';
 import { AUTHORITIES } from '../_util/Authorities';
+import { withAuth } from '../_util/withAuth';
 import CustomTextInput from '@/components/CustomTextInput';
 import { useState } from 'react';
 import CustomButton from '@/components/CustomButton';
