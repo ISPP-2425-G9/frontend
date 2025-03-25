@@ -33,8 +33,8 @@ const RegisterScreen: React.FC = () => {
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [acceptedTerms, setAcceptedTerms] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  // Agregar nuevo estado para rastrear si el usuario visitó los términos
   const [hasVisitedTerms, setHasVisitedTerms] = useState<boolean>(false);
+  const [termsError, setTermsError] = useState<string>("");
   const navigation = useNavigation();
   const { login } = useAuth();
 
@@ -594,11 +594,13 @@ const RegisterScreen: React.FC = () => {
           <View style={styles.checkboxContainer}>
             <Checkbox
               value={acceptedTerms}
-              disabled={!hasVisitedTerms}
               onValueChange={(value) => {
-                if (hasVisitedTerms) {
-                  setAcceptedTerms(value);
+                if (!hasVisitedTerms) {
+                  setTermsError("Por favor, lee los términos y condiciones antes de aceptarlos.");
+                  return;
                 }
+                setTermsError("");
+                setAcceptedTerms(value);
               }}
               color={acceptedTerms ? GlobalStyles.blue : undefined}
             />
@@ -614,6 +616,7 @@ const RegisterScreen: React.FC = () => {
               </Text>
             </TouchableOpacity>
           </View>
+          {termsError ? <Text style={styles.errorText}>{termsError}</Text> : null}
 
           <CustomButton
             title="Completar registro"
