@@ -3,8 +3,8 @@ import Icon from "react-native-vector-icons/FontAwesome6";
 import { GlobalStyles } from "@/constants/Colors";
 import React, { useState } from "react";
 import TermsAndConditions from "./TermsAndConditions";
+import { useNavigation } from '@react-navigation/native';
 import CustomButton from "./CustomButton";
-import LineBreak from "@/components/LineBreack";
 import Logo from "./Logo";
 
 
@@ -18,6 +18,8 @@ const socialLinks = [
 
 const Footer = () => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
+    const navigation = useNavigation();
+    
     const deviceWidth = Dimensions.get("window").width;
     const styles = StyleSheet.create({
         footer: {
@@ -108,7 +110,13 @@ const Footer = () => {
         <Text style={styles.text}>&copy; 2025 CARONTE. Todos los derechos reservados.</Text>
         <Text style={styles.text}>Realizado por ISPP 2024-2025 G9</Text>
         <Text style={styles.textLink} onPress={() => setModalVisible(true)}>Términos y condiciones de uso</Text>
+       
         {/* <Text style={styles.textLink} onPress={() => Linking.openURL('/privacy')}>Política de privacidad</Text> */}
+      </View>
+
+      <View>
+        <Text style={styles.textLink} onPress={()=> { navigation.navigate("about/index" as never);}}>Sobre nosotros</Text>
+        <Text style={styles.textLink} onPress={()=> { navigation.navigate("contact/index" as never);}}>Contáctanos</Text>
       </View>
 
       <Modal
