@@ -9,7 +9,7 @@ import Logo from "./Logo";
 
 
 const socialLinks = [
-  { name: "instagram", url: "https://instagram.com/caronteapp" },
+  { name: "instagram", url: "https://instagram.com/caronte_es" },
   { name: "linkedin", url: "https://www.linkedin.com/in/caronte-app/" },
   { name: "x-twitter", url: "https://x.com/CaronteApp" },
   { name: "tiktok", url: "https://www.tiktok.com/@caronteapp" },
@@ -23,8 +23,8 @@ const Footer = () => {
     const deviceWidth = Dimensions.get("window").width;
     const styles = StyleSheet.create({
         footer: {
-          backgroundColor: "#111",
-          padding: 20,
+          backgroundColor: GlobalStyles.darkGrey,
+          padding: 4,
           flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "center",
@@ -37,11 +37,13 @@ const Footer = () => {
           flex: 1,
         },
         text: {
+          fontSize: 12,
           color: "white",
           textAlign: "center",
         },
         textLink: {
           color: "#00aced",
+          fontSize: 11,
           textAlign: "center",
           textDecorationLine: "underline",
         },
@@ -56,7 +58,7 @@ const Footer = () => {
         },
         modalContent: {
           width: deviceWidth < 375 ? "95%" : "90%",
-          maxHeight: "80%",
+          maxHeight: "60%",
           backgroundColor: GlobalStyles.white,
           padding: 20,
           borderRadius: 10,
@@ -94,7 +96,7 @@ const Footer = () => {
     <View style={styles.footer}>
 
       <View style={styles.logoContainer}>
-          <Logo size={90} />
+          <Logo size={70} />
       </View>
 
       <View style={styles.section}>
