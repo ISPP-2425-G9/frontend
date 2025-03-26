@@ -2,6 +2,7 @@ import TextInputArraysForm, { InputField } from '@/components/TextInputArraysFor
 import { ThemedText } from '@/components/ThemedText';
 import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
+import { useNotification } from '@/context/NotificationContext';
 import { useNavigation } from '@react-navigation/native';
 import { useFocusEffect } from 'expo-router';
 import React, { useRef, useState } from 'react';
@@ -12,6 +13,7 @@ import { withAuth } from '../_util/withAuth';
 
 const LoginScreen: React.FC = () => {
   const navigation = useNavigation();
+  const { showNotification } = useNotification();
   const { login } = useAuth();
   const [errorMessage, setErrorMessage] = useState<string>("");
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -57,6 +59,10 @@ const LoginScreen: React.FC = () => {
       const data = await response.json();
       void login(data.id, data.token, data.roles, data.username, data.name);
       navigation.navigate('home' as never);
+      showNotification({
+        message: "Has iniciado sesión correctamente",
+        type: "success",
+      });
     } catch (error: any) {
       setErrorMessage('Credenciales incorrectas. Por favor, inténtalo de nuevo.');
     }
@@ -84,7 +90,7 @@ const LoginScreen: React.FC = () => {
         <TextInputArraysForm
           title=""
           inputs={loginFields}
-          onSubmit={(values) => {handleSubmit(values as Record<string, string>)}}
+          onSubmit={(values) => { handleSubmit(values as Record<string, string>) }}
           buttonText="Iniciar sesión"
           style={styles.formStyle}
         />
@@ -93,8 +99,8 @@ const LoginScreen: React.FC = () => {
         )}
         <ThemedText style={styles.registerText}>
           ¿Aún no tienes cuenta?{' '}
-          <Pressable onPress={() => {navigation.navigate('register/index' as never)}}>
-          <ThemedText style={styles.registerLink}>Regístrate</ThemedText>
+          <Pressable onPress={() => { navigation.navigate('register/index' as never) }}>
+            <ThemedText style={styles.registerLink}>Regístrate</ThemedText>
           </Pressable>
         </ThemedText>
       </Animated.View>
