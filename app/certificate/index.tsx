@@ -40,7 +40,17 @@ function LoadCertificate() {
       quality: 1,
     });
 
-    if (!result.canceled) {
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const allowedFormats = ["png", "jpg", "jpeg"];
+      const filteredAssets = result.assets.filter(asset => {
+        const fileExtension = asset.mimeType ? asset.mimeType.split("/")[1] : '';
+        return allowedFormats.includes(fileExtension);
+      });
+
+      if (filteredAssets.length === 0) {
+        alert("Solo se permiten imágenes en formato PNG, JPG o JPEG.");
+        return;
+      }
       const fileUri = result.assets[0].uri;
       const fileName = result.assets[0].fileName || null;
       setCertificateImage(fileUri);

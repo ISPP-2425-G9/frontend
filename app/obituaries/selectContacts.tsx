@@ -425,7 +425,7 @@ function SelectContacts() {
         <ScrollView 
           style={styles.tableContainer} 
           horizontal
-        >
+        > 
   <View>
     <View style={styles.tableHeader}>
       <Text style={styles.headerCell}>Nombre</Text>
@@ -533,12 +533,12 @@ const styles = StyleSheet.create({
     paddingTop: 30,
   },
   title: {
+    marginTop: 0,
     fontSize: 22,
     fontWeight: "bold",
     marginBottom: 10,
   },
   contactContainer: {
-    flex: 1,
     alignSelf: "center",
     justifyContent: "center",
     alignItems: "center",
@@ -620,7 +620,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",  
     gap: 10,
     alignItems: "center",
-    justifyContent: "flex-end",
+    justifyContent: "center",
     width: width * 0.6,
     color: "#fff",
     fontWeight: "bold",

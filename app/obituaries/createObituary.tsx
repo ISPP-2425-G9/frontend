@@ -233,11 +233,23 @@ function EsquelaCustomizer() {
       allowsEditing: true,
       quality: 1,
     });
+  
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const allowedFormats = ["png", "jpg", "jpeg"];
+      const filteredAssets = result.assets.filter(asset => {
+        const fileExtension = asset.mimeType ? asset.mimeType.split("/")[1] : '';
+        return allowedFormats.includes(fileExtension);
+      });
 
-    if (!result.canceled) {
+      if (filteredAssets.length === 0) {
+        alert("Solo se permiten imágenes en formato PNG, JPG o JPEG.");
+        return;
+      }
       setFormData({ ...formData, customImage: result.assets[0].uri });
+     
     }
   };
+  
 
   const handleCloseModal = () => {
     setModalVisible(false);

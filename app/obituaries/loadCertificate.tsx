@@ -84,9 +84,6 @@ function LoadCertificate() {
         }
         );
 
-        console.log('Status Code:', response.status); // Verifica el código de estado
-        console.log('Response:', await response.text()); // Verifica el contenido de la respuesta
-
         if (!response.ok) throw new Error("Error al obtener los datos");
         const data = await response.json();
         setDni(data.dni);
@@ -115,7 +112,18 @@ function LoadCertificate() {
       quality: 1,
     });
 
-    if (!result.canceled) {
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const allowedFormats = ["png", "jpg", "jpeg"];
+      const filteredAssets = result.assets.filter(asset => {
+        const fileExtension = asset.mimeType ? asset.mimeType.split("/")[1] : '';
+        return allowedFormats.includes(fileExtension);
+      });
+
+      if (filteredAssets.length === 0) {
+        alert("Solo se permiten imágenes en formato PNG, JPG o JPEG.");
+        return;
+      }
+      
       const fileUri = result.assets[0].uri;
       const fileName = result.assets[0].fileName || null;
       setFormData({ ...formData, certificateImage: fileUri });
