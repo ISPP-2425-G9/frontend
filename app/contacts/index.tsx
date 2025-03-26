@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/ThemedText';
 import CustomTable from '@/components/CustomTable';
 import CustomButton from '@/components/CustomButton';
 import CustomModal from '@/components/CustomModal';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { GlobalStyles } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_API } from '@/constants/Mysc';
@@ -19,11 +20,7 @@ type EmergencyContact = {
 };
 
 function EmergencyContactScreen() {
-  const [contacts, setContacts] = useState<EmergencyContact[]>([
-    { id: 1, name: 'Juan Pérez', email: 'juan@example.com', telephone: '600123456' },
-    { id: 2, name: 'Ana García', email: 'ana@example.com', telephone: '699654321' },
-    { id: 3, name: 'Carlos Ruiz', email: 'carlos@example.com', telephone: '611223344' },
-  ]);
+ const [contacts, setContacts] = useState<EmergencyContact[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedContactId, setSelectedContactId] = useState<number | null>(null);
   const [showAddContactModal, setShowAddContactModal] = useState(false);
@@ -37,13 +34,47 @@ function EmergencyContactScreen() {
   const [selectedContactToEdit, setSelectedContactToEdit] = useState<EmergencyContact | null>(null);
   const [hasContactChanges, setHasContactChanges] = useState(false);
   const [loading, setLoading] = useState(true);
-  
   interface EmergencyContact {
     id: number;
     name: string;
     email: string;
     telephone: string;
   };
+
+  const fetchEmergencyContacts = async () => {
+    setLoading(true);
+    try {
+      const authToken = await AsyncStorage.getItem('authToken');
+      if (!authToken) throw new Error('No se encontró un token de autenticación');
+  
+      const response = await fetch(`${BACKEND_API}/api/contacts`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken.trim()}`,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Error en la solicitud: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      setContacts(data); // ← Asumiendo que tienes un estado llamado setContacts
+  
+    } catch (error) {
+      console.error('Error al obtener los contactos de emergencia:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useFocusEffect(
+    useCallback(() => {
+      void fetchEmergencyContacts(); // Llamada al método que hace el fetch
+    }, [])
+  );
+  
   
   const validateEmergencyContact = async (
     values: Record<string, string>
