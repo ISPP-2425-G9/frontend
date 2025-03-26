@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Image } from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import { useNavigation, NavigationProp, useRoute, RouteProp, useFocusEffect } from "@react-navigation/native";
 import { Dimensions } from "react-native";
 import { TouchableOpacity } from "react-native";
@@ -279,7 +279,7 @@ function LoadCertificate() {
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => handleSubmit()}
+              onPress={() => {handleSubmit(); }}
             >
               <Text style={styles.buttonText}>Aceptar</Text>
             </TouchableOpacity>

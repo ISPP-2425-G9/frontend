@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  Alert,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-  Platform,
-} from "react-native";
+import { View, Text, Alert, FlatList, StyleSheet, TouchableOpacity, Dimensions, Platform } from "react-native";
 import CustomButton from "@/components/CustomButton";
 import { CustomTextInput } from "@/components/CustomTextInput";
 import { useRoute, RouteProp } from "@react-navigation/native";
@@ -478,14 +469,14 @@ function SelectContacts() {
           is_newObituary ? (
             <CustomButton
               title={is_mine ? "Crear esquela" : "Subir certificado"}
-              onPress={() => showConfirmationModal()}
+              onPress={() => {showConfirmationModal()}}
               style={styles.saveButton}
             />
           ) : (
             is_mine && (
               <CustomButton
                 title={"Actualizar esquela"}
-                onPress={() => showConfirmationModal()}
+                onPress={() =>{showConfirmationModal()}}
                 style={styles.saveButton}
               />
             )
@@ -502,13 +493,13 @@ function SelectContacts() {
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => handleSubmit()}
+              onPress={() => {handleSubmit()}}
             >
               <Text style={styles.buttonText}>Aceptar</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => handleCloseModal()}
+              onPress={() => {handleCloseModal()}}
             >
               <Text style={styles.buttonText}>Cancelar</Text>
             </TouchableOpacity>

@@ -1,40 +1,18 @@
-name: Commit Syntax Checker
+name: Commits Syntax Checker
 
 on:
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
+    branches: [develop]
+    types: [opened, reopened, edited, review_requested, synchronize]
+  push:
+    branches:
+      - "develop"
+  workflow_call:
 
 jobs:
-  check-commit-messages:
+  check:
+    name: Conventional Commits
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Get commit messages
-        run: |
-          COMMIT_MESSAGES=$(git log origin/main..HEAD --pretty=format:"%s")
-          echo "$COMMIT_MESSAGES" > commit_messages.txt
-        id: commit_messages
-
-      - name: Validate commit messages
-        run: |
-          INVALID_COMMITS=()
-          while IFS= read -r line; do
-            if ! [[ "$line" =~ ^(feat|fix|doc?s|test|chore|ci|style?s?|refactor|revert):\ [a-z].+|^Merge\  ]]; then
-              INVALID_COMMITS+=("$line")
-            fi
-          done < commit_messages.txt
-
-          if [ ${#INVALID_COMMITS[@]} -gt 0 ]; then
-            echo "The following commits do not follow the correct message format:"
-            for commit in "${INVALID_COMMITS[@]}"; do
-              echo "  - $commit"
-            done
-            exit 1
-          else
-            echo "All commit messages are valid."
-          fi
+      - uses: actions/checkout@v2
+      - uses: webiny/action-conventional-commits@v1.0.3
