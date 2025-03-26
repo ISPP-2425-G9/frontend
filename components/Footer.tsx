@@ -5,7 +5,6 @@ import React, { useState } from "react";
 import TermsAndConditions from "./TermsAndConditions";
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from "./CustomButton";
-import Logo from "./Logo";
 
 const socialLinks = [
   { name: "instagram", url: "https://instagram.com/caronte_es" },
