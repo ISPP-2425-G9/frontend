@@ -436,7 +436,7 @@ const RegisterScreen: React.FC = () => {
                         style={styles.picker}
                         selectedValue={formValues[field.name] || ""}
                         onValueChange={(value) =>
-                          setFormValues({ ...formValues, [field.name]: value })
+                          {setFormValues({ ...formValues, [field.name]: value })}
                         }
                       >
                         <Picker.Item
@@ -600,7 +600,7 @@ const RegisterScreen: React.FC = () => {
               color={acceptedTerms ? GlobalStyles.blue : undefined}
             />
             <Text style={styles.checkboxLabel}>Acepto los</Text>
-            <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <TouchableOpacity onPress={() => {setModalVisible(true)}}>
               <Text
                 style={[
                   styles.checkboxLabel,
@@ -646,7 +646,7 @@ const RegisterScreen: React.FC = () => {
                 </ScrollView>
                 <CustomButton
                   title="Cerrar"
-                  onPress={() => { setModalVisible(false); setHasVisitedTerms(true); }}
+                  onPress={() => {setModalVisible(false); setHasVisitedTerms(true);}}
                   color="blue"
                   style={styles.modalButton}
                 />
