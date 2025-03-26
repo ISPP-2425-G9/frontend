@@ -5,7 +5,7 @@ import CustomButton from '@/components/CustomButton';
 import { BACKEND_API } from '@/constants/Mysc';
 import useAuth from "@/hooks/useAuth";
 import React, { useEffect, useState } from 'react';
-import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AUTHORITIES } from '../_util/Authorities';
 import CustomModal from "@/components/CustomModal";
 import { GlobalStyles } from "@/constants/Colors";
@@ -186,13 +186,13 @@ function ObituaryIndex() {
           <View style={styles.buttonModalContainer}>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => handleOwnObituary()}
+              onPress={handleOwnObituary}
             >
               <Text style={styles.buttonText}>Tu propia esquela</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => handleElseObituary()}
+              onPress={handleElseObituary}
             >
               <Text style={styles.buttonText}>Para un ser querido</Text>
             </TouchableOpacity>

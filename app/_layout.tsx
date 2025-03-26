@@ -1,16 +1,18 @@
 import CustomNavbar from "@/components/CustomNavbar";
+import Footer from "@/components/Footer";
 import { Colors } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
 import { DMSans_500Medium, DMSans_700Bold, useFonts } from "@expo-google-fonts/dm-sans";
 import { Tabs } from "expo-router";
-import { useColorScheme } from "react-native";
-
+import { View, useColorScheme, StyleSheet } from "react-native";
+import React from "react";
 
 export default function TabLayout() {
   const { isAuthenticated, roles } = useAuth();
-  let userRoles: string[] | null = null
+  let userRoles: string[] | null = null;
+  
   if (isAuthenticated) {
-    userRoles = roles
+    userRoles = roles;
   }
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme || "light"];
@@ -25,8 +27,9 @@ export default function TabLayout() {
   }
 
   return (
-    <>
-      <CustomNavbar />
+    <View style={styles.container}>
+      <CustomNavbar />  
+      <View style={styles.content}>
       <Tabs
         screenOptions={{
           tabBarStyle: { display: "none" },
@@ -35,6 +38,8 @@ export default function TabLayout() {
       >
         <Tabs.Screen name="home" options={{ title: "" }} />
         <Tabs.Screen name="index" options={{ href: null }} />
+        <Tabs.Screen name="about/index" options={{ href: null }} />
+        <Tabs.Screen name="contact/index" options={{ href: null }} />
         <Tabs.Screen name="+not-found" options={{ href: null }} />
         <Tabs.Screen name="certificate/index" options={{ title: "Cargar certificado" }} />
 
@@ -129,6 +134,17 @@ export default function TabLayout() {
           ]
         }
       </Tabs>
-    </>
+      </View>
+      <Footer />
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+  }
+});
