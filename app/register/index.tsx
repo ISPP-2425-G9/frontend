@@ -170,7 +170,7 @@ const RegisterScreen: React.FC = () => {
       string,
       string | { uri: string; name: string; type: string }
     >,
-    uType: String | null
+    uType: string | null
   ) => {
     const errors: string[] = [];
 
