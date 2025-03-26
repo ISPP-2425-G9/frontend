@@ -95,7 +95,6 @@ const Footer = () => {
 
       <View style={styles.logoContainer}>
           <Logo size={90} />
-          <Text style={styles.tagline}>Honrando memorias, facilitando despedidas</Text>
       </View>
 
       <View style={styles.section}>
@@ -108,15 +107,10 @@ const Footer = () => {
 
       <View style={styles.centerSection}>
         <Text style={styles.text}>&copy; 2025 CARONTE. Todos los derechos reservados.</Text>
-        <Text style={styles.text}>Realizado por ISPP 2024-2025 G9</Text>
         <Text style={styles.textLink} onPress={() => setModalVisible(true)}>Términos y condiciones de uso</Text>
-       
-        {/* <Text style={styles.textLink} onPress={() => Linking.openURL('/privacy')}>Política de privacidad</Text> */}
-      </View>
-
-      <View>
         <Text style={styles.textLink} onPress={()=> { navigation.navigate("about/index" as never);}}>Sobre nosotros</Text>
         <Text style={styles.textLink} onPress={()=> { navigation.navigate("contact/index" as never);}}>Contáctanos</Text>
+        {/* <Text style={styles.textLink} onPress={() => Linking.openURL('/privacy')}>Política de privacidad</Text> */}
       </View>
 
       <Modal
@@ -139,7 +133,7 @@ const Footer = () => {
                     />
                   </View>
                 </View>
-          </Modal>
+      </Modal>
     </View>
 
   );
