@@ -20,7 +20,7 @@ type EmergencyContact = {
 };
 
 function EmergencyContactScreen() {
- const [contacts, setContacts] = useState<EmergencyContact[]>([]);
+  const [contacts, setContacts] = useState<EmergencyContact[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedContactId, setSelectedContactId] = useState<number | null>(null);
   const [showAddContactModal, setShowAddContactModal] = useState(false);
@@ -175,8 +175,8 @@ function EmergencyContactScreen() {
       }
   
       Alert.alert("Éxito", "Contacto de emergencia añadido correctamente.");
-      setShowAddContactModal(false); // Si usas modal
-      fetchContacts(); // Refresca la lista si hace falta
+      setShowAddContactModal(false); 
+      fetchContacts();
   
     } catch (error: any) {
       console.error("Error al añadir contacto:", error);
@@ -185,82 +185,51 @@ function EmergencyContactScreen() {
     }
   };
 
-  const fetchContactById = useCallback(async (contactId: number) => {
-    setLoading(true);
-    try {
-      const token = await AsyncStorage.getItem('authToken');
-      if (!token) throw new Error('No se encontró el token de autenticación.');
+  const handleEditContact = async (values: Record<string, string>) => {
+    if (!selectedContactToEdit?.id) return;
   
-      const endpoint = `${BACKEND_API}/api/contacts/${contactId}`;
-  
-      const response = await fetch(endpoint, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: No se pudo obtener los datos del contacto.`);
-      }
-  
-      const data = await response.json();
-  
-      const contactData: EmergencyContact = {
-        id: data.id,
-        name: data.name || '',
-        email: data.email || '',
-        telephone: data.telephone || '',
-      };
-  
-      setEditedContact(contactData);
-      setEditFormErrors([]);
-      setShowEditContactModal(true);
-  
-    } catch (error: any) {
-      console.error('Error al obtener el contacto:', error.message);
-      Alert.alert('Error', error.message);
-    } finally {
-      setLoading(false);
+    const errors = await validateContact(values);
+    if (errors.length > 0) {
+      setEditFormErrors(errors);
+      return;
     }
-  }, []);
-
-  const handleSaveEditedContact = async () => {
-    if (!editedContact) return;
   
     try {
-      const token = await AsyncStorage.getItem('authToken');
-      if (!token) throw new Error('No se encontró el token de autenticación.');
+      const token = await AsyncStorage.getItem("authToken");
+      if (!token) throw new Error("No se encontró el token de autenticación.");
   
-      const endpoint = `${BACKEND_API}/api/contacts/${editedContact.id}`;
-  
-      const response = await fetch(endpoint, {
-        method: 'PUT',
+      const response = await fetch(`${BACKEND_API}/api/contacts/${selectedContactToEdit.id}`, {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          name: editedContact.name,
-          email: editedContact.email,
-          telephone: editedContact.telephone,
+          id: selectedContactToEdit.id,
+          name: values.name,
+          email: values.email,
+          telephone: values.telephone,
         }),
       });
   
-      if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar el contacto.`);
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || `Error ${response.status}: No se pudo actualizar el contacto.`);
+      }
   
-      Alert.alert('Éxito', 'El contacto ha sido actualizado correctamente.');
-
+      Alert.alert("Éxito", "El contacto ha sido actualizado correctamente.");
       setShowEditContactModal(false);
-      setEditedContact(null);
+      setSelectedContactToEdit(null);
       setEditFormErrors([]);
-  
+      fetchContacts();
     } catch (error: any) {
-      console.error('Error al guardar el contacto:', error.message);
-      Alert.alert('Error', error.message);
+      console.error("Error al actualizar contacto:", error.message);
+      Alert.alert("Error", error.message);
     }
   };
+  
+  
+  
   
   return (
     <ThemedView style={styles.container}>
@@ -295,15 +264,8 @@ function EmergencyContactScreen() {
                   <ThemedText style={styles.cell}>{contact.email}</ThemedText>
                   <ThemedText style={styles.cell}>{contact.telephone}</ThemedText>
                   <View style={styles.actions}>
-                    <CustomButton title="Editar" onPress={() => setShowEditContactModal(true)} color="blue" />
-                    <CustomButton
-                      title="Eliminar"
-                      onPress={() => {
-                        setSelectedContactId(contact.id);
-                        setModalVisible(true);
-                      }}
-                      color="red"
-                    />
+                  <CustomButton title="Editar" onPress={() => { setSelectedContactToEdit(contact); setShowEditContactModal(true); }} color="blue"/>
+                  <CustomButton title="Eliminar" onPress={() => { setSelectedContactId(contact.id); setModalVisible(true); }} color="red"/>
                   </View>
                 </View>
               ))}
@@ -391,50 +353,40 @@ function EmergencyContactScreen() {
               </View>
             )}
 
-            <TextInput
-              style={styles.modalInput}
-              placeholder="Nombre completo"
-              placeholderTextColor="#666"
-              value={editedContact?.name || ''}
-              onChangeText={(text) =>
-                setEditedContact((prev) =>
-                  prev ? { ...prev, name: text } : null
-                )
-              }
-            />
+              <TextInput
+                style={styles.modalInput}
+                placeholder="Nombre completo"
+                placeholderTextColor="#666"
+                value={selectedContactToEdit?.name || ''}
+                onChangeText={(text) =>
+                  setSelectedContactToEdit((prev) => prev ? { ...prev, name: text } : null)
+                }
+              />
 
-            <TextInput
-              style={styles.modalInput}
-              placeholder="Correo electrónico"
-              placeholderTextColor="#666"
-              keyboardType="email-address"
-              value={editedContact?.email || ''}
-              onChangeText={(text) =>
-                setEditedContact((prev) =>
-                  prev ? { ...prev, email: text } : null
-                )
-              }
-            />
+              <TextInput
+                style={styles.modalInput}
+                placeholder="Correo electrónico"
+                placeholderTextColor="#666"
+                keyboardType="email-address"
+                value={selectedContactToEdit?.email || ''}
+                onChangeText={(text) =>
+                  setSelectedContactToEdit((prev) => prev ? { ...prev, email: text } : null)
+                }
+              />
 
-            <TextInput
-              style={styles.modalInput}
-              placeholder="Teléfono"
-              placeholderTextColor="#666"
-              keyboardType="phone-pad"
-              value={editedContact?.telephone || ''}
-              onChangeText={(text) =>
-                setEditedContact((prev) =>
-                  prev ? { ...prev, telephone: text } : null
-                )
-              }
-            />
+              <TextInput
+                style={styles.modalInput}
+                placeholder="Teléfono"
+                placeholderTextColor="#666"
+                keyboardType="phone-pad"
+                value={selectedContactToEdit?.telephone || ''}
+                onChangeText={(text) =>
+                  setSelectedContactToEdit((prev) => prev ? { ...prev, telephone: text } : null)
+                }
+              />
 
             <View style={styles.verticalButtonContainer}>
-              <CustomButton
-                title="Guardar cambios"
-                onPress={handleSaveEditedContact}
-                color="blue"
-              />
+              <CustomButton title="Guardar cambios" onPress={() => handleEditContact({ name: selectedContactToEdit?.name || "", email: selectedContactToEdit?.email || "", telephone: selectedContactToEdit?.telephone || ""})} color="blue"/>
               <CustomButton
                 title="Cancelar"
                 onPress={() => {
