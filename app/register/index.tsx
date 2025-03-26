@@ -7,7 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import Checkbox from "expo-checkbox";
 import { useFocusEffect } from "expo-router";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Dimensions,
@@ -174,7 +174,7 @@ const RegisterScreen: React.FC = () => {
       string,
       string | { uri: string; name: string; type: string }
     >,
-    uType: String | null
+    uType: string | null
   ) => {
     const errors: string[] = [];
 
@@ -382,7 +382,7 @@ const RegisterScreen: React.FC = () => {
               </Text>
               <CustomButton
                 title="Registrarse como cliente"
-                onPress={() => handleUserTypeSelection("Cliente")}
+                onPress={() => {handleUserTypeSelection("Cliente")}}
                 color="blue"
                 style={{
                   ...styles.typeButton,
@@ -398,7 +398,7 @@ const RegisterScreen: React.FC = () => {
               </Text>
               <CustomButton
                 title="Registrarse como empresa"
-                onPress={() => handleUserTypeSelection("Empresa")}
+                onPress={() => {handleUserTypeSelection("Empresa")}}
                 color="blue"
                 style={{
                   ...styles.typeButton,
@@ -615,7 +615,7 @@ const RegisterScreen: React.FC = () => {
 
           <CustomButton
             title="Completar registro"
-            onPress={() => handleSubmit(formValues)}
+            onPress={() => {handleSubmit(formValues)}}
             color="blue"
             style={{
               ...styles.submitButton,
@@ -634,7 +634,7 @@ const RegisterScreen: React.FC = () => {
             visible={modalVisible}
             animationType="fade"
             transparent={true}
-            onRequestClose={() => setModalVisible(false)}
+            onRequestClose={() => {setModalVisible(false)}}
           >
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>

@@ -6,7 +6,7 @@ import { Modal, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-nativ
 type ModalProps = {
   visible: boolean;
   onClose: () => void;
-  title?: string;
+  title?: string | React.ReactElement;
   children?: React.ReactNode;
   style?: ViewStyle;
 };

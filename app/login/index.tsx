@@ -84,7 +84,7 @@ const LoginScreen: React.FC = () => {
         <TextInputArraysForm
           title=""
           inputs={loginFields}
-          onSubmit={(values) => handleSubmit(values as Record<string, string>)}
+          onSubmit={(values) => {handleSubmit(values as Record<string, string>)}}
           buttonText="Iniciar sesión"
           style={styles.formStyle}
         />
