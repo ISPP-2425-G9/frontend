@@ -40,41 +40,6 @@ function EmergencyContactScreen() {
     email: string;
     telephone: string;
   };
-
-  const fetchEmergencyContacts = async () => {
-    setLoading(true);
-    try {
-      const authToken = await AsyncStorage.getItem('authToken');
-      if (!authToken) throw new Error('No se encontró un token de autenticación');
-  
-      const response = await fetch(`${BACKEND_API}/api/contacts`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken.trim()}`,
-        },
-      });
-  
-      if (!response.ok) {
-        throw new Error(`Error en la solicitud: ${response.status}`);
-      }
-  
-      const data = await response.json();
-      setContacts(data); // ← Asumiendo que tienes un estado llamado setContacts
-  
-    } catch (error) {
-      console.error('Error al obtener los contactos de emergencia:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  useFocusEffect(
-    useCallback(() => {
-      void fetchEmergencyContacts(); // Llamada al método que hace el fetch
-    }, [])
-  );
-  
   
   const validateEmergencyContact = async (
     values: Record<string, string>
@@ -110,7 +75,67 @@ function EmergencyContactScreen() {
   
     return errors;
   };
+
+  const fetchEmergencyContacts = async () => {
+    setLoading(true);
+    try {
+      const authToken = await AsyncStorage.getItem('authToken');
+      if (!authToken) throw new Error('No se encontró un token de autenticación');
   
+      const response = await fetch(`${BACKEND_API}/api/contacts`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken.trim()}`,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Error en la solicitud: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      setContacts(data);
+  
+    } catch (error) {
+      console.error('Error al obtener los contactos de emergencia:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useFocusEffect(
+    useCallback(() => {
+      void fetchEmergencyContacts();
+    }, [])
+  );
+
+  const handleDeleteContact = async () => {
+    
+    if (!selectedContactId) return;
+  
+    try {
+      const authToken = await AsyncStorage.getItem('authToken');
+      if (!authToken) throw new Error('No se encontró un token de autenticación');
+  
+      const response = await fetch(`${BACKEND_API}/api/contacts/${selectedContactId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${authToken.trim()}`,
+        },
+      });
+  
+      if (response.status === 204) {
+        setModalVisible(false);
+        setSelectedContactId(null);
+        fetchEmergencyContacts();
+      } else {
+        console.error(`Error al eliminar el contacto: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('Error en la solicitud de eliminación:', error);
+    }
+  };
 
   const handleAddContact = async () => {
     const values = {
@@ -147,7 +172,7 @@ function EmergencyContactScreen() {
       const token = await AsyncStorage.getItem('authToken');
       if (!token) throw new Error('No se encontró el token de autenticación.');
   
-      const endpoint = `${BACKEND_API}/api/contacts/${contactId}`; // ← ajusta al endpoint real
+      const endpoint = `${BACKEND_API}/api/contacts/${contactId}`;
   
       const response = await fetch(endpoint, {
         method: 'GET',
@@ -183,14 +208,13 @@ function EmergencyContactScreen() {
   }, []);
 
   const handleSaveEditedContact = async () => {
-    console.log("hola")
     if (!editedContact) return;
   
     try {
       const token = await AsyncStorage.getItem('authToken');
       if (!token) throw new Error('No se encontró el token de autenticación.');
   
-      const endpoint = `${BACKEND_API}/api/contacts/${editedContact.id}`; // Ajusta al endpoint real
+      const endpoint = `${BACKEND_API}/api/contacts/${editedContact.id}`;
   
       const response = await fetch(endpoint, {
         method: 'PUT',
@@ -208,8 +232,7 @@ function EmergencyContactScreen() {
       if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar el contacto.`);
   
       Alert.alert('Éxito', 'El contacto ha sido actualizado correctamente.');
-  
-      // Cerrar modal y limpiar
+
       setShowEditContactModal(false);
       setEditedContact(null);
       setEditFormErrors([]);
@@ -276,9 +299,7 @@ function EmergencyContactScreen() {
             <CustomButton
               title="Eliminar"
               onPress={() => {
-                console.log("Eliminar contacto");
-                // Aquí iría la lógica real de eliminación
-                //setContacts(prev => prev.filter(c => c.id !== selectedContactId));
+                handleDeleteContact();
                 setModalVisible(false);
               }}
               color="red"
