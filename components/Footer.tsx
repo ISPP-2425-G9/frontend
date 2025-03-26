@@ -107,7 +107,7 @@ const Footer = () => {
 
       <View style={styles.centerSection}>
         <Text style={styles.text}>&copy; 2025 CARONTE. Todos los derechos reservados.</Text>
-        <Text style={styles.textLink} onPress={() => setModalVisible(true)}>Términos y condiciones de uso</Text>
+        <Text style={styles.textLink} onPress={() => {setModalVisible(true)}}>Términos y condiciones de uso</Text>
         <Text style={styles.textLink} onPress={()=> { navigation.navigate("about/index" as never);}}>Sobre nosotros</Text>
         <Text style={styles.textLink} onPress={()=> { navigation.navigate("contact/index" as never);}}>Contáctanos</Text>
         {/* <Text style={styles.textLink} onPress={() => Linking.openURL('/privacy')}>Política de privacidad</Text> */}
@@ -117,7 +117,7 @@ const Footer = () => {
                 visible={modalVisible}
                 animationType="fade"
                 transparent={true}
-                onRequestClose={() => setModalVisible(false)}
+                onRequestClose={() => {setModalVisible(false)}}
               >
                 <View style={styles.modalContainer}>
                   <View style={styles.modalContent}>
@@ -127,7 +127,7 @@ const Footer = () => {
                     </ScrollView>
                     <CustomButton
                       title="Cerrar"
-                      onPress={() => setModalVisible(false)}
+                      onPress={() => {setModalVisible(false)}}
                       color="blue"
                       style={styles.modalButton}
                     />

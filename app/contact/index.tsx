@@ -1,13 +1,18 @@
-import React, { useEffect } from "react";
-import { View, Text, TextInput, Button, Linking, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, Linking, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome6";
 
-const { width } = Dimensions.get("window"); // Obtener el ancho de la pantalla
-
 const Contact = () => {
-  useEffect(() => {}, []);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
 
-  const handleSubmit = (name: string, email: string, message: string) => {
+  const handleSubmit = () => {
+    if (!name || !email || !message) {
+      alert("Por favor, llena todos los campos.");
+      return;
+    }
+
     const subject = `Mensaje de ${name} (${email})`;
     const body = encodeURIComponent(message);
     Linking.openURL(`mailto:info@caronte.site?subject=${encodeURIComponent(subject)}&body=${body}`);
@@ -23,19 +28,31 @@ const Contact = () => {
         </Text>
 
         <View style={styles.contactDetails}>
-          {/* Contenedor del formulario y la información de contacto */}
           <View style={styles.contactFormWrapper}>
             <View style={styles.contactForm}>
               <Text style={styles.formTitle}>Envíanos un mensaje</Text>
-              <TextInput style={styles.input} placeholder="Nombre" />
-              <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" />
+              <TextInput
+                style={styles.input}
+                placeholder="Nombre"
+                value={name}
+                onChangeText={setName}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                keyboardType="email-address"
+                value={email}
+                onChangeText={setEmail}
+              />
               <TextInput
                 style={styles.textArea}
                 placeholder="Tu mensaje"
                 multiline
                 numberOfLines={4}
+                value={message}
+                onChangeText={setMessage}
               />
-              <TouchableOpacity style={styles.button} onPress={() => handleSubmit("nombre", "email@dominio.com", "Mensaje de prueba")}>
+              <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                 <Text style={styles.buttonText}>Enviar</Text>
               </TouchableOpacity>
             </View>
