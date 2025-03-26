@@ -100,7 +100,7 @@ const Footer = () => {
 
       <View style={styles.logoContainer}>
           {
-            Platform.OS !== 'web' ?
+            Platform.OS === 'web' ?
               <Image source={require("../assets/images/banner.png")} style={styles.banner} /> :
               <Logo size={55} color="cementGrey"/>
           }
