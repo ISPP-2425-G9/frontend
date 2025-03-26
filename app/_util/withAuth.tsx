@@ -10,7 +10,6 @@ export function withAuth<T extends object>(
   allowedRoles: AuthorityType[] = []
 ) {
   return function ProtectedScreen(props: T) {
-    const router = useRouter();
     const navigation = useNavigation();
     const { user, getUserFromStorage } = useAuth();
     const [storedUser, setStoredUser] = useState(user);

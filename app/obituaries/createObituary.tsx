@@ -562,14 +562,14 @@ function EsquelaCustomizer() {
                   <TouchableOpacity
                     key={index}
                     style={[styles.colorBox, { backgroundColor: color }]}
-                    onPress={() => handleColorSelect(color)}
+                    onPress={() => {handleColorSelect(color)}}
                   />
                 );
               })}
             </View>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => setColorPickerVisible(false)}
+              onPress={() => {setColorPickerVisible(false)}}
             >
               <Text style={styles.buttonText}>Cancelar</Text>
             </TouchableOpacity>

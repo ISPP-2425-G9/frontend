@@ -14,7 +14,6 @@ import { withAuth } from "../_util/withAuth";
 import { AUTHORITIES } from "../_util/Authorities";
 import useAuth from "@/hooks/useAuth";
 import { ThemedView } from "@/components/ThemedView";
-import { green } from "react-native-reanimated/lib/typescript/Colors";
 import { ScrollView } from "react-native-gesture-handler";
 
 const { width } = Dimensions.get("window");
@@ -214,8 +213,6 @@ function SelectContacts() {
       errors.push("El email ya ha sido añadido");
     }
 
-
-
     return errors;
   };
 
@@ -225,13 +222,12 @@ function SelectContacts() {
       window.alert("Todos los campos son obligatorios");
       return;
     }
-    if (validateData(newContact)) {
-      if (validateData(newContact).length > 0) {
-        window.alert(validateData(newContact).join("\n"));
+    const errors = validateData(newContact)
+
+      if (errors && errors.length > 0) {
+        window.alert(errors.join("\n"));
         return;
       }
-    }
-
 
     setNewContact({ id: Date.now(), name: "", phone: "", email: "" });
     setContacts([...contacts, newContact]);
@@ -445,12 +441,12 @@ function SelectContacts() {
                     title="Eliminar"
                     style={styles.deleteButton}
                     color="red"
-                    onPress={() => removeContact(item.id)}
+                    onPress={() => {removeContact(item.id)}}
                   />
                   <CustomButton
                     title="Editar"
                     style={styles.editButton}
-                    onPress={() => handleEditContact(item)}
+                    onPress={() => {handleEditContact(item)}}
                   />
 
                 </View>
