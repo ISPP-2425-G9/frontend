@@ -1,11 +1,18 @@
+import { useFocusEffect } from 'expo-router';
 import React, { useState } from "react";
-import { View, Text, TextInput, Linking, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome6";
 
 const Contact = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+
+  useFocusEffect(
+      React.useCallback(() => {
+        document.title = 'Contáctanos';
+      }, [])
+    );
 
   const handleSubmit = () => {
     if (!name || !email || !message) {
