@@ -94,7 +94,7 @@ const TextInputArraysForm: React.FC<CustomFormProps> = ({
               style={[styles.input, input.style]}
               secureTextEntry={input.secureTextEntry}
               keyboardType={input.keyboardType || 'default'}
-              onChangeText={(value) => handleChange(input.name, value)}
+              onChangeText={(value) => {handleChange(input.name, value)}}
               value={formValues[input.name] || ''}
             />
           </View>

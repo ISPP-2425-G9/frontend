@@ -345,7 +345,7 @@ function EsquelaCustomizer() {
             placeholder="Nombre"
             maxLength={37}
             value={formData.name}
-            onChangeText={(text) => handleChange("name", text)}
+            onChangeText={(text) => {handleChange("name", text)}}
           />
 
           <Text style={styles.formText}>Fecha de nacimiento:</Text>
@@ -456,7 +456,7 @@ function EsquelaCustomizer() {
             value={formData.farewellMessage}
             maxLength={624}
             //multiline
-            onChangeText={(text) => handleChange("farewellMessage", text)}
+            onChangeText={(text) => {handleChange("farewellMessage", text)}}
           />
 
           <Text style={styles.formText}>Frase de despedida:</Text>
@@ -465,7 +465,7 @@ function EsquelaCustomizer() {
             placeholder="Frase de despedida"
             maxLength={90}
             value={formData.farewellPhrase}
-            onChangeText={(text) => handleChange("farewellPhrase", text)}
+            onChangeText={(text) => {handleChange("farewellPhrase", text)}}
           />
 
           {!is_sended && (
@@ -574,14 +574,14 @@ function EsquelaCustomizer() {
                   <TouchableOpacity
                     key={index}
                     style={[styles.colorBox, { backgroundColor: color }]}
-                    onPress={() => handleColorSelect(color)}
+                    onPress={() => {handleColorSelect(color)}}
                   />
                 );
               })}
             </View>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => setColorPickerVisible(false)}
+              onPress={() => {setColorPickerVisible(false)}}
             >
               <Text style={styles.buttonText}>Cancelar</Text>
             </TouchableOpacity>

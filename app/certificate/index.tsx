@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Image } from "react-native";
-import { useNavigation, NavigationProp, useRoute, RouteProp } from "@react-navigation/native";
+import { View, Text, StyleSheet, Image } from "react-native";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { Dimensions } from "react-native";
 import { TouchableOpacity } from "react-native";
 import { AUTHORITIES } from "../_util/Authorities";
@@ -247,7 +247,7 @@ function LoadCertificate() {
       {successMessageVisible && (
         <CustomModal
           visible={successMessageVisible}
-          onClose={() => setSuccessMessageVisible(false)}
+          onClose={() => {setSuccessMessageVisible(false)}}
           title="¡Datos enviados con éxito!✅"
           style={styles.successModal}
         >
