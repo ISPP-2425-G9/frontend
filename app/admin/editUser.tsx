@@ -252,7 +252,7 @@ function EditUserScreen() {
       <TextInput
         style={styles.input}
         value={value ?? ''}
-        onChangeText={(text) => handleInputChange(field, text)}
+        onChangeText={(text) => {handleInputChange(field, text)}}
         placeholder={placeholder}
         placeholderTextColor={'#666'}
         secureTextEntry={secureTextEntry}

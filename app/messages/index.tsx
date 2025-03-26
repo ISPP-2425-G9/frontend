@@ -110,11 +110,10 @@ function MessageCreation() {
       window.alert("Todos los campos son obligatorios");
       return;
     }
-    if (validateData(newContact)) {
-      if (validateData(newContact).length > 0) {
-        window.alert(validateData(newContact).join("\n"));
-        return;
-      }
+    const errors = validateData(newContact);
+    if (errors && errors.length > 0) {
+      window.alert(errors.join("\n"));
+      return;
     }
 
     setNewContact({ id: Date.now(), name: "", phone: "", email: "" });
