@@ -69,6 +69,7 @@ function MessageCreation() {
 
   const handleSaveMessage = () => {
     console.log('Mensaje guardado:', formData);
+    alert("Esta función estará disponible muy pronto!")
   };
 
   const handleMediaPress = (uri: string) => {
@@ -169,7 +170,8 @@ function MessageCreation() {
 
   // Logica para poner modal a true
   const handleSelectContacts = () => {
-    setIsContactModalVisible(true);
+    alert("Esta función estará disponible muy pronto!");
+    //setIsContactModalVisible(true);
   };
 
   const handleEditContact = (contact: { id: number; name: string; phone: string; email: string; }) => {
@@ -526,4 +528,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default withAuth(MessageCreation, [AUTHORITIES.CUSTOMER]);
+export default withAuth(MessageCreation, [AUTHORITIES.CUSTOMER_PREMIUM]);
