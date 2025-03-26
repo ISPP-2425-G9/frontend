@@ -41,7 +41,7 @@ function EmergencyContactScreen() {
     telephone: string;
   };
   
-  const validateEmergencyContact = async (
+  const validateContact = async (
     values: Record<string, string>
   ): Promise<string[]> => {
     const errors: string[] = [];
@@ -76,7 +76,7 @@ function EmergencyContactScreen() {
     return errors;
   };
 
-  const fetchEmergencyContacts = async () => {
+  const fetchContacts = async () => {
     setLoading(true);
     try {
       const authToken = await AsyncStorage.getItem('authToken');
@@ -106,7 +106,7 @@ function EmergencyContactScreen() {
   
   useFocusEffect(
     useCallback(() => {
-      void fetchEmergencyContacts();
+      void fetchContacts();
     }, [])
   );
 
@@ -128,7 +128,7 @@ function EmergencyContactScreen() {
       if (response.status === 204) {
         setModalVisible(false);
         setSelectedContactId(null);
-        fetchEmergencyContacts();
+        fetchContacts();
       } else {
         console.error(`Error al eliminar el contacto: ${response.status}`);
       }
@@ -137,33 +137,52 @@ function EmergencyContactScreen() {
     }
   };
 
-  const handleAddContact = async () => {
-    const values = {
-      name: contactName,
-      email: contactEmail,
-      telephone: contactPhone,
-    };
+  const handleAddContact = async (values: Record<string, string>) => {
+    try {
+      const authToken = await AsyncStorage.getItem("authToken");
+      if (!authToken) {
+        throw new Error("No se encontró el token de autenticación.");
+      }
   
-    const errors = await validateEmergencyContact(values);
+      const errors: string[] = await validateContact(values);
+      if (errors.length > 0) {
+        setFormErrors(errors);
+        return;
+      } else {
+        setFormErrors([]);
+      }
   
-    if (errors.length > 0) {
-      setFormErrors(errors);
-      return;
+      const response = await fetch(`${BACKEND_API}/api/contacts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken.trim()}`,
+        },
+        body: JSON.stringify({
+          name: values.name,
+          email: values.email,
+          telephone: values.telephone,
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        const errorMessage =
+          data.error ||
+          (data.errors ? Object.values(data.errors).flat().join("\n") : "Error inesperado.");
+        throw new Error(errorMessage);
+      }
+  
+      Alert.alert("Éxito", "Contacto de emergencia añadido correctamente.");
+      setShowAddContactModal(false); // Si usas modal
+      fetchContacts(); // Refresca la lista si hace falta
+  
+    } catch (error: any) {
+      console.error("Error al añadir contacto:", error);
+      setFormErrors([error.message || "Error inesperado"]);
+      Alert.alert("Error", error.message || "Error inesperado");
     }
-  
-    setFormErrors([]);
-
-    const contactToSend = {
-      fullName: contactName,
-      email: contactEmail,
-      telephone: contactPhone,
-    };
-  
-    console.log("Contacto de emergencia guardado:", contactToSend);
-    setShowAddContactModal(false);
-    setContactName('');
-    setContactEmail('');
-    setContactPhone('');
   };
 
   const fetchContactById = useCallback(async (contactId: number) => {
@@ -350,7 +369,7 @@ function EmergencyContactScreen() {
             />
 
             <View style={styles.verticalButtonContainer}>
-              <CustomButton title="Guardar" onPress={handleAddContact} color="blue" />
+              <CustomButton title="Guardar" onPress={() => handleAddContact({name: contactName,email: contactEmail,telephone: contactPhone})} color="blue" />
               <CustomButton title="Cancelar" onPress={() => setShowAddContactModal(false)} color="red" />
             </View>
           </View>
