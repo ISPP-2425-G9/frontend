@@ -195,7 +195,7 @@ function MessageCreation() {
           placeholder="Título del mensaje"
           maxLength={100}
           value={formData.title}
-          onChangeText={(text) => setFormData({ ...formData, title: text })}
+          onChangeText={(text) => { setFormData({ ...formData, title: text }); }}
         />
 
         <CustomTextInput
@@ -204,7 +204,7 @@ function MessageCreation() {
           maxLength={20000}
           multiline={true}
           value={formData.text}
-          onChangeText={(text) => setFormData({ ...formData, text: text })}
+          onChangeText={(text) => { setFormData({ ...formData, text: text }); }}
         />
 
         <View style={styles.buttonContainer}>
@@ -236,8 +236,8 @@ function MessageCreation() {
 
       <View style={styles.mediaContainer}>
         <View style={styles.mediaVisualizer}>
-          {selectedMedia ?  (
-              <Image source={{ uri: selectedMedia }} style={styles.selectedMedia} />
+          {selectedMedia ? (
+            <Image source={{ uri: selectedMedia }} style={styles.selectedMedia} />
           ) : (
             <Text style={styles.previewMessage}>No se ha seleccionado ningún archivo</Text>
           )}
@@ -247,7 +247,7 @@ function MessageCreation() {
           <ScrollView horizontal>
             {formData.customImages.length > 0 &&
               formData.customImages.map((uri, index) => (
-                <TouchableOpacity key={index} onPress={() => handleMediaPress(uri)}>
+                <TouchableOpacity key={index} onPress={() => { handleMediaPress(uri); }}>
                   <Image source={{ uri }} style={styles.customImage} />
                 </TouchableOpacity>
               ))}
@@ -257,7 +257,7 @@ function MessageCreation() {
 
       {isContactModalVisible && (
         <View style={styles.modalContactContainer}>
-          <Pressable style={styles.closeButton} onPress={() => setIsContactModalVisible(false)}>
+          <Pressable style={styles.closeButton} onPress={() => { setIsContactModalVisible(false); }}>
             <AntDesign name="close" size={24} color="#434343" />
           </Pressable>
 
@@ -268,7 +268,7 @@ function MessageCreation() {
               placeholder="Nombre"
               value={newContact.name}
               maxLength={50}
-              onChangeText={(text) => handleChangeContact("name", text)}
+              onChangeText={(text) => { handleChangeContact("name", text); }}
               style={styles.input}
             />
             <CustomTextInput
@@ -288,7 +288,7 @@ function MessageCreation() {
               value={newContact.email}
               maxLength={50}
               keyboardType="email-address"
-              onChangeText={(text) => handleChangeContact("email", text)}
+              onChangeText={(text) => { handleChangeContact("email", text); }}
               style={styles.input}
             />
             <CustomButton style={styles.addButton} title="Añadir" onPress={addContact} />
@@ -315,12 +315,12 @@ function MessageCreation() {
                     title="Eliminar"
                     style={styles.deleteButton}
                     color="red"
-                    onPress={() => removeContact(item.id)}
+                    onPress={() => { removeContact(item.id); }}
                   />
                   <CustomButton
                     title="Editar"
                     style={styles.editButton}
-                    onPress={() => handleEditContact(item)}
+                    onPress={() => { handleEditContact(item); }}
                   />
                 </View>
               )}
