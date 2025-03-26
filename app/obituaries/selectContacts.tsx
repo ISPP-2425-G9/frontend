@@ -394,7 +394,7 @@ function SelectContacts() {
             placeholder="Nombre"
             value={newContact.name}
             maxLength={50}
-            onChangeText={(text) => handleChange("name", text)}
+            onChangeText={(text) => {handleChange("name", text)}}
             style={styles.input}
           />
           <CustomTextInput
@@ -415,7 +415,7 @@ function SelectContacts() {
             value={newContact.email}
             maxLength={50}
             keyboardType="email-address"
-            onChangeText={(text) => handleChange("email", text)}
+            onChangeText={(text) => {handleChange("email", text)}}
             style={styles.input}
           />
           <CustomButton style={styles.button} title="Añadir" onPress={addContact} />
