@@ -13,6 +13,7 @@ import { AUTHORITIES } from "../_util/Authorities";
 import { RFValue, } from "react-native-responsive-fontsize";
 import useAuth from "@/hooks/useAuth";
 import { ThemedView } from "@/components/ThemedView";
+import { useNotification } from '@/context/NotificationContext';
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
@@ -39,13 +40,14 @@ type RootStackParamList = {
     obituaryId: number,
     jsonData: string,
     changeDesign: boolean,
-    is_mine: boolean, 
+    is_mine: boolean,
     selectedColor: string
   };
 };
 
 function EsquelaCustomizer() {
 
+  const { showNotification } = useNotification();
 
   const [selectedColor, setSelectedColor] = useState("");
 
@@ -225,7 +227,7 @@ function EsquelaCustomizer() {
       obituaryId,
       jsonData,
       changeDesign: true,
-      is_mine, 
+      is_mine,
       selectedColor
     });
   };
@@ -240,7 +242,7 @@ function EsquelaCustomizer() {
       allowsEditing: true,
       quality: 1,
     });
-  
+
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const allowedFormats = ["png", "jpg", "jpeg"];
       const filteredAssets = result.assets.filter(asset => {
@@ -249,14 +251,18 @@ function EsquelaCustomizer() {
       });
 
       if (filteredAssets.length === 0) {
-        alert("Solo se permiten imágenes en formato PNG, JPG o JPEG.");
+        showNotification({
+          message: "Solo se permiten imágenes en formato PNG, JPG o JPEG",
+          type: "info",
+          duration: 2500,
+        });
         return;
       }
       setFormData({ ...formData, customImage: result.assets[0].uri });
-     
+
     }
   };
-  
+
 
   const handleCloseModal = () => {
     setModalVisible(false);
@@ -302,7 +308,10 @@ function EsquelaCustomizer() {
     try {
       const errors = validateForm();
       if (errors.length != 0) {
-        throw new Error(`Hay error(es) en su formulario: ${errors}`);
+        showNotification({
+          message:`Hay errores en su formulario: ${errors}`,
+          type: "error",
+        });
       }
     } catch (error: any) {
       if (Platform.OS === "web") {
@@ -352,7 +361,7 @@ function EsquelaCustomizer() {
             placeholder="Nombre"
             maxLength={37}
             value={formData.name}
-            onChangeText={(text) => {handleChange("name", text)}}
+            onChangeText={(text) => { handleChange("name", text) }}
           />
 
           <Text style={styles.formText}>Fecha de nacimiento:</Text>
@@ -445,14 +454,14 @@ function EsquelaCustomizer() {
                     if (month) formatted += "/" + month;
                     if (year) formatted += "/" + year;
                     if (formatted.length > 10) formatted = formatted.slice(0, 10);
-          
+
                     const currentDate = new Date();
                     const inputDate = new Date(`${year}-${month}-${day}`);
-          
+
                     if (inputDate > currentDate) {
                       formatted = `${currentDate.getDate().toString().padStart(2, "0")}/${(currentDate.getMonth() + 1).toString().padStart(2, "0")}/${currentDate.getFullYear()}`;
                     }
-          
+
                     handleChange("deathDate", formatted);
                   }}
                   keyboardType="numeric"
@@ -460,7 +469,7 @@ function EsquelaCustomizer() {
               </>
             )
           }
-          
+
 
           <Text style={styles.formText}>Mensaje de despedida:</Text>
           <CustomTextInput
@@ -469,7 +478,7 @@ function EsquelaCustomizer() {
             value={formData.farewellMessage}
             maxLength={624}
             //multiline
-            onChangeText={(text) => {handleChange("farewellMessage", text)}}
+            onChangeText={(text) => { handleChange("farewellMessage", text) }}
           />
 
           <Text style={styles.formText}>Frase de despedida:</Text>
@@ -478,7 +487,7 @@ function EsquelaCustomizer() {
             placeholder="Frase de despedida"
             maxLength={90}
             value={formData.farewellPhrase}
-            onChangeText={(text) => {handleChange("farewellPhrase", text)}}
+            onChangeText={(text) => { handleChange("farewellPhrase", text) }}
           />
 
           {!is_sended && (
@@ -587,14 +596,14 @@ function EsquelaCustomizer() {
                   <TouchableOpacity
                     key={index}
                     style={[styles.colorBox, { backgroundColor: color }]}
-                    onPress={() => {handleColorSelect(color)}}
+                    onPress={() => { handleColorSelect(color) }}
                   />
                 );
               })}
             </View>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => {setColorPickerVisible(false)}}
+              onPress={() => { setColorPickerVisible(false) }}
             >
               <Text style={styles.buttonText}>Cancelar</Text>
             </TouchableOpacity>

@@ -15,6 +15,7 @@ import { AUTHORITIES } from "../_util/Authorities";
 import useAuth from "@/hooks/useAuth";
 import { ThemedView } from "@/components/ThemedView";
 import { ScrollView } from "react-native-gesture-handler";
+import { useNotification } from '@/context/NotificationContext';
 
 const { width } = Dimensions.get("window");
 
@@ -50,6 +51,7 @@ type Contact = {
 };
 
 function SelectContacts() {
+  const { showNotification } = useNotification();
   const { isAuthenticated } = useAuth();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<SelectContactsRouteProp>();
@@ -220,13 +222,21 @@ function SelectContacts() {
   const addContact = () => {
 
     if (!newContact.name || !newContact.phone || !newContact.email) {
-      window.alert("Todos los campos son obligatorios");
+      showNotification({
+        message: "Todos los campos son obligatorios",
+        type: "info",
+        duration: 2500,
+      });
       return;
     }
     const errors = validateData(newContact)
 
       if (errors && errors.length > 0) {
-        window.alert(errors.join("\n"));
+        showNotification({
+          message: `${errors.join("\n")}`,
+          type: "error",
+          duration: 2500,
+        });
         return;
       }
 
@@ -260,7 +270,11 @@ function SelectContacts() {
     try {
 
       if (contacts.length < 1) {
-        window.alert("Por favor, añada al menos un contacto");
+        showNotification({
+          message: "Debe añadir al menos un contacto",
+          type: "info",
+          duration: 2500,
+        });
         return;
       }
 

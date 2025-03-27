@@ -10,6 +10,7 @@ import { useCallback, useState } from "react";
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { AUTHORITIES } from "../_util/Authorities";
 import { withAuth } from "../_util/withAuth";
+import { useNotification } from '@/context/NotificationContext';
 
 type RootStackParamList = {
   "obituaries/loadCertificate": { jsonData: string },
@@ -20,6 +21,8 @@ const { width } = Dimensions.get("window");
 
 function LoadCertificate() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  const { showNotification } = useNotification();
 
   const [dni, setDni] = useState<string>("");
   const [certificateImage, setCertificateImage] = useState<string | null>(null);
@@ -44,7 +47,11 @@ function LoadCertificate() {
       });
 
       if (filteredAssets.length === 0) {
-        alert("Solo se permiten imágenes en formato PNG, JPG o JPEG.");
+        showNotification({
+          message: "Solo se permiten imágenes en formato PNG, JPG o JPEG.",
+          type: "info",
+          duration: 2500,
+        });
         return;
       }
       const fileUri = result.assets[0].uri;
@@ -86,7 +93,11 @@ function LoadCertificate() {
 
   const showConfirmationModal = async () => {
     if (!dni || !certificateImage) {
-      alert("Por favor, introduce el DNI y selecciona un archivo.");
+      showNotification({
+        message: "Por favor, introduce el DNI y selecciona un archivo.",
+        type: "info",
+        duration: 2500,
+      });
       return;
     }
     if (!validateDni(dni)) {
@@ -129,7 +140,11 @@ function LoadCertificate() {
       console.error("Error al enviar datos:", error);
       setModalVisible(false);
       const errorMessage = (error as any).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
-      alert(errorMessage);
+      showNotification({
+        message: `${errorMessage}`,
+        type: "info",
+        duration: 2500,
+      });
     }
   };
 
