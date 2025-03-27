@@ -419,7 +419,7 @@ function SelectContacts() {
 
 
         <Text style={styles.title}>Lista de contactos añadidos</Text>
-        <ScrollView style={styles.tableContainer} horizontal>
+        <ScrollView style={styles.tableContainer}>
           <View>
 
             <View style={styles.tableHeader}>

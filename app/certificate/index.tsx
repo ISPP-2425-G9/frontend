@@ -150,7 +150,6 @@ function LoadCertificate() {
           placeholder={dniError ? dniError : "DNI del fallecido"}
           value={dni}
           maxLength={9}
-          keyboardType="numeric"
           onChangeText={(value) => {
             let newValue = value.replace(/[^0-9A-Za-z]/g, "");
 
@@ -341,6 +340,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: width > 600 ? '40%': '80%',
   },
+
+  
 });
 
 export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER, AUTHORITIES.ANONYMOUS]);
