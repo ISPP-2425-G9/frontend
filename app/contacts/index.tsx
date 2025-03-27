@@ -7,17 +7,11 @@ import { ThemedText } from '@/components/ThemedText';
 import CustomTable from '@/components/CustomTable';
 import CustomButton from '@/components/CustomButton';
 import CustomModal from '@/components/CustomModal';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { GlobalStyles } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_API } from '@/constants/Mysc';
 
-type EmergencyContact = {
-  id: number;
-  name: string;
-  email: string;
-  telephone: string;
-};
 
 function EmergencyContactScreen() {
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
@@ -28,13 +22,13 @@ function EmergencyContactScreen() {
   const [contactEmail, setContactEmail] = useState('');
   const [contactPhone, setContactPhone] = useState('');
   const [showEditContactModal, setShowEditContactModal] = useState(false);
-  const [editedContact, setEditedContact] = useState<EmergencyContact | null>(null);
+  const [, setEditedContact] = useState<EmergencyContact | null>(null);
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [editFormErrors, setEditFormErrors] = useState<string[]>([]);
   const [selectedContactToEdit, setSelectedContactToEdit] = useState<EmergencyContact | null>(null);
-  const [hasContactChanges, setHasContactChanges] = useState(false);
-  const [loading, setLoading] = useState(true);
-  interface EmergencyContact {
+  const [, setLoading] = useState(true);
+
+  type EmergencyContact = {
     id: number;
     name: string;
     email: string;
