@@ -459,31 +459,6 @@ function SelectContacts() {
     </ScrollView>
   </View>
 </ScrollView>
-            <FlatList
-              data={contacts}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => (
-                <View style={styles.tableRow}>
-                  <Text style={styles.cell}>{item.name}</Text>
-                  <Text style={styles.cell}>{item.phone}</Text>
-                  <Text style={styles.cell}>{item.email}</Text>
-                  <CustomButton
-                    title="Eliminar"
-                    style={styles.deleteButton}
-                    color="red"
-                    onPress={() => {removeContact(item.id)}}
-                  />
-                  <CustomButton
-                    title="Editar"
-                    style={styles.editButton}
-                    onPress={() => {handleEditContact(item)}}
-                  />
-
-                </View>
-              )}
-            />
-          </View>
-        </ScrollView>
 
 
       </View><View style={styles.divider} />
