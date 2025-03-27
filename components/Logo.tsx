@@ -3,7 +3,7 @@ import React from 'react';
 import Svg, { Defs, G, Path, Polygon } from "react-native-svg"
 
 type LogoProps = {
-  color?: "blue" | "grey" | "red" | "white" | "darkGrey";
+  color?: "blue" | "grey" | "red" | "white" | "darkGrey" | "cementGrey";
   size?: number;
 };
 
@@ -13,6 +13,7 @@ const colors = {
   "red": GlobalStyles.red,
   "white": GlobalStyles.white,
   "darkGrey": GlobalStyles.darkGrey,
+  "cementGrey": GlobalStyles.cementGrey,
 };
 
 const Logo: React.FC<LogoProps> = ({ color = "blue", size=75 }) => {

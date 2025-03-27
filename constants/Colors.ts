@@ -29,6 +29,7 @@ export const Colors = {
 };
 
 export const GlobalStyles = {
+  cementGrey: '#BBBDB8',
   darkGrey: '#434343',
   grey: '#5C5C5C',
   lightGrey: '#e3e3e3',

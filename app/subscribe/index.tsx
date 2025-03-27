@@ -58,7 +58,7 @@ function PlanManagementView() {
       <Text style={styles.title}>Gestión de planes</Text>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={[styles.planContainer]}>
-          {role && <PlanCard role={role} fechaExpiracion={fechaExpiracion || undefined} />}
+          {role && user?.id && <PlanCard userId={user.id} role={role} fechaExpiracion={fechaExpiracion ?? undefined} />}
         </View>
       </ScrollView>
     </ThemedView>
