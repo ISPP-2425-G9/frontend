@@ -1,5 +1,7 @@
 # CARONTE - Frontend
 
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8a2b25799bbb4c179815520623e7a73d)](https://app.codacy.com/gh/ISPP-2425-G9/frontend/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+
 ## Descripción
 
 Caronte es la aplicación frontend desarrollada con Expo y React Native para proporcionar una interfaz intuitiva y accesible a los usuarios. Este proyecto permite la gestión de esquelas y mensajes post-mortem con un diseño moderno y adaptable a distintos dispositivos. Además, ofrecemos a empresas del sector funerario poder promocionarse en nuestra aplicación.

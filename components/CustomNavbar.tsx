@@ -108,7 +108,7 @@ const CustomNavbar = () => {
                                             <Text style={styles.dropdownNavItem}>Mensajes</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={() => { handleNavigation('contacts/index'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Contactos</Text>
+                                            <Text style={styles.dropdownNavItem}>Contactos de emergencia</Text>
                                         </TouchableOpacity>
                                     </>
                                 )}
@@ -213,7 +213,7 @@ const CustomNavbar = () => {
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => {handleNavigation('contacts/index')}}>
                                         <View>
-                                            <Text style={styles.navItem}>Contactos</Text>
+                                            <Text style={styles.navItem}>Contactos de emergencia</Text>
                                             {activeItem === 'contacts/index' && <View style={styles.activeIndicator} />}
                                         </View>
                                     </TouchableOpacity>
