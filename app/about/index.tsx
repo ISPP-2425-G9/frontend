@@ -1,5 +1,6 @@
+import { useFocusEffect } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, Animated } from 'react-native';
+import { Animated, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 const teamMembers = [
   { name: "Hugo Angulo Borrego", role: "Desarrollador Frontend", image: require('@/assets/images/team/hugo.png'), hobbies: "Amante de la tecnología y los gatos." },
@@ -22,6 +23,12 @@ const teamMembers = [
 const AboutUs = () => {
   const [fadeAnim] = useState(new Animated.Value(0));
 
+  useFocusEffect(
+    React.useCallback(() => {
+      document.title = 'Sobre nosotros';
+    }, [])
+  );
+
   useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -43,7 +50,7 @@ const AboutUs = () => {
             asegurando que sus últimas palabras y mensajes sean entregados en el momento preciso.
           </Animated.Text>
           <Animated.Text style={[styles.introText, { opacity: fadeAnim }]}>
-            Detrás de <Text style={styles.bold}>CARONTE</Text> hay un equipo de <Text style={styles.bold}>15 desarrolladores apasionados</Text> que han trabajado para hacer de esta idea una realidad. 
+            Detrás de <Text style={styles.bold}>CARONTE</Text> hay un equipo de <Text style={styles.bold}>15 desarrolladores apasionados</Text> que han trabajado para hacer de esta idea una realidad.
             Nuestro equipo está especializado en desarrollo full-stack, asegurando que la experiencia del usuario sea fluida y eficiente.
           </Animated.Text>
         </View>

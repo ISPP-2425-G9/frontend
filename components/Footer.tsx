@@ -1,10 +1,11 @@
-import { Linking, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
+import { Linking, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image, Platform } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome6";
 import { GlobalStyles } from "@/constants/Colors";
 import React, { useState } from "react";
 import TermsAndConditions from "./TermsAndConditions";
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from "./CustomButton";
+import Logo from "./Logo";
 
 const socialLinks = [
   { name: "instagram", url: "https://instagram.com/caronte_es" },
@@ -98,7 +99,11 @@ const Footer = () => {
     <View style={styles.footer}>
 
       <View style={styles.logoContainer}>
-          <Image source={require("../assets/images/banner.png")} style={styles.banner} />
+          {
+            Platform.OS === 'web' ?
+              <Image source={require("../assets/images/banner.png")} style={styles.banner} /> :
+              <Logo size={55} color="cementGrey"/>
+          }
       </View>
 
       <View style={styles.section}>

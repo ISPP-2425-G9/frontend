@@ -1,19 +1,17 @@
-import { useState, useEffect, useCallback } from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
-import { useNavigation, NavigationProp, useRoute, RouteProp, useFocusEffect } from "@react-navigation/native";
-import { Dimensions } from "react-native";
-import { TouchableOpacity } from "react-native";
+import CustomButton from "@/components/CustomButton";
+import CustomModal from "@/components/CustomModal";
+import { CustomTextInput } from "@/components/CustomTextInput";
+import { ThemedView } from "@/components/ThemedView";
+import { GlobalStyles } from "@/constants/Colors";
+import { BACKEND_API } from "@/constants/Mysc";
+import useAuth from "@/hooks/useAuth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
+import * as ImagePicker from "expo-image-picker";
+import { useCallback, useEffect, useState } from "react";
+import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { AUTHORITIES } from "../_util/Authorities";
 import { withAuth } from "../_util/withAuth";
-import * as ImagePicker from "expo-image-picker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import CustomButton from "@/components/CustomButton";
-import { CustomTextInput } from "@/components/CustomTextInput";
-import { GlobalStyles } from "@/constants/Colors";
-import { ThemedView } from "@/components/ThemedView";
-import useAuth from "@/hooks/useAuth";
-import CustomModal from "@/components/CustomModal";
-import { BACKEND_API } from "@/constants/Mysc";
 
 type RootStackParamList = {
   "obituaries/loadCertificate": {
