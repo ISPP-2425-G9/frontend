@@ -32,13 +32,15 @@ type RootStackParamList = {
     obituaryId: number,
     jsonData: string,
     is_mine: boolean;
+    selectedColor: string;
   };
   "obituaries/index": {
     is_newObituary: boolean,
     obituaryId: number,
     jsonData: string,
     changeDesign: boolean,
-    is_mine: boolean
+    is_mine: boolean, 
+    selectedColor: string
   };
 };
 
@@ -76,6 +78,8 @@ function EsquelaCustomizer() {
   const [isMine, setIsMine] = useState();
 
   const [is_sended, setIsSended] = useState(false);
+
+  const textColor = route.params?.selectedColor ?? "";
 
   const handleColorSelect = (color: string) => {
     setSelectedColor(color);
@@ -118,12 +122,14 @@ function EsquelaCustomizer() {
 
 
       if (jsonData && jsonData.trim() !== "") {
+        console.log("hola")
         try {
           const parsedData = JSON.parse(jsonData);
           setFormData((prev) => ({
             ...prev,
             ...parsedData,
           }));
+          setSelectedColor(textColor);
         } catch (error) {
           console.error("Error al parsear jsonData:", error);
         } finally {
@@ -219,7 +225,8 @@ function EsquelaCustomizer() {
       obituaryId,
       jsonData,
       changeDesign: true,
-      is_mine
+      is_mine, 
+      selectedColor
     });
   };
 
@@ -398,56 +405,62 @@ function EsquelaCustomizer() {
               handleChange("birthDate", formatted);
             }}
           />
-
-          <Text style={styles.formText}>Fecha de fallecimiento:</Text>
-          <CustomTextInput
-            style={{ width: "75%" }}
-            placeholder={is_mine ? "La fecha de fallecimiento (se añadirá automáticamente)" : "Fecha de fallecimiento (dd/mm/aaaa)"}
-            value={formData.deathDate}
-            maxLength={12}
-            editable={!is_mine ? true : false}
-            onChangeText={(text) => {
-              let cleaned = text.replace(/\D/g, "");
-              let day = "";
-              let month = "";
-              let year = "";
-              if (cleaned.length >= 1) day = cleaned.slice(0, 2);
-              if (cleaned.length >= 3) month = cleaned.slice(2, 4);
-              if (cleaned.length >= 5) year = cleaned.slice(4, 8);
-              if (day.length === 2) {
-                let dayNum = parseInt(day, 10);
-                if (dayNum > 31) day = "31";
-                else if (dayNum < 1) day = "01";
-                else day = dayNum.toString().padStart(2, "0");
-              }
-              if (month.length === 2) {
-                let monthNum = parseInt(month, 10);
-                if (monthNum > 12) month = "12";
-                else if (monthNum < 1) month = "01";
-                else month = monthNum.toString().padStart(2, "0");
-              }
-              if (year.length === 4) {
-                let yearNum = parseInt(year, 10);
-                if (yearNum < 1800) year = "1800";
-                else if (yearNum > 2025) year = "2025";
-                else year = yearNum.toString();
-              }
-              let formatted = day;
-              if (month) formatted += "/" + month;
-              if (year) formatted += "/" + year;
-              if (formatted.length > 10) formatted = formatted.slice(0, 10);
-
-              const currentDate = new Date();
-              const inputDate = new Date(`${year}-${month}-${day}`);
-
-              if (inputDate > currentDate) {
-                formatted = `${currentDate.getDate().toString().padStart(2, "0")}/${(currentDate.getMonth() + 1).toString().padStart(2, "0")}/${currentDate.getFullYear()}`;
-              }
-
-              handleChange("deathDate", formatted);
-            }}
-            keyboardType="numeric"
-          />
+          {
+            !is_mine && (
+              <>
+                <Text style={styles.formText}>Fecha de fallecimiento:</Text>
+                <CustomTextInput
+                  style={{ width: "75%" }}
+                  placeholder={is_mine ? "La fecha de fallecimiento (se añadirá automáticamente)" : "Fecha de fallecimiento (dd/mm/aaaa)"}
+                  value={formData.deathDate}
+                  maxLength={12}
+                  editable={!is_mine ? true : false}
+                  onChangeText={(text) => {
+                    let cleaned = text.replace(/\D/g, "");
+                    let day = "";
+                    let month = "";
+                    let year = "";
+                    if (cleaned.length >= 1) day = cleaned.slice(0, 2);
+                    if (cleaned.length >= 3) month = cleaned.slice(2, 4);
+                    if (cleaned.length >= 5) year = cleaned.slice(4, 8);
+                    if (day.length === 2) {
+                      let dayNum = parseInt(day, 10);
+                      if (dayNum > 31) day = "31";
+                      else if (dayNum < 1) day = "01";
+                      else day = dayNum.toString().padStart(2, "0");
+                    }
+                    if (month.length === 2) {
+                      let monthNum = parseInt(month, 10);
+                      if (monthNum > 12) month = "12";
+                      else if (monthNum < 1) month = "01";
+                      else month = monthNum.toString().padStart(2, "0");
+                    }
+                    if (year.length === 4) {
+                      let yearNum = parseInt(year, 10);
+                      if (yearNum < 1800) year = "1800";
+                      else if (yearNum > 2025) year = "2025";
+                      else year = yearNum.toString();
+                    }
+                    let formatted = day;
+                    if (month) formatted += "/" + month;
+                    if (year) formatted += "/" + year;
+                    if (formatted.length > 10) formatted = formatted.slice(0, 10);
+          
+                    const currentDate = new Date();
+                    const inputDate = new Date(`${year}-${month}-${day}`);
+          
+                    if (inputDate > currentDate) {
+                      formatted = `${currentDate.getDate().toString().padStart(2, "0")}/${(currentDate.getMonth() + 1).toString().padStart(2, "0")}/${currentDate.getFullYear()}`;
+                    }
+          
+                    handleChange("deathDate", formatted);
+                  }}
+                  keyboardType="numeric"
+                />
+              </>
+            )
+          }
+          
 
           <Text style={styles.formText}>Mensaje de despedida:</Text>
           <CustomTextInput

@@ -215,7 +215,7 @@ function LoadCertificate() {
   return isAuthenticated ? (
     <View style={styles.container}>
       <View style={styles.introContainer}>
-        <Text style={styles.introTitle}>Certificados de defunción 📜</Text>
+        <Text style={styles.introTitle}>📜 Certificados de defunción 📜</Text>
         <Text style={styles.introText}>
           En esta sección, tiene que cargar el certificado de defunción de la persona fallecida.
         </Text>
@@ -227,7 +227,7 @@ function LoadCertificate() {
         </Text>
       </View>
       <View style={styles.dataContainer}>
-        <Text style={styles.title}>Carga el certificado de defunción</Text>
+        <Text style={styles.title}>Datos del fallecido</Text>
 
         <Text style={{ textAlign: 'left' }}>DNI:</Text>
         <CustomTextInput
@@ -268,18 +268,22 @@ function LoadCertificate() {
           />
         )}
 
-        {fileName && (
+        {fileName ? (
           <Text style={styles.fileNameText}>
             Archivo subido: {fileName}
+          </Text>
+        ) : (
+          <Text style={styles.acceptedFormats}>
+            Formatos aceptados: PNG, JPG, JPEG
           </Text>
         )}
 
       </View>
-      <View style={styles.divider} />
       <View style={styles.buttonContainer}>
-        <CustomButton title="Seleccionar archivo" onPress={pickImage} />
+        <CustomButton title="Seleccionar archivo" style={styles.certificateButton} textStyle={styles.certificateText} onPress={pickImage} />
         <CustomButton
           title={is_newObituary ? "Pagar esquela (1,99 €)" : "Actualizar esquela"}
+          style={styles.certificateButton} textStyle={styles.certificateText}
           onPress={() => {
             if (is_newObituary) {
               void showConfirmationModal();
@@ -338,7 +342,7 @@ const styles = StyleSheet.create({
     paddingTop: 30,
   },
   infoText: {
-    fontSize: 14,
+    fontSize: 10,
     color: GlobalStyles.white,
     textAlign: "center",
     marginTop: 10,
@@ -346,7 +350,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   title: {
-    fontSize: 30,
+    fontSize: 26,
     fontWeight: "bold",
     marginBottom: 10,
   },
@@ -423,7 +427,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   introTitle: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: 'bold',
     color: GlobalStyles.darkGrey,
     marginBottom: 10,
@@ -436,6 +440,24 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 3,
   },
+  certificateButton: {
+    height: width > 600 ? 60 : 50
+  }, 
+  certificateText: {
+    fontSize: width > 600 ? 18: 16,
+  }, 
+  dniStyle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+acceptedFormats: {
+  marginTop: 8,
+  fontSize: 16,
+  color: GlobalStyles.darkGrey,
+  fontStyle: 'italic',
+},
+  
 });
 
 export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER]);

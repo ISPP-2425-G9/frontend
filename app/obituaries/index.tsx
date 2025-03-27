@@ -20,7 +20,8 @@ type RootStackParamList = {
      is_newObituary: boolean, 
      obituaryId: number,
      jsonData: string, 
-     is_mine: boolean
+     is_mine: boolean, 
+     selectedColor: string,
     };
   'obituaries/listMyObituaries': undefined;
   'obituaries/index': { 
@@ -28,7 +29,8 @@ type RootStackParamList = {
      obituaryId: number, 
      jsonData: string, 
      changeDesign: boolean,
-     is_mine: boolean
+     is_mine: boolean, 
+     selectedColor: string,
     };
 
 };
@@ -57,6 +59,8 @@ function ObituaryIndex() {
   const [loading, setLoading] = useState(true);
 
   const changeDesign = route.params?.changeDesign ?? false;
+
+  const jsonData = route.params?.jsonData ?? undefined;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -97,13 +101,15 @@ function ObituaryIndex() {
 
     const obituaryId = route.params?.obituaryId ?? undefined;
     const jsonData = route.params?.jsonData ?? undefined;    
+    const selectedColor = route.params?.selectedColor ?? undefined;
     navigation.navigate('obituaries/createObituary', { 
       imageTemplateId: selectedObituary.id, 
       imageUrl: selectedObituary.imageUrl,
       is_newObituary,
       obituaryId,
       jsonData, 
-      is_mine: true
+      is_mine: true, 
+      selectedColor,
 
     });
 
@@ -115,13 +121,16 @@ function ObituaryIndex() {
 
     const obituaryId = route.params?.obituaryId ?? undefined;
     const jsonData = route.params?.jsonData ?? undefined;    
+    const selectedColor = route.params?.selectedColor ?? undefined;
+    console.log("selectedColor", selectedColor);
     navigation.navigate('obituaries/createObituary', { 
       imageTemplateId: selectedObituary.id, 
       imageUrl: selectedObituary.imageUrl,
       is_newObituary,
       obituaryId,
       jsonData, 
-      is_mine: false
+      is_mine: false, 
+      selectedColor,
     });    
 
     setModalVisible(false);
@@ -162,6 +171,7 @@ function ObituaryIndex() {
                   obituaryId: route.params?.obituaryId ?? undefined,
                   jsonData: route.params?.jsonData ?? undefined,
                   is_mine: route.params?.is_mine ,
+                  selectedColor: route.params?.selectedColor ?? undefined,
                 });
               } else {
                 showConfirmationModal(item.id, item.imageUrl);
@@ -198,9 +208,9 @@ function ObituaryIndex() {
         </CustomModal>
       )}
 
-      <View style={styles.divider} />
+
         <View style={styles.buttonContainer}>
-          <CustomButton title="Tus esquelas" onPress={() => {navigation.navigate('obituaries/listMyObituaries')}} />
+          <CustomButton title="Tus esquelas"  style ={{height: 70}}   textStyle={{ fontSize: 22 }}  onPress={() => {navigation.navigate('obituaries/listMyObituaries')}} />
         </View>   
       </ThemedView>
   ) : (

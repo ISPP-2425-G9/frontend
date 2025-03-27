@@ -157,18 +157,20 @@ function LoadCertificate() {
     <View style={styles.container}>
 
       <View style={styles.introContainer}>
-        <Text style={styles.introTitle}>Certificados de defunción 📜</Text>
+        <Text style={styles.introTitle}>📜 Certificados de defunción 📜</Text>
         <Text style={styles.introText}>
           En esta sección, puedes cargar el certificado de defunción de un ser querido que haya contratado nuestros servicios.
         </Text>
         <Text style={styles.introText}>
           Una vez verificado, las esquelas y/o mensajes previamente creados serán enviados a los contactos seleccionados.
         </Text>
+        <Text style={styles.introText}>
+          Para ello necesitamos que introduzcas el DNI del fallecido y subas el certificado de defunción.
+        </Text>
       </View>
       <View style={styles.dataContainer}>
-        <Text style={styles.title}>Carga el certificado de defunción</Text>
 
-        <Text>DNI:</Text>
+        <Text style={styles.dniStyle}> DNI</Text>
         <CustomTextInput
           placeholder={dniError ? dniError : "Dni del fallecido"}
           value={dni}
@@ -207,18 +209,21 @@ function LoadCertificate() {
           />
         )}
 
-        {fileName && (
-          <Text style={styles.fileNameText}>
-            Archivo subido: {fileName}
-          </Text>
-        )}
+      {fileName ? (
+        <Text style={styles.fileNameText}>
+          Archivo subido: {fileName}
+        </Text>
+      ) : (
+        <Text style={styles.acceptedFormats}>
+          Formatos aceptados: PNG, JPG, JPEG
+        </Text>
+      )}
 
       </View>
-      <View style={styles.divider} />
       <View style={styles.buttonContainer}>
-        <CustomButton title="Seleccionar archivo" onPress={pickImage} />
-        <CustomButton title="Subir certificado" onPress={showConfirmationModal} />
-      </View>
+        <CustomButton title="Seleccionar archivo" style={styles.certificateButton} textStyle={styles.certificateText} onPress={pickImage} />
+        <CustomButton title="Subir certificado de defunción" style={styles.certificateButton} textStyle={styles.certificateText}onPress={showConfirmationModal} />
+      </View> 
 
       {modalVisible && (
         <CustomModal
@@ -248,7 +253,7 @@ function LoadCertificate() {
         <CustomModal
           visible={successMessageVisible}
           onClose={() => {setSuccessMessageVisible(false)}}
-          title="¡Datos enviados con éxito!✅"
+          title="¡Certificado de defunción subido con éxito!✅"
           style={styles.successModal}
         >
           <View style={styles.buttonContainer}>
@@ -296,12 +301,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginBottom: 16,
     fontSize: 16,
-  },
-  divider: {
-    height: 1,
-    width: "100%",
-    backgroundColor: "#ccc",
-    marginVertical: 20,
   },
   buttonContainer: {
     alignItems: "center",
@@ -378,6 +377,24 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 3,
   },
+  acceptedFormats: {
+    marginTop: 8,
+    fontSize: 16,
+    color: GlobalStyles.darkGrey,
+    fontStyle: 'italic',
+  },
+  certificateButton: {
+    height: width > 600 ? 60 : 50
+  }, 
+  certificateText: {
+    fontSize: width > 600 ? 18: 16,
+  }, 
+  dniStyle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  
 });
 
 export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER, AUTHORITIES.ANONYMOUS]);
