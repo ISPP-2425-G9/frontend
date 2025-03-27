@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView, FlatList, Pressable, Dimensions, Image } from 'react-native';
+import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView, FlatList, Pressable, Dimensions, Image, Platform, Alert } from 'react-native';
 import { GlobalStyles } from '@/constants/Colors';
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
@@ -7,18 +7,28 @@ import { useState } from 'react';
 import CustomButton from '@/components/CustomButton';
 import { AntDesign } from '@expo/vector-icons';
 import * as ImagePicker from "expo-image-picker";
-
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { BACKEND_API } from '@/constants/Mysc';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const { width } = Dimensions.get("window");
 
+type RootStackParamList = {
+  'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number };
+  //'messages/listMyMessages': {messageId: number};
+  'messages/listMyMessages': undefined;
+};
+
 function MessageCreation() {
+
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const [selectedMedia, setSelectedMedia] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     title: '',
-    text: '',
+    body: '',
     customImages: [] as string[],
   });
 
@@ -62,14 +72,50 @@ function MessageCreation() {
   };
 
 
+  const createMessage = async () => {
+
+    console.log("formData", formData);
+
+    const dataToSend = {
+      formData
+    };
+
+    console.log("dataToSend", dataToSend);
+
+    try {
+      const authToken = await AsyncStorage.getItem('authToken');
+      if (!authToken) throw new Error('No se encontró un token de autenticación');
+
+      const response = await fetch(BACKEND_API + '/api/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken.trim()}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        navigation.navigate("messages/listMyMessages" as never);
+      } else {
+        const errorText = await response.text(); // Obtener mensaje de error del backend
+        throw new Error(`Error en la creación del mensaje 1: ${errorText}`);
+      }
+    } catch (error: any) {
+      console.error("Error en la creación del mensaje 2:", error.message);
+      window.alert(`Error en la creación del mensaje 2: ${error.message}`);
+    }
+  };
+
+
+
 
   const handleChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
   };
 
   const handleSaveMessage = () => {
-    console.log('Mensaje guardado:', formData);
-    alert("Esta función estará disponible muy pronto!")
+    createMessage();
   };
 
   const handleMediaPress = (uri: string) => {
@@ -202,8 +248,8 @@ function MessageCreation() {
           placeholder="Texto personalizado"
           maxLength={20000}
           multiline={true}
-          value={formData.text}
-          onChangeText={(text) => { setFormData({ ...formData, text: text }); }}
+          value={formData.body}
+          onChangeText={(text) => { setFormData({ ...formData, body: text }); }}
         />
 
         <View style={styles.buttonContainer}>
@@ -334,7 +380,7 @@ function MessageCreation() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 30,
+    paddingTop: 10,
     flexGrow: 1,
     flexDirection: width > 600 ? 'row' : 'column',
     justifyContent: 'space-between',

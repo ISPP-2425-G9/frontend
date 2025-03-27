@@ -104,7 +104,7 @@ const CustomNavbar = () => {
                                 )}
                                 {isAuthenticated && userRoles?.includes("CUSTOMER_PREMIUM") && (
                                     <>
-                                        <TouchableOpacity onPress={() => { handleNavigation('messages/index'); setMenuOpen(false); }}>
+                                        <TouchableOpacity onPress={() => { handleNavigation('messages/listMyMessages'); setMenuOpen(false); }}>
                                             <Text style={styles.dropdownNavItem}>Mensajes</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={() => { handleNavigation('contacts/index'); setMenuOpen(false); }}>
@@ -205,10 +205,10 @@ const CustomNavbar = () => {
                             )}
                             {isAuthenticated && userRoles?.includes("CUSTOMER_PREMIUM") && (
                                 <>
-                                    <TouchableOpacity onPress={() => {handleNavigation('messages/index')}}>
+                                    <TouchableOpacity onPress={() => {handleNavigation('messages/listMyMessages')}}>
                                         <View>
                                             <Text style={styles.navItem}>Mensajes</Text>
-                                            {activeItem === 'messages/index' && <View style={styles.activeIndicator} />}
+                                            {activeItem === 'messages/listMyMessages' && <View style={styles.activeIndicator} />}
                                         </View>
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => {handleNavigation('contacts/index')}}>
