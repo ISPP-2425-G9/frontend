@@ -1,19 +1,15 @@
-import { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Image } from "react-native";
-import { useNavigation, NavigationProp, useRoute, RouteProp } from "@react-navigation/native";
-import { Dimensions } from "react-native";
-import { TouchableOpacity } from "react-native";
-import { AUTHORITIES } from "../_util/Authorities";
-import { withAuth } from "../_util/withAuth";
-import * as ImagePicker from "expo-image-picker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomButton from "@/components/CustomButton";
 import CustomModal from "@/components/CustomModal";
 import { CustomTextInput } from "@/components/CustomTextInput";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
-import { useFocusEffect } from '@react-navigation/native';
-import { useCallback } from 'react';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { NavigationProp, useFocusEffect, useNavigation } from "@react-navigation/native";
+import * as ImagePicker from "expo-image-picker";
+import { useCallback, useState } from "react";
+import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { AUTHORITIES } from "../_util/Authorities";
+import { withAuth } from "../_util/withAuth";
 
 type RootStackParamList = {
   "obituaries/loadCertificate": { jsonData: string },
@@ -54,6 +50,7 @@ function LoadCertificate() {
       setCertificateImage(null);
       setFileName(null);
       setDniError("");
+      document.title = 'Cargar certificado';
     }, [])
   );
 
@@ -148,9 +145,9 @@ function LoadCertificate() {
       <View style={styles.dataContainer}>
         <Text style={styles.title}>Carga el certificado de defunción</Text>
 
-        <Text>DNI:</Text>
+        <Text style={styles.text}>DNI:</Text>
         <CustomTextInput
-          placeholder={dniError ? dniError : "Dni del fallecido"}
+          placeholder={dniError ? dniError : "DNI del fallecido"}
           value={dni}
           maxLength={9}
           keyboardType="numeric"
@@ -227,7 +224,7 @@ function LoadCertificate() {
       {successMessageVisible && (
         <CustomModal
           visible={successMessageVisible}
-          onClose={() => setSuccessMessageVisible(false)}
+          onClose={() => {setSuccessMessageVisible(false)}}
           title="¡Datos enviados con éxito!✅"
           style={styles.successModal}
         >
@@ -251,7 +248,6 @@ function LoadCertificate() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 8,
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-start",
@@ -261,12 +257,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingTop: 120,
+    paddingTop: '2%',
+    width: "90%",
+    maxWidth: 500,
   },
   title: {
     fontSize: 30,
     fontWeight: "bold",
+    marginBottom: 30,
+  },
+  text: {
+    fontSize: 16,
+    fontWeight: "bold",
     marginBottom: 10,
+    marginLeft: '1%',
+    alignSelf: 'flex-start',
   },
   input: {
     width: "100%",
@@ -288,8 +293,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: "1%",
     flexDirection: "row",
-    width: "35%",
-    gap: "2%",
+    width: '100%',
+    gap: '2%',
   },
   fileNameText: {
     marginTop: 10,
@@ -310,10 +315,11 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: GlobalStyles.blue,
-    paddingVertical: 12,
     paddingHorizontal: 25,
+    width: '13%',
     borderRadius: 8,
     alignItems: "center",
+    alignSelf: "center",
   },
   modalStyle: {
     backgroundColor: "#fff",

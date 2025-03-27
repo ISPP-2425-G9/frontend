@@ -314,7 +314,7 @@ function ProfileScreen() {
         <TextInput
           style={styles.input}
           value={value}
-          onChangeText={(text) => handleInputChange(field, text)}
+          onChangeText={(text) => {handleInputChange(field, text)}}
           placeholder={placeholder}
           placeholderTextColor={'#666'}
         />
@@ -340,7 +340,7 @@ function ProfileScreen() {
               : styles.inputCompany
           }
           value={value}
-          onChangeText={(text) => handleInputChangeCompany(field, text)}
+          onChangeText={(text) => {handleInputChangeCompany(field, text)}}
           placeholder={placeholder}
           placeholderTextColor={'#666'}
           multiline={field === 'description'}

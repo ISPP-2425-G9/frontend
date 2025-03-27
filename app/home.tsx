@@ -18,7 +18,7 @@ export default function HomeScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
-      document.title = 'Inicio';
+      document.title = 'CARONTE';
     }, [])
   );
 
