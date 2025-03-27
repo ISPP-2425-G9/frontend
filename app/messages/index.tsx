@@ -3,26 +3,34 @@ import { GlobalStyles } from '@/constants/Colors';
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
 import CustomTextInput from '@/components/CustomTextInput';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CustomButton from '@/components/CustomButton';
 import { AntDesign } from '@expo/vector-icons';
 import * as ImagePicker from "expo-image-picker";
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp, useRoute, RouteProp } from '@react-navigation/native';
 import { BACKEND_API } from '@/constants/Mysc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNotification } from '@/context/NotificationContext';
 
 
 const { width } = Dimensions.get("window");
 
 type RootStackParamList = {
-  'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number };
   //'messages/listMyMessages': {messageId: number};
-  'messages/listMyMessages': undefined;
+  'messages/listMyMessages': { messageId: number } | undefined;
+  'messages/index': { messageId: number } | undefined;
+
 };
 
 function MessageCreation() {
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  const route = useRoute<RouteProp<RootStackParamList, 'messages/listMyMessages'>>();
+
+  //const messageId = route.params?.messageId;
+
+  const { showNotification } = useNotification();
 
   const [selectedMedia, setSelectedMedia] = useState<string | null>(null);
 
@@ -55,12 +63,19 @@ function MessageCreation() {
       });
 
       if (formData.customImages.length >= 5) {
-        alert("No puedes añadir más de 5 imágenes.");
-        return;
+        showNotification({
+          message: "No puedes añadir mas de 5 imágenes",
+          duration: 2500,
+          type: "info",
+        });
       }
 
       if (filteredAssets.length === 0) {
-        alert(`Solo se permiten fotos en formato jpg, jpeg y png. El tamaño máximo es de ${maxSizeMB} MB.`);
+        showNotification({
+          message: `Solo se permiten fotos en formato jpg, jpeg y png. El tamaño máximo es de ${maxSizeMB} MB.`,
+          type: "info",
+          duration: 2500,
+        });
         return;
       }
 
@@ -71,16 +86,38 @@ function MessageCreation() {
     }
   };
 
+  // useEffect(() => {
+  //   const fetchMessageData = async () => {
+  //     if (!messageId) return;
+  //     try {
+  //       const authToken = await AsyncStorage.getItem('authToken');
+  //       const response = await fetch(`${BACKEND_API}/api/messages/${messageId}`, {
+  //         method: 'GET',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           'Authorization': `Bearer ${authToken}`,
+  //         },
+  //       });
+
+  //       if (response.ok) {
+  //         const data = await response.json();
+  //         console.log("dataaatatat", data);
+  //         setFormData(data);
+  //       } else {
+  //         console.error('Error al obtener los datos del mensaje');
+  //       }
+  //     } catch (error) {
+  //       console.error('Error en la solicitud:', error);
+  //     }
+  //   };
+
+  //   fetchMessageData();
+  // }, [messageId]);
+
 
   const createMessage = async () => {
 
     console.log("formData", formData);
-
-    const dataToSend = {
-      formData
-    };
-
-    console.log("dataToSend", dataToSend);
 
     try {
       const authToken = await AsyncStorage.getItem('authToken');
@@ -98,7 +135,7 @@ function MessageCreation() {
       if (response.ok) {
         navigation.navigate("messages/listMyMessages" as never);
       } else {
-        const errorText = await response.text(); // Obtener mensaje de error del backend
+        const errorText = await response.text();
         throw new Error(`Error en la creación del mensaje 1: ${errorText}`);
       }
     } catch (error: any) {
@@ -153,12 +190,21 @@ function MessageCreation() {
   const addContact = () => {
 
     if (!newContact.name || !newContact.phone || !newContact.email) {
-      window.alert("Todos los campos son obligatorios");
+      showNotification({
+        message: `Todos los campos son obligatorios`,
+        type: "info",
+        duration: 2500,
+      });
       return;
     }
     const errors = validateData(newContact);
     if (errors && errors.length > 0) {
       window.alert(errors.join("\n"));
+      showNotification({
+        message: `${errors.join("\n")}`,
+        type: "info",
+        duration: 2500,
+      });
       return;
     }
 
@@ -215,8 +261,8 @@ function MessageCreation() {
 
   // Logica para poner modal a true
   const handleSelectContacts = () => {
-    alert("Esta función estará disponible muy pronto!");
-    //setIsContactModalVisible(true);
+    //alert("Esta función estará disponible muy pronto!");
+    setIsContactModalVisible(true);
   };
 
   const handleEditContact = (contact: { id: number; name: string; phone: string; email: string; }) => {
@@ -287,7 +333,6 @@ function MessageCreation() {
             <Text style={styles.previewMessage}>No se ha seleccionado ningún archivo</Text>
           )}
         </View>
-
         <View style={styles.mediaItems}>
           <ScrollView horizontal>
             {formData.customImages.length > 0 &&
@@ -298,82 +343,85 @@ function MessageCreation() {
               ))}
           </ScrollView>
         </View>
+
       </View>
 
-      {isContactModalVisible && (
-        <View style={styles.modalContactContainer}>
-          <Pressable style={styles.closeButton} onPress={() => { setIsContactModalVisible(false); }}>
-            <AntDesign name="close" size={24} color="#434343" />
-          </Pressable>
+      {
+    isContactModalVisible && (
+      <View style={styles.modalContactContainer}>
+        <Pressable style={styles.closeButton} onPress={() => { setIsContactModalVisible(false); }}>
+          <AntDesign name="close" size={24} color="#434343" />
+        </Pressable>
 
-          <Text style={styles.contactTitle}>Agrega a tus contactos</Text>
+        <Text style={styles.contactTitle}>Agrega a tus contactos</Text>
 
-          <View style={styles.contactContainer}>
-            <CustomTextInput
-              placeholder="Nombre"
-              value={newContact.name}
-              maxLength={50}
-              onChangeText={(text) => { handleChangeContact("name", text); }}
-              style={styles.input}
-            />
-            <CustomTextInput
-              placeholder="Teléfono (sin prefijo)"
-              value={newContact.phone}
-              maxLength={11}
-              keyboardType="phone-pad"
-              onChangeText={(text) => {
-                const numericText = text.replace(/\D/g, "");
-                const formattedText = numericText.replace(/(\d{3})/g, "$1 ").trim();
-                handleChangeContact("phone", formattedText);
-              }}
-              style={styles.input}
-            />
-            <CustomTextInput
-              placeholder="Email"
-              value={newContact.email}
-              maxLength={50}
-              keyboardType="email-address"
-              onChangeText={(text) => { handleChangeContact("email", text); }}
-              style={styles.input}
-            />
-            <CustomButton style={styles.addButton} title="Añadir" onPress={addContact} />
-          </View>
-
-          <Text style={styles.contactTitle}>Lista de contactos añadidos</Text>
-          <View style={styles.tableContainer}>
-            <View style={styles.tableHeader}>
-              <Text style={styles.headerCell}>Nombre</Text>
-              <Text style={styles.headerCell}>Teléfono</Text>
-              <Text style={styles.headerCell}>Email</Text>
-              <Text style={styles.headerCell}>Acción</Text>
-            </View>
-
-            <FlatList
-              data={contacts}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => (
-                <View style={styles.tableRow}>
-                  <Text style={styles.cell}>{item.name}</Text>
-                  <Text style={styles.cell}>{item.phone}</Text>
-                  <Text style={styles.cell}>{item.email}</Text>
-                  <CustomButton
-                    title="Eliminar"
-                    style={styles.deleteButton}
-                    color="red"
-                    onPress={() => { removeContact(item.id); }}
-                  />
-                  <CustomButton
-                    title="Editar"
-                    style={styles.editButton}
-                    onPress={() => { handleEditContact(item); }}
-                  />
-                </View>
-              )}
-            />
-          </View>
+        <View style={styles.contactContainer}>
+          <CustomTextInput
+            placeholder="Nombre"
+            value={newContact.name}
+            maxLength={50}
+            onChangeText={(text) => { handleChangeContact("name", text); }}
+            style={styles.input}
+          />
+          <CustomTextInput
+            placeholder="Teléfono (sin prefijo)"
+            value={newContact.phone}
+            maxLength={11}
+            keyboardType="phone-pad"
+            onChangeText={(text) => {
+              const numericText = text.replace(/\D/g, "");
+              const formattedText = numericText.replace(/(\d{3})/g, "$1 ").trim();
+              handleChangeContact("phone", formattedText);
+            }}
+            style={styles.input}
+          />
+          <CustomTextInput
+            placeholder="Email"
+            value={newContact.email}
+            maxLength={50}
+            keyboardType="email-address"
+            onChangeText={(text) => { handleChangeContact("email", text); }}
+            style={styles.input}
+          />
+          <CustomButton style={styles.addButton} title="Añadir" onPress={addContact} />
         </View>
-      )}
-    </ScrollView>
+
+        <Text style={styles.contactTitle}>Lista de contactos añadidos</Text>
+        <View style={styles.tableContainer}>
+          <View style={styles.tableHeader}>
+            <Text style={styles.headerCell}>Nombre</Text>
+            <Text style={styles.headerCell}>Teléfono</Text>
+            <Text style={styles.headerCell}>Email</Text>
+            <Text style={styles.headerCell}>Acción</Text>
+          </View>
+
+          <FlatList
+            data={contacts}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.tableRow}>
+                <Text style={styles.cell}>{item.name}</Text>
+                <Text style={styles.cell}>{item.phone}</Text>
+                <Text style={styles.cell}>{item.email}</Text>
+                <CustomButton
+                  title="Eliminar"
+                  style={styles.deleteButton}
+                  color="red"
+                  onPress={() => { removeContact(item.id); }}
+                />
+                <CustomButton
+                  title="Editar"
+                  style={styles.editButton}
+                  onPress={() => { handleEditContact(item); }}
+                />
+              </View>
+            )}
+          />
+        </View>
+      </View>
+    )
+  }
+    </ScrollView >
 
   );
 }
