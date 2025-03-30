@@ -466,7 +466,7 @@ function SelectContacts() {
                     <CustomButton
                         title="Editar"
                         style={styles.editButton}
-                        onPress={() => handleEditContact(item)}
+                    onPress={() => { handleEditContact(item); }}
                       />
                       <CustomButton
                         title="Eliminar"
