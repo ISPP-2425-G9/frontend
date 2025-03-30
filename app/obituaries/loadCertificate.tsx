@@ -12,6 +12,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { AUTHORITIES } from "../_util/Authorities";
 import { withAuth } from "../_util/withAuth";
+import { useNotification } from '@/context/NotificationContext';
 
 type RootStackParamList = {
   "obituaries/loadCertificate": {
@@ -33,6 +34,7 @@ const { width } = Dimensions.get("window");
 function LoadCertificate() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
+  const { showNotification } = useNotification();
 
   const route = useRoute<ObituaryLoadCertificateRouteProp>();
   const is_newObituary = route.params?.is_newObituary;
@@ -82,9 +84,6 @@ function LoadCertificate() {
         }
         );
 
-        console.log('Status Code:', response.status); // Verifica el código de estado
-        console.log('Response:', await response.text()); // Verifica el contenido de la respuesta
-
         if (!response.ok) throw new Error("Error al obtener los datos");
         const data = await response.json();
         setDni(data.dni);
@@ -113,7 +112,22 @@ function LoadCertificate() {
       quality: 1,
     });
 
-    if (!result.canceled) {
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const allowedFormats = ["png", "jpg", "jpeg"];
+      const filteredAssets = result.assets.filter(asset => {
+        const fileExtension = asset.mimeType ? asset.mimeType.split("/")[1] : '';
+        return allowedFormats.includes(fileExtension);
+      });
+
+      if (filteredAssets.length === 0) {
+        showNotification({
+          message: "Solo se permiten imágenes en formato PNG, JPG o JPEG.",
+          type: "info",
+          duration: 2500,
+        });
+        return;
+      }
+      
       const fileUri = result.assets[0].uri;
       const fileName = result.assets[0].fileName || null;
       setFormData({ ...formData, certificateImage: fileUri });
@@ -145,7 +159,11 @@ function LoadCertificate() {
 
   const showConfirmationModal = async () => {
     if (!dni || !certificateImage) {
-      alert("Por favor, introduce el DNI y selecciona un archivo.");
+      showNotification({
+        message: "Por favor, introduce el DNI y selecciona un archivo.",
+        type: "info",
+        duration: 2500,
+      });
       return;
     }
     if (!validateDni(dni)) {
@@ -198,21 +216,37 @@ function LoadCertificate() {
     } catch (error) {
       console.error("Error al enviar datos:", error);
       const errorMessage = (error as Error).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
-      alert(errorMessage);
+      showNotification({
+        message: `${errorMessage}`,
+        type: "error",
+        duration: 2500,
+      });
     }
   };
 
   return isAuthenticated ? (
     <View style={styles.container}>
+      <View style={styles.introContainer}>
+        <Text style={styles.introTitle}>📜 Certificados de defunción 📜</Text>
+        <Text style={styles.introText}>
+          En esta sección, tiene que cargar el certificado de defunción de la persona fallecida.
+        </Text>
+        <Text style={styles.introText}>
+          Este certificado será verificado por un administrador del sistema para garantizar su autenticidad.
+        </Text>
+        <Text style={styles.introText}>
+          Una vez verificado, la esquela será enviada a los familiares y amigos seleccionados.
+        </Text>
+      </View>
       <View style={styles.dataContainer}>
-        <Text style={styles.title}>Carga el certificado de defunción</Text>
+        <Text style={styles.title}>Datos del fallecido</Text>
 
         <Text style={{ textAlign: 'left' }}>DNI:</Text>
         <CustomTextInput
           placeholder={dniError ? dniError : "Dni del fallecido"}
           value={dni}
           maxLength={9}
-          keyboardType="numeric"
+          keyboardType="default"
           onChangeText={(value) => {
             let newValue = value.replace(/[^0-9A-Za-z]/g, "");
 
@@ -246,18 +280,22 @@ function LoadCertificate() {
           />
         )}
 
-        {fileName && (
+        {fileName ? (
           <Text style={styles.fileNameText}>
             Archivo subido: {fileName}
+          </Text>
+        ) : (
+          <Text style={styles.acceptedFormats}>
+            Formatos aceptados: PNG, JPG, JPEG
           </Text>
         )}
 
       </View>
-      <View style={styles.divider} />
       <View style={styles.buttonContainer}>
-        <CustomButton title="Seleccionar archivo" onPress={pickImage} />
+        <CustomButton title="Seleccionar archivo" style={styles.certificateButton} textStyle={styles.certificateText} onPress={pickImage} />
         <CustomButton
           title={is_newObituary ? "Pagar esquela (1,99 €)" : "Actualizar esquela"}
+          style={styles.certificateButton} textStyle={styles.certificateText}
           onPress={() => {
             if (is_newObituary) {
               void showConfirmationModal();
@@ -277,7 +315,7 @@ function LoadCertificate() {
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => {handleSubmit(); }}
+              onPress={() => { handleSubmit(); }}
             >
               <Text style={styles.buttonText}>Aceptar</Text>
             </TouchableOpacity>
@@ -313,10 +351,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingTop: 120,
+    paddingTop: 30,
   },
   infoText: {
-    fontSize: 14,
+    fontSize: 10,
     color: GlobalStyles.white,
     textAlign: "center",
     marginTop: 10,
@@ -324,7 +362,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   title: {
-    fontSize: 30,
+    fontSize: 26,
     fontWeight: "bold",
     marginBottom: 10,
   },
@@ -391,6 +429,47 @@ const styles = StyleSheet.create({
     elevation: 5,
     width: width > 600 ? "40%" : "80%",
   },
+  introContainer: {
+    width: '90%',
+    backgroundColor: GlobalStyles.lightGrey,
+    padding: 20,
+    borderRadius: 10,
+    marginBottom: 20,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  introTitle: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: GlobalStyles.darkGrey,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  introText: {
+    fontSize: 20,
+    color: GlobalStyles.darkGrey,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 3,
+  },
+  certificateButton: {
+    height: width > 600 ? 60 : 50
+  }, 
+  certificateText: {
+    fontSize: width > 600 ? 18: 16,
+  }, 
+  dniStyle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+acceptedFormats: {
+  marginTop: 8,
+  fontSize: 16,
+  color: GlobalStyles.darkGrey,
+  fontStyle: 'italic',
+},
+  
 });
 
 export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER]);
