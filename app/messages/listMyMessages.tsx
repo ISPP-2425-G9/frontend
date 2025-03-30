@@ -12,6 +12,7 @@ import { GlobalStyles } from '@/constants/Colors';
 import CustomButton from '@/components/CustomButton';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native';
+import CustomModal from '@/components/CustomModal';
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
@@ -19,14 +20,19 @@ const height = Dimensions.get("window").height;
 interface Message {
     id: number;
     title: string;
-    body: boolean;
+    body: string;
     code: string;
     //customImages: string[];
 }
 
 type RootStackParamList = {
-    'messages/listMyMessages': undefined;
-    'messages/index': { messageId: number } | undefined;
+    'messages/listMyMessages':
+    undefined;
+    is_newMessage: boolean;
+    'messages/index': {
+        messageId: number | undefined;
+        is_newMessage: boolean;
+    } | undefined;
 };
 
 function MessageList() {
@@ -35,17 +41,21 @@ function MessageList() {
     const { isAuthenticated } = useAuth();
     const [messages, setMessages] = useState<Message[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedMessageId, setSelectedMessageId] = useState<number | null>(null);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
 
     useFocusEffect(
         React.useCallback(() => {
             const fetchData = async () => {
                 setLoading(true);
+                const userData = await AsyncStorage.getItem('user_data');
+                const userId = userData ? JSON.parse(userData).id : null;
                 try {
                     const authToken = await AsyncStorage.getItem('authToken');
                     if (!authToken) throw new Error('No se encontró un token de autenticación');
 
-                    //cambiar por el customer id
-                    const response = await fetch(BACKEND_API + '/api/messages/6/my_messages', {
+                    const response = await fetch(`${BACKEND_API}/api/messages/${userId}/my_messages`, {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
@@ -70,7 +80,9 @@ function MessageList() {
         }, [])
     );
 
-    const handleDeleteSubmit = async (messageId: number) => {
+    const handleDeleteSubmit = async () => {
+
+        const messageId = selectedMessageId
 
         try {
             const authToken = await AsyncStorage.getItem('authToken');
@@ -84,12 +96,24 @@ function MessageList() {
 
             if (response.ok) {
                 setMessages(messages.filter(m => m.id !== messageId));
+                setModalVisible(false);
             } else {
                 console.error('Error al eliminar el mensage');
             }
         } catch (error) {
             console.error('Error en la solicitud:', error);
         }
+    };
+
+    const showConfirmationModal = (messageId: number) => {
+        setSelectedMessageId(messageId);
+        setModalMessage('¿Estas seguro de que quieres eliminar este mensaje?');
+        setModalVisible(true);
+    };
+
+    const handleCloseModal = () => {
+        setModalVisible(false);
+        setSelectedMessageId(null);
     };
 
     if (loading) {
@@ -109,33 +133,60 @@ function MessageList() {
                 <Text style={styles.introText}>
                     En esta sección, podrás ver y crear mensajes para tus seres queridos.
                 </Text>
+                <Text style={styles.introText}>
+                    (En estos momentos la imagen de preview por defecto es siempre la misma. En la próxima versión podrá visualizar sus imágenes correctamente)
+                </Text>
             </ThemedView>
-    
+
             <CustomButton
                 title="Crea un mensaje para un ser querido"
                 color="green"
                 style={styles.floatingButton}
-                onPress={() => { navigation.navigate('messages/index'); }}
+                onPress={() => navigation.navigate('messages/index', { messageId: undefined, is_newMessage: true })}
             />
-    
+
             <View style={styles.messagesWrapper}>
                 {messages.map((message) => (
-                    <TouchableOpacity
+                    <View
                         key={message.id}
                         style={styles.messageContainer}
-                        onPress={() => navigation.navigate('messages/index', { messageId: message.id })}
                     >
                         <Text style={styles.messageText}>Título: {message.title}</Text>
-                        <Image source={require('@/assets/images/team/rafael.png')} style={styles.messagePreviewImage} />
-                        <CustomButton
-                            title="Eliminar"
-                            color="red"
-                            onPress={() => { handleDeleteSubmit(message.id); }}
-                        />
-                    </TouchableOpacity>
+                        <Image source={require('@/assets/images/caronte_gris.png')} style={styles.messagePreviewImage} />
+                        <View style={styles.buttonContainer}>
+                            <CustomButton
+                                title="Editar"
+                                color="blue"
+                                style={styles.button1}
+                                onPress={() => navigation.navigate('messages/index', { messageId: message.id, is_newMessage: false })}
+                            />
+                            <CustomButton
+                                title="Eliminar"
+                                color="red"
+                                style={styles.button1}
+                                onPress={() => { showConfirmationModal(message.id) }}
+                            />
+                        </View>
+                    </View>
                 ))}
             </View>
-        </ScrollView>
+            {modalVisible && (
+                <CustomModal
+                    visible={modalVisible}
+                    onClose={handleCloseModal}
+                    title={modalMessage}
+                    style={styles.modalStyle}
+                >
+                    <View style={styles.buttonModalContainer}>
+                        <TouchableOpacity style={styles.button} onPress={handleDeleteSubmit}>
+                            <Text style={styles.buttonText}>Aceptar</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button} onPress={handleCloseModal}>
+                            <Text style={styles.buttonText}>Cancelar</Text>
+                        </TouchableOpacity>
+                    </View>
+                </CustomModal>)}
+        </ScrollView >
     );
 }
 
@@ -168,6 +219,7 @@ const styles = StyleSheet.create({
         height: 150,
         alignSelf: 'center',
         borderRadius: 10,
+        resizeMode: "contain"
     },
     allMessagesContainer: {
         width: '100%',
@@ -191,9 +243,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         width: '100%',
+        justifyContent: "center",
+
     },
     messageContainer: {
-        width: "18%",
+        width: width > 600 ? "18%" : "45%",
         padding: 15,
         borderRadius: 12,
         backgroundColor: GlobalStyles.lightGrey,
@@ -217,9 +271,52 @@ const styles = StyleSheet.create({
     },
     floatingButton: {
         padding: 10,
-        width: '30%',
+        width: width > 600 ? '30%' : '80%',
         marginBottom: 20,
+    },
+    buttonContainer: {
+        flexDirection: "row",
+        alignContent: "center",
+        justifyContent: "center",
+        gap: 10,
+
+    },
+    button1: {
+        width: width > 600 ? "80%" : "40%",
+    },
+    modalStyle: {
+        backgroundColor: '#fff',
+        padding: 20,
+        borderRadius: 15,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        elevation: 5,
+        width: width > 600 ? '40%' : '80%',
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    buttonModalContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: '1%',
+        flexDirection: 'row',
+        width: '20%',
+        gap: '10%'
+
+    },
+    button: {
+        backgroundColor: GlobalStyles.blue,
+        paddingVertical: 12,
+        paddingHorizontal: 25,
+        borderRadius: 8,
+        alignItems: 'center',
     },
 });
 
 export default withAuth(MessageList, [AUTHORITIES.CUSTOMER_PREMIUM]);
+

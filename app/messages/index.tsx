@@ -3,11 +3,11 @@ import { GlobalStyles } from '@/constants/Colors';
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
 import CustomTextInput from '@/components/CustomTextInput';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import CustomButton from '@/components/CustomButton';
 import { AntDesign } from '@expo/vector-icons';
 import * as ImagePicker from "expo-image-picker";
-import { useNavigation, NavigationProp, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp, useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { BACKEND_API } from '@/constants/Mysc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNotification } from '@/context/NotificationContext';
@@ -15,10 +15,28 @@ import { useNotification } from '@/context/NotificationContext';
 
 const { width } = Dimensions.get("window");
 
+interface Message {
+  id: number;
+  title: string;
+  body: string;
+  code: string;
+  //customImages: string[];
+}
+
 type RootStackParamList = {
   //'messages/listMyMessages': {messageId: number};
-  'messages/listMyMessages': { messageId: number } | undefined;
-  'messages/index': { messageId: number } | undefined;
+  'messages/listMyMessages': { messageId: number 
+    is_newMessage: boolean;
+
+  } | undefined;
+  'messages/index': { 
+    messageId: number;
+    is_newMessage: boolean;
+
+  } | undefined;
+  
+
+  
 
 };
 
@@ -28,7 +46,8 @@ function MessageCreation() {
 
   const route = useRoute<RouteProp<RootStackParamList, 'messages/listMyMessages'>>();
 
-  //const messageId = route.params?.messageId;
+  const messageId = route.params?.messageId || undefined;
+  const is_newMessage = route.params?.is_newMessage;
 
   const { showNotification } = useNotification();
 
@@ -40,6 +59,19 @@ function MessageCreation() {
     customImages: [] as string[],
   });
 
+    useFocusEffect(
+      useCallback(() => {
+
+        if (is_newMessage) {
+          setFormData({
+            title: '',
+            body: '',
+            customImages: [],
+          });
+        }
+      }, [is_newMessage])
+    );
+
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -47,7 +79,6 @@ function MessageCreation() {
       quality: 1,
     });
 
-    console.log(result);
 
     if (!result.canceled) {
 
@@ -86,45 +117,65 @@ function MessageCreation() {
     }
   };
 
-  // useEffect(() => {
-  //   const fetchMessageData = async () => {
-  //     if (!messageId) return;
-  //     try {
-  //       const authToken = await AsyncStorage.getItem('authToken');
-  //       const response = await fetch(`${BACKEND_API}/api/messages/${messageId}`, {
-  //         method: 'GET',
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //           'Authorization': `Bearer ${authToken}`,
-  //         },
-  //       });
+  useEffect(() => {
+    const fetchMessageData = async () => {
+      if (!is_newMessage) {
+        
+        try {
+          const authToken = await AsyncStorage.getItem('authToken');
+          const response = await fetch(`${BACKEND_API}/api/messages/${messageId}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authToken}`,
+            },
+          });
 
-  //       if (response.ok) {
-  //         const data = await response.json();
-  //         console.log("dataaatatat", data);
-  //         setFormData(data);
-  //       } else {
-  //         console.error('Error al obtener los datos del mensaje');
-  //       }
-  //     } catch (error) {
-  //       console.error('Error en la solicitud:', error);
-  //     }
-  //   };
+          if (response.ok) {
+            console.log("response", response);
+            const data = await response.json();
+            setFormData({
+              title: data.title,
+              body: data.body,
+              customImages: data.customImages || [],
+            });
+            setContacts(data.contacts || []);
+          } else {
+            console.error('Error al obtener los datos del mensaje');
+          }
+        } catch (error) {
+          console.error('Error en la solicitud:', error);
+        }
+      } else{
+       
+      }
+    }
+      fetchMessageData();
+    }, [is_newMessage]);
 
-  //   fetchMessageData();
-  // }, [messageId]);
 
+  const handleSubmitMessage = async () => {
 
-  const createMessage = async () => {
+    const url = !is_newMessage ? `${BACKEND_API}/api/messages/${messageId}` : `${BACKEND_API}/api/messages`;
+    const method = !is_newMessage ? 'PUT' : 'POST';
 
-    console.log("formData", formData);
+    const errors = validateMessageData(formData.title,formData.body);
+
+    if (errors && errors.length > 0) {
+      showNotification({
+        message: `${errors.join("\n")}`,
+        type: "error",
+        duration: 3000,
+      });
+      return;
+    }
 
     try {
       const authToken = await AsyncStorage.getItem('authToken');
       if (!authToken) throw new Error('No se encontró un token de autenticación');
 
-      const response = await fetch(BACKEND_API + '/api/messages', {
-        method: 'POST',
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authToken.trim()}`,
@@ -144,6 +195,21 @@ function MessageCreation() {
     }
   };
 
+  const validateMessageData = (title: string, body: string) => {
+    const errors: string[] = [];
+
+
+    if (!title || title.trim() === "") {
+      errors.push("El título no puede estar vacío");
+    }
+
+    if (!body || body.trim() === "") {
+      errors.push("El cuerpo del mensaje no puede estar vacío");
+    }
+
+    return errors;
+  };
+
 
 
 
@@ -152,7 +218,7 @@ function MessageCreation() {
   };
 
   const handleSaveMessage = () => {
-    createMessage();
+    handleSubmitMessage();
   };
 
   const handleMediaPress = (uri: string) => {
@@ -169,15 +235,18 @@ function MessageCreation() {
     email: string;
   };
 
-  const [newContact, setNewContact] = useState<Contact>({
+ const [newContact, setNewContact] = useState<Contact>({
     id: Date.now(),
     name: "",
     phone: "",
     email: "",
   });
 
-  const [contacts, setContacts] = useState<Contact[]>([{ id: Date.now(), name: "", phone: "", email: "" }]);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
+
+  
 
   const [isContactModalVisible, setIsContactModalVisible] = useState(false);
 
@@ -197,9 +266,8 @@ function MessageCreation() {
       });
       return;
     }
-    const errors = validateData(newContact);
+    const errors = validateContactData(newContact);
     if (errors && errors.length > 0) {
-      window.alert(errors.join("\n"));
       showNotification({
         message: `${errors.join("\n")}`,
         type: "info",
@@ -219,7 +287,7 @@ function MessageCreation() {
 
 
 
-  const validateData = (values: Contact) => {
+  const validateContactData = (values: Contact) => {
     const errors: string[] = [];
     const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const phoneRegex = /^\d{3} \d{3} \d{3}$/;
@@ -276,155 +344,172 @@ function MessageCreation() {
     });
   };
 
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.formContainer}>
         <Text style={styles.textTitle}>Crea tu mensaje personalizado</Text>
+  
         <CustomTextInput
-          style={{ width: '100%' }}
+          style={{ width: "100%" }}
           placeholder="Título del mensaje"
           maxLength={100}
           value={formData.title}
-          onChangeText={(text) => { setFormData({ ...formData, title: text }); }}
+          onChangeText={(text) => setFormData({ ...formData, title: text })}
         />
-
+  
         <CustomTextInput
           style={styles.textArea}
           placeholder="Texto personalizado"
-          maxLength={20000}
-          multiline={true}
+          maxLength={1999}
+          multiline
           value={formData.body}
-          onChangeText={(text) => { setFormData({ ...formData, body: text }); }}
+          onChangeText={(text) => setFormData({ ...formData, body: text })}
         />
-
+  
         <View style={styles.buttonContainer}>
-
           <CustomButton
             color="blue"
             style={styles.customButton1}
-            title="Seleccionar imagenes"
+            title="Seleccionar imágenes"
             onPress={pickImage}
           />
-
-
+  
           <CustomButton
             color="blue"
             style={styles.customButton1}
             title="Seleccionar contactos"
-            onPress={handleSelectContacts}
+            onPress={() => showNotification({
+              message:"Esta función estará disponible muy pronto",
+              type:"info",
+              duration:2500,
+            })}
           />
         </View>
-
+  
         <CustomButton
           color="grey"
           style={styles.customButton2}
           title="Guardar mensaje"
           onPress={handleSaveMessage}
         />
-
       </View>
-
+  
       <View style={styles.mediaContainer}>
         <View style={styles.mediaVisualizer}>
           {selectedMedia ? (
             <Image source={{ uri: selectedMedia }} style={styles.selectedMedia} />
           ) : (
-            <Text style={styles.previewMessage}>No se ha seleccionado ningún archivo</Text>
+            <Text style={styles.previewMessage}>
+              No se ha seleccionado ningún archivo
+            </Text>
           )}
         </View>
+  
         <View style={styles.mediaItems}>
           <ScrollView horizontal>
             {formData.customImages.length > 0 &&
               formData.customImages.map((uri, index) => (
-                <TouchableOpacity key={index} onPress={() => { handleMediaPress(uri); }}>
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => handleMediaPress(uri)}
+                >
                   <Image source={{ uri }} style={styles.customImage} />
                 </TouchableOpacity>
               ))}
           </ScrollView>
         </View>
-
       </View>
-
-      {
-    isContactModalVisible && (
-      <View style={styles.modalContactContainer}>
-        <Pressable style={styles.closeButton} onPress={() => { setIsContactModalVisible(false); }}>
-          <AntDesign name="close" size={24} color="#434343" />
-        </Pressable>
-
-        <Text style={styles.contactTitle}>Agrega a tus contactos</Text>
-
-        <View style={styles.contactContainer}>
-          <CustomTextInput
-            placeholder="Nombre"
-            value={newContact.name}
-            maxLength={50}
-            onChangeText={(text) => { handleChangeContact("name", text); }}
-            style={styles.input}
-          />
-          <CustomTextInput
-            placeholder="Teléfono (sin prefijo)"
-            value={newContact.phone}
-            maxLength={11}
-            keyboardType="phone-pad"
-            onChangeText={(text) => {
-              const numericText = text.replace(/\D/g, "");
-              const formattedText = numericText.replace(/(\d{3})/g, "$1 ").trim();
-              handleChangeContact("phone", formattedText);
-            }}
-            style={styles.input}
-          />
-          <CustomTextInput
-            placeholder="Email"
-            value={newContact.email}
-            maxLength={50}
-            keyboardType="email-address"
-            onChangeText={(text) => { handleChangeContact("email", text); }}
-            style={styles.input}
-          />
-          <CustomButton style={styles.addButton} title="Añadir" onPress={addContact} />
-        </View>
-
-        <Text style={styles.contactTitle}>Lista de contactos añadidos</Text>
-        <View style={styles.tableContainer}>
-          <View style={styles.tableHeader}>
-            <Text style={styles.headerCell}>Nombre</Text>
-            <Text style={styles.headerCell}>Teléfono</Text>
-            <Text style={styles.headerCell}>Email</Text>
-            <Text style={styles.headerCell}>Acción</Text>
+  
+      {isContactModalVisible && (
+        <View style={styles.modalContactContainer}>
+          <Pressable
+            style={styles.closeButton}
+            onPress={() => setIsContactModalVisible(false)}
+          >
+            <AntDesign name="close" size={24} color="#434343" />
+          </Pressable>
+  
+          <Text style={styles.contactTitle}>Agrega a tus contactos</Text>
+  
+          <View style={styles.contactContainer}>
+            <CustomTextInput
+              placeholder="Nombre"
+              value={newContact.name}
+              maxLength={50}
+              onChangeText={(text) => handleChangeContact("name", text)}
+              style={styles.input}
+            />
+            <CustomTextInput
+              placeholder="Teléfono (sin prefijo)"
+              value={newContact.phone}
+              maxLength={11}
+              keyboardType="phone-pad"
+              onChangeText={(text) => {
+                const numericText = text.replace(/\D/g, "");
+                const formattedText = numericText.replace(/(\d{3})/g, "$1 ").trim();
+                handleChangeContact("phone", formattedText);
+              }}
+              style={styles.input}
+            />
+            <CustomTextInput
+              placeholder="Email"
+              value={newContact.email}
+              maxLength={50}
+              keyboardType="email-address"
+              onChangeText={(text) => handleChangeContact("email", text)}
+              style={styles.input}
+            />
+            <CustomButton
+              style={styles.addButton}
+              title="Añadir"
+              onPress={addContact}
+            />
           </View>
-
-          <FlatList
-            data={contacts}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <View style={styles.tableRow}>
-                <Text style={styles.cell}>{item.name}</Text>
-                <Text style={styles.cell}>{item.phone}</Text>
-                <Text style={styles.cell}>{item.email}</Text>
-                <CustomButton
-                  title="Eliminar"
-                  style={styles.deleteButton}
-                  color="red"
-                  onPress={() => { removeContact(item.id); }}
-                />
-                <CustomButton
-                  title="Editar"
-                  style={styles.editButton}
-                  onPress={() => { handleEditContact(item); }}
-                />
+  
+          <Text style={styles.contactTitle}>Lista de contactos añadidos</Text>
+          <ScrollView style={styles.tableContainer} horizontal>
+            <View>
+              <View style={styles.tableHeader}>
+                <Text style={styles.headerCell}>Nombre</Text>
+                <Text style={styles.headerCell}>Teléfono</Text>
+                <Text style={styles.headerCell}>Email</Text>
+                <Text style={styles.headerCell}>Acción</Text>
               </View>
-            )}
-          />
+  
+              <ScrollView style={{ maxHeight: width > 600 ? width * 0.1 : width * 0.4 }}>
+                <FlatList
+                  data={contacts}
+                  keyExtractor={(item) => item.id.toString()}
+                  nestedScrollEnabled={true}
+                  renderItem={({ item }) => (
+                    <View style={styles.tableRow}>
+                      <Text style={styles.cell}>{item.name}</Text>
+                      <Text style={styles.cell}>{item.phone}</Text>
+                      <Text style={styles.cell}>{item.email}</Text>
+                      <View style={styles.actionCell}>
+                        <CustomButton
+                          title="Editar"
+                          style={styles.editButton}
+                          onPress={() => handleEditContact(item)}
+                        />
+                        <CustomButton
+                          title="Eliminar"
+                          style={styles.editButton}
+                          color="red"
+                          onPress={() => removeContact(item.id)}
+                        />
+                      </View>
+                    </View>
+                  )}
+                />
+              </ScrollView>
+            </View>
+          </ScrollView>
         </View>
-      </View>
-    )
-  }
-    </ScrollView >
-
+      )}
+    </ScrollView>
   );
-}
+}  
 
 const styles = StyleSheet.create({
   container: {
@@ -524,17 +609,19 @@ const styles = StyleSheet.create({
     backgroundColor: GlobalStyles.grey,
   },
 
-  //Modal styles
+  //Contact modal styles
 
   modalContactContainer: {
     padding: 20,
     backgroundColor: GlobalStyles.white,
     borderRadius: 10,
-    width: '50%',
+    width: '80%',
     alignSelf: 'center',
     position: 'absolute',
-    top: '25  %',
-    left: '25%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    top: '10%',
+    left: '10%',
     height: "60%",
     borderWidth: 5,
     borderColor: GlobalStyles.lightGrey,
@@ -550,9 +637,6 @@ const styles = StyleSheet.create({
   input: {
     width: 250,
     marginVertical: 5,
-  },
-  deleteButton: {
-    marginTop: 10,
   },
   contactNumber: {
     marginRight: 8,
@@ -585,6 +669,16 @@ const styles = StyleSheet.create({
     textOverflow: "ellipsis",
     flexWrap: "nowrap",
   },
+  actionCell: {
+    flex: 1,
+    flexDirection: "row",
+    gap: 4,
+    alignItems: "center",
+    justifyContent: "center",
+    width: width * 0.6,
+    color: "#fff",
+    fontWeight: "bold",
+  },
   editButton: {
     marginLeft: 5,
     marginRight: 10,
@@ -596,7 +690,7 @@ const styles = StyleSheet.create({
     padding: 10,
     overflow: "hidden",
     flexWrap: "wrap",
-    maxWidth: width * 0.9,
+    maxWidth: "100%",
   },
   tableHeader: {
     flexDirection: "row",
@@ -604,10 +698,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 10,
     borderRadius: 8,
-    gap: width > 600 ? 120 : 0,
+    gap: width > 600 ? 20 : 0,
   },
   headerCell: {
     fontWeight: "bold",
+    width: "25%",
+    justifyContent: "center",
     color: "#fff",
     textAlign: "center",
     marginHorizontal: 10,
