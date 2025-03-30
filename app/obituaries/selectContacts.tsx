@@ -81,7 +81,7 @@ function SelectContacts() {
     is_newObituary === undefined ||
     obituaryId === undefined ||
     is_mine === undefined;
-    
+
   useFocusEffect(
     useCallback(() => {
       if (is_newObituary) {
@@ -181,7 +181,7 @@ function SelectContacts() {
 
   const validateData = (values: Contact) => {
     const errors: string[] = [];
-    const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const emailRegex = /^(?!.*\.\.)[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const phoneRegex = /^\d{3} \d{3} \d{3}$/;
 
     const phoneSet = new Set();
@@ -192,11 +192,11 @@ function SelectContacts() {
     }
 
     if (!values.phone || !phoneRegex.test(values.phone)) {
-      errors.push("Por favor, introduce un teléfono válido (sin prefijo)");
+      errors.push("Por favor, introduce un teléfono válido");
     }
 
     if (!values.email || !emailRegex.test(values.email)) {
-      errors.push("El email no es válido.");
+      errors.push("El email no es válido");
     }
 
     contacts.forEach((contact) => {
@@ -224,21 +224,21 @@ function SelectContacts() {
     if (!newContact.name || !newContact.phone || !newContact.email) {
       showNotification({
         message: "Todos los campos son obligatorios",
-        type: "info",
+        type: "error",
         duration: 2500,
       });
       return;
     }
     const errors = validateData(newContact)
 
-      if (errors && errors.length > 0) {
-        showNotification({
-          message: `${errors.join("\n")}`,
-          type: "error",
-          duration: 2500,
-        });
-        return;
-      }
+    if (errors && errors.length > 0) {
+      showNotification({
+        message: `${errors.join("\n")}`,
+        type: "error",
+        duration: 2500,
+      });
+      return;
+    }
 
     setNewContact({ id: Date.now(), name: "", phone: "", email: "" });
     setContacts([...contacts, newContact]);
@@ -279,7 +279,11 @@ function SelectContacts() {
       }
 
       if (errors.length !== 0) {
-        throw new Error(`Hay error(es) en su formulario: ${errors.join(", ")}`);
+        showNotification({
+          message: `Hay error(es) en su formulario ${errors.join(", ")}`,
+          type: "info",
+          duration: 2500,
+        });
       }
 
       if (is_mine) {
@@ -296,7 +300,11 @@ function SelectContacts() {
       setModalVisible(true);
     } catch (error: any) {
       if (Platform.OS === "web") {
-        window.alert("Error: " + error.message);
+        showNotification({
+          message: `Error: ${error.message}`,
+          type: "error",
+          duration: 2500,
+        });
       } else {
         Alert.alert("Error", error.message || error);
       }
@@ -403,11 +411,11 @@ function SelectContacts() {
             placeholder="Nombre"
             value={newContact.name}
             maxLength={50}
-            onChangeText={(text) => {handleChange("name", text)}}
+            onChangeText={(text) => { handleChange("name", text) }}
             style={styles.input}
           />
           <CustomTextInput
-            placeholder="Teléfono (sin prefijo)"
+            placeholder="Teléfono"
             value={newContact.phone}
             maxLength={11}
             keyboardType="phone-pad"
@@ -424,7 +432,7 @@ function SelectContacts() {
             value={newContact.email}
             maxLength={50}
             keyboardType="email-address"
-            onChangeText={(text) => {handleChange("email", text)}}
+            onChangeText={(text) => { handleChange("email", text) }}
             style={styles.input}
           />
           <CustomButton style={styles.button} title="Añadir" onPress={addContact} />
@@ -432,65 +440,65 @@ function SelectContacts() {
 
 
         <Text style={styles.title}>Lista de contactos añadidos</Text>
-        <ScrollView 
-          style={styles.tableContainer} 
+        <ScrollView
+          style={styles.tableContainer}
           horizontal
-        > 
-  <View>
-    <View style={styles.tableHeader}>
-      <Text style={styles.headerCell}>Nombre</Text>
-      <Text style={styles.headerCell}>Teléfono</Text>
-      <Text style={styles.headerCell}>Email</Text>
-      <Text style={styles.headerCell}>Acción</Text>
-    </View>
-
-    <ScrollView style={{ maxHeight: width > 600 ? width * 0.1 : width * 0.4 }}>   
-      <FlatList
-        data={contacts}
-        keyExtractor={(item) => item.id.toString()}
-        nestedScrollEnabled={true}  
-        renderItem={({ item }) => (
-          <View style={styles.tableRow}>
-            <Text style={styles.cell}>{item.name}</Text>
-            <Text style={styles.cell}>{item.phone}</Text>
-            <Text style={styles.cell}>{item.email}</Text>
-            <View style={styles.actionCell}>
-              <CustomButton
-                title="Eliminar"
-                style={styles.deleteButton}
-                color="red"
-                onPress={() => removeContact(item.id)}
-              />
-              <CustomButton
-                title="Editar"
-                style={styles.editButton}
-                onPress={() => handleEditContact(item)}
-              />
+        >
+          <View>
+            <View style={styles.tableHeader}>
+              <Text style={styles.headerCell}>Nombre</Text>
+              <Text style={styles.headerCell}>Teléfono</Text>
+              <Text style={styles.headerCell}>Email</Text>
+              <Text style={styles.headerCell}>Acción</Text>
             </View>
+
+            <ScrollView style={{ maxHeight: width > 600 ? width * 0.1 : width * 0.4 }}>
+              <FlatList
+                data={contacts}
+                keyExtractor={(item) => item.id.toString()}
+                nestedScrollEnabled={true}
+                renderItem={({ item }) => (
+                  <View style={styles.tableRow}>
+                    <Text style={styles.cell}>{item.name}</Text>
+                    <Text style={styles.cell}>{item.phone}</Text>
+                    <Text style={styles.cell}>{item.email}</Text>
+                    <View style={styles.actionCell}>
+                    <CustomButton
+                        title="Editar"
+                        style={styles.editButton}
+                        onPress={() => handleEditContact(item)}
+                      />
+                      <CustomButton
+                        title="Eliminar"
+                        style={styles.deleteButton}
+                        color="red"
+                        onPress={() => removeContact(item.id)}
+                      />
+                    </View>
+                  </View>
+                )}
+              />
+            </ScrollView>
           </View>
-        )}
-      />
-    </ScrollView>
-  </View>
-</ScrollView>
+        </ScrollView>
 
 
-      </View><View style={styles.divider} />
+      </View>
       <View style={styles.buttonContainer}>
 
 
         {
           is_newObituary ? (
             <CustomButton
-              title={is_mine ? "Crear esquela" : "Subir certificado"}
-              onPress={() => {showConfirmationModal()}}
+              title={is_mine ? "Crear esquela" : "Subir certificado de defunción"}
+              onPress={() => { showConfirmationModal() }}
               style={styles.saveButton}
             />
           ) : (
             is_mine && (
               <CustomButton
                 title={"Actualizar esquela"}
-                onPress={() =>{showConfirmationModal()}}
+                onPress={() => { showConfirmationModal() }}
                 style={styles.saveButton}
               />
             )
@@ -507,13 +515,13 @@ function SelectContacts() {
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => {handleSubmit()}}
+              onPress={() => { handleSubmit() }}
             >
               <Text style={styles.buttonText}>Aceptar</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => {handleCloseModal()}}
+              onPress={() => { handleCloseModal() }}
             >
               <Text style={styles.buttonText}>Cancelar</Text>
             </TouchableOpacity>
@@ -557,15 +565,17 @@ const styles = StyleSheet.create({
     flexDirection: width > 600 ? "row" : "column",
   },
   deleteButton: {
-    marginLeft: 10,
+    marginRight: 5,
     alignSelf: "center",
-    width: width > 600 ? "20%" : "40%",
+    width: width > 600 ? "20%" : "50%",
+    height: width > 600 ? "100%" : "40%"
   },
   editButton: {
-    marginLeft: 5,
-    marginRight: 10,
+    marginLeft: 2,
     alignSelf: "center",
-    width: width > 600 ? "20%" : "30%",
+    width: width > 600 ? "20%" : "50%",
+    height: width > 600 ? "100%" : "40%"
+
   },
   input: {
     marginRight: 10,
@@ -579,15 +589,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     alignSelf: "center",
   },
-  divider: {
-    height: 1,
-    width: "100%",
-    backgroundColor: "#ccc",
-    marginVertical: 20,
-  },
   buttonContainer: {
     alignItems: "center",
-    justifyContent: "flex-end",
+    justifyContent: "center",
+    alignSelf: "center",
     marginBottom: "1%",
     flexDirection: "row",
     width: "35%",
@@ -620,6 +625,8 @@ const styles = StyleSheet.create({
   },
   headerCell: {
     fontWeight: "bold",
+    width: "25%",
+    justifyContent: "center",
     color: "#fff",
     textAlign: "center",
     marginHorizontal: 10,
@@ -627,15 +634,15 @@ const styles = StyleSheet.create({
   },
   actionCell: {
     flex: 1,
-    flexDirection: "row",  
-    gap: 10,
+    flexDirection: "row",
+    gap: 4,
     alignItems: "center",
     justifyContent: "center",
     width: width * 0.6,
     color: "#fff",
     fontWeight: "bold",
   },
-  
+
   tableRow: {
     flexDirection: "row",
     paddingVertical: 10,
@@ -665,11 +672,13 @@ const styles = StyleSheet.create({
   },
   tableHeader: {
     flexDirection: "row",
+    width: "100%", 
+    justifyContent: "center",
     backgroundColor: GlobalStyles.blue,
     paddingVertical: 10,
     paddingHorizontal: 10,
     borderRadius: 8,
-    gap: width > 600 ? 120 : 0,
+    gap: width > 600 ? 20 : 0,
   },
 });
 

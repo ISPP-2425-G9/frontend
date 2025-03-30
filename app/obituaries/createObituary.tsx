@@ -89,6 +89,7 @@ function EsquelaCustomizer() {
   };
 
 
+
   const [formData, setFormData] = useState({
     name: "",
     birthDate: "",
@@ -112,6 +113,7 @@ function EsquelaCustomizer() {
           customImage: null,
           imageTemplate_id: imageId || 1,
         });
+        setIsSended(false);
       }
     }, [is_newObituary, imageId])
   );
@@ -124,13 +126,18 @@ function EsquelaCustomizer() {
 
 
       if (jsonData && jsonData.trim() !== "") {
-        console.log("hola")
         try {
           const parsedData = JSON.parse(jsonData);
-          setFormData((prev) => ({
-            ...prev,
-            ...parsedData,
-          }));
+          setFormData({
+            name: parsedData.name || "",
+            birthDate: parsedData.birthDate || "",
+            deathDate: parsedData.deathDate || "",
+            farewellMessage: parsedData.farewellMessage || "",
+            farewellPhrase: parsedData.farewellPhrase || "",
+            customImage: parsedData.customImageUrl || null,
+            imageTemplate_id: imageId|| 1,
+          });
+        
           setSelectedColor(textColor);
         } catch (error) {
           console.error("Error al parsear jsonData:", error);
@@ -139,6 +146,7 @@ function EsquelaCustomizer() {
         }
         return;
       }
+
 
 
 
@@ -253,7 +261,7 @@ function EsquelaCustomizer() {
       if (filteredAssets.length === 0) {
         showNotification({
           message: "Solo se permiten imágenes en formato PNG, JPG o JPEG",
-          type: "info",
+          type: "error",
           duration: 2500,
         });
         return;
@@ -274,7 +282,7 @@ function EsquelaCustomizer() {
 
 
   const validateForm = () => {
-    const { name, birthDate, farewellMessage, farewellPhrase, customImage } =
+    const { name, birthDate, deathDate, farewellMessage, farewellPhrase, customImage } =
       formData;
     const errors: string[] = [];
 
@@ -294,6 +302,19 @@ function EsquelaCustomizer() {
       } else {
         setModalMessage("Hay datos sin completar. ¿Desea continuar?");
       }
+
+      if ( birthDate && deathDate){
+        const [birthDay, birthMonth, birthYear] = birthDate.split("/");
+        const [deathDay, deathMonth, deathYear] = deathDate.split("/");
+
+        const parsedBirthDate = new Date(`${birthYear}-${birthMonth}-${birthDay}`);
+        const parsedDeathDate = new Date(`${deathYear}-${deathMonth}-${deathDay}`);
+
+        if (parsedBirthDate > parsedDeathDate){
+          errors.push("La fecha de nacimiento debe ser inferior a la fecha de fallecimiento")
+          return errors;
+        }
+      }
     } else if (customImage === null) {
       setModalMessage("No has seleccionado una imagen. ¿Desea continuar?");
     } else {
@@ -311,6 +332,7 @@ function EsquelaCustomizer() {
         showNotification({
           message:`Hay errores en su formulario: ${errors}`,
           type: "error",
+          duration: 3000,
         });
       }
     } catch (error: any) {
@@ -407,7 +429,7 @@ function EsquelaCustomizer() {
               const currentDate = new Date();
               const inputDate = new Date(`${year}-${month}-${day}`);
 
-              if (inputDate > currentDate) {
+              if (year.length === 4 && inputDate > currentDate) {
                 formatted = `${currentDate.getDate().toString().padStart(2, "0")}/${(currentDate.getMonth() + 1).toString().padStart(2, "0")}/${currentDate.getFullYear()}`;
               }
 
@@ -457,10 +479,11 @@ function EsquelaCustomizer() {
 
                     const currentDate = new Date();
                     const inputDate = new Date(`${year}-${month}-${day}`);
-
-                    if (inputDate > currentDate) {
+                    
+                    if (year.length === 4 && inputDate > currentDate) {
                       formatted = `${currentDate.getDate().toString().padStart(2, "0")}/${(currentDate.getMonth() + 1).toString().padStart(2, "0")}/${currentDate.getFullYear()}`;
                     }
+                  
 
                     handleChange("deathDate", formatted);
                   }}
