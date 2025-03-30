@@ -93,9 +93,11 @@ export default function TabLayout() {
             {
               isAuthenticated && userRoles?.includes("CUSTOMER_PREMIUM") ? [
                 <Tabs.Screen name="messages/index" options={{ title: "" }} />,
+                <Tabs.Screen name="messages/listMyMessages" options={{ title: "" }} />,
                 <Tabs.Screen name="contacts/index" options={{ title: "" }} />,
               ] : [
                 <Tabs.Screen name="messages/index" options={{ href: null }} />,
+                <Tabs.Screen name="messages/listMyMessages" options={{ href: null }} />,
                 <Tabs.Screen name="contacts/index" options={{ href: null }} />,
               ]
             }
