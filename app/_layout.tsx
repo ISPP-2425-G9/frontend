@@ -1,5 +1,5 @@
 import CustomNavbar from "@/components/CustomNavbar";
-import Footer from "@/components/Footer";
+// import Footer from "@/components/Footer";
 import { Colors } from "@/constants/Colors";
 import { NotificationProvider } from "@/context/NotificationContext";
 import useAuth from "@/hooks/useAuth";
@@ -139,7 +139,7 @@ export default function TabLayout() {
             }
           </Tabs>
         </View>
-        <Footer />
+        {/* <Footer /> */}
       </View>
     </NotificationProvider>
   );
