@@ -87,7 +87,7 @@ function ObituaryIndex() {
 
   const showConfirmationModal = (obituaryId: number) => {
     setSelectedObituaryId(obituaryId);
-    setModalMessage('¿Estas seguro que quieres eliminar esta esquela?');
+    setModalMessage('¿Estas seguro de que quieres eliminar esta esquela?');
     setModalVisible(true);
   };
 
@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     padding: 8,
     flex: 1,
     alignItems: 'center',
-    paddingTop: 120,
+    paddingTop: 30,
     backgroundColor: '#ffff',
   },
   title: {
