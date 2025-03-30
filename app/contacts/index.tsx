@@ -1,80 +1,564 @@
-import { StyleSheet, Text } from 'react-native';
-
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { GlobalStyles } from '@/constants/Colors';
-import { AUTHORITIES } from "../_util/Authorities";
+import { useState, useCallback } from 'react';
+import { View, StyleSheet, ScrollView, Dimensions, Text, Modal, TextInput, Alert } from 'react-native';
 import { withAuth } from '../_util/withAuth';
+import { AUTHORITIES } from '../_util/Authorities';
+import { ThemedView } from '@/components/ThemedView';
+import { ThemedText } from '@/components/ThemedText';
+import CustomTable from '@/components/CustomTable';
+import CustomButton from '@/components/CustomButton';
+import CustomModal from '@/components/CustomModal';
+import { useFocusEffect } from '@react-navigation/native';
+import { GlobalStyles } from '@/constants/Colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BACKEND_API } from '@/constants/Mysc';
 
 
-function TabTwoScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <Text style={styles.title}>Página en construcción</Text>
-      <ThemedText type="default">Esta página aún no está disponible.</ThemedText>
-    </ThemedView>
+function EmergencyContactScreen() {
+  const [contacts, setContacts] = useState<EmergencyContact[]>([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedContactId, setSelectedContactId] = useState<number | null>(null);
+  const [showAddContactModal, setShowAddContactModal] = useState(false);
+  const [contactName, setContactName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [showEditContactModal, setShowEditContactModal] = useState(false);
+  const [, setEditedContact] = useState<EmergencyContact | null>(null);
+  const [formErrors, setFormErrors] = useState<string[]>([]);
+  const [editFormErrors, setEditFormErrors] = useState<string[]>([]);
+  const [selectedContactToEdit, setSelectedContactToEdit] = useState<EmergencyContact | null>(null);
+  const [, setLoading] = useState(true);
+
+  type EmergencyContact = {
+    id: number;
+    name: string;
+    email: string;
+    telephone: string;
+  };
+  
+  const validateContact = async (
+    values: Record<string, string>
+  ): Promise<string[]> => {
+    const errors: string[] = [];
+  
+    const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const phoneRegex = /^\+?\d{9,15}$/;
+  
+    if (
+      !values.name ||
+      typeof values.name !== "string" ||
+      values.name.trim() === ""
+    ) {
+      errors.push("El nombre es obligatorio.");
+    }
+
+    if (
+      !values.email ||
+      typeof values.email !== "string" ||
+      !emailRegex.test(values.email)
+    ) {
+      errors.push("El email no es válido.");
+    }
+  
+    if (
+      !values.telephone ||
+      typeof values.telephone !== "string" ||
+      !phoneRegex.test(values.telephone)
+    ) {
+      errors.push("Por favor, introduce un teléfono válido.");
+    }
+  
+    return errors;
+  };
+
+  const fetchContacts = async () => {
+    setLoading(true);
+    try {
+      const authToken = await AsyncStorage.getItem('authToken');
+      if (!authToken) throw new Error('No se encontró un token de autenticación');
+  
+      const response = await fetch(`${BACKEND_API}/api/contacts`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken.trim()}`,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Error en la solicitud: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      setContacts(data);
+  
+    } catch (error) {
+      console.error('Error al obtener los contactos de emergencia:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useFocusEffect(
+    useCallback(() => {
+      void fetchContacts();
+    }, [])
   );
 
+  const handleDeleteContact = async () => {
+    
+    if (!selectedContactId) return;
+  
+    try {
+      const authToken = await AsyncStorage.getItem('authToken');
+      if (!authToken) throw new Error('No se encontró un token de autenticación');
+  
+      const response = await fetch(`${BACKEND_API}/api/contacts/${selectedContactId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${authToken.trim()}`,
+        },
+      });
+  
+      if (response.status === 204) {
+        setModalVisible(false);
+        setSelectedContactId(null);
+        fetchContacts();
+      } else {
+        console.error(`Error al eliminar el contacto: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('Error en la solicitud de eliminación:', error);
+    }
+  };
+
+  const handleAddContact = async (values: Record<string, string>) => {
+    try {
+      const authToken = await AsyncStorage.getItem("authToken");
+      if (!authToken) {
+        throw new Error("No se encontró el token de autenticación.");
+      }
+  
+      const errors: string[] = await validateContact(values);
+      if (errors.length > 0) {
+        setFormErrors(errors);
+        return;
+      } else {
+        setFormErrors([]);
+      }
+  
+      const response = await fetch(`${BACKEND_API}/api/contacts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken.trim()}`,
+        },
+        body: JSON.stringify({
+          name: values.name,
+          email: values.email,
+          telephone: values.telephone,
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        const errorMessage =
+          data.error ||
+          (data.errors ? Object.values(data.errors).flat().join("\n") : "Error inesperado.");
+        throw new Error(errorMessage);
+      }
+  
+      Alert.alert("Éxito", "Contacto de emergencia añadido correctamente.");
+      setShowAddContactModal(false); 
+      fetchContacts();
+  
+    } catch (error: any) {
+      console.error("Error al añadir contacto:", error);
+      setFormErrors([error.message || "Error inesperado"]);
+      Alert.alert("Error", error.message || "Error inesperado");
+    }
+  };
+
+  const handleEditContact = async (values: Record<string, string>) => {
+    if (!selectedContactToEdit?.id) return;
+  
+    const errors = await validateContact(values);
+    if (errors.length > 0) {
+      setEditFormErrors(errors);
+      return;
+    }
+  
+    try {
+      const token = await AsyncStorage.getItem("authToken");
+      if (!token) throw new Error("No se encontró el token de autenticación.");
+  
+      const response = await fetch(`${BACKEND_API}/api/contacts/${selectedContactToEdit.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          id: selectedContactToEdit.id,
+          name: values.name,
+          email: values.email,
+          telephone: values.telephone,
+        }),
+      });
+  
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || `Error ${response.status}: No se pudo actualizar el contacto.`);
+      }
+  
+      Alert.alert("Éxito", "El contacto ha sido actualizado correctamente.");
+      setShowEditContactModal(false);
+      setSelectedContactToEdit(null);
+      setEditFormErrors([]);
+      fetchContacts();
+    } catch (error: any) {
+      console.error("Error al actualizar contacto:", error.message);
+      Alert.alert("Error", error.message);
+    }
+  };
+  
+  
+  
+  
+  return (
+    <ThemedView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.introContainer}>
+          <Text style={styles.introTitle}>Contactos de Emergencia</Text>
+          <Text style={styles.introText}>
+            Aquí podrás gestionar tus <Text style={styles.highlight}>contactos de emergencia</Text>,
+            para que en caso de que notemos inactividad en tu cuenta, contactemos con estas personas
+            para recordarles que tienes una cuenta con nosotros la cual has estado pagando y que tienes
+            mensajes para enviar.
+          </Text>
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <CustomButton
+            title="Añadir nuevo contacto"
+            onPress={() => setShowAddContactModal(true) }
+            color="green"
+          />
+        </View>
+
+        <ScrollView horizontal style={styles.horizontalScroll}>
+          <View style={styles.tableWrapper}>
+            <CustomTable
+              columns={['NOMBRE', 'EMAIL', 'TELÉFONO', 'ACCIONES']}
+              columnWidths={[1.2, 1.1, 1.05, 1.2]}
+            >
+              {contacts.map((contact) => (
+                <View key={contact.id} style={styles.row}>
+                  <ThemedText style={styles.cell}>{contact.name}</ThemedText>
+                  <ThemedText style={styles.cell}>{contact.email}</ThemedText>
+                  <ThemedText style={styles.cell}>{contact.telephone}</ThemedText>
+                  <View style={styles.actions}>
+                  <CustomButton title="Editar" onPress={() => { setSelectedContactToEdit(contact); setShowEditContactModal(true); }} color="blue"/>
+                  <CustomButton title="Eliminar" onPress={() => { setSelectedContactId(contact.id); setModalVisible(true); }} color="red"/>
+                  </View>
+                </View>
+              ))}
+            </CustomTable>
+          </View>
+        </ScrollView>
+
+        <CustomModal visible={modalVisible} onClose={() => setModalVisible(false)} title="Confirmar Eliminación">
+          <ThemedText>¿Estás seguro de que deseas eliminar este contacto?</ThemedText>
+          <View style={styles.modalButtons}>
+            <CustomButton title="Cancelar" onPress={() => setModalVisible(false)} color="grey" />
+            <CustomButton
+              title="Eliminar"
+              onPress={() => {
+                handleDeleteContact();
+                setModalVisible(false);
+              }}
+              color="red"
+            />
+          </View>
+        </CustomModal>
+      </ScrollView>
+
+      <Modal visible={showAddContactModal} transparent animationType="fade">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContentStyled}>
+            <ThemedText style={styles.modalTitleStyled}>Añadir contacto de emergencia</ThemedText>
+
+            {formErrors.length > 0 && (
+              <View style={styles.errorContainer}>
+                {formErrors.map((error, index) => (
+                  <Text key={index} style={styles.errorText}>
+                    {error}
+                  </Text>
+                ))}
+              </View>
+            )}
+
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Nombre completo"
+              placeholderTextColor="#666"
+              value={contactName}
+              onChangeText={setContactName}
+            />
+
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Correo electrónico"
+              placeholderTextColor="#666"
+              keyboardType="email-address"
+              value={contactEmail}
+              onChangeText={setContactEmail}
+            />
+
+            <TextInput
+              style={styles.modalInput}
+              placeholder="Teléfono"
+              placeholderTextColor="#666"
+              keyboardType="phone-pad"
+              value={contactPhone}
+              onChangeText={setContactPhone}
+            />
+
+            <View style={styles.verticalButtonContainer}>
+              <CustomButton title="Guardar" onPress={() => handleAddContact({name: contactName,email: contactEmail,telephone: contactPhone})} color="blue" />
+              <CustomButton title="Cancelar" onPress={() => setShowAddContactModal(false)} color="red" />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showEditContactModal} transparent animationType="fade">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContentStyled}>
+            <ThemedText style={styles.modalTitleStyled}>Editar contacto</ThemedText>
+
+            {editFormErrors.length > 0 && (
+              <View style={styles.errorContainer}>
+                {editFormErrors.map((error, index) => (
+                  <Text key={index} style={styles.errorText}>
+                    {error}
+                  </Text>
+                ))}
+              </View>
+            )}
+
+              <TextInput
+                style={styles.modalInput}
+                placeholder="Nombre completo"
+                placeholderTextColor="#666"
+                value={selectedContactToEdit?.name || ''}
+                onChangeText={(text) =>
+                  setSelectedContactToEdit((prev) => prev ? { ...prev, name: text } : null)
+                }
+              />
+
+              <TextInput
+                style={styles.modalInput}
+                placeholder="Correo electrónico"
+                placeholderTextColor="#666"
+                keyboardType="email-address"
+                value={selectedContactToEdit?.email || ''}
+                onChangeText={(text) =>
+                  setSelectedContactToEdit((prev) => prev ? { ...prev, email: text } : null)
+                }
+              />
+
+              <TextInput
+                style={styles.modalInput}
+                placeholder="Teléfono"
+                placeholderTextColor="#666"
+                keyboardType="phone-pad"
+                value={selectedContactToEdit?.telephone || ''}
+                onChangeText={(text) =>
+                  setSelectedContactToEdit((prev) => prev ? { ...prev, telephone: text } : null)
+                }
+              />
+
+            <View style={styles.verticalButtonContainer}>
+              <CustomButton title="Guardar cambios" onPress={() => handleEditContact({ name: selectedContactToEdit?.name || "", email: selectedContactToEdit?.email || "", telephone: selectedContactToEdit?.telephone || ""})} color="blue"/>
+              <CustomButton
+                title="Cancelar"
+                onPress={() => {
+                  setShowEditContactModal(false);
+                  setEditedContact(null);
+                  setEditFormErrors([]);
+                }}
+                color="red"
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+    </ThemedView>
+  );
 }
+
 
 const styles = StyleSheet.create({
   container: {
-    padding: 8,
     flex: 1,
-    alignItems: 'center',
-    paddingTop: 120,
+    marginTop: 10,
     backgroundColor: GlobalStyles.white,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    marginBottom: 30,
+    paddingTop: 10,
   },
   scrollContainer: {
     flexGrow: 1,
-    alignItems: 'center',
-  },
-  listContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-  },
-  obituaryCard: {
     padding: 10,
-    margin: 8,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
     alignItems: 'center',
-    overflow: 'hidden',
   },
-  image: {
+  introContainer: {
+    width: '90%',
+    backgroundColor: GlobalStyles.lightGrey,
+    padding: 20,
+    borderRadius: 10,
+    marginBottom: 20,
+    alignItems: 'center',
+  },
+  introTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: GlobalStyles.darkGrey,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  introText: {
+    fontSize: 18,
+    color: GlobalStyles.darkGrey,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  highlight: {
+    fontWeight: 'bold',
+    color: GlobalStyles.blue,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingHorizontal: 15,
+    marginBottom: 20,
+  },
+  horizontalScroll: {
     width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
   },
-  centeredContainer: {
+  tableWrapper: {
+    width: '100%',
+    minWidth: Dimensions.get('window').width,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: GlobalStyles.grey,
+    alignItems: 'center',
+    backgroundColor: GlobalStyles.lightGrey,
+  },
+  cell: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 14,
+    fontFamily: GlobalStyles.font,
+    color: GlobalStyles.darkGrey,
+  },
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 5,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10,
+    marginTop: 20,
+  },
+  modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
-  divider: {
-    height: 1,
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+  },
+  input: {
     width: '100%',
-    backgroundColor: '#ccc',
-    marginVertical: 20,
+    backgroundColor: '#f0f0f0',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    fontSize: 16,
+    color: '#333',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    textAlign: 'center',
   },
-  buttonContainer: {
-    width: '90%',
-    alignItems: 'flex-end', 
-    marginBottom: '0.5%', 
-    marginRight: '6%',
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
   },
+  modalContentStyled: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    width: '85%',
+    gap: 10,
+  },
+  
+  modalTitleStyled: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  
+  modalInput: {
+    width: '100%',
+    backgroundColor: '#eee',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    fontSize: 16,
+    color: '#000',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    textAlign: 'left',
+  },
+  
+  verticalButtonContainer: {
+    flexDirection: 'column',
+    gap: 10,
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  errorContainer: {
+    backgroundColor: '#ffe6e6',
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 6,
+    width: '100%',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+  },
+  
+  
+  
 });
 
-export default withAuth(TabTwoScreen, [AUTHORITIES.CUSTOMER_PREMIUM])
+export default withAuth(EmergencyContactScreen, [AUTHORITIES.CUSTOMER_PREMIUM]);
