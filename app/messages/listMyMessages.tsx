@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
 
     },
     messageContainer: {
-        width: width > 600 ? "18%" : "45%",
+        width: width > 600 ? "18%" : "40%",
         padding: 15,
         borderRadius: 12,
         backgroundColor: GlobalStyles.lightGrey,
@@ -262,6 +262,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: GlobalStyles.darkGrey,
         textAlign: 'center',
+        marginBottom: 10,
     },
     changeScreenButton: {
         marginTop: 10,
@@ -278,10 +279,10 @@ const styles = StyleSheet.create({
         alignContent: "center",
         justifyContent: "center",
         gap: 10,
-
+        marginTop: 10,
     },
     button1: {
-        width: width > 600 ? "80%" : "40%",
+        width: width > 600 ? "80%" : "30%",
     },
     modalStyle: {
         backgroundColor: '#fff',
