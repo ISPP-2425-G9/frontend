@@ -87,6 +87,9 @@ const CustomNavbar = () => {
                                         <TouchableOpacity onPress={() => { handleNavigation('admin/listUsers'); setMenuOpen(false); }}>
                                             <Text style={styles.dropdownNavItem}>Usuarios</Text>
                                         </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => { handleNavigation('admin/certificatesManagement'); setMenuOpen(false); }}>
+                                            <Text style={styles.dropdownNavItem}>Certificados de defunción</Text>
+                                        </TouchableOpacity>
                                         <TouchableOpacity onPress={() => {
                                             setUserMenuOpen(false);
                                             setIsLogoutModalVisible(true);
@@ -181,6 +184,12 @@ const CustomNavbar = () => {
                                         <View>
                                             <Text style={styles.navItem}>Usuarios</Text>
                                             {activeItem === 'admin/listUsers' && <View style={styles.activeIndicator} />}
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => {handleNavigation('admin/certificatesManagement')}}>
+                                        <View>
+                                            <Text style={styles.navItem}>Certificados de defunción</Text>
+                                            {activeItem === 'admin/certificatesManagement' && <View style={styles.activeIndicator} />}
                                         </View>
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => {

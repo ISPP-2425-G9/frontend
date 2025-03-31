@@ -61,9 +61,12 @@ export default function TabLayout() {
               isAuthenticated && userRoles?.includes("ADMIN") ? [
                 <Tabs.Screen name="admin/listUsers" options={{ title: "" }} />,
                 <Tabs.Screen name="admin/editUser" options={{ href: null }} />,
+                <Tabs.Screen name="admin/certificatesManagement" options={{ title: "" }} />,
+
               ] : [
                 <Tabs.Screen name="admin/listUsers" options={{ href: null }} />,
                 <Tabs.Screen name="admin/editUser" options={{ href: null }} />,
+                <Tabs.Screen name="admin/certificatesManagement" options={{ href: null }} />,
               ]
             }
 
