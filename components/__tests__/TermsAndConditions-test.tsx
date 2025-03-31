@@ -1,8 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import TermsAndConditions from '../TermsAndConditions'; // Cambia esta ruta si es necesario
-import LineBreak from "../LineBreack";
-
+import TermsAndConditions from '../TermsAndConditions';
 
 describe('TermsAndConditions', () => {
   test('should render the component correctly', () => {

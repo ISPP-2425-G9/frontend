@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, waitFor } from '@testing-library/react-native';
 import PlanCard from '@/components/PlanCard';
 import { NavigationContainer } from '@react-navigation/native'; 
 import { useAuth } from '@/app/_util/useAuth';

@@ -66,7 +66,7 @@ describe('TextInputArraysForm', () => {
     expect(mockOnSubmit).toHaveBeenCalledWith({ testInput: 'New value' });
   });
 
-  it('cierra el formulario cuando se presiona el botón de cierre', () => {
+  it('close form when close button is pressed', () => {
     const mockHandleClose = jest.fn();
     const { getByTestId } = render(
       <TextInputArraysForm

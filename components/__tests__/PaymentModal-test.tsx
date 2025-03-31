@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, waitFor } from '@testing-library/react-native';
 import { StripeProvider } from '@stripe/stripe-react-native';
 import PaymentModal from '../PaymentModal';
 
@@ -32,7 +32,7 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 }));
 
 describe('PaymentModal', () => {
-    it('renderiza correctamente cuando es visible', async () => {
+    it('render correctly when visible', async () => {
         const { findByText } = render(
           <StripeProvider publishableKey="test_key">
             <PaymentModal visible={true} onClose={jest.fn()} amount={10} description="Plan mensual" planType={''} />
