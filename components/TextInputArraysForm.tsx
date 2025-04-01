@@ -79,7 +79,7 @@ const TextInputArraysForm: React.FC<CustomFormProps> = ({
   return (
     <View style={[styles.container, style]}>
       {handleFormClose && (
-        <TouchableOpacity style={styles.closeButton} onPress={handleFormClose}>
+        <TouchableOpacity style={styles.closeButton} onPress={handleFormClose} testID='close-button'>
           <AntDesign name="close" size={24} color="#333" />
         </TouchableOpacity>
       )}
