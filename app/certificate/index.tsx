@@ -11,6 +11,7 @@ import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "rea
 import { AUTHORITIES } from "../_util/Authorities";
 import { withAuth } from "../_util/withAuth";
 import { useNotification } from '@/context/NotificationContext';
+import { ScrollView } from "react-native-gesture-handler";
 
 type RootStackParamList = {
   "obituaries/loadCertificate": { jsonData: string },
@@ -166,123 +167,125 @@ function LoadCertificate() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={{ flex: 1, width: "100%" }} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} bounces={false}>
+      <View style={styles.container}>
 
-      <View style={styles.introContainer}>
-        <Text style={styles.introTitle}>📜 Certificados de defunción 📜</Text>
-        <Text style={styles.introText}>
-          En esta sección, puedes cargar el certificado de defunción de un ser querido que haya contratado nuestros servicios.
-        </Text>
-        <Text style={styles.introText}>
-          Una vez verificado, las esquelas y/o mensajes previamente creados serán enviados a los contactos seleccionados.
-        </Text>
-        <Text style={styles.introText}>
-          Para ello necesitamos que introduzcas el DNI del fallecido y subas el certificado de defunción.
-        </Text>
-      </View>
-      <View style={styles.dataContainer}>
+        <View style={styles.introContainer}>
+          <Text style={styles.introTitle}>📜 Certificados de defunción 📜</Text>
+          <Text style={styles.introText}>
+            En esta sección, puedes cargar el certificado de defunción de un ser querido que haya contratado nuestros servicios.
+          </Text>
+          <Text style={styles.introText}>
+            Una vez verificado, las esquelas y/o mensajes previamente creados serán enviados a los contactos seleccionados.
+          </Text>
+          <Text style={styles.introText}>
+            Para ello necesitamos que introduzcas el DNI del fallecido y subas el certificado de defunción.
+          </Text>
+        </View>
+        <View style={styles.dataContainer}>
 
-        <Text style={styles.text}>DNI:</Text>
-        <CustomTextInput
-          placeholder={dniError ? dniError : "DNI del fallecido"}
-          value={dni}
-          maxLength={9}
-          keyboardType="default"
-          onChangeText={(value) => {
-            let newValue = value.replace(/[^0-9A-Za-z]/g, "");
+          <Text style={styles.text}>DNI:</Text>
+          <CustomTextInput
+            placeholder={dniError ? dniError : "DNI del fallecido"}
+            value={dni}
+            maxLength={9}
+            keyboardType="default"
+            onChangeText={(value) => {
+              let newValue = value.replace(/[^0-9A-Za-z]/g, "");
 
-            if (newValue.length > 9) {
-              newValue = newValue.slice(0, 9);
-            }
-
-            if (newValue.length <= 8) {
-              newValue = newValue.replace(/[^0-9]/g, "");
-            }
-
-            if (newValue.length === 9) {
-              const lastChar = newValue[8];
-              if (!/[A-Za-z]/.test(lastChar)) {
-                newValue = newValue.slice(0, 8);
-              } else {
-                newValue = newValue.slice(0, 8) + lastChar.toUpperCase();
+              if (newValue.length > 9) {
+                newValue = newValue.slice(0, 9);
               }
-            }
-            setDni(newValue);
-            setDniError("");
-          }}
-          style={styles.input}
-          placeholderTextColor={dniError ? "red" : GlobalStyles.darkGrey}
-        />
 
-        {certificateImage && (
-          <Image
-            source={{ uri: certificateImage }}
-            style={styles.imagePreview}
+              if (newValue.length <= 8) {
+                newValue = newValue.replace(/[^0-9]/g, "");
+              }
+
+              if (newValue.length === 9) {
+                const lastChar = newValue[8];
+                if (!/[A-Za-z]/.test(lastChar)) {
+                  newValue = newValue.slice(0, 8);
+                } else {
+                  newValue = newValue.slice(0, 8) + lastChar.toUpperCase();
+                }
+              }
+              setDni(newValue);
+              setDniError("");
+            }}
+            style={styles.input}
+            placeholderTextColor={dniError ? "red" : GlobalStyles.darkGrey}
           />
+
+          {certificateImage && (
+            <Image
+              source={{ uri: certificateImage }}
+              style={styles.imagePreview}
+            />
+          )}
+
+          {fileName ? (
+            <Text style={styles.fileNameText}>
+              Archivo subido: {fileName}
+            </Text>
+          ) : (
+            <Text style={styles.acceptedFormats}>
+              Formatos aceptados: PNG, JPG, JPEG
+            </Text>
+          )}
+
+        </View>
+        <View style={styles.buttonContainer}>
+          <CustomButton title="Seleccionar archivo" style={styles.certificateButton} textStyle={styles.certificateText} onPress={pickImage} />
+          <CustomButton title="Subir certificado de defunción" style={styles.certificateButton} textStyle={styles.certificateText} onPress={showConfirmationModal} />
+        </View>
+
+        {modalVisible && (
+          <CustomModal
+            visible={modalVisible}
+            onClose={handleCloseModal}
+            title={modalMessage}
+            style={styles.modalStyle}
+          >
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => { handleSubmit(); }}
+              >
+                <Text style={styles.buttonText}>Aceptar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => { handleCloseModal(); }}
+              >
+                <Text style={styles.buttonText}>Cancelar</Text>
+              </TouchableOpacity>
+            </View>
+          </CustomModal>
         )}
 
-      {fileName ? (
-        <Text style={styles.fileNameText}>
-          Archivo subido: {fileName}
-        </Text>
-      ) : (
-        <Text style={styles.acceptedFormats}>
-          Formatos aceptados: PNG, JPG, JPEG
-        </Text>
-      )}
+        {successMessageVisible && (
+          <CustomModal
+            visible={successMessageVisible}
+            onClose={() => { setSuccessMessageVisible(false) }}
+            title="¡Certificado de defunción subido con éxito!✅"
+            style={styles.successModal}
+          >
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => {
+                  setSuccessMessageVisible(false);
+                  navigation.navigate("home");
+                }}
+              >
+                <Text style={styles.buttonText}>Aceptar</Text>
+              </TouchableOpacity>
+            </View>
+          </CustomModal>
+        )}
 
       </View>
-      <View style={styles.buttonContainer}>
-        <CustomButton title="Seleccionar archivo" style={styles.certificateButton} textStyle={styles.certificateText} onPress={pickImage} />
-        <CustomButton title="Subir certificado de defunción" style={styles.certificateButton} textStyle={styles.certificateText}onPress={showConfirmationModal} />
-      </View> 
-
-      {modalVisible && (
-        <CustomModal
-          visible={modalVisible}
-          onClose={handleCloseModal}
-          title={modalMessage}
-          style={styles.modalStyle}
-        >
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => { handleSubmit(); }}
-            >
-              <Text style={styles.buttonText}>Aceptar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => { handleCloseModal(); }}
-            >
-              <Text style={styles.buttonText}>Cancelar</Text>
-            </TouchableOpacity>
-          </View>
-        </CustomModal>
-      )}
-
-      {successMessageVisible && (
-        <CustomModal
-          visible={successMessageVisible}
-          onClose={() => {setSuccessMessageVisible(false)}}
-          title="¡Certificado de defunción subido con éxito!✅"
-          style={styles.successModal}
-        >
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => {
-                setSuccessMessageVisible(false);
-                navigation.navigate("home");
-              }}
-            >
-              <Text style={styles.buttonText}>Aceptar</Text>
-            </TouchableOpacity>
-          </View>
-        </CustomModal>
-      )}
-
-    </View>
+    </ScrollView>
   );
 }
 
@@ -297,9 +300,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingTop: '2%',
     width: "90%",
     maxWidth: 500,
+    padding: 20,
   },
   title: {
     fontSize: 30,
@@ -329,6 +332,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: '100%',
     gap: '2%',
+    marginTop: 20,
   },
   fileNameText: {
     marginTop: 10,
@@ -405,17 +409,18 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   certificateButton: {
-    height: width > 600 ? 60 : 50
-  }, 
+    height: "80%",
+    width: width > 600 ? "15%" : "45%"
+  },
   certificateText: {
-    fontSize: width > 600 ? 18: 16,
-  }, 
+    fontSize: width > 600 ? 18 : 16,
+  },
   dniStyle: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
   },
-  
+
 });
 
 export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER, AUTHORITIES.ANONYMOUS]);
