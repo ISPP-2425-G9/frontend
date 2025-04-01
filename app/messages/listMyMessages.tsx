@@ -129,7 +129,7 @@ function MessageList() {
     return isAuthenticated && (
         <ScrollView contentContainerStyle={styles.container}>
             <ThemedView style={styles.introContainer}>
-                <Text style={styles.introTitle}>Mensajes ✉️</Text>
+                <Text style={styles.introTitle}>✉️ Mensajes ✉️</Text>
                 <Text style={styles.introText}>
                     En esta sección, podrás ver y crear mensajes para tus seres queridos.
                 </Text>

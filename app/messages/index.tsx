@@ -59,6 +59,11 @@ function MessageCreation() {
     customImages: [] as string[],
   });
 
+  const [ isVisible, setIsVisible ] = useState<boolean>(false);
+  const [ isOwner, setIsOwner ] = useState<boolean>(true);
+  const [ code, setCode ] = useState<string>("");
+
+
     useFocusEffect(
       useCallback(() => {
 
@@ -68,6 +73,7 @@ function MessageCreation() {
             body: '',
             customImages: [],
           });
+          setContacts([]);
         }
       }, [is_newMessage])
     );
@@ -78,6 +84,7 @@ function MessageCreation() {
       allowsEditing: true,
       quality: 1,
     });
+
 
 
     if (!result.canceled) {
@@ -158,7 +165,11 @@ function MessageCreation() {
 
     const url = !is_newMessage ? `${BACKEND_API}/api/messages/${messageId}` : `${BACKEND_API}/api/messages`;
     const method = !is_newMessage ? 'PUT' : 'POST';
-
+    const dataToSend = {
+      ...formData,
+      contacts: contacts,
+    };
+    
     const errors = validateMessageData(formData.title,formData.body);
 
     if (errors && errors.length > 0) {
@@ -180,7 +191,7 @@ function MessageCreation() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authToken.trim()}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSend),
       });
 
       if (response.ok) {
@@ -344,172 +355,214 @@ function MessageCreation() {
     });
   };
 
+
+  // Logica para verificar el código
+  const handleVerifyCode = async () => {
+    if (!code || code.trim() === "") {
+      showNotification({
+        message: "El código no puede estar vacío",
+        type: "info",
+        duration: 2500,
+      });
+      return;
+    }
+    setIsVisible(true);
+  }
+    
+
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.formContainer}>
-        <Text style={styles.textTitle}>Crea tu mensaje personalizado</Text>
+    <>
+    
+      {isVisible || isOwner ? (
+        <ScrollView contentContainerStyle={styles.container}>
+          <View style={styles.formContainer}>
+            <Text style={styles.textTitle}>Crea tu mensaje personalizado</Text>
+            
   
-        <CustomTextInput
-          style={{ width: "100%" }}
-          placeholder="Título del mensaje"
-          maxLength={100}
-          value={formData.title}
-          onChangeText={(text) => setFormData({ ...formData, title: text })}
-        />
-  
-        <CustomTextInput
-          style={styles.textArea}
-          placeholder="Texto personalizado"
-          maxLength={1999}
-          multiline
-          value={formData.body}
-          onChangeText={(text) => setFormData({ ...formData, body: text })}
-        />
-  
-        <View style={styles.buttonContainer}>
-          <CustomButton
-            color="blue"
-            style={styles.customButton1}
-            title="Seleccionar imágenes"
-            onPress={pickImage}
-          />
-  
-          <CustomButton
-            color="blue"
-            style={styles.customButton1}
-            title="Seleccionar contactos"
-            onPress={() => showNotification({
-              message:"Esta función estará disponible muy pronto",
-              type:"info",
-              duration:2500,
-            })}
-          />
-        </View>
-  
-        <CustomButton
-          color="grey"
-          style={styles.customButton2}
-          title="Guardar mensaje"
-          onPress={handleSaveMessage}
-        />
-      </View>
-  
-      <View style={styles.mediaContainer}>
-        <View style={styles.mediaVisualizer}>
-          {selectedMedia ? (
-            <Image source={{ uri: selectedMedia }} style={styles.selectedMedia} />
-          ) : (
-            <Text style={styles.previewMessage}>
-              No se ha seleccionado ningún archivo
-            </Text>
-          )}
-        </View>
-  
-        <View style={styles.mediaItems}>
-          <ScrollView horizontal>
-            {formData.customImages.length > 0 &&
-              formData.customImages.map((uri, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => handleMediaPress(uri)}
-                >
-                  <Image source={{ uri }} style={styles.customImage} />
-                </TouchableOpacity>
-              ))}
-          </ScrollView>
-        </View>
-      </View>
-  
-      {isContactModalVisible && (
-        <View style={styles.modalContactContainer}>
-          <Pressable
-            style={styles.closeButton}
-            onPress={() => setIsContactModalVisible(false)}
-          >
-            <AntDesign name="close" size={24} color="#434343" />
-          </Pressable>
-  
-          <Text style={styles.contactTitle}>Agrega a tus contactos</Text>
-  
-          <View style={styles.contactContainer}>
             <CustomTextInput
-              placeholder="Nombre"
-              value={newContact.name}
-              maxLength={50}
-              onChangeText={(text) => handleChangeContact("name", text)}
-              style={styles.input}
+              style={{ width: "100%" }}
+              placeholder="Título del mensaje"
+              maxLength={100}
+              value={formData.title}
+              onChangeText={(text) => setFormData({ ...formData, title: text })}
+              editable={isOwner} 
             />
+  
             <CustomTextInput
-              placeholder="Teléfono (sin prefijo)"
-              value={newContact.phone}
-              maxLength={11}
-              keyboardType="phone-pad"
-              onChangeText={(text) => {
-                const numericText = text.replace(/\D/g, "");
-                const formattedText = numericText.replace(/(\d{3})/g, "$1 ").trim();
-                handleChangeContact("phone", formattedText);
-              }}
-              style={styles.input}
+              style={styles.textArea}
+              placeholder="Texto personalizado"
+              maxLength={1999}
+              multiline
+              value={formData.body}
+              onChangeText={(text) => setFormData({ ...formData, body: text })}
+              editable={isOwner} 
             />
-            <CustomTextInput
-              placeholder="Email"
-              value={newContact.email}
-              maxLength={50}
-              keyboardType="email-address"
-              onChangeText={(text) => handleChangeContact("email", text)}
-              style={styles.input}
-            />
-            <CustomButton
-              style={styles.addButton}
-              title="Añadir"
-              onPress={addContact}
-            />
+            {isOwner && (
+              <View>
+                <View style={styles.buttonContainer}>
+                  <CustomButton
+                    color="blue"
+                    style={styles.customButton1}
+                    title="Seleccionar imágenes"
+                    onPress={pickImage}
+                  />
+                  <CustomButton
+                    color="blue"
+                    style={styles.customButton1}
+                    title="Seleccionar contactos"
+                    onPress={handleSelectContacts}
+                  />
+                </View>
+
+                <CustomButton
+                  color="grey"
+                  style={styles.customButton2}
+                  title="Guardar mensaje"
+                  onPress={handleSaveMessage}
+                />
+              </View>
+            )}
+
+
           </View>
   
-          <Text style={styles.contactTitle}>Lista de contactos añadidos</Text>
-          <ScrollView style={styles.tableContainer} horizontal>
-            <View>
-              <View style={styles.tableHeader}>
-                <Text style={styles.headerCell}>Nombre</Text>
-                <Text style={styles.headerCell}>Teléfono</Text>
-                <Text style={styles.headerCell}>Email</Text>
-                <Text style={styles.headerCell}>Acción</Text>
-              </View>
+          <View style={styles.mediaContainer}>
+            <View style={styles.mediaVisualizer}>
+              {selectedMedia ? (
+                <Image source={{ uri: selectedMedia }} style={styles.selectedMedia} />
+              ) : (
+                <Text style={styles.previewMessage}>
+                  No se ha seleccionado ningún archivo
+                </Text>
+              )}
+            </View>
   
-              <ScrollView style={{ maxHeight: width > 600 ? width * 0.1 : width * 0.4 }}>
-                <FlatList
-                  data={contacts}
-                  keyExtractor={(item) => item.id.toString()}
-                  nestedScrollEnabled={true}
-                  renderItem={({ item }) => (
-                    <View style={styles.tableRow}>
-                      <Text style={styles.cell}>{item.name}</Text>
-                      <Text style={styles.cell}>{item.phone}</Text>
-                      <Text style={styles.cell}>{item.email}</Text>
-                      <View style={styles.actionCell}>
-                        <CustomButton
-                          title="Editar"
-                          style={styles.editButton}
-                          onPress={() => handleEditContact(item)}
-                        />
-                        <CustomButton
-                          title="Eliminar"
-                          style={styles.editButton}
-                          color="red"
-                          onPress={() => removeContact(item.id)}
-                        />
-                      </View>
-                    </View>
-                  )}
-                />
+            <View style={styles.mediaItems}>
+              <ScrollView horizontal>
+                {formData.customImages.length > 0 &&
+                  formData.customImages.map((uri, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => handleMediaPress(uri)}
+                    >
+                      <Image source={{ uri }} style={styles.customImage} />
+                    </TouchableOpacity>
+                  ))}
               </ScrollView>
             </View>
-          </ScrollView>
+          </View>
+  
+          {isContactModalVisible && (
+            <View style={styles.modalContactContainer}>
+              <Pressable
+                style={styles.closeButton}
+                onPress={() => setIsContactModalVisible(false)}
+              >
+                <AntDesign name="close" size={24} color="#434343" />
+              </Pressable>
+  
+              <Text style={styles.contactTitle}>Agrega a tus contactos</Text>
+  
+              <View style={styles.contactContainer}>
+                <CustomTextInput
+                  placeholder="Nombre"
+                  value={newContact.name}
+                  maxLength={50}
+                  onChangeText={(text) => handleChangeContact("name", text)}
+                  style={styles.input}
+                />
+                <CustomTextInput
+                  placeholder="Teléfono (sin prefijo)"
+                  value={newContact.phone}
+                  maxLength={11}
+                  keyboardType="phone-pad"
+                  onChangeText={(text) => {
+                    const numericText = text.replace(/\D/g, "");
+                    const formattedText = numericText.replace(/(\d{3})/g, "$1 ").trim();
+                    handleChangeContact("phone", formattedText);
+                  }}
+                  style={styles.input}
+                />
+                <CustomTextInput
+                  placeholder="Email"
+                  value={newContact.email}
+                  maxLength={50}
+                  keyboardType="email-address"
+                  onChangeText={(text) => handleChangeContact("email", text)}
+                  style={styles.input}
+                />
+                <CustomButton
+                  style={styles.addButton}
+                  title="Añadir"
+                  onPress={addContact}
+                />
+              </View>
+  
+              <Text style={styles.contactTitle}>Lista de contactos añadidos</Text>
+              <ScrollView style={styles.tableContainer} horizontal>
+                <View>
+                  <View style={styles.tableHeader}>
+                    <Text style={styles.headerCell}>Nombre</Text>
+                    <Text style={styles.headerCell}>Teléfono</Text>
+                    <Text style={styles.headerCell}>Email</Text>
+                    <Text style={styles.headerCell}>Acción</Text>
+                  </View>
+  
+                  <ScrollView style={{ maxHeight: width > 600 ? width * 0.1 : width * 0.4 }}>
+                    <FlatList
+                      data={contacts}
+                      keyExtractor={(item) => item.id.toString()}
+                      nestedScrollEnabled={true}
+                      renderItem={({ item }) => (
+                        <View style={styles.tableRow}>
+                          <Text style={styles.cell}>{item.name}</Text>
+                          <Text style={styles.cell}>{item.phone}</Text>
+                          <Text style={styles.cell}>{item.email}</Text>
+                          <View style={styles.actionCell}>
+                            <CustomButton
+                              title="Editar"
+                              style={styles.editButton}
+                              onPress={() => handleEditContact(item)}
+                            />
+                            <CustomButton
+                              title="Eliminar"
+                              style={styles.editButton}
+                              color="red"
+                              onPress={() => removeContact(item.id)}
+                            />
+                          </View>
+                        </View>
+                      )}
+                    />
+                  </ScrollView>
+                </View>
+              </ScrollView>
+            </View>
+          )}
+        </ScrollView>
+      ) : (
+        <View style={styles.codeContainer}>
+        <Text style={styles.codeText}> Ingresa el código</Text>
+        <CustomTextInput
+          placeholder="Código"
+          value={code}
+          maxLength={10}
+          onChangeText={(text) => setCode(text)}
+          style={styles.input}
+        />
+        <CustomButton 
+          style={styles.addButton}
+          title="Enviar"
+          onPress={handleVerifyCode}
+        />
+
         </View>
       )}
-    </ScrollView>
+    </>
   );
-}  
+}
+  
 
 const styles = StyleSheet.create({
   container: {
@@ -714,7 +767,21 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
+  codeText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+
+  },
+  codeContainer : {
+    width: width > 600 ? '100%' : "100%",
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    padding: 20,
+    marginTop: 20,
+  },
 
 });
 
-export default withAuth(MessageCreation, [AUTHORITIES.CUSTOMER_PREMIUM]);
+export default withAuth(MessageCreation, [AUTHORITIES.ANONYMOUS, AUTHORITIES.CUSTOMER_PREMIUM,]);
