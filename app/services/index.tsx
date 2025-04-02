@@ -123,12 +123,18 @@ const ListServiceScreen: React.FC = () => {
           <CustomTextInput
             placeholder="Buscar por ciudad"
             value={city}
-            onChangeText={setCity}
+            onChangeText={(text) => {
+              setCity(text);
+              setPage(0);
+            }}
           />
           <CustomTextInput
             placeholder="Buscar por nombre"
             value={name}
-            onChangeText={setName}
+            onChangeText={(text) => {
+              setName(text);
+              setPage(0);
+            }}
           />
           <View style={styles.pickerWrapper}>
             <Picker
