@@ -40,7 +40,10 @@ const LoginScreen: React.FC = () => {
   const handleSubmit = async (values: Record<string, string>) => {
 
     if (!values.identifier || !values.password) {
-      setErrorMessage('Por favor, rellena todos los campos');
+      showNotification({
+        message: "Por favor, rellena todos los campos",
+        type: "error",
+      });
       return;
     }
 
@@ -64,13 +67,29 @@ const LoginScreen: React.FC = () => {
         type: "success",
       });
     } catch (error: any) {
-      setErrorMessage('Credenciales incorrectas. Por favor, inténtalo de nuevo.');
+      showNotification({
+        message: "Credenciales incorrectas",
+        type: "error",
+      });
     }
   };
 
   const loginFields: InputField[] = [
-    { name: 'identifier', placeholder: 'NIF, DNI o email', keyboardType: 'default', description: 'Introduce tu NIF, DNI o email' },
-    { name: 'password', placeholder: '******', keyboardType: 'default', secureTextEntry: true, description: 'Introduce tu contraseña' },
+    {
+      name: 'identifier',
+      placeholder: 'NIF, DNI o email',
+      keyboardType: 'default',
+      description: 'Introduce tu NIF, DNI o email',
+      maxLength: 50
+    },
+    {
+      name: 'password',
+      placeholder: '******',
+      keyboardType: 'default',
+      secureTextEntry: true,
+      description: 'Introduce tu contraseña',
+      maxLength: 36
+    },
   ];
 
 
@@ -86,7 +105,6 @@ const LoginScreen: React.FC = () => {
         ]}
       >
         <ThemedText style={styles.ThemedText}>Bienvenido</ThemedText>
-        <ThemedText style={styles.subTitle}>Inicia sesión para continuar</ThemedText>
         <TextInputArraysForm
           title=""
           inputs={loginFields}
@@ -115,20 +133,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: GlobalStyles.darkGrey,
     marginTop: 20,
-    marginBottom: 5,
     marginHorizontal: 20,
-  },
-  subTitle: {
-    color: GlobalStyles.darkGrey,
-    fontSize: 14,
-    fontWeight: 'normal',
-    textAlign: 'center',
   },
   registerText: {
     color: GlobalStyles.darkGrey,
+    fontFamily: GlobalStyles.font,
     fontSize: 14,
     textAlign: 'center',
-    marginTop: 10,
+    marginBottom: 10,
   },
   registerLink: {
     color: GlobalStyles.blue,

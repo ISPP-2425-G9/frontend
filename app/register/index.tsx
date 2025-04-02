@@ -1,28 +1,25 @@
 import CustomButton from "@/components/CustomButton";
 import { CustomTextInput } from "@/components/CustomTextInput";
 import TermsAndConditions from "@/components/TermsAndConditions";
+import { InputField } from '@/components/TextInputArraysForm';
+import { ThemedText } from "@/components/ThemedText";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
+import { useNotification } from "@/context/NotificationContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Picker } from "@react-native-picker/picker";
 import { useNavigation } from "@react-navigation/native";
 import Checkbox from "expo-checkbox";
 import { useFocusEffect } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  Alert,
-  Dimensions,
+  Alert, Animated, Dimensions,
   Modal,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+  ScrollView, StyleSheet, TouchableOpacity, View
+} from 'react-native';
 import { AUTHORITIES } from "../_util/Authorities";
 import { useAuth } from "../_util/useAuth";
 import { withAuth } from "../_util/withAuth";
-
-import { Picker } from "@react-native-picker/picker";
 
 const deviceWidth = Dimensions.get("window").width;
 
@@ -37,6 +34,9 @@ const RegisterScreen: React.FC = () => {
   const [termsError, setTermsError] = useState<string>("");
   const navigation = useNavigation();
   const { login } = useAuth();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+  const { showNotification } = useNotification();
 
   useEffect(() => {
     setUserType(null);
@@ -48,6 +48,18 @@ const RegisterScreen: React.FC = () => {
   useFocusEffect(
     React.useCallback(() => {
       document.title = "Registrarse";
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ]).start();
       setUserType(null);
       setFormValues({});
       setFormErrors([]);
@@ -57,16 +69,18 @@ const RegisterScreen: React.FC = () => {
   );
 
   // Company fields for the form
-  const companyFields = [
+  const companyFields: InputField[] = [
     {
       name: "name",
-      placeholder: "Floristería Loli S.L.",
+      placeholder: "Empresa S.L.",
       description: "Nombre de la empresa",
+      maxLength: 50
     },
     {
       name: "description",
-      placeholder: "Descripción de la empresa...",
+      placeholder: "Descripción de la empresa",
       description: "Descripción",
+      maxLength: 500,
     },
     {
       name: "companyType",
@@ -76,26 +90,30 @@ const RegisterScreen: React.FC = () => {
     { name: "nif", placeholder: "F12345678", description: "NIF de la empresa" },
     {
       name: "email",
-      placeholder: "floresloli@gmail.com",
+      placeholder: "ejemplo@mail.com",
       keyboardType: "email-address",
       description: "Email",
+      maxLength: 50,
     },
     {
       name: "telephone",
-      placeholder: "600100200",
+      placeholder: "600 000 000",
       keyboardType: "phone-pad",
       description: "Teléfono",
     },
     {
       name: "address",
-      placeholder: "C/ Arquímedes, 3",
+      placeholder: "Calle, número, piso, etc.",
       description: "Dirección",
+      maxLength: 75,
     },
-    { name: "city", placeholder: "Sevilla", description: "Ciudad" },
+    {
+      name: "city", placeholder: "Ciudad", description: "Ciudad", maxLength: 50,
+    },
 
     {
       name: "zipCode",
-      placeholder: "41001",
+      placeholder: "12345",
       description: "Código postal",
       keyboardType: "numeric",
     },
@@ -104,32 +122,36 @@ const RegisterScreen: React.FC = () => {
       placeholder: "******",
       secureTextEntry: true,
       description: "Contraseña",
+      maxLength: 36,
     },
     {
       name: "password2",
       placeholder: "******",
       secureTextEntry: true,
       description: "Confirmar contraseña",
+      maxLength: 36,
     },
   ];
 
   // Customer fields for the form
-  const clientFields = [
+  const clientFields: InputField[] = [
     {
       name: "name",
-      placeholder: "Jesús García",
+      placeholder: "Nombre y apellidos",
       description: "Nombre completo",
+      maxLength: 50,
     },
     {
       name: "email",
-      placeholder: "jesus@gmail.com",
+      placeholder: "ejemplo@mail.com",
       keyboardType: "email-address",
       description: "Email",
+      maxLength: 50,
     },
     { name: "dni", placeholder: "12345678P", description: "DNI" },
     {
       name: "telephone",
-      placeholder: "600100200",
+      placeholder: "600 000 000",
       keyboardType: "phone-pad",
       description: "Teléfono",
     },
@@ -138,12 +160,14 @@ const RegisterScreen: React.FC = () => {
       placeholder: "******",
       secureTextEntry: true,
       description: "Contraseña",
+      maxLength: 36,
     },
     {
       name: "password2",
       placeholder: "******",
       secureTextEntry: true,
       description: "Confirmar contraseña",
+      maxLength: 36,
     },
   ];
 
@@ -193,7 +217,7 @@ const RegisterScreen: React.FC = () => {
         errors.push("El NIF no es válido.");
       }
 
-      if(typeof values.name === "string" && values.name.length > 100) {
+      if (typeof values.name === "string" && values.name.length > 100) {
         errors.push("El nombre debe tener 100 caracteres como máximo.");
       }
 
@@ -229,7 +253,7 @@ const RegisterScreen: React.FC = () => {
       if (typeof values.address === "string" && values.address.length > 100) {
         errors.push("La dirección debe tener 100 caracteres como máximo.");
       }
-    
+
 
       if (
         !values.description ||
@@ -316,7 +340,10 @@ const RegisterScreen: React.FC = () => {
   const handleSubmit = async (values: Record<string, string>) => {
     try {
       if (!acceptedTerms) {
-        setFormErrors(["Debe aceptar los términos y condiciones"]);
+        showNotification({
+          message: "Debes aceptar los términos y condiciones",
+          type: "error",
+        });
         return;
       }
       console.log("handleSubmit llamado con:", values);
@@ -371,57 +398,64 @@ const RegisterScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       {!userType ? (
-        <View style={styles.selectionContainer}>
-          <Text style={styles.formTitle}>¿Qué tipo de usuario eres?</Text>
+        <Animated.View
+          style={[
+            styles.selectionContainer,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            },
+          ]}
+        >
+          <ThemedText style={styles.ThemedText}>¿Qué tipo de usuario eres?</ThemedText>
           <View style={styles.optionsContainer}>
             <View style={styles.optionCard}>
-              <Text style={styles.optionTitle}>Soy cliente</Text>
-              <Text style={styles.optionDescription}>
+              <ThemedText style={styles.optionTitle}>Soy cliente</ThemedText>
+              <ThemedText style={styles.optionDescription}>
                 Gestiona el envío de mensajes finales y esquelas digitales a una
                 lista de contactos personalizada.
-              </Text>
+              </ThemedText>
               <CustomButton
                 title="Registrarse como cliente"
-                onPress={() => {handleUserTypeSelection("Cliente")}}
+                onPress={() => { handleUserTypeSelection("Cliente") }}
                 color="blue"
                 style={{
                   ...styles.typeButton,
-                  ...(isMobile ? {} : { width: 400 }),
                 }}
               />
             </View>
             <View style={styles.optionCard}>
-              <Text style={styles.optionTitle}>Soy empresa</Text>
-              <Text style={styles.optionDescription}>
+              <ThemedText style={styles.optionTitle}>Soy empresa</ThemedText>
+              <ThemedText style={styles.optionDescription}>
                 Llega a más clientes ofreciendo tus soluciones y servicios
                 especializados en el sector funerario.
-              </Text>
+              </ThemedText>
               <CustomButton
                 title="Registrarse como empresa"
-                onPress={() => {handleUserTypeSelection("Empresa")}}
+                onPress={() => { handleUserTypeSelection("Empresa") }}
                 color="blue"
                 style={{
                   ...styles.typeButton,
-                  ...(isMobile ? {} : { width: 400 }),
                 }}
               />
             </View>
           </View>
-        </View>
+        </Animated.View>
       ) : (
         <ScrollView
           contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.formTitle}>
-            {userType === "Empresa"
-              ? "Registro de empresa"
-              : "Registro de cliente"}
-          </Text>
+          <View style={styles.formContainer}>
+            <ThemedText style={styles.ThemedText}>
+              {userType === "Empresa"
+                ? "Registro de empresa"
+                : "Registro de cliente"}
+            </ThemedText>
 
-          {userType === "Empresa"
-            ? companyFields.map((field, index) => (
+            {userType === "Empresa"
+              ? companyFields.map((field, index) => (
                 <View
                   key={`company-${field.name}-${index}`}
                   style={[
@@ -429,14 +463,13 @@ const RegisterScreen: React.FC = () => {
                     !isMobile && { width: 400, alignSelf: "center" },
                   ]}
                 >
-                  <Text>{field.description}</Text>
+                  <ThemedText>{field.description}</ThemedText>
                   {field.name === "companyType" ? (
                     <View style={styles.pickerContainer}>
                       <Picker
                         style={styles.picker}
                         selectedValue={formValues[field.name] || ""}
-                        onValueChange={(value) =>
-                          {setFormValues({ ...formValues, [field.name]: value })}
+                        onValueChange={(value) => { setFormValues({ ...formValues, [field.name]: value }) }
                         }
                       >
                         <Picker.Item
@@ -458,6 +491,7 @@ const RegisterScreen: React.FC = () => {
                       placeholder={field.placeholder}
                       secureTextEntry={field.secureTextEntry}
                       value={formValues[field.name] || ""}
+                      maxLength={field.maxLength}
                       onChangeText={(text) => {
                         if (field.name === "nif") {
                           let filtered = "";
@@ -484,16 +518,9 @@ const RegisterScreen: React.FC = () => {
                             [field.name]: filtered,
                           });
                         } else if (field.name === "telephone") {
-                          let filtered = "";
-                          for (let i = 0; i < text.length && i < 9; i++) {
-                            if (/[0-9+]/.test(text[i])) {
-                              filtered += text[i];
-                            }
-                          }
-                          setFormValues({
-                            ...formValues,
-                            [field.name]: filtered,
-                          });
+                          let digits = text.replace(/\D/g, '').slice(0, 9);
+                          let formatted = digits.match(/.{1,3}/g)?.join(' ') || '';
+                          setFormValues({ ...formValues, [field.name]: formatted });
                         } else if (field.name === "zipCode") {
                           let filtered = "";
                           for (let i = 0; i < text.length && i < 5; i++) {
@@ -514,7 +541,7 @@ const RegisterScreen: React.FC = () => {
                   )}
                 </View>
               ))
-            : clientFields.map((field, index) => (
+              : clientFields.map((field, index) => (
                 <View
                   key={`client-${field.name}-${index}`}
                   style={[
@@ -522,11 +549,12 @@ const RegisterScreen: React.FC = () => {
                     !isMobile && { width: 400, alignSelf: "center" },
                   ]}
                 >
-                  <Text>{field.description}</Text>
+                  <ThemedText>{field.description}</ThemedText>
                   <CustomTextInput
                     placeholder={field.placeholder}
                     secureTextEntry={field.secureTextEntry}
                     value={formValues[field.name] || ""}
+                    maxLength={field.maxLength}
                     onChangeText={(text) => {
                       if (field.name === "dni") {
                         let filtered = "";
@@ -546,16 +574,9 @@ const RegisterScreen: React.FC = () => {
                           [field.name]: filtered,
                         });
                       } else if (field.name === "telephone") {
-                        let filtered = "";
-                        for (let i = 0; i < text.length && i < 9; i++) {
-                          if (/[0-9+]/.test(text[i])) {
-                            filtered += text[i];
-                          }
-                        }
-                        setFormValues({
-                          ...formValues,
-                          [field.name]: filtered,
-                        });
+                        let digits = text.replace(/\D/g, '').slice(0, 9);
+                        let formatted = digits.match(/.{1,3}/g)?.join(' ') || '';
+                        setFormValues({ ...formValues, [field.name]: formatted });
                       } else if (field.name === "email") {
                         let filtered = "";
                         for (let i = 0; i < text.length; i++) {
@@ -576,77 +597,82 @@ const RegisterScreen: React.FC = () => {
                 </View>
               ))}
 
-          {formErrors.length > 0 && (
-            <View style={styles.errorContainer}>
-              {formErrors.map((error, index) => (
-                <Text key={`error-${index}`} style={styles.errorText}>
-                  {error}
-                </Text>
-              ))}
+            {formErrors.length > 0 && (
+              <View style={styles.errorContainer}>
+                {formErrors.map((error, index) => (
+                  <ThemedText key={`error-${index}`} style={styles.errorText}>
+                    {error}
+                  </ThemedText>
+                ))}
+              </View>
+            )}
+
+            <View style={styles.checkboxContainer}>
+              <Checkbox
+                value={acceptedTerms}
+                onValueChange={(value) => {
+                  if (!hasVisitedTerms) {
+                    showNotification({
+                      message: "Por favor, lee los términos y condiciones antes de aceptarlos.",
+                      type: "error",
+                    });
+                    return;
+                  }
+                  setTermsError("");
+                  setAcceptedTerms(value);
+                }}
+                color={acceptedTerms ? GlobalStyles.blue : undefined}
+              />
+              <ThemedText style={styles.checkboxLabel}>Acepto los</ThemedText>
+              <TouchableOpacity onPress={() => { setModalVisible(true) }}>
+                <ThemedText
+                  style={[
+                    styles.checkboxLabel,
+                    { textDecorationLine: "underline", color: GlobalStyles.blue },
+                  ]}
+                >
+                  términos y condiciones de uso
+                </ThemedText>
+              </TouchableOpacity>
             </View>
-          )}
+            {termsError ? <ThemedText style={styles.errorText}>{termsError}</ThemedText> : null}
 
-          <View style={styles.checkboxContainer}>
-            <Checkbox
-              value={acceptedTerms}
-              onValueChange={(value) => {
-                if (!hasVisitedTerms) {
-                  setTermsError("Por favor, lee los términos y condiciones antes de aceptarlos.");
-                  return;
-                }
-                setTermsError("");
-                setAcceptedTerms(value);
+            <CustomButton
+              title="Registrarse"
+              onPress={() => { handleSubmit(formValues) }}
+              color="blue"
+              style={{
+                ...styles.submitButton,
+                ...(isMobile ? {} : { width: 400 }),
               }}
-              color={acceptedTerms ? GlobalStyles.blue : undefined}
             />
-            <Text style={styles.checkboxLabel}>Acepto los</Text>
-            <TouchableOpacity onPress={() => {setModalVisible(true)}}>
-              <Text
-                style={[
-                  styles.checkboxLabel,
-                  { textDecorationLine: "underline", color: GlobalStyles.blue },
-                ]}
-              >
-                términos y condiciones de uso
-              </Text>
-            </TouchableOpacity>
+
+            <CustomButton
+              title="Volver"
+              onPress={handleGoBack}
+              color="grey"
+              style={styles.backButton}
+            />
           </View>
-          {termsError ? <Text style={styles.errorText}>{termsError}</Text> : null}
 
-          <CustomButton
-            title="Completar registro"
-            onPress={() => {handleSubmit(formValues)}}
-            color="blue"
-            style={{
-              ...styles.submitButton,
-              ...(isMobile ? {} : { width: 400 }),
-            }}
-          />
-
-          <CustomButton
-            title="Volver"
-            onPress={handleGoBack}
-            color="grey"
-            style={styles.backButton}
-          />
 
           <Modal
             visible={modalVisible}
             animationType="fade"
             transparent={true}
-            onRequestClose={() => {setModalVisible(false)}}
+            onRequestClose={() => { setModalVisible(false) }}
           >
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
                 <ScrollView>
-                  <Text style={styles.modalTitle}>
+                  <ThemedText style={styles.modalTitle}>
                     Términos y condiciones de uso
-                  </Text>
+                  </ThemedText>
                   <TermsAndConditions />
                 </ScrollView>
                 <CustomButton
                   title="Cerrar"
-                  onPress={() => {setModalVisible(false); setHasVisitedTerms(true);}}
+                  onPress={() => { setModalVisible(false); setHasVisitedTerms(true); }}
                   color="blue"
                   style={styles.modalButton}
                 />
@@ -670,13 +696,19 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   selectionContainer: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    backgroundColor: "#f2f2f2",
+    marginTop: '5%',
+    paddingHorizontal: 0,
+    paddingVertical: 10,
+    backgroundColor: "#fff",
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
     elevation: 5,
-    padding: 20,
+    width: '90%',
+    maxWidth: 550,
+    alignSelf: 'center',
   },
   title: {
     fontSize: 28,
@@ -689,6 +721,11 @@ const styles = StyleSheet.create({
     color: GlobalStyles.darkGrey,
     marginBottom: 40,
   },
+  formLabel: {
+    fontFamily: GlobalStyles.font,
+    fontSize: 16, // Ajusta el tamaño según necesites
+    color: GlobalStyles.darkGrey, // Opcional: cambiar color
+  },
   buttonBox: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -697,24 +734,41 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   typeButton: {
-    width: "90%",
+    width: "auto",
+    paddingHorizontal: '5%',
+    paddingVertical: '5%',
+    marginTop: 10,
     marginHorizontal: 5,
-    marginVertical: 10,
-    minHeight: 50,
     alignSelf: "center",
   },
   scrollContainer: {
+    padding: 20,
+  },
+  formContainer: {
     flexGrow: 1,
-    paddingBottom: 40,
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingHorizontal: 20,
+    backgroundColor: "#fff",
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    padding: 30,
+    elevation: 5,
+    width: '90%',
+    maxWidth: 550,
+    height: 'auto',
+    alignSelf: 'center',
   },
-  formTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginVertical: 20,
+  ThemedText: {
+    fontSize: 28,
+    fontFamily: GlobalStyles.font,
     textAlign: "center",
+    color: GlobalStyles.darkGrey,
+    marginTop: 20,
+    marginBottom: 20,
+    marginHorizontal: 20,
   },
   inputContainer: {
     marginBottom: 20,
@@ -751,24 +805,20 @@ const styles = StyleSheet.create({
   optionCard: {
     width: deviceWidth < 375 ? "95%" : "90%",
     backgroundColor: "#fff",
-    padding: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
     borderRadius: 10,
     marginVertical: 10,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: "#ddd",
   },
   optionTitle: {
     fontSize: 22,
-    fontWeight: "bold",
     marginBottom: 8,
+    fontWeight: "bold",
     color: GlobalStyles.blue,
   },
   optionDescription: {
+    fontFamily: GlobalStyles.font,
     fontSize: 16,
     textAlign: "center",
     marginBottom: 12,
