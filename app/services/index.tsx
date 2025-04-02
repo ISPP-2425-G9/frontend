@@ -170,7 +170,7 @@ const ListServiceScreen: React.FC = () => {
                 ]}
               >
                 <AdvertisementSponsor sponsor={item} />
-              </View>           
+              </View>            
             ))}
           </View>
         )}
@@ -207,7 +207,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: GlobalStyles.white,
     paddingTop: 10,
-    alignSelf: 'center',
   },
   scrollContainer: {
     flexGrow: 1,
@@ -239,56 +238,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: GlobalStyles.blue,
   },
-  listContainer: {
-    marginLeft: 120,
-    width: '90%',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 20,
-  },  
-  sponsorWrapper: {
-    margin: 10,
-    width: '100%',
-    maxWidth: 750,
-    marginHorizontal: 'auto',
-    alignSelf: 'center',
-    marginBottom: 16,
-  },
-  sponsorWrapperDesktop: {
-    width: '48%',
-    maxWidth: '48%',
-    marginBottom: 16,
-  },   
-  sponsorWrapperMobile: {
-    marginLeft: 0,
-    width: '100%',
-    maxWidth: 750,
-    marginHorizontal: 'auto',
-    alignSelf: 'center',
-    marginBottom: 16,
-  },
-  filterContainer: {
-    width: 400,
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  filterContainerMobile: {
-    width: '100%',
-    paddingHorizontal: 16,
-  },  
-  paginationContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 20,
-  },
-  paginationContainerMobile: {
-    flexDirection: 'column',
-    gap: 10,
-  },  
   pickerWrapper: {
     width: '100%',
     backgroundColor: GlobalStyles.lightGrey,
@@ -309,6 +258,48 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     fontSize: 16,
   },  
+  filterContainer: {
+    width: 400,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  filterContainerMobile: {
+    width: '100%',
+    paddingHorizontal: 16,
+  }, 
+  listContainer: {
+    width: '100%',
+    maxWidth: 1200,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginBottom: 20,
+  },  
+  sponsorWrapper: {
+    padding: 10,
+  },
+  sponsorWrapperDesktop: {
+    width: '45%',
+    maxWidth: 600,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },  
+  sponsorWrapperMobile: {
+    width: '90%',
+  },  
+  paginationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 20,
+  },
+  paginationContainerMobile: {
+    flexDirection: 'column',
+    gap: 10,
+  },
 });
 
 export default withAuth(ListServiceScreen, [AUTHORITIES.CUSTOMER, AUTHORITIES.COMPANY]);

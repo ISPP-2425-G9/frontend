@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     backgroundColor: GlobalStyles.lightGrey,
-    width: '90%',
+    width: '100%',
     alignSelf: 'stretch',
     minHeight: 200,
     display: 'flex',
@@ -63,7 +63,6 @@ const styles = StyleSheet.create({
   desktopLayout: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: 600,
   },
   mobileLayout: {
     flexDirection: 'column',
@@ -84,6 +83,7 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     flex: 1,
+    justifyContent: 'center',
     width: '100%',
   },
   sponsorName: {
@@ -115,12 +115,6 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     overflow: 'hidden',
     width: '100%',
-  },
-  listContainer: {
-    width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    paddingHorizontal: 16,
   },
 });
 
