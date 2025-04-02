@@ -149,6 +149,10 @@ const ListServiceScreen: React.FC = () => {
         {/* LISTADO DE SPONSORS */}
         {loading ? (
           <ActivityIndicator size="large" color={GlobalStyles.blue} />
+        ) : sponsors.length === 0 ? (
+          <Text style={{ marginTop: 20, marginBottom: 5, fontSize: 18, color: GlobalStyles.blue, textAlign: 'center' }}>
+            No se han encontrado resultados para la búsqueda
+          </Text>
         ) : (
           <View style={styles.listContainer}>
             {sponsors.map((item) => (
@@ -159,25 +163,27 @@ const ListServiceScreen: React.FC = () => {
           </View>
         )}
         {/* PAGINACIÓN */}
-        <View style={[styles.paginationContainer, isMobile && styles.paginationContainerMobile]}>
-          <CustomButton
-            title="Anterior"
-            onPress={() => {
-              if (page > 0) setPage(page - 1);
-            }}
-            color="grey"
-            style={{ opacity: page === 0 || totalPages <= 1 ? 0.5 : 1 }}
-          />
-          <Text style={{ marginHorizontal: 10 }}>{page + 1} / {totalPages}</Text>
-          <CustomButton
-            title="Siguiente"
-            onPress={() => {
-              if (page + 1 < totalPages) setPage(page + 1);
-            }}
-            color="blue"
-            style={{ opacity: page + 1 >= totalPages || totalPages <= 1 ? 0.5 : 1 }}
-          />
-        </View>
+        {!loading && sponsors.length > 0 && (
+          <View style={[styles.paginationContainer, isMobile && styles.paginationContainerMobile]}>
+            <CustomButton
+              title="Anterior"
+              onPress={() => {
+                if (page > 0) setPage(page - 1);
+              }}
+              color="grey"
+              style={{ opacity: page === 0 || totalPages <= 1 ? 0.5 : 1 }}
+            />
+            <Text style={{ marginHorizontal: 10 }}>{page + 1} / {totalPages}</Text>
+            <CustomButton
+              title="Siguiente"
+              onPress={() => {
+                if (page + 1 < totalPages) setPage(page + 1);
+              }}
+              color="blue"
+              style={{ opacity: page + 1 >= totalPages || totalPages <= 1 ? 0.5 : 1 }}
+            />
+          </View>
+        )}
       </ScrollView>
     </ThemedView>
   );
