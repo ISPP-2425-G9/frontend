@@ -19,21 +19,29 @@ type SponsorProps = {
 const AdvertisementSponsor: React.FC<SponsorProps> = ({ sponsor }) => {
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
-
+  const formatPhoneNumber = (phone: string) => {
+    return phone.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+  };
+  
   return (
     <View style={[styles.sponsorCard, isMobile ? styles.mobileLayout : styles.desktopLayout]}>
       <Image testID="sponsor-image" source={{ uri: sponsor.imageUrl }} style={[styles.image, isMobile ? styles.imageMobile : styles.imageDesktop]} />
       <View style={styles.infoContainer}>
         <Text style={styles.sponsorName}>{sponsor.name}</Text>
-        <Text style={styles.sponsorText}>📧 {sponsor.email}</Text>
-        <Text style={styles.sponsorText}>📞 {sponsor.telephone}</Text>
-        <Text style={styles.sponsorText}>📍 {sponsor.address}, {sponsor.city}, {sponsor.zipCode}</Text>
-        <Text style={styles.sponsorText}>🆔 NIF: {sponsor.nif}</Text>
+        <Text style={styles.descriptionTitle}>¿Quiénes somos?</Text>
         <Text style={styles.sponsorDescription}>{sponsor.description}</Text>
+        <Text style={styles.descriptionTitle}>Contacto:</Text>
+        <Text style={styles.sponsorText}>📞 {formatPhoneNumber(sponsor.telephone)}</Text>
+        <Text style={styles.sponsorText}>✉️ {sponsor.email}</Text>
+        <Text style={styles.descriptionTitle}>Dirección:</Text>
+        <Text style={styles.sponsorText}>📍 {sponsor.address}, {sponsor.city}, {sponsor.zipCode}</Text>
+        <Text style={styles.descriptionTitle}>Información adicional:</Text>
+        <Text style={styles.sponsorText}>🆔 NIF: {sponsor.nif}</Text>
       </View>
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   sponsorCard: {
@@ -46,7 +54,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     backgroundColor: GlobalStyles.lightGrey,
-    width: '90%',
+    width: '100%',
     alignSelf: 'stretch',
     minHeight: 200,
     display: 'flex',
@@ -55,7 +63,6 @@ const styles = StyleSheet.create({
   desktopLayout: {
     flexDirection: 'row',
     alignItems: 'center',
-    maxWidth: 600,
   },
   mobileLayout: {
     flexDirection: 'column',
@@ -65,25 +72,33 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   imageDesktop: {
-    width: 150,
-    height: 150,
+    width: 175,
+    height: 210,
     marginRight: 15,
   },
   imageMobile: {
-    width: 120,
-    height: 120,
+    width: 165,
+    height: 130,
     marginBottom: 10,
   },
   infoContainer: {
     flex: 1,
+    justifyContent: 'center',
     width: '100%',
   },
   sponsorName: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     color: GlobalStyles.grey,
     marginBottom: 5,
     textAlign: 'center',
+  },
+  descriptionTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: GlobalStyles.grey,
+    textAlign: 'center',
+    marginTop: 10,
   },
   sponsorText: {
     fontSize: 14,
@@ -94,17 +109,10 @@ const styles = StyleSheet.create({
   sponsorDescription: {
     fontSize: 14,
     color: GlobalStyles.darkGrey,
-    marginTop: 5,
-    textAlign: 'justify',
-    flexWrap: 'wrap',
-    overflow: 'hidden',
+    marginTop: 3,
+    marginBottom: 5,
+    textAlign: 'center',
     width: '100%',
-  },
-  listContainer: {
-    width: '100%',
-    flexDirection: 'column',
-    alignItems: 'center',
-    paddingHorizontal: 16,
   },
 });
 
