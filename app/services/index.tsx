@@ -162,9 +162,15 @@ const ListServiceScreen: React.FC = () => {
         ) : (
           <View style={styles.listContainer}>
             {sponsors.map((item) => (
-              <View key={item.nif} style={[styles.sponsorWrapper, isMobile && styles.sponsorWrapperMobile]}>
+              <View
+                key={item.nif}
+                style={[
+                  styles.sponsorWrapper,
+                  isMobile ? styles.sponsorWrapperMobile : styles.sponsorWrapperDesktop
+                ]}
+              >
                 <AdvertisementSponsor sponsor={item} />
-              </View>
+              </View>           
             ))}
           </View>
         )}
@@ -201,6 +207,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: GlobalStyles.white,
     paddingTop: 10,
+    alignSelf: 'center',
   },
   scrollContainer: {
     flexGrow: 1,
@@ -233,19 +240,27 @@ const styles = StyleSheet.create({
     color: GlobalStyles.blue,
   },
   listContainer: {
-    width: '100%',
-    alignItems: 'center',
-    marginLeft: 37,
+    marginLeft: 120,
+    width: '90%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     marginBottom: 20,
-  },
+  },  
   sponsorWrapper: {
-    marginLeft: 505,
+    margin: 10,
     width: '100%',
     maxWidth: 750,
     marginHorizontal: 'auto',
     alignSelf: 'center',
     marginBottom: 16,
   },
+  sponsorWrapperDesktop: {
+    width: '48%',
+    maxWidth: '48%',
+    marginBottom: 16,
+  },   
   sponsorWrapperMobile: {
     marginLeft: 0,
     width: '100%',

@@ -42,6 +42,7 @@ const AdvertisementSponsor: React.FC<SponsorProps> = ({ sponsor }) => {
   );
 };
 
+
 const styles = StyleSheet.create({
   sponsorCard: {
     padding: 15,
@@ -62,7 +63,7 @@ const styles = StyleSheet.create({
   desktopLayout: {
     flexDirection: 'row',
     alignItems: 'center',
-    maxWidth: 600,
+    width: 600,
   },
   mobileLayout: {
     flexDirection: 'column',
