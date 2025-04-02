@@ -162,7 +162,7 @@ const ListServiceScreen: React.FC = () => {
         ) : (
           <View style={styles.listContainer}>
             {sponsors.map((item) => (
-              <View key={item.nif} style={styles.sponsorWrapper}>
+              <View key={item.nif} style={[styles.sponsorWrapper, isMobile && styles.sponsorWrapperMobile]}>
                 <AdvertisementSponsor sponsor={item} />
               </View>
             ))}
@@ -236,8 +236,18 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     marginLeft: 37,
+    marginBottom: 20,
   },
   sponsorWrapper: {
+    marginLeft: 505,
+    width: '100%',
+    maxWidth: 750,
+    marginHorizontal: 'auto',
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  sponsorWrapperMobile: {
+    marginLeft: 0,
     width: '100%',
     maxWidth: 750,
     marginHorizontal: 'auto',
