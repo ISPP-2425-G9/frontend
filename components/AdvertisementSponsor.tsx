@@ -111,9 +111,7 @@ const styles = StyleSheet.create({
     color: GlobalStyles.darkGrey,
     marginTop: 3,
     marginBottom: 5,
-    textAlign: 'justify',
-    flexWrap: 'wrap',
-    overflow: 'hidden',
+    textAlign: 'center',
     width: '100%',
   },
 });
