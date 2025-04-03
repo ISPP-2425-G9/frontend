@@ -15,7 +15,8 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Alert, Animated, Dimensions,
   Modal,
-  ScrollView, StyleSheet, TouchableOpacity, View
+  ScrollView, StyleSheet,
+  View
 } from 'react-native';
 import { AUTHORITIES } from "../_util/Authorities";
 import { useAuth } from "../_util/useAuth";
@@ -346,8 +347,11 @@ const RegisterScreen: React.FC = () => {
         });
         return;
       }
-      console.log("handleSubmit llamado con:", values);
-      if (Object.keys(values).length === 0) {
+      const modifiedValues = {
+        ...values,
+        telephone: values.telephone.replace(/\s/g, '')
+      };
+      if (Object.keys(modifiedValues).length === 0) {
         Alert.alert("Información", "Debe completar el formulario");
         return;
       }
@@ -365,7 +369,7 @@ const RegisterScreen: React.FC = () => {
       const response = await fetch(BACKEND_API + `/${reqUrl}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify(modifiedValues),
       });
       const data = await response.json();
       if (!response.ok) {
@@ -410,7 +414,7 @@ const RegisterScreen: React.FC = () => {
           <ThemedText style={styles.ThemedText}>¿Qué tipo de usuario eres?</ThemedText>
           <View style={styles.optionsContainer}>
             <View style={styles.optionCard}>
-              <ThemedText style={styles.optionTitle}>Soy cliente</ThemedText>
+              <ThemedText style={styles.optionTitle}>Soy un cliente</ThemedText>
               <ThemedText style={styles.optionDescription}>
                 Gestiona el envío de mensajes finales y esquelas digitales a una
                 lista de contactos personalizada.
@@ -425,7 +429,7 @@ const RegisterScreen: React.FC = () => {
               />
             </View>
             <View style={styles.optionCard}>
-              <ThemedText style={styles.optionTitle}>Soy empresa</ThemedText>
+              <ThemedText style={styles.optionTitle}>Soy una empresa</ThemedText>
               <ThemedText style={styles.optionDescription}>
                 Llega a más clientes ofreciendo tus soluciones y servicios
                 especializados en el sector funerario.
@@ -623,17 +627,17 @@ const RegisterScreen: React.FC = () => {
                 }}
                 color={acceptedTerms ? GlobalStyles.blue : undefined}
               />
-              <ThemedText style={styles.checkboxLabel}>Acepto los</ThemedText>
-              <TouchableOpacity onPress={() => { setModalVisible(true) }}>
+              <ThemedText style={styles.checkboxLabel}>
+                Acepto los{" "}
                 <ThemedText
+                  onPress={() => setModalVisible(true)}
                   style={[
-                    styles.checkboxLabel,
                     { textDecorationLine: "underline", color: GlobalStyles.blue },
                   ]}
                 >
                   términos y condiciones de uso
                 </ThemedText>
-              </TouchableOpacity>
+              </ThemedText>
             </View>
             {termsError ? <ThemedText style={styles.errorText}>{termsError}</ThemedText> : null}
 
@@ -830,8 +834,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   checkboxLabel: {
-    marginLeft: 8,
     fontSize: 16,
+    marginLeft: 10,
     color: GlobalStyles.darkGrey,
   },
   modalContainer: {
