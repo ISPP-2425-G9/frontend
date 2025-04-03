@@ -23,6 +23,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({ title, onPress, style, text
 
   return (
     <Pressable 
+      testID='custom-button'
       style={buttonStyles} 
       onPress={onPress}
       disabled={disabled}

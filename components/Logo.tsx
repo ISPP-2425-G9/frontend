@@ -21,6 +21,7 @@ const Logo: React.FC<LogoProps> = ({ color = "blue", size=75 }) => {
 
   return (
     <Svg
+    testID='logo'
     xmlns="http://www.w3.org/2000/svg"
     xmlSpace="preserve"
     width={size}

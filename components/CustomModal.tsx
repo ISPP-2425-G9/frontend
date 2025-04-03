@@ -13,10 +13,10 @@ type ModalProps = {
 
 const CustomModal: React.FC<ModalProps> = ({ visible, onClose, title, children, style }) => {
   return (
-    <Modal visible={visible} transparent animationType="fade">
+    <Modal testID='custom-modal' visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={[styles.modalContainer, style]}>
-          <Pressable style={styles.closeButton} onPress={onClose}>
+          <Pressable testID='close-button' style={styles.closeButton} onPress={onClose}>
             <AntDesign name="close" size={24} color="#434343" />
           </Pressable>
 

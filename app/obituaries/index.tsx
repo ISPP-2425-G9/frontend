@@ -10,6 +10,8 @@ import { AUTHORITIES } from '../_util/Authorities';
 import CustomModal from "@/components/CustomModal";
 import { GlobalStyles } from "@/constants/Colors";
 import { withAuth } from '../_util/withAuth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNotification } from '@/context/NotificationContext';
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
@@ -41,6 +43,8 @@ type RootStackParamList = {
 function ObituaryIndex() {
   const { isAuthenticated } = useAuth();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  const { showNotification } = useNotification();
 
   const route = useRoute<RouteProp<RootStackParamList, 'obituaries/index'>>();
   const [selectedObituary, setSelectedObituary] = useState<{ id: number; imageUrl: string } | null>(null);
@@ -100,6 +104,22 @@ function ObituaryIndex() {
   const handleOwnObituary = async () => {
     if (!selectedObituary) return;
 
+    const userData = await AsyncStorage.getItem("user_data");
+    if (userData !== null) {
+      const parsedData = JSON.parse(userData);
+      const roles = parsedData.roles;
+
+      if (roles.includes("CUSTOMER_FREE")) {
+        setModalVisible(false);
+        showNotification({
+          message: "No puedes crear tu propia esquela si no tienes nuestro plan mensual contratado",
+          type: "error",
+          duration: 5000,
+        });
+        return;
+      }
+    }
+
     const obituaryId = route.params?.obituaryId ?? undefined;
     const jsonData = route.params?.jsonData ?? undefined;
     const selectedColor = route.params?.selectedColor ?? undefined;
@@ -111,10 +131,10 @@ function ObituaryIndex() {
       jsonData,
       is_mine: true,
       selectedColor,
-
     });
 
     setModalVisible(false);
+
   }
 
   const handleElseObituary = async () => {
