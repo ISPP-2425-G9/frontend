@@ -22,7 +22,7 @@ const LoginScreen: React.FC = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      setFormKey(prev => prev++);
+      setFormKey(prev => prev + 1);
       document.title = 'Iniciar sesión';
       Animated.parallel([
         Animated.timing(fadeAnim, {
