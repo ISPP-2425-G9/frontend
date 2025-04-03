@@ -74,21 +74,21 @@ const RegisterScreen: React.FC = () => {
     {
       name: "name",
       placeholder: "Empresa S.L.",
-      description: "Nombre de la empresa",
+      description: "Nombre",
       maxLength: 50
     },
     {
       name: "description",
-      placeholder: "Descripción de la empresa",
+      placeholder: "Descripción",
       description: "Descripción",
       maxLength: 500,
     },
     {
       name: "companyType",
       placeholder: "Tipo de empresa",
-      description: "Tipo de empresa",
+      description: "Tipo",
     },
-    { name: "nif", placeholder: "F12345678", description: "NIF de la empresa" },
+    { name: "nif", placeholder: "A01024892", description: "NIF" },
     {
       name: "email",
       placeholder: "ejemplo@mail.com",
@@ -114,7 +114,7 @@ const RegisterScreen: React.FC = () => {
 
     {
       name: "zipCode",
-      placeholder: "12345",
+      placeholder: "41012",
       description: "Código postal",
       keyboardType: "numeric",
     },
@@ -149,7 +149,7 @@ const RegisterScreen: React.FC = () => {
       description: "Email",
       maxLength: 50,
     },
-    { name: "dni", placeholder: "12345678P", description: "DNI" },
+    { name: "dni", placeholder: "65450808F", description: "DNI" },
     {
       name: "telephone",
       placeholder: "600 000 000",

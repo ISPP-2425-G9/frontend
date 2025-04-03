@@ -18,9 +18,11 @@ const LoginScreen: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
+  const [formKey, setFormKey] = useState(0);
 
   useFocusEffect(
     React.useCallback(() => {
+      setFormKey(prev => prev++);
       document.title = 'Iniciar sesión';
       Animated.parallel([
         Animated.timing(fadeAnim, {
@@ -38,7 +40,6 @@ const LoginScreen: React.FC = () => {
   );
 
   const handleSubmit = async (values: Record<string, string>) => {
-
     if (!values.identifier || !values.password) {
       showNotification({
         message: "Por favor, rellena todos los campos",
@@ -92,7 +93,6 @@ const LoginScreen: React.FC = () => {
     },
   ];
 
-
   return (
     <View style={styles.container}>
       <Animated.View
@@ -106,6 +106,7 @@ const LoginScreen: React.FC = () => {
       >
         <ThemedText style={styles.ThemedText}>Bienvenido</ThemedText>
         <TextInputArraysForm
+          key={formKey}
           title=""
           inputs={loginFields}
           onSubmit={(values) => { handleSubmit(values as Record<string, string>) }}
@@ -181,6 +182,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 });
-
 
 export default withAuth(LoginScreen, [AUTHORITIES.ANONYMOUS]);
