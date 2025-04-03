@@ -26,15 +26,16 @@ export default function LogoutButton() {
     <>
       <CustomButton
         title="Cerrar sesión"
-        onPress={() => {setIsModalVisible(true)}}
+        onPress={() => { setIsModalVisible(true) }}
         color="red"
         style={styles.button}
       />
 
       <CustomModal
         visible={isModalVisible}
-        onClose={() => {setIsModalVisible(false)}}
+        onClose={() => { setIsModalVisible(false) }}
         title="Cerrar sesión"
+        style={styles.modalContent}
       >
         <View style={styles.modalContent}>
           <ThemedText style={styles.modalText}>
@@ -43,7 +44,7 @@ export default function LogoutButton() {
           <View style={styles.modalButtons}>
             <CustomButton
               title="Cancelar"
-              onPress={() => {setIsModalVisible(false)}}
+              onPress={() => { setIsModalVisible(false) }}
               style={styles.modalButton}
               color="red"
             />
@@ -65,7 +66,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   modalContent: {
-    width: 'auto',
+    width: '90%',
+    maxWidth: 400,
     padding: '2%',
   },
   modalText: {

@@ -1,14 +1,16 @@
 import CustomButton from '@/components/CustomButton';
+import CustomModal from '@/components/CustomModal';
 import DeleteAccountButton from '@/components/DeleteAccountButton';
 import LogoutButton from '@/components/LogoutButton';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
+import { useNotification } from '@/context/NotificationContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { ActivityIndicator, Alert, Image, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
 
@@ -25,7 +27,19 @@ function ProfileScreen() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [customImageUrl, setCustomImageUrl] = useState('');
+    const { showNotification } = useNotification();
+  const formatPhone = (phone: string): string => {
+    const digits = phone.replace(/\D/g, '');
+    const groups = digits.match(/.{1,3}/g);
+    return groups ? groups.join(' ') : phone;
+  };
 
+  const removeSpaces = (phone: string): string => phone.replace(/\s/g, '');
+
+  const handlePhoneChange = (text: string, field: keyof CustomerProfile) => {
+    const formatted = formatPhone(text);
+    handleInputChange(field, formatted);
+  };
 
   const fetchProfile = async () => {
     try {
@@ -143,7 +157,7 @@ function ProfileScreen() {
       const updatedData = {
         email: editedCustomer.email,
         fullName: editedCustomer.name,
-        telephone: editedCustomer.telephone,
+        telephone: removeSpaces(editedCustomer.telephone),
         password: editedCustomer.password,
       };
 
@@ -158,11 +172,10 @@ function ProfileScreen() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        if (Platform.OS === 'web') {
-          window.alert('Error al actualizar el perfil, comprueba los datos');
-        } else {
-          Alert.alert('Error al actualizar el perfil, comprueba los datos');
-        }
+        showNotification({
+          message: "Error al actualizar el perfil, comprueba los datos",
+          type: "error",
+        });
         throw new Error(errorData.message || 'Error al actualizar el perfil');
       }
 
@@ -171,12 +184,17 @@ function ProfileScreen() {
       await AsyncStorage.setItem('user_data', JSON.stringify({
         ...userData,
         email: editedCustomer.email,
+        name: editedCustomer.name,
         token: data.token || userData.token,
       }));
 
       fetchProfile();
       setIsEditing(false);
-      Alert.alert('Éxito', 'Perfil actualizado correctamente');
+      showNotification({
+        message: "Perfil actualizado correctamente",
+        type: "success",
+      });
+      
     } catch (error) {
       console.error('Error al guardar los cambios:', error);
     }
@@ -200,7 +218,7 @@ function ProfileScreen() {
       const updatedData = {
         name: editedCompany.name,
         email: editedCompany.email,
-        telephone: editedCompany.telephone,
+        telephone: removeSpaces(editedCustomer.telephone),
         password: editedCompany.password,
         address: editedCompany.address,
         city: editedCompany.city,
@@ -221,11 +239,10 @@ function ProfileScreen() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        if (Platform.OS === 'web') {
-          window.alert('Error al actualizar el perfil, comprueba los datos');
-        } else {
-          Alert.alert('Error al actualizar el perfil, comprueba los datos');
-        }
+        showNotification({
+          message: "Error al actualizar el perfil, comprueba los datos",
+          type: "error",
+        });
         throw new Error(errorData.message || 'Error al actualizar el perfil');
       }
 
@@ -239,7 +256,10 @@ function ProfileScreen() {
 
       fetchProfile();
       setIsEditing(false);
-      Alert.alert('Éxito', 'Perfil actualizado correctamente');
+      showNotification({
+        message: "Perfil actualizado correctamente",
+        type: "success",
+      });
     } catch (error) {
       console.error('Error al guardar los cambios:', error);
     }
@@ -250,20 +270,29 @@ function ProfileScreen() {
       setEditedCompany({ ...editedCompany, imageUrl: customImageUrl.trim() });
       setCustomImageUrl('');
     } else {
-      Alert.alert("Error", "Por favor ingresa un URL válido");
+      showNotification({
+        message: "Por favor ingresa un URL válido",
+        type: "error",
+      });
     }
   };
 
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
-      Alert.alert('Error', 'Las contraseñas no coinciden');
+      showNotification({
+        message: "Las contraseñas no coinciden",
+        type: "error",
+      });
       return;
     }
 
     try {
       const userDataStr = await AsyncStorage.getItem('user_data');
       if (!userDataStr) {
-        Alert.alert('Error', 'No hay datos de autenticación');
+        showNotification({
+          message: "No hay datos de autenticación",
+          type: "error",
+        });
         return;
       }
       const userData = JSON.parse(userDataStr);
@@ -297,7 +326,10 @@ function ProfileScreen() {
         token: data.token || userData.token,
       }));
 
-      Alert.alert('Éxito', 'Contraseña actualizada correctamente');
+      showNotification({
+        message: "Contraseña actualizada correctamente",
+        type: "success",
+      });
       setShowPasswordModal(false);
       setNewPassword('');
       setConfirmPassword('');
@@ -314,12 +346,16 @@ function ProfileScreen() {
         <TextInput
           style={styles.input}
           value={value}
-          onChangeText={(text) => {handleInputChange(field, text)}}
+          onChangeText={(text) =>
+            field === 'telephone' ? handlePhoneChange(text, field) : handleInputChange(field, text)
+          }
           placeholder={placeholder}
           placeholderTextColor={'#666'}
         />
       ) : (
-        <ThemedText style={styles.value}>{value}</ThemedText>
+        <ThemedText style={styles.value}>
+          {field === 'telephone' ? formatPhone(value) : value}
+        </ThemedText>
       )}
     </>
   );
@@ -340,7 +376,7 @@ function ProfileScreen() {
               : styles.inputCompany
           }
           value={value}
-          onChangeText={(text) => {handleInputChangeCompany(field, text)}}
+          onChangeText={(text) => { handleInputChangeCompany(field, text) }}
           placeholder={placeholder}
           placeholderTextColor={'#666'}
           multiline={field === 'description'}
@@ -355,7 +391,7 @@ function ProfileScreen() {
                 : styles.valueCompany
           }
         >
-          {value}
+          {field === 'telephone' ? formatPhone(value) : value}
         </ThemedText>
       )}
     </>
@@ -389,22 +425,22 @@ function ProfileScreen() {
                       onPress={handleSave}
                       color="blue"
                     />
-                    <DeleteAccountButton />
+                    <LogoutButton />
                   </View>
                 ) : (
                   <View style={styles.buttonContainer}>
                     <CustomButton
                       title="Editar usuario"
-                      onPress={() => {setIsEditing(true)}}
+                      onPress={() => { setIsEditing(true) }}
                       color="blue"
                     />
-                    <LogoutButton />
+                    <DeleteAccountButton />
                   </View>
                 )}
 
                 <ThemedText style={styles.changePasswordText}>
                   ¿Desea cambiar su contraseña?{' '}
-                  <Pressable onPress={() => {setShowPasswordModal(true)}}>
+                  <Pressable onPress={() => { setShowPasswordModal(true) }}>
                     <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
                   </Pressable>
                 </ThemedText>
@@ -462,21 +498,21 @@ function ProfileScreen() {
                       onPress={handleSaveCompany}
                       color="blue"
                     />
-                    <DeleteAccountButton />
+                    <LogoutButton />
                   </View>
                 ) : (
                   <View>
                     <View style={styles.buttonContainer}>
                       <CustomButton
                         title="Editar información"
-                        onPress={() => {setIsEditing(true)}}
+                        onPress={() => { setIsEditing(true) }}
                         color="blue"
                       />
-                      <LogoutButton />
+                      <DeleteAccountButton />
                     </View>
                     <ThemedText style={styles.changePasswordText}>
                       ¿Desea cambiar su contraseña?{' '}
-                      <Pressable onPress={() => {setShowPasswordModal(true)}}>
+                      <Pressable onPress={() => { setShowPasswordModal(true) }}>
                         <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
                       </Pressable>
                     </ThemedText>
@@ -486,31 +522,44 @@ function ProfileScreen() {
             )}
           </View>
 
-          <Modal visible={showPasswordModal} transparent animationType="fade">
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <ThemedText style={styles.modalTitle}>Cambiar contraseña</ThemedText>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Nueva contraseña"
-                  placeholderTextColor="#666"
-                  secureTextEntry
-                  value={newPassword}
-                  onChangeText={setNewPassword}
+          <CustomModal
+            visible={showPasswordModal}
+            onClose={() => { setShowPasswordModal(false) }}
+            title="Cambiar contraseña"
+            style={styles.modalContent}>
+            <View style={styles.modalContent}>
+              <TextInput
+                style={styles.modalInput}
+                placeholder="Nueva contraseña"
+                placeholderTextColor="#666"
+                secureTextEntry
+                value={newPassword}
+                maxLength={36}
+                onChangeText={setNewPassword}
+              />
+              <TextInput
+                style={styles.modalInput}
+                placeholder="Confirmar contraseña"
+                placeholderTextColor="#666"
+                secureTextEntry
+                maxLength={36}
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+              />
+              <View style={styles.modalButtons}>
+                <CustomButton
+                  title="Cancelar"
+                  onPress={() => { setShowPasswordModal(false) }}
+                  style={StyleSheet.flatten([styles.modalButton, styles.cancelButton])}
                 />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Confirmar contraseña"
-                  placeholderTextColor="#666"
-                  secureTextEntry
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
+                <CustomButton
+                  title="Guardar"
+                  onPress={handleChangePassword}
+                  style={StyleSheet.flatten([styles.modalButton, styles.saveButton])}
                 />
-                <CustomButton title="Guardar" onPress={handleChangePassword} color="blue" />
-                <CustomButton title="Cancelar" onPress={() => {setShowPasswordModal(false)}} color="red" />
               </View>
             </View>
-          </Modal>
+          </CustomModal>
         </>
       ) : (
         <ThemedText style={styles.text}>No se pudo cargar el perfil.</ThemedText>
@@ -684,6 +733,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
     gap: 20,
+
   },
   changePasswordText: {
     fontSize: 16,
@@ -714,25 +764,44 @@ const styles = StyleSheet.create({
     color: '#000',
     fontWeight: 'bold',
   },
-  modalContainer: {
-    flex: 1,
-    width: 'auto',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   modalContent: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 12,
-    alignItems: 'center',
-    gap: 10,
+    width: '90%',
+    maxWidth: 400,
+    paddingHorizontal: '2%',
+    backgroundColor: GlobalStyles.white,
   },
-  modalTitle: {
-    color: '#000',
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 20,
+  modalText: {
+    textAlign: 'center',
+    fontSize: 16,
+  },
+  modalButtons: {
+    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginHorizontal: 5,
+  },
+  saveButton: {
+    backgroundColor: GlobalStyles.blue,
+  },
+  cancelButton: {
+    backgroundColor: GlobalStyles.red,
+  },
+  modalInput: {
+    width: '100%',
+    backgroundColor: GlobalStyles.lightGrey,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    fontSize: 16,
+    color: '#333',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginBottom: 10,
   },
 });
 

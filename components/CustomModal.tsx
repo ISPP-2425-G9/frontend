@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     width: 'auto',
-    backgroundColor: GlobalStyles.lightGrey,
+    backgroundColor: GlobalStyles.white,
     padding: 20,
     borderRadius: 10,
     alignItems: 'center',
