@@ -73,12 +73,12 @@ const CertificateManagement: React.FC = () => {
     if (!dateStr) {
       return { valid: false, message: "Debes introducir una fecha." };
     }
-    console.log(dateStr);
+
     const enteredDate = new Date(dateStr);
-    console.log(enteredDate);
     if (isNaN(enteredDate.getTime())) {
       return { valid: false, message: "La fecha introducida no es válida." };
     }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (enteredDate > today) {
@@ -102,7 +102,7 @@ const CertificateManagement: React.FC = () => {
         <CustomButton
           title="Ver certificado"
           color="blue"
-          style={styles.deathCertificateViewerButton}
+          style={styles.buttons}
           onPress={() => navigation.navigate('admin/certificateViewer', {certificateUrl: item.certificateUrl,})}
         />
       </View>
@@ -121,9 +121,9 @@ const CertificateManagement: React.FC = () => {
           <CustomButton
             title="Aceptar"
             color="green"
+            style={styles.buttons}
             onPress={() => {
               const dateStr = deathDates[item.id];
-              console.log(dateStr);
               const { valid, message } = isValidDeathDate(dateStr);
               if (!valid) {
                 setErrorMessage(message || "");
@@ -135,6 +135,7 @@ const CertificateManagement: React.FC = () => {
           <CustomButton
             title="Denegar"
             color="red"
+            style={styles.buttons}
             onPress={() => {
               console.log(`Certificado denegado ID: ${item.id}`);
             }}
@@ -269,8 +270,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
   },
-  deathCertificateViewerButton: {
+  buttons: {
     alignSelf: 'center',
+    width: 120,
   },
   tableScrollContainer: {
     width: '100%',
