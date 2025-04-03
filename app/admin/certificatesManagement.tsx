@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, View, ScrollView } from 'react-native';
+import { FlatList, StyleSheet, Text, View, ScrollView, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ThemedView } from '@/components/ThemedView';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
 import { GlobalStyles } from '@/constants/Colors';
 import CustomButton from '@/components/CustomButton';
+import { ThemedText } from '@/components/ThemedText';
 
 
 type Certificate = {
@@ -64,7 +65,28 @@ const MOCK_DATA: Certificate[] = [
 
 const CertificateManagement: React.FC = () => {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const [deathDates, setDeathDates] = useState<{ [id: number]: string }>({});
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const navigation = useNavigation();
+
+  const isValidDeathDate = (dateStr: string): { valid: boolean; message?: string } => {
+    if (!dateStr) {
+      return { valid: false, message: "Debes introducir una fecha." };
+    }
+    console.log(dateStr);
+    const enteredDate = new Date(dateStr);
+    console.log(enteredDate);
+    if (isNaN(enteredDate.getTime())) {
+      return { valid: false, message: "La fecha introducida no es válida." };
+    }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (enteredDate > today) {
+      return { valid: false, message: "La fecha debe ser igual o anterior al día de hoy." };
+    }
+    return { valid: true };
+  };
+  
 
   useEffect(() => {
     // Simulación de carga desde el backend
@@ -81,11 +103,47 @@ const CertificateManagement: React.FC = () => {
           title="Ver certificado"
           color="blue"
           style={styles.deathCertificateViewerButton}
-          onPress={() => navigation.navigate('admin/certificateViewer', { certificateUrl: item.certificateUrl })}
+          onPress={() => navigation.navigate('admin/certificateViewer', {certificateUrl: item.certificateUrl,})}
         />
+      </View>
+      <View style={styles.cell}>
+        <TextInput
+          placeholder="aaaa-mm-dd"
+          value={deathDates[item.id] || ''}
+          onChangeText={(text) =>
+            setDeathDates((prev) => ({ ...prev, [item.id]: text }))
+          }
+          style={styles.dateInput}
+        />
+      </View>
+      <View style={styles.cell}>
+        <View style={styles.actionButtonsContainer}>
+          <CustomButton
+            title="Aceptar"
+            color="green"
+            onPress={() => {
+              const dateStr = deathDates[item.id];
+              console.log(dateStr);
+              const { valid, message } = isValidDeathDate(dateStr);
+              if (!valid) {
+                setErrorMessage(message || "");
+              } else {
+                console.log(`Certificado aceptado ID: ${item.id} con fecha: ${dateStr}`);
+              }
+            }}
+          />
+          <CustomButton
+            title="Denegar"
+            color="red"
+            onPress={() => {
+              console.log(`Certificado denegado ID: ${item.id}`);
+            }}
+          />
+        </View>
       </View>
     </View>
   );
+  
   
   return (
     <ThemedView style={styles.container}>
@@ -97,7 +155,9 @@ const CertificateManagement: React.FC = () => {
             que aún no han sido valorados.
           </Text>
         </View>
-
+        {errorMessage !== "" && (
+          <ThemedText style={styles.errorMessage}>{errorMessage}</ThemedText>
+        )}
         <View style={styles.tableContainer}>
           <ScrollView
             horizontal
@@ -110,8 +170,9 @@ const CertificateManagement: React.FC = () => {
                 <Text style={styles.headerCell}>Apellidos</Text>
                 <Text style={styles.headerCell}>DNI</Text>
                 <Text style={styles.headerCell}>Certificado</Text>
+                <Text style={styles.headerCell}>Fecha fallecimiento</Text>
+                <Text style={styles.headerCell}>Acciones</Text>
               </View>
-
               <FlatList
                 data={certificates}
                 keyExtractor={(item) => item.id.toString()}
@@ -214,6 +275,27 @@ const styles = StyleSheet.create({
   tableScrollContainer: {
     width: '100%',
     paddingHorizontal: 10,
+  },
+  dateInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    width: 150,
+    textAlign: 'center',
+  },
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
+  },
+  errorMessage: {
+    color: 'red',
+    textAlign: 'center',
+    marginTop: 10,
+    fontSize: 14,
   },
 });
 
