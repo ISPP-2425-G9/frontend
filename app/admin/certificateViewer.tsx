@@ -1,11 +1,14 @@
-import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
-import { View, Image, StyleSheet, Text } from 'react-native';
+import { RouteProp, useRoute, useNavigation } from '@react-navigation/native'; 
+import { View, Image, StyleSheet, Text, ScrollView, Dimensions } from 'react-native';
 import React from 'react';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
 import CustomButton from '@/components/CustomButton';
 import { GlobalStyles } from '@/constants/Colors';
 
+
+const screenHeight = Dimensions.get('window').height;
+const screenWidth = Dimensions.get('window').width;
 
 type RouteParams = {
   CertificateViewer: {
@@ -22,24 +25,31 @@ function CertificateViewer() {
     return (
       <View style={styles.container}>
         <Text style={styles.message}>No se encontró el certificado.</Text>
-        <CustomButton title="Volver al listado" onPress={() => navigation.navigate('admin/certificatesManagement')} color="blue" />
+        <CustomButton
+          title="Volver al listado"
+          onPress={() => navigation.navigate('admin/certificatesManagement')}
+          color="blue"
+        />
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <Image
-        source={{
-          uri: certificateUrl,
-          cache: 'force-cache',
-        }}
-        style={styles.image}
-        resizeMode="contain"
-      />
       <View style={styles.backButton}>
-        <CustomButton title="Volver al listado" onPress={() => navigation.navigate('admin/certificatesManagement')} color="blue" />
+        <CustomButton
+          title="Volver al listado"
+          onPress={() => navigation.navigate('admin/certificatesManagement')}
+          color="blue"
+        />
       </View>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Image
+          source={{ uri: certificateUrl, cache: 'force-cache' }}
+          style={styles.image}
+          resizeMode="contain"
+        />
+      </ScrollView>
     </View>
   );
 }
@@ -49,25 +59,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: GlobalStyles.white,
-    justifyContent: 'center',
     alignItems: 'center',
   },
+  scrollContent: {
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingBottom: 40,
+  },
   message: {
-    color: 'white',
+    color: 'black',
     fontSize: 18,
     marginBottom: 20,
   },
   image: {
-    width: '100%',
-    height: '100%',
+    width: screenWidth * 0.9,
+    height: screenHeight * 1.5,
+    resizeMode: 'contain',
   },
   backButton: {
-    position: 'absolute',
-    top: 40,
-    left: 20,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    marginTop: 20,
+    marginBottom: 10,
   },
 });
 
