@@ -110,9 +110,10 @@ const CertificateManagement: React.FC = () => {
         <TextInput
           placeholder="aaaa-mm-dd"
           value={deathDates[item.id] || ''}
-          onChangeText={(text) =>
-            setDeathDates((prev) => ({ ...prev, [item.id]: text }))
-          }
+          onChangeText={(text) => {
+            setErrorMessage("");
+            setDeathDates((prev) => ({ ...prev, [item.id]: text }));
+          }}
           style={styles.dateInput}
         />
       </View>
@@ -123,6 +124,7 @@ const CertificateManagement: React.FC = () => {
             color="green"
             style={styles.actionsButton}
             onPress={() => {
+              setErrorMessage("");
               const dateStr = deathDates[item.id];
               const { valid, message } = isValidDeathDate(dateStr);
               if (!valid) {
@@ -137,6 +139,7 @@ const CertificateManagement: React.FC = () => {
             color="red"
             style={styles.actionsButton}
             onPress={() => {
+              setErrorMessage("");
               console.log(`Certificado denegado ID: ${item.id}`);
             }}
           />
