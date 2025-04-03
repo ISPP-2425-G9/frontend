@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   tableContainer: {
-    width: '90%',
+    width: '100%',
     marginTop: 10,
     alignSelf: 'center',
   },
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     textAlign: 'center',
-    minWidth: 200,
+    minWidth: 250,
     fontWeight: 'bold',
     color: '#fff',
   }, 
