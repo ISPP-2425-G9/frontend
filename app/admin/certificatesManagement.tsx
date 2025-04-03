@@ -73,15 +73,14 @@ const CertificateManagement: React.FC = () => {
     </View>
   );
   
-
   return (
     <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.introContainer}>
           <Text style={styles.introTitle}>Certificados de defunción</Text>
           <Text style={styles.introText}>
-            A continuación se muestra un listado de los <Text style={styles.highlight}>certificados de defunción</Text> disponibles en el sistema.
-            Cada entrada incluye el nombre del fallecido junto con el documento correspondiente.
+            A continuación se muestra un listado de los <Text style={styles.highlight}>certificados de defunción</Text> del sistema
+            que aún no han sido valorados.
           </Text>
         </View>
 
