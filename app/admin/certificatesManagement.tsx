@@ -73,14 +73,17 @@ const CertificateManagement: React.FC = () => {
 
   const renderItem = ({ item }: { item: Certificate }) => (
     <View style={styles.tableRow}>
-      <Text style={styles.cell}>{item.firstName}</Text>
-      <Text style={styles.cell}>{item.lastName}</Text>
-      <Text style={styles.cell}>{item.dni}</Text>
-      <CustomButton
-        title="Ver certificado"
-        color="blue"
-        onPress={() => navigation.navigate('admin/certificateViewer', { certificateUrl: item.certificateUrl })}
-      />
+      <View style={styles.cell}><Text style={styles.cellText}>{item.firstName}</Text></View>
+      <View style={styles.cell}><Text style={styles.cellText}>{item.lastName}</Text></View>
+      <View style={styles.cell}><Text style={styles.cellText}>{item.dni}</Text></View>
+      <View style={styles.cell}>
+        <CustomButton
+          title="Ver certificado"
+          color="blue"
+          style={styles.deathCertificateViewerButton}
+          onPress={() => navigation.navigate('admin/certificateViewer', { certificateUrl: item.certificateUrl })}
+        />
+      </View>
     </View>
   );
   
@@ -157,38 +160,38 @@ const styles = StyleSheet.create({
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: GlobalStyles.blue,
-    paddingVertical: 10,
-    borderRadius: 8,
     paddingHorizontal: 5,
+    borderRadius: 8,
+    minHeight: 50,
+    alignItems: 'center',
   },
   headerCell: {
     flex: 1,
-    color: '#fff',
-    fontWeight: 'bold',
+    justifyContent: 'center',
+    alignItems: 'center',
     textAlign: 'center',
-  },
+    fontWeight: 'bold',
+    color: '#fff',
+  }, 
   tableRow: {
     flexDirection: 'row',
-    paddingVertical: 10,
     alignItems: 'center',
     borderBottomWidth: 1,
     borderColor: '#ccc',
+    minHeight: 50, // altura consistente
   },
   cell: {
     flex: 1,
-    textAlign: 'center',
-  },
-  image: {
-    width: 60,
-    height: 80,
-    borderRadius: 6,
-    resizeMode: 'cover',
-    alignSelf: 'center',
-  },
-  imageCell: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingVertical: 10,
+  },
+  cellText: {
+    textAlign: 'center',
+    fontSize: 16,
+  },
+  deathCertificateViewerButton: {
+    alignSelf: 'center',
   },
 });
 
