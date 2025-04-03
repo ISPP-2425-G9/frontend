@@ -102,8 +102,16 @@ const CertificateManagement: React.FC = () => {
         <CustomButton
           title="Ver certificado"
           color="blue"
-          style={styles.buttons}
+          style={styles.deathCertificateButton}
           onPress={() => navigation.navigate('admin/certificateViewer', {certificateUrl: item.certificateUrl,})}
+        />
+      </View>
+      <View style={styles.cell}>
+        <CustomButton
+          title="Revisar esquelas/mensajes"
+          color="blue"
+          style={styles.obituariesMessagesButton}
+          onPress={() => navigation.navigate('admin/reviewObituariesAndMessages', {certificateId: item.id,})}
         />
       </View>
       <View style={styles.cell}>
@@ -121,7 +129,7 @@ const CertificateManagement: React.FC = () => {
           <CustomButton
             title="Aceptar"
             color="green"
-            style={styles.buttons}
+            style={styles.actionsButton}
             onPress={() => {
               const dateStr = deathDates[item.id];
               const { valid, message } = isValidDeathDate(dateStr);
@@ -135,7 +143,7 @@ const CertificateManagement: React.FC = () => {
           <CustomButton
             title="Denegar"
             color="red"
-            style={styles.buttons}
+            style={styles.actionsButton}
             onPress={() => {
               console.log(`Certificado denegado ID: ${item.id}`);
             }}
@@ -171,6 +179,7 @@ const CertificateManagement: React.FC = () => {
                 <Text style={styles.headerCell}>Apellidos</Text>
                 <Text style={styles.headerCell}>DNI</Text>
                 <Text style={styles.headerCell}>Certificado</Text>
+                <Text style={styles.headerCell}>Esquelas/Mensajes</Text>
                 <Text style={styles.headerCell}>Fecha fallecimiento</Text>
                 <Text style={styles.headerCell}>Acciones</Text>
               </View>
@@ -248,7 +257,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     textAlign: 'center',
-    minWidth: 250,
+    minWidth: 220,
     fontWeight: 'bold',
     color: '#fff',
   }, 
@@ -270,9 +279,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
   },
-  buttons: {
+  deathCertificateButton: {
     alignSelf: 'center',
     width: 120,
+  },
+  obituariesMessagesButton: {
+    alignSelf: 'center',
+    width: 150,
+  },
+  actionsButton: {
+    alignSelf: 'center',
+    width: 100,
   },
   tableScrollContainer: {
     width: '100%',
@@ -284,7 +301,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 5,
-    width: 150,
+    width: 120,
     textAlign: 'center',
   },
   actionButtonsContainer: {
