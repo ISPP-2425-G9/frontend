@@ -123,12 +123,18 @@ const ListServiceScreen: React.FC = () => {
           <CustomTextInput
             placeholder="Buscar por ciudad"
             value={city}
-            onChangeText={setCity}
+            onChangeText={(text) => {
+              setCity(text);
+              setPage(0);
+            }}
           />
           <CustomTextInput
             placeholder="Buscar por nombre"
             value={name}
-            onChangeText={setName}
+            onChangeText={(text) => {
+              setName(text);
+              setPage(0);
+            }}
           />
           <View style={styles.pickerWrapper}>
             <Picker
@@ -149,35 +155,47 @@ const ListServiceScreen: React.FC = () => {
         {/* LISTADO DE SPONSORS */}
         {loading ? (
           <ActivityIndicator size="large" color={GlobalStyles.blue} />
+        ) : sponsors.length === 0 ? (
+          <Text style={{ marginTop: 20, marginBottom: 5, fontSize: 18, color: GlobalStyles.blue, textAlign: 'center' }}>
+            No se han encontrado resultados para la búsqueda
+          </Text>
         ) : (
           <View style={styles.listContainer}>
             {sponsors.map((item) => (
-              <View key={item.nif} style={styles.sponsorWrapper}>
+              <View
+                key={item.nif}
+                style={[
+                  styles.sponsorWrapper,
+                  isMobile ? styles.sponsorWrapperMobile : styles.sponsorWrapperDesktop
+                ]}
+              >
                 <AdvertisementSponsor sponsor={item} />
-              </View>
+              </View>            
             ))}
           </View>
         )}
         {/* PAGINACIÓN */}
-        <View style={[styles.paginationContainer, isMobile && styles.paginationContainerMobile]}>
-          <CustomButton
-            title="Anterior"
-            onPress={() => {
-              if (page > 0) setPage(page - 1);
-            }}
-            color="grey"
-            style={{ opacity: page === 0 || totalPages <= 1 ? 0.5 : 1 }}
-          />
-          <Text style={{ marginHorizontal: 10 }}>{page + 1} / {totalPages}</Text>
-          <CustomButton
-            title="Siguiente"
-            onPress={() => {
-              if (page + 1 < totalPages) setPage(page + 1);
-            }}
-            color="blue"
-            style={{ opacity: page + 1 >= totalPages || totalPages <= 1 ? 0.5 : 1 }}
-          />
-        </View>
+        {!loading && sponsors.length > 0 && (
+          <View style={[styles.paginationContainer, isMobile && styles.paginationContainerMobile]}>
+            <CustomButton
+              title="Anterior"
+              onPress={() => {
+                if (page > 0) setPage(page - 1);
+              }}
+              color="grey"
+              style={{ opacity: page === 0 || totalPages <= 1 ? 0.5 : 1 }}
+            />
+            <Text style={{ marginHorizontal: 10 }}>{page + 1} / {totalPages}</Text>
+            <CustomButton
+              title="Siguiente"
+              onPress={() => {
+                if (page + 1 < totalPages) setPage(page + 1);
+              }}
+              color="blue"
+              style={{ opacity: page + 1 >= totalPages || totalPages <= 1 ? 0.5 : 1 }}
+            />
+          </View>
+        )}
       </ScrollView>
     </ThemedView>
   );
@@ -220,38 +238,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: GlobalStyles.blue,
   },
-  listContainer: {
-    width: '100%',
-    alignItems: 'center',
-    marginLeft: 37,
-  },
-  sponsorWrapper: {
-    width: '100%',
-    maxWidth: 750,
-    marginHorizontal: 'auto',
-    alignSelf: 'center',
-    marginBottom: 16,
-  },
-  filterContainer: {
-    width: 400,
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  filterContainerMobile: {
-    width: '100%',
-    paddingHorizontal: 16,
-  },  
-  paginationContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 20,
-  },
-  paginationContainerMobile: {
-    flexDirection: 'column',
-    gap: 10,
-  },  
   pickerWrapper: {
     width: '100%',
     backgroundColor: GlobalStyles.lightGrey,
@@ -272,6 +258,48 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     fontSize: 16,
   },  
+  filterContainer: {
+    width: 400,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  filterContainerMobile: {
+    width: '100%',
+    paddingHorizontal: 16,
+  }, 
+  listContainer: {
+    width: '100%',
+    maxWidth: 1200,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginBottom: 20,
+  },  
+  sponsorWrapper: {
+    padding: 10,
+  },
+  sponsorWrapperDesktop: {
+    width: '45%',
+    maxWidth: 600,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },  
+  sponsorWrapperMobile: {
+    width: '90%',
+  },  
+  paginationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 20,
+  },
+  paginationContainerMobile: {
+    flexDirection: 'column',
+    gap: 10,
+  },
 });
 
 export default withAuth(ListServiceScreen, [AUTHORITIES.CUSTOMER, AUTHORITIES.COMPANY]);
