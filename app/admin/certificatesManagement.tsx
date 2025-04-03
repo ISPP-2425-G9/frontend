@@ -99,18 +99,26 @@ const CertificateManagement: React.FC = () => {
         </View>
 
         <View style={styles.tableContainer}>
-          <View style={styles.tableHeader}>
-            <Text style={styles.headerCell}>Nombre</Text>
-            <Text style={styles.headerCell}>Apellidos</Text>
-            <Text style={styles.headerCell}>DNI</Text> 
-            <Text style={styles.headerCell}>Certificado</Text>
-          </View>
+          <ScrollView
+            horizontal
+            style={styles.tableScrollContainer}
+            contentContainerStyle={styles.tableScrollContent}
+          >
+            <View style={styles.tableWrapper}>
+              <View style={styles.tableHeader}>
+                <Text style={styles.headerCell}>Nombre</Text>
+                <Text style={styles.headerCell}>Apellidos</Text>
+                <Text style={styles.headerCell}>DNI</Text>
+                <Text style={styles.headerCell}>Certificado</Text>
+              </View>
 
-          <FlatList
-            data={certificates}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={renderItem}
-          />
+              <FlatList
+                data={certificates}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={renderItem}
+              />
+            </View>
+          </ScrollView>
         </View>
       </ScrollView>
     </ThemedView>
@@ -156,6 +164,14 @@ const styles = StyleSheet.create({
   tableContainer: {
     width: '90%',
     marginTop: 10,
+    alignSelf: 'center',
+  },
+  tableScrollContent: {
+    justifyContent: 'center',
+    flexGrow: 1,
+  },
+  tableWrapper: {
+    alignSelf: 'center',
   },
   tableHeader: {
     flexDirection: 'row',
@@ -170,6 +186,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     textAlign: 'center',
+    minWidth: 200,
     fontWeight: 'bold',
     color: '#fff',
   }, 
@@ -178,11 +195,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomWidth: 1,
     borderColor: '#ccc',
-    minHeight: 50, // altura consistente
+    minHeight: 50,
   },
   cell: {
     flex: 1,
     justifyContent: 'center',
+    minWidth: 200,
     alignItems: 'center',
     paddingVertical: 10,
   },
@@ -192,6 +210,10 @@ const styles = StyleSheet.create({
   },
   deathCertificateViewerButton: {
     alignSelf: 'center',
+  },
+  tableScrollContainer: {
+    width: '100%',
+    paddingHorizontal: 10,
   },
 });
 
