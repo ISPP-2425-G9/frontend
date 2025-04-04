@@ -89,7 +89,15 @@ function LoadCertificate() {
 
   const validateDni = (dni: string) => {
     const dniRegex = /^\d{8}[A-Z]$/;
-    return dniRegex.test(dni);
+    if (!dniRegex.test(dni)){
+      return false
+    }
+    const dniNumber = dni.slice(0, 8);
+    const dniLetter = dni.charAt(8);
+    const dniLetters = "TRWAGMYFPDXBNJZSQVHLCKE";
+    const dniIndex = parseInt(dniNumber, 10) % 23;
+    const expectedLetter = dniLetters.charAt(dniIndex);
+    return dniLetter === expectedLetter;
   };
 
   const showConfirmationModal = async () => {

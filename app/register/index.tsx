@@ -207,67 +207,79 @@ const RegisterScreen: React.FC = () => {
     const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const nifRegex = /^[A-Z]\d{7}[A-J0-9]$/;
     const zipCodeRegex = /^\d{5}$/;
-    const phoneRegex = /^\+?\d{9,15}$/;
-    const dniRegex = /^\d{8}[A-Z]$/;
+    const phoneRegex = /^\d{9}$/;
+
+    const validatePhone = (phone: string) => {
+      const digitsOnly = phone.replace(/\s/g, '');
+      return phoneRegex.test(digitsOnly);
+    };
+
+    const validateDni = (dni: string) => {
+      const dniRegex = /^\d{8}[A-Z]$/;
+      if (!dniRegex.test(dni)){
+        {
+          showNotification({
+            message: "El DNI debe tener 8 números y una letra mayúscula",
+            type: "error",
+          });
+        }
+        return false
+      }
+      const dniNumber = dni.slice(0, 8);
+      const dniLetter = dni.charAt(8);
+      const dniLetters = "TRWAGMYFPDXBNJZSQVHLCKE";
+      const dniIndex = parseInt(dniNumber, 10) % 23;
+      const expectedLetter = dniLetters.charAt(dniIndex);
+      return dniLetter === expectedLetter;
+    };
+
+    
 
     if (uType === "Empresa") {
       if (
         !values.nif ||
         typeof values.nif !== "string" ||
         !nifRegex.test(values.nif)
-      ) {
-        errors.push("El NIF no es válido.");
-      }
-
-      if (typeof values.name === "string" && values.name.length > 100) {
-        errors.push("El nombre debe tener 100 caracteres como máximo.");
-      }
+      ) showNotification({
+        message: "El NIF no es válido",
+        type: "error",
+      });
 
       if (
         !values.zipCode ||
         typeof values.zipCode !== "string" ||
         !zipCodeRegex.test(values.zipCode)
-      ) {
-        errors.push("El código postal debe tener 5 dígitos.");
-      }
+      ) showNotification({
+        message: "El código postal no es válido",
+        type: "error",
+      });
 
       if (
         !values.city ||
         typeof values.city !== "string" ||
         values.city.trim() === ""
-      ) {
-        errors.push("La ciudad es obligatoria.");
-      }
-
-      if (typeof values.city === "string" && values.city.length > 100) {
-        errors.push("La ciudad debe tener 100 caracteres como máximo.");
-      }
-
+      ) showNotification({
+        message: "La ciudad es obligatoria",
+        type: "error",
+      });
 
       if (
         !values.address ||
         typeof values.address !== "string" ||
         values.address.trim() === ""
-      ) {
-        errors.push("La dirección es obligatoria.");
-      }
-
-      if (typeof values.address === "string" && values.address.length > 100) {
-        errors.push("La dirección debe tener 100 caracteres como máximo.");
-      }
-
+      ) showNotification({
+        message: "La dirección es obligatoria",
+        type: "error",
+      });
 
       if (
         !values.description ||
         typeof values.description !== "string" ||
         values.description.trim() === ""
-      ) {
-        errors.push("La descripción es obligatoria.");
-      }
-
-      if (typeof values.description === "string" && values.description.length > 1024) {
-        errors.push("La descripción debe tener 1024 caracteres como máximo.");
-      }
+      ) showNotification({
+        message: "La descripción es obligatoria",
+        type: "error",
+      });
 
       if (
         !values.companyType ||
@@ -287,53 +299,54 @@ const RegisterScreen: React.FC = () => {
       if (
         !values.dni ||
         typeof values.dni !== "string" ||
-        !dniRegex.test(values.dni)
-      ) {
-        errors.push("El DNI debe tener 8 números y una letra mayúscula.");
-      }
+        !validateDni(values.dni)
+      ) showNotification({
+        message: "El DNI no es válido",
+        type: "error",
+      });
     }
     if (
       !values.name ||
       typeof values.name !== "string" ||
       values.name.trim() === ""
-    ) {
-      errors.push("El nombre es obligatorio.");
-    }
-
-    if (typeof values.name === "string" && values.name.length > 100) {
-      errors.push("El nombre debe tener 100 caracteres como máximo.");
-    }
+    ) showNotification({
+      message: "El nombre es obligatorio",
+      type: "error",
+    });
 
     if (
       !values.telephone ||
       typeof values.telephone !== "string" ||
-      !phoneRegex.test(values.telephone)
-    ) {
-      errors.push("El número de teléfono no es válido.");
-    }
+      !validatePhone(values.telephone)
+    ) showNotification({
+      message: "El teléfono no es válido",
+      type: "error",
+    });
 
     if (
       !values.email ||
       typeof values.email !== "string" ||
       !emailRegex.test(values.email)
-    ) {
-      errors.push("El email no es válido.");
-    }
+    ) showNotification({
+      message: "El email no es válido",
+      type: "error",
+    });
 
     if (
       !values.password1 ||
       typeof values.password1 !== "string" ||
       values.password1.length < 6
-    ) {
-      errors.push("La contraseña debe tener al menos 6 caracteres.");
-    }
-
-    if (typeof values.password1 === "string" && values.password1.length > 20) {
-      errors.push("La contraseña debe tener 20 caracteres como máximo.");
-    }
+    )
+    showNotification({
+      message: "La contraseña debe tener al menos 6 caracteres",
+      type: "error",
+    });
 
     if (values.password1 !== values.password2) {
-      errors.push("Las contraseñas no coinciden.");
+      showNotification({
+        message: "Las contraseñas no coinciden",
+        type: "error",
+      });
     }
 
     return errors;
@@ -379,9 +392,9 @@ const RegisterScreen: React.FC = () => {
           errorMessage = Object.values(data.errors).flat().join("\n");
         } else if (data.error) {
           if (data.error.toLowerCase().includes("dni")) {
-            errorMessage = "El DNI ya ha sido registrado.";
+            errorMessage = "El DNI ya ha sido registrado";
           } else if (data.error.toLowerCase().includes("email")) {
-            errorMessage = "El email ya ha sido registrado.";
+            errorMessage = "El email ya ha sido registrado";
           } else {
             errorMessage = data.error;
           }
@@ -389,7 +402,7 @@ const RegisterScreen: React.FC = () => {
         throw new Error(errorMessage);
       }
       if (!data.token) {
-        throw new Error("No se recibió token de autenticación.");
+        throw new Error("No se recibió token de autenticación");
       }
       await AsyncStorage.setItem("authToken", data.token);
       await login(data.id, data.token, data.roles, data.username, data.name);
@@ -605,15 +618,6 @@ const RegisterScreen: React.FC = () => {
                 </View>
               ))}
 
-            {formErrors.length > 0 && (
-              <View style={styles.errorContainer}>
-                {formErrors.map((error, index) => (
-                  <ThemedText key={`error-${index}`} style={styles.errorText}>
-                    {error}
-                  </ThemedText>
-                ))}
-              </View>
-            )}
 
             <View style={styles.checkboxContainer}>
               <Checkbox
