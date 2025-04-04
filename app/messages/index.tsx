@@ -25,7 +25,8 @@ interface Message {
 
 type RootStackParamList = {
   //'messages/listMyMessages': {messageId: number};
-  'messages/listMyMessages': { messageId: number 
+  'messages/listMyMessages': { 
+    messageId: number 
     is_newMessage: boolean;
 
   } | undefined;
@@ -34,10 +35,6 @@ type RootStackParamList = {
     is_newMessage: boolean;
 
   } | undefined;
-  
-
-  
-
 };
 
 function MessageCreation() {
@@ -60,13 +57,13 @@ function MessageCreation() {
   });
 
   const [ isVisible, setIsVisible ] = useState<boolean>(false);
-  const [ isOwner, setIsOwner ] = useState<boolean>(true);
+  const [ isOwner, setIsOwner ] = useState<boolean>(false);
   const [ code, setCode ] = useState<string>("");
 
-
-    useFocusEffect(
-      useCallback(() => {
-
+  useFocusEffect(
+    useCallback(() => {
+      setSelectedMedia(null);
+      const fetchOwnerStatus = async () => {
         if (is_newMessage) {
           setFormData({
             title: '',
@@ -74,9 +71,94 @@ function MessageCreation() {
             customImages: [],
           });
           setContacts([]);
+        } else {
+          try {
+            const authToken = await AsyncStorage.getItem('authToken');
+  
+            if (!authToken) {
+              console.error('No se encontró el token de autenticación');
+              return;
+            }  
+            const response = await fetch(`${BACKEND_API}/api/messages/${messageId}/is-owner`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`,
+              },
+            });
+  
+            if (!response.ok) {
+              throw new Error(`Error en la solicitud: ${response.status} ${response.statusText}`);
+            }
+  
+            const data = await response.json();
+            setIsOwner(data.isOwner);
+          } catch (error) {
+            console.error('Error al verificar la propiedad del mensaje:', error);
+          }
         }
-      }, [is_newMessage])
-    );
+      };
+  
+      fetchOwnerStatus(); 
+  
+    }, [is_newMessage])
+  );
+  const fetchMessageData = useCallback(async () => {
+    if (!is_newMessage && isOwner) {       
+      console.log("Fetching message data for messageId:", messageId); 
+      
+      try {
+        const authToken = await AsyncStorage.getItem('authToken');
+  
+        if (!authToken) {
+          console.error("No se encontró el token de autenticación");
+          return;
+        }
+  
+        const response = await fetch(`${BACKEND_API}/api/messages/${messageId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+        });
+  
+        if (response.ok) {
+          const data = await response.json();
+          setFormData({
+            title: data.title,
+            body: data.body,
+            customImages: data.customImages || [],
+          });
+
+          const formatPhoneNumber = (phone: string) => {
+            return phone.replace(/\D/g, '').replace(/(\d{3})(?=\d)/g, '$1 ');
+          };
+          
+          const contactsData = data.recipients.map((contact: any) => ({
+            id: Date.now(),
+            name: contact.name,
+            telephone: formatPhoneNumber(contact.telephone),
+            email: contact.email,
+          }));
+          
+      
+          setContacts(contactsData);
+          
+        } else {
+          console.error('Error al obtener los datos del mensaje');
+        }
+      } catch (error) {
+        console.error('Error en la solicitud:', error);
+      }
+    }
+  }, [is_newMessage, isOwner, messageId]); 
+  
+  useEffect(() => {
+    fetchMessageData();
+  }, [fetchMessageData]); 
+  
+  
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -84,9 +166,7 @@ function MessageCreation() {
       allowsEditing: true,
       quality: 1,
     });
-
-
-
+    
     if (!result.canceled) {
 
       const allowedFormats = ["jpg", "jpeg", "png"];
@@ -124,52 +204,19 @@ function MessageCreation() {
     }
   };
 
-  useEffect(() => {
-    const fetchMessageData = async () => {
-      if (!is_newMessage) {
-        
-        try {
-          const authToken = await AsyncStorage.getItem('authToken');
-          const response = await fetch(`${BACKEND_API}/api/messages/${messageId}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${authToken}`,
-            },
-          });
-
-          if (response.ok) {
-            console.log("response", response);
-            const data = await response.json();
-            setFormData({
-              title: data.title,
-              body: data.body,
-              customImages: data.customImages || [],
-            });
-            setContacts(data.contacts || []);
-          } else {
-            console.error('Error al obtener los datos del mensaje');
-          }
-        } catch (error) {
-          console.error('Error en la solicitud:', error);
-        }
-      } else{
-       
-      }
-    }
-      fetchMessageData();
-    }, [is_newMessage]);
-
-
+    
   const handleSubmitMessage = async () => {
 
     const url = !is_newMessage ? `${BACKEND_API}/api/messages/${messageId}` : `${BACKEND_API}/api/messages`;
     const method = !is_newMessage ? 'PUT' : 'POST';
     const dataToSend = {
       ...formData,
-      contacts: contacts,
+      recipients: contacts.map(contact => ({
+        ...contact,
+        telephone: contact.telephone.replace(/\s+/g, '') 
+      })),
     };
-    
+        
     const errors = validateMessageData(formData.title,formData.body);
 
     if (errors && errors.length > 0) {
@@ -221,13 +268,6 @@ function MessageCreation() {
     return errors;
   };
 
-
-
-
-  const handleChange = (field: string, value: string) => {
-    setFormData({ ...formData, [field]: value });
-  };
-
   const handleSaveMessage = () => {
     handleSubmitMessage();
   };
@@ -242,14 +282,14 @@ function MessageCreation() {
   type Contact = {
     id: number;
     name: string;
-    phone: string;
+    telephone: string;
     email: string;
   };
 
  const [newContact, setNewContact] = useState<Contact>({
     id: Date.now(),
     name: "",
-    phone: "",
+    telephone: "",
     email: "",
   });
 
@@ -269,7 +309,7 @@ function MessageCreation() {
 
   const addContact = () => {
 
-    if (!newContact.name || !newContact.phone || !newContact.email) {
+    if (!newContact.name || !newContact.telephone || !newContact.email) {
       showNotification({
         message: `Todos los campos son obligatorios`,
         type: "info",
@@ -287,9 +327,8 @@ function MessageCreation() {
       return;
     }
 
-    setNewContact({ id: Date.now(), name: "", phone: "", email: "" });
+    setNewContact({ id: Date.now(), name: "", telephone: "", email: "" });
     setContacts([...contacts, newContact]);
-    console.log("newContact", newContact);
   };
 
   const removeContact = (id: number) => {
@@ -301,16 +340,16 @@ function MessageCreation() {
   const validateContactData = (values: Contact) => {
     const errors: string[] = [];
     const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const phoneRegex = /^\d{3} \d{3} \d{3}$/;
+    const telephoneRegex = /^\d{3} \d{3} \d{3}$/;
 
-    const phoneSet = new Set();
+    const telephoneSet = new Set();
     const emailSet = new Set();
 
     if (!values.name || values.name.trim() === "") {
       errors.push("El nombre es obligatorio para el contacto");
     }
 
-    if (!values.phone || !phoneRegex.test(values.phone)) {
+    if (!values.telephone || !telephoneRegex.test(values.telephone)) {
       errors.push("Por favor, introduce un teléfono válido (sin prefijo)");
     }
 
@@ -319,10 +358,10 @@ function MessageCreation() {
     }
 
     contacts.forEach((contact) => {
-      phoneSet.add(contact.phone);
+      telephoneSet.add(contact.telephone);
     });
 
-    if (phoneSet.has(values.phone)) {
+    if (telephoneSet.has(values.telephone)) {
       errors.push("El teléfono ya ha sido añadido");
     }
 
@@ -338,25 +377,20 @@ function MessageCreation() {
     return errors;
   };
 
-  // Logica para poner modal a true
   const handleSelectContacts = () => {
-    //alert("Esta función estará disponible muy pronto!");
     setIsContactModalVisible(true);
   };
 
-  const handleEditContact = (contact: { id: number; name: string; phone: string; email: string; }) => {
+  const handleEditContact = (contact: { id: number; name: string; telephone: string; email: string; }) => {
     removeContact(contact.id);
     setEditingContact(contact);
     setNewContact({
       id: contact.id,
       name: contact.name,
-      phone: contact.phone,
+      telephone: contact.telephone,
       email: contact.email,
     });
   };
-
-
-  // Logica para verificar el código
   const handleVerifyCode = async () => {
     if (!code || code.trim() === "") {
       showNotification({
@@ -366,19 +400,61 @@ function MessageCreation() {
       });
       return;
     }
-    setIsVisible(true);
-  }
-    
-
-
+  
+    try {
+      const response = await fetch(`${BACKEND_API}/api/messages/${messageId}/validate-code/${code}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Error en la solicitud: ${response.status} ${response.statusText}`);
+      }
+  
+      const data = await response.json();
+  
+      setIsVisible(true);
+      setCode("");
+  
+      setFormData({
+        title: data.title,
+        body: data.body,
+        customImages: data.customImages || [],
+      });
+  
+      const formatPhoneNumber = (phone: string) => {
+        return phone.replace(/\D/g, '').replace(/(\d{3})(?=\d)/g, '$1 ');
+      };
+      
+      const contactsData = data.recipients.map((contact: any) => ({
+        id: Date.now(),
+        name: contact.name,
+        telephone: formatPhoneNumber(contact.telephone),
+        email: contact.email,
+      }));
+      
+  
+      setContacts(contactsData);
+  
+    } catch (error) {
+      showNotification({
+        message: "Código erróneo. Inténtalo de nuevo.",
+        type: "error",
+        duration: 3000,
+      });
+    }
+  };
+  
   return (
     <>
-    
       {isVisible || isOwner ? (
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.formContainer}>
-            <Text style={styles.textTitle}>Crea tu mensaje personalizado</Text>
-            
+          <Text style={styles.textTitle}>
+            {is_newMessage ? "Crea tu mensaje personalizado" : "Actualiza tu mensaje"}
+          </Text>            
   
             <CustomTextInput
               style={{ width: "100%" }}
@@ -404,13 +480,13 @@ function MessageCreation() {
                   <CustomButton
                     color="blue"
                     style={styles.customButton1}
-                    title="Seleccionar imágenes"
+                    title={is_newMessage ? "Seleccionar imágenes" : "Actualizar imágenes"}
                     onPress={pickImage}
                   />
                   <CustomButton
                     color="blue"
                     style={styles.customButton1}
-                    title="Seleccionar contactos"
+                    title={is_newMessage ? "Seleccionar contactos" : "Actualizar contactos"}
                     onPress={handleSelectContacts}
                   />
                 </View>
@@ -418,7 +494,7 @@ function MessageCreation() {
                 <CustomButton
                   color="grey"
                   style={styles.customButton2}
-                  title="Guardar mensaje"
+                  title={is_newMessage ? "Guardar mensaje" : "Actualizar mensaje"}
                   onPress={handleSaveMessage}
                 />
               </View>
@@ -474,13 +550,13 @@ function MessageCreation() {
                 />
                 <CustomTextInput
                   placeholder="Teléfono (sin prefijo)"
-                  value={newContact.phone}
+                  value={newContact.telephone}
                   maxLength={11}
                   keyboardType="phone-pad"
                   onChangeText={(text) => {
                     const numericText = text.replace(/\D/g, "");
                     const formattedText = numericText.replace(/(\d{3})/g, "$1 ").trim();
-                    handleChangeContact("phone", formattedText);
+                    handleChangeContact("telephone", formattedText);
                   }}
                   style={styles.input}
                 />
@@ -517,7 +593,7 @@ function MessageCreation() {
                       renderItem={({ item }) => (
                         <View style={styles.tableRow}>
                           <Text style={styles.cell}>{item.name}</Text>
-                          <Text style={styles.cell}>{item.phone}</Text>
+                          <Text style={styles.cell}>{item.telephone}</Text>
                           <Text style={styles.cell}>{item.email}</Text>
                           <View style={styles.actionCell}>
                             <CustomButton
