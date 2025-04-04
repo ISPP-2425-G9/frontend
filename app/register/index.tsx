@@ -15,6 +15,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Alert, Animated, Dimensions,
   Modal,
+  Platform,
   ScrollView, StyleSheet,
   View
 } from 'react-native';
@@ -471,7 +472,10 @@ const RegisterScreen: React.FC = () => {
                   {field.name === "companyType" ? (
                     <View style={styles.pickerContainer}>
                       <Picker
-                        style={styles.picker}
+                        style={[
+                                  styles.picker,
+                                  Platform.OS === 'web' ? { outline: 'none' } : {},
+                                ]}
                         selectedValue={formValues[field.name] || ""}
                         onValueChange={(value) => { setFormValues({ ...formValues, [field.name]: value }) }
                         }
@@ -868,7 +872,7 @@ const styles = StyleSheet.create({
   pickerContainer: {
     borderWidth: 1,
     borderColor: "#ddd",
-    borderRadius: 8,
+    borderRadius: 15,
     backgroundColor: GlobalStyles.lightGrey,
     height: 48,
     justifyContent: "center",
