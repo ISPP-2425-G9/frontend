@@ -18,7 +18,7 @@ const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
 interface Message {
-    id: number;
+    messageId: number;
     title: string;
     body: string;
     code: string;
@@ -49,13 +49,11 @@ function MessageList() {
         React.useCallback(() => {
             const fetchData = async () => {
                 setLoading(true);
-                const userData = await AsyncStorage.getItem('user_data');
-                const userId = userData ? JSON.parse(userData).id : null;
                 try {
                     const authToken = await AsyncStorage.getItem('authToken');
                     if (!authToken) throw new Error('No se encontró un token de autenticación');
 
-                    const response = await fetch(`${BACKEND_API}/api/messages/${userId}/my_messages`, {
+                    const response = await fetch(`${BACKEND_API}/api/messages/my-messages`, {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
@@ -95,7 +93,7 @@ function MessageList() {
             });
 
             if (response.ok) {
-                setMessages(messages.filter(m => m.id !== messageId));
+                setMessages(messages.filter(m => m.messageId !== messageId));
                 setModalVisible(false);
             } else {
                 console.error('Error al eliminar el mensage');
@@ -148,7 +146,7 @@ function MessageList() {
             <View style={styles.messagesWrapper}>
                 {messages.map((message) => (
                     <View
-                        key={message.id}
+                        key={message.messageId}
                         style={styles.messageContainer}
                     >
                         <Text style={styles.messageText}>Título: {message.title}</Text>
@@ -158,13 +156,13 @@ function MessageList() {
                                 title="Editar"
                                 color="blue"
                                 style={styles.button1}
-                                onPress={() => navigation.navigate('messages/index', { messageId: message.id, is_newMessage: false })}
+                                onPress={() => navigation.navigate('messages/index', { messageId: message.messageId, is_newMessage: false })}
                             />
                             <CustomButton
                                 title="Eliminar"
                                 color="red"
                                 style={styles.button1}
-                                onPress={() => { showConfirmationModal(message.id) }}
+                                onPress={() => { showConfirmationModal(message.messageId) }}
                             />
                         </View>
                     </View>
