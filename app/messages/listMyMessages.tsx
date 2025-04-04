@@ -32,6 +32,7 @@ type RootStackParamList = {
     'messages/index': {
         messageId: number | undefined;
         is_newMessage: boolean;
+        is_owner: boolean | undefined;
     } | undefined;
 };
 
@@ -63,7 +64,6 @@ function MessageList() {
 
                     if (response.ok) {
                         const data: Message[] = await response.json();
-                        console.log(data);
                         setMessages(data);
                     }
 
@@ -140,7 +140,7 @@ function MessageList() {
                 title="Crea un mensaje para un ser querido"
                 color="green"
                 style={styles.floatingButton}
-                onPress={() => navigation.navigate('messages/index', { messageId: undefined, is_newMessage: true })}
+                onPress={() => navigation.navigate('messages/index', { messageId: undefined, is_newMessage: true, is_owner: true })}
             />
 
             <View style={styles.messagesWrapper}>
@@ -156,7 +156,7 @@ function MessageList() {
                                 title="Editar"
                                 color="blue"
                                 style={styles.button1}
-                                onPress={() => navigation.navigate('messages/index', { messageId: message.messageId, is_newMessage: false })}
+                                onPress={() => navigation.navigate('messages/index', { messageId: message.messageId, is_newMessage: false, is_owner: undefined })}
                             />
                             <CustomButton
                                 title="Eliminar"

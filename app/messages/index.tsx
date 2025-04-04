@@ -28,11 +28,13 @@ type RootStackParamList = {
   'messages/listMyMessages': { 
     messageId: number 
     is_newMessage: boolean;
+    is_owner: boolean;
 
   } | undefined;
   'messages/index': { 
     messageId: number;
     is_newMessage: boolean;
+    is_owner: boolean;
 
   } | undefined;
 };
@@ -44,7 +46,12 @@ function MessageCreation() {
   const route = useRoute<RouteProp<RootStackParamList, 'messages/listMyMessages'>>();
 
   const messageId = route.params?.messageId || undefined;
+
   const is_newMessage = route.params?.is_newMessage;
+
+  const is_owner = route.params?.is_owner || false;
+
+  const [isOwner, setIsOwner] = useState<boolean>(is_owner);
 
   const { showNotification } = useNotification();
 
@@ -57,7 +64,6 @@ function MessageCreation() {
   });
 
   const [ isVisible, setIsVisible ] = useState<boolean>(false);
-  const [ isOwner, setIsOwner ] = useState<boolean>(false);
   const [ code, setCode ] = useState<string>("");
 
   useFocusEffect(
@@ -105,7 +111,6 @@ function MessageCreation() {
   );
   const fetchMessageData = useCallback(async () => {
     if (!is_newMessage && isOwner) {       
-      console.log("Fetching message data for messageId:", messageId); 
       
       try {
         const authToken = await AsyncStorage.getItem('authToken');
