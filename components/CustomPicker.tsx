@@ -26,6 +26,7 @@ const CustomPicker: React.FC<CustomPickerProps> = ({
   return (
     <View style={[styles.container, style]}>
       <Picker
+        testID='custom-picker'
         selectedValue={selectedValue}
         onValueChange={onValueChange}
         style={styles.picker}
