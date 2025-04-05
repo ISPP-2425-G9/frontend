@@ -11,6 +11,7 @@ import { useNavigation, NavigationProp, useRoute, RouteProp, useFocusEffect } fr
 import { BACKEND_API } from '@/constants/Mysc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNotification } from '@/context/NotificationContext';
+import CustomModal from '@/components/CustomModal';
 
 
 const { width } = Dimensions.get("window");
@@ -58,6 +59,8 @@ function MessageCreation() {
   const { showNotification } = useNotification();
 
   const [selectedMedia, setSelectedMedia] = useState<string | null>(null);
+
+  const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -224,7 +227,10 @@ function MessageCreation() {
       })),
     };
 
-    const errors = validateMessageData(formData.title, formData.body);
+    const recipientEmails = dataToSend.recipients.map((recipient) => recipient.email);
+    const errors = validateMessageData(formData.title, formData.body, recipientEmails);
+
+    closeConfirmationModal();
 
     if (errors && errors.length > 0) {
       showNotification({
@@ -260,7 +266,7 @@ function MessageCreation() {
     }
   };
 
-  const validateMessageData = (title: string, body: string) => {
+  const validateMessageData = (title: string, body: string, recipients: string[]) => {
     const errors: string[] = [];
 
 
@@ -272,16 +278,27 @@ function MessageCreation() {
       errors.push("El cuerpo del mensaje no puede estar vacío");
     }
 
+    if (recipients.length === 0) {
+      errors.push("Debe añadir al menos un contacto");
+    }
+
+    setIsConfirmationModalVisible(true);
+
     return errors;
   };
 
-  const handleSaveMessage = () => {
-    handleSubmitMessage();
-  };
 
   const handleMediaPress = (uri: string) => {
     setSelectedMedia(uri);
   };
+
+  const showConfirmationModal = () => {
+    setIsConfirmationModalVisible(true);
+  }
+
+  const closeConfirmationModal = () => {
+    setIsConfirmationModalVisible(false);
+  }
 
   const handleRemoveImage = (uriToRemove: string) => {
     setFormData((prev) => ({
@@ -513,7 +530,7 @@ function MessageCreation() {
                   color="grey"
                   style={styles.customButton2}
                   title={is_newMessage ? "Guardar mensaje" : "Actualizar mensaje"}
-                  onPress={handleSaveMessage}
+                  onPress={showConfirmationModal}
                 />
               </View>
             )}
@@ -547,7 +564,7 @@ function MessageCreation() {
                         </View>
 
                       )}
-                      {!is_visualization && (
+                      {!is_visualization && isOwner && (
                         <TouchableOpacity
                           onPress={() => handleRemoveImage(uri)}
                           style={{
@@ -652,7 +669,31 @@ function MessageCreation() {
               </ScrollView>
             </View>
           )}
-        </ScrollView>
+          {isConfirmationModalVisible && (
+            <CustomModal
+              visible={isConfirmationModalVisible}
+              onClose={closeConfirmationModal}
+              title={"¿Desea guardar el mensaje?"}
+              style={styles.modalStyle2}
+            >
+              <View style={styles.buttonContainer2}>
+                <TouchableOpacity
+                  style={styles.button2}
+                  onPress={handleSubmitMessage}
+                >
+                  <Text style={styles.buttonText}>Aceptar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.button2}
+                  onPress={closeConfirmationModal}
+                >
+                  <Text style={styles.buttonText}>Cancelar</Text>
+                </TouchableOpacity>
+              </View>
+            </CustomModal>
+
+          )}
+        </ScrollView >
       ) : (
         <View style={styles.codeContainer}>
           <Text style={styles.codeText}> Ingresa el código</Text>
@@ -670,7 +711,8 @@ function MessageCreation() {
           />
 
         </View>
-      )}
+      )
+      }
     </>
   );
 }
@@ -893,7 +935,32 @@ const styles = StyleSheet.create({
     padding: 20,
     marginTop: 20,
   },
-
+  modalStyle2: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 15,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
+    width: width > 600 ? "40%" : "80%",
+  },
+  buttonContainer2: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: "1%",
+    flexDirection: "row",
+    width: "35%",
+    gap: "2%",
+  },
+  button2: {
+    backgroundColor: GlobalStyles.blue,
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 8,
+    alignItems: "center",
+  },
 });
 
 export default withAuth(MessageCreation, [AUTHORITIES.ANONYMOUS, AUTHORITIES.CUSTOMER_PREMIUM,]);
