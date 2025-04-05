@@ -16,6 +16,7 @@ import {
   Alert, Animated, Dimensions,
   Modal,
   Platform,
+  Pressable,
   ScrollView, StyleSheet,
   View
 } from 'react-native';
@@ -456,6 +457,12 @@ const RegisterScreen: React.FC = () => {
                   ...styles.typeButton,
                 }}
               />
+              <ThemedText style={styles.registerText}>
+                        ¿Ya tienes una cuenta?{' '}
+                        <Pressable onPress={() => { navigation.navigate('login/index' as never) }}>
+                          <ThemedText style={styles.loginLink}>Inicia sesión</ThemedText>
+                        </Pressable>
+                      </ThemedText>
             </View>
           </View>
         </Animated.View>
@@ -890,6 +897,18 @@ const styles = StyleSheet.create({
     backgroundColor: GlobalStyles.lightGrey,
     borderColor: GlobalStyles.lightGrey,
     borderWidth: 0,
+  },
+  registerText: {
+    marginTop: 30,
+    color: GlobalStyles.darkGrey,
+    fontFamily: GlobalStyles.font,
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  loginLink: {
+    color: GlobalStyles.blue,
+    fontSize: 14,
+    textAlign: 'center',
   },
 });
 
