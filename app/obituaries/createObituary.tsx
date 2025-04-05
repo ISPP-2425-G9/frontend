@@ -66,8 +66,6 @@ function EsquelaCustomizer() {
 
   const is_visualization = route.params?.is_visualization ?? undefined;
 
-  console.log("is_visualization", is_visualization);
-
   const imageId = route.params?.imageTemplateId;
 
   const imageUrl = route.params?.imageUrl;
@@ -82,7 +80,10 @@ function EsquelaCustomizer() {
 
   const is_mine = route.params?.is_mine;
 
-  const [isMine, setIsMine] = useState();
+  const [isMine, setIsMine] = useState(Boolean);
+
+  console.log("isMine", isMine)
+  console.log("is_mine", is_mine)
 
   const [is_sended, setIsSended] = useState(false);
 
@@ -92,8 +93,6 @@ function EsquelaCustomizer() {
     setSelectedColor(color);
     setColorPickerVisible(false);
   };
-
-
 
   const [formData, setFormData] = useState({
     name: "",
@@ -105,6 +104,12 @@ function EsquelaCustomizer() {
     customImage: null as string | null,
   });
 
+
+  useEffect(() => {
+    setIsMine(is_mine)
+  
+  }
+  , [is_mine])
 
   useFocusEffect(
     useCallback(() => {
@@ -128,9 +133,7 @@ function EsquelaCustomizer() {
     const initializeForm = async () => {
       setLoading(true);
       setSelectedColor("")
-
-      console.log("jsonData",jsonData);
-
+      setIsMine(is_mine)
 
       if (jsonData && jsonData.trim() !== "") {
         try {
@@ -153,9 +156,6 @@ function EsquelaCustomizer() {
         }
         return;
       }
-
-
-
 
       if (!is_newObituary && obituaryId !== undefined) {
         try {
@@ -193,11 +193,9 @@ function EsquelaCustomizer() {
             }
           }
 
-
           setSelectedColor(`rgb(${data.wordColor})`);
           setIsMine(data.isMine);
           data.isMine ? setIsSended(false) : setIsSended(true);
-
 
           setFormData({
             name: data.name || "",
@@ -375,13 +373,14 @@ function EsquelaCustomizer() {
     setModalVisible(false);
   };
 
+
   return isAuthenticated ? (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <View style={styles.container}>
         <View style={styles.formSection}>
           <Text style={styles.titlePage}>
-            {is_mine ?
-              is_newObituary ? "Cree su esquela" : "Edite su esquela" :
+            {isMine ?
+              is_newObituary ? "Cree su esquela" : (is_visualization ? "Información de la esquela" : "Edita tu esquela"):
               is_newObituary ? "Cree la esquela para un ser querido" : "Información de la esquela"
             }
           </Text>
@@ -445,15 +444,15 @@ function EsquelaCustomizer() {
             }}
           />
           {
-            !is_mine && (
+            !isMine && (
               <>
                 <Text style={styles.formText}>Fecha de fallecimiento:</Text>
                 <CustomTextInput
                   style={{ width: "75%" }}
-                  placeholder={is_mine ? "La fecha de fallecimiento (se añadirá automáticamente)" : "Fecha de fallecimiento (dd/mm/aaaa)"}
+                  placeholder={"Fecha de fallecimiento (dd/mm/aaaa)"}
                   value={formData.deathDate}
                   maxLength={12}
-                  editable={!is_mine ? true : false}
+                  editable={!isMine ? true : false}
                   onChangeText={(text) => {
                     let cleaned = text.replace(/\D/g, "");
                     let day = "";
