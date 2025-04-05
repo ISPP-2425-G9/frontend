@@ -26,7 +26,8 @@
       "!**/context/**",
       "!**/assets/**",
       "!**/.github/**",
-      "!**/constants/**"
+      "!**/constants/**",
+      "!**/app/_util/**"
     ]
   },
   "dependencies": {
