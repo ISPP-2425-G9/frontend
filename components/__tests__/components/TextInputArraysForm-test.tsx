@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import TextInputArraysForm from '../TextInputArraysForm';
+import TextInputArraysForm from '../../TextInputArraysForm';
 
 const mockOnSubmit = jest.fn();
 

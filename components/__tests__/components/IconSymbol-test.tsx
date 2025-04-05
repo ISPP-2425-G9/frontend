@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { IconSymbol } from '../ui/IconSymbol';
+import { IconSymbol } from '../../ui/IconSymbol';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 describe('IconSymbol Component', () => {

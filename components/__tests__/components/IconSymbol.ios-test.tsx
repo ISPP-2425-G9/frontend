@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { IconSymbol } from '..//ui/IconSymbol';
+import { IconSymbol } from '../../ui/IconSymbol';
 import { SymbolView } from 'expo-symbols';
 
 describe('IconSymbol Component', () => {

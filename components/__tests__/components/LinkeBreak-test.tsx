@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import LineBreak from '../LineBreack';
+import LineBreak from '../../LineBreack';
 
 describe('LineBreak', () => {
   it('should render', () => {

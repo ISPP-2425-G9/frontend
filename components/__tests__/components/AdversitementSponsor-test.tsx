@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import AdvertisementSponsor from '../AdvertisementSponsor';
+import AdvertisementSponsor from '../../AdvertisementSponsor';
 
 const mockSponsor = {
   name: 'Test Sponsor',

@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import CustomButton from '../CustomButton';
+import CustomButton from '../../CustomButton';
 import { GlobalStyles } from '@/constants/Colors';
 
 describe('CustomButton Component', () => {
