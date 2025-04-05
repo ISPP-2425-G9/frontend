@@ -20,7 +20,12 @@
       "!**/node_modules/**",
       "!**/babel.config.js",
       "!**/expo-env.d.ts",
-      "!**/.expo/**"
+      "!**/.expo/**",
+      "!**/hooks/**",
+      "!**/scripts/**",
+      "!**/context/**",
+      "!**/assets/**",
+      "!**/.github/**"
     ]
   },
   "dependencies": {
