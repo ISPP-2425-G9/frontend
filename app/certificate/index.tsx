@@ -106,7 +106,7 @@ function LoadCertificate() {
       setDniError("El DNI no es válido. Debe tener el formato 12345678A.");
       return;
     }
-    setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido. Podrá modificar su esquela hasta que sea enviada a todos los contactos que usted eligió.");
+    setModalMessage("Una vez subido el certificado de defunción un administrador lo revisará. Si todo es correcto, se enviarán las esquelas y/o mensajes asociados al certificado. ¿Estás seguro de que quieres continuar?");
     setModalVisible(true);
   };
 
@@ -354,10 +354,12 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: GlobalStyles.blue,
     paddingHorizontal: 25,
-    width: '13%',
+    width: width > 600 ? '20%'  :'13%',
+    height: width > 600 ? 40 : '40%',
     borderRadius: 8,
     alignItems: "center",
     alignSelf: "center",
+    justifyContent: "center",
   },
   modalStyle: {
     backgroundColor: "#fff",
