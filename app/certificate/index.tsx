@@ -3,15 +3,15 @@ import CustomModal from "@/components/CustomModal";
 import { CustomTextInput } from "@/components/CustomTextInput";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
+import { useNotification } from '@/context/NotificationContext';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationProp, useFocusEffect, useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { useCallback, useState } from "react";
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import { AUTHORITIES } from "../_util/Authorities";
 import { withAuth } from "../_util/withAuth";
-import { useNotification } from '@/context/NotificationContext';
-import { ScrollView } from "react-native-gesture-handler";
 
 type RootStackParamList = {
   "obituaries/loadCertificate": { jsonData: string },
@@ -68,7 +68,7 @@ function LoadCertificate() {
       setCertificateImage(null);
       setFileName(null);
       setDniError("");
-      document.title = 'Cargar certificado';
+      document.title = 'Subir certificado';
     }, [])
   );
 
@@ -307,10 +307,11 @@ const styles = StyleSheet.create({
   dataContainer: {
     flex: 1,
     justifyContent: "flex-start",
-    alignItems: "center",
+    alignItems: "stretch",
     width: "90%",
     maxWidth: 500,
     padding: 20,
+    gap: 10,
   },
   title: {
     fontSize: 30,
@@ -325,13 +326,9 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   input: {
-    width: "100%",
-    height: 40,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    paddingHorizontal: 8,
-    marginBottom: 16,
-    fontSize: 16,
+    width: '100%',
+    flex: 1,
+
   },
   buttonContainer: {
     alignItems: "center",
@@ -346,8 +343,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 14,
     fontWeight: "bold",
+    textAlign: "center",
   },
   imagePreview: {
+    alignContent: "center",
+    alignSelf: "center",
     width: "30%",
     height: "30%",
     marginTop: 10,
@@ -413,6 +413,7 @@ const styles = StyleSheet.create({
   acceptedFormats: {
     marginTop: 8,
     fontSize: 16,
+    textAlign: 'center',
     color: GlobalStyles.darkGrey,
     fontStyle: 'italic',
   },

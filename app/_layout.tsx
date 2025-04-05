@@ -43,7 +43,7 @@ export default function TabLayout() {
             <Tabs.Screen name="about/index" options={{ href: null }} />
             <Tabs.Screen name="contact/index" options={{ href: null }} />
             <Tabs.Screen name="+not-found" options={{ href: null }} />
-            <Tabs.Screen name="certificate/index" options={{ title: "Cargar certificado" }} />
+            <Tabs.Screen name="certificate/index" options={{ title: "Subir certificado" }} />
 
 
         {

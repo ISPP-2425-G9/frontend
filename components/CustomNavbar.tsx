@@ -40,7 +40,7 @@ const CustomNavbar = () => {
     const getTitleFromRoute = (route: string): string => {
         const routeTitles: Record<string, string> = {
             'home': 'Inicio',
-            'certificate/index': 'Cargar certificado',
+            'certificate/index': 'Subir certificado',
             'about/index': 'Sobre nosotros',
             'contact/index': 'Contáctanos',
             'login/index': 'Iniciar sesión',
@@ -97,7 +97,7 @@ const CustomNavbar = () => {
                         {menuOpen && (
                             <BlurView intensity={80} tint="light" style={styles.dropdown}>
                                 <TouchableOpacity onPress={() => { handleNavigation('certificate/index'); setMenuOpen(false); }}>
-                                    <Text style={styles.dropdownNavItem}>Cargar certificado</Text>
+                                    <Text style={styles.dropdownNavItem}>Subir certificado</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => { handleNavigation('about/index'); setMenuOpen(false); }}>
                                     <Text style={styles.dropdownNavItem}>Sobre nosotros</Text>
@@ -176,7 +176,7 @@ const CustomNavbar = () => {
                         <View style={styles.navItems}>
                             <TouchableOpacity onPress={() => { handleNavigation('certificate/index') }}>
                                 <View>
-                                    <Text style={styles.navItem}>Cargar certificado</Text>
+                                    <Text style={styles.navItem}>Subir certificado</Text>
                                     {activeItem === 'certificate/index' && <View style={styles.activeIndicator} />}
                                 </View>
                             </TouchableOpacity>
