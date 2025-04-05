@@ -908,7 +908,7 @@ const styles = StyleSheet.create({
   loginLink: {
     color: GlobalStyles.blue,
     fontSize: 14,
-    textAlign: 'center',
+    textDecorationLine: 'underline',
   },
 });
 

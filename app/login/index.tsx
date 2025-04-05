@@ -15,7 +15,6 @@ const LoginScreen: React.FC = () => {
   const navigation = useNavigation();
   const { showNotification } = useNotification();
   const { login } = useAuth();
-  const [errorMessage, setErrorMessage] = useState<string>("");
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const [formKey, setFormKey] = useState(0);
@@ -113,9 +112,6 @@ const LoginScreen: React.FC = () => {
           buttonText="Iniciar sesión"
           style={styles.formStyle}
         />
-        {errorMessage !== "" && (
-          <ThemedText style={styles.errorMessage}>{errorMessage}</ThemedText>
-        )}
         <ThemedText style={styles.registerText}>
           ¿Aún no tienes cuenta?{' '}
           <Pressable onPress={() => { navigation.navigate('register/index' as never) }}>
@@ -146,7 +142,7 @@ const styles = StyleSheet.create({
   registerLink: {
     color: GlobalStyles.blue,
     fontSize: 14,
-    textAlign: 'center',
+    textDecorationLine: 'underline',
   },
   container: {
     backgroundColor: GlobalStyles.white,
@@ -174,12 +170,6 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     borderRadius: 10,
     width: '100%',
-  },
-  errorMessage: {
-    color: 'red',
-    textAlign: 'center',
-    marginTop: 10,
-    fontSize: 14,
   },
 });
 

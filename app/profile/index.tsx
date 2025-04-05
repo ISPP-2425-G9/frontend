@@ -163,6 +163,34 @@ function ProfileScreen() {
         password: editedCustomer.password,
       };
 
+      if (editedCustomer.name.length < 1) {
+        showNotification({
+          message: "El nombre es obligatorio",
+          type: "error",
+        });
+        return;
+      }
+
+      const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+      if (!emailRegex.test(editedCustomer.email)) {
+        showNotification({
+          message: "El email no es válido",
+          type: "error",
+        });
+        return;
+      }
+
+      const phoneRegex = /^\d{9}$/;
+
+      if (!phoneRegex.test(removeSpaces(editedCustomer.telephone))) {
+        showNotification({
+          message: "El teléfono no es válido",
+          type: "error",
+        });
+        return;
+      }
+
       const response = await fetch(BACKEND_API + `/api/auth/customers/${userId}`, {
         method: 'PUT',
         headers: {
@@ -355,7 +383,7 @@ function ProfileScreen() {
     <>
       <ThemedText style={styles.label}>{label}</ThemedText>
       {isEditing ? (
-        <TextInput
+        <CustomTextInput
           style={styles.input}
           value={value}
           onChangeText={(text) =>
@@ -423,13 +451,15 @@ function ProfileScreen() {
         <>
           <View style={styles.profileContainer}>
             {role === "CUSTOMER" ? (
-              <View style={styles.columnData}>
-                <ThemedText style={styles.title}>Mis datos</ThemedText>
+              <View>
+                <ThemedText style={styles.ThemedText}>Mis datos</ThemedText>
+                <View style={styles.profileData}>
                 {renderEditableField('Nombre', editedCustomer.name, 'name', 'Nombre de usuario')}
                 {renderEditableField('Email', editedCustomer.email, 'email', 'Email')}
                 {renderEditableField('Teléfono', editedCustomer.telephone, 'telephone', 'Número de teléfono')}
                 <ThemedText style={styles.label}>DNI</ThemedText>
                 <ThemedText style={styles.value}>{editedCustomer.dni}</ThemedText>
+                </View>
                 {isEditing ? (
                   <View style={styles.buttonContainer}>
                     <CustomButton
@@ -592,11 +622,22 @@ const styles = StyleSheet.create({
     backgroundColor: GlobalStyles.white,
   },
   profileContainer: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: "#fff",
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
     elevation: 5,
-    width: '95%',
-    height: '80%',
-    alignItems: 'center',
+    width: '90%',
+    maxWidth: 550,
+    alignSelf: 'center',
+  },
+  profileData: {
+    marginTop: 20,
+    alignSelf: 'center',
   },
   companyContainer: {
     paddingTop: 120,
@@ -611,12 +652,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '70%',
   },
-  columnData: {
-    maxWidth: 400,
-    width: '100%',
-    alignItems: 'center',
-    height: '100%',
-  },
   column: {
     width: '50%',
     height: '100%',
@@ -628,7 +663,6 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     textAlign: 'left',
     width: '100%',
-    marginLeft: '15%',
   },
   labelCompany: {
     fontSize: 16,
@@ -638,13 +672,12 @@ const styles = StyleSheet.create({
     width: '70%',
   },
   value: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#000',
     marginBottom: 15,
     fontWeight: 'bold',
     textAlign: 'left',
     width: '100%',
-    marginLeft: '15%',
   },
   valueCompany: {
     fontSize: 18,
@@ -732,12 +765,13 @@ const styles = StyleSheet.create({
     color: '#000',
     marginBottom: 10,
   },
-  title: {
-    fontSize: 36,
-    color: '#000',
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
+  ThemedText: {
+    fontSize: 28,
+    fontFamily: GlobalStyles.font,
+    textAlign: "center",
+    color: GlobalStyles.darkGrey,
+    marginTop: 20,
+    marginHorizontal: 20,
   },
   buttonContainer: {
     flexDirection: 'column',
@@ -750,14 +784,15 @@ const styles = StyleSheet.create({
 
   },
   changePasswordText: {
-    fontSize: 16,
-    color: '#666',
+    color: GlobalStyles.darkGrey,
+    fontFamily: GlobalStyles.font,
+    fontSize: 14,
     textAlign: 'center',
-    marginTop: 10,
+    marginBottom: 10,
   },
   changePasswordLink: {
-    color: '#42B5FC',
-    fontWeight: 'bold',
+    color: GlobalStyles.blue,
+    fontSize: 14,
     textDecorationLine: 'underline',
   },
   companyHeader: {
