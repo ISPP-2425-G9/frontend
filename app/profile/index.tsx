@@ -1,5 +1,6 @@
 import CustomButton from '@/components/CustomButton';
-import CustomModal from '@/components/CustomModal';
+import CustomModal, { CustomModalRef } from '@/components/CustomModal';
+import CustomTextInput from '@/components/CustomTextInput';
 import DeleteAccountButton from '@/components/DeleteAccountButton';
 import LogoutButton from '@/components/LogoutButton';
 import { ThemedText } from '@/components/ThemedText';
@@ -9,7 +10,7 @@ import { BACKEND_API } from '@/constants/Mysc';
 import { useNotification } from '@/context/NotificationContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
@@ -27,12 +28,13 @@ function ProfileScreen() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [customImageUrl, setCustomImageUrl] = useState('');
-    const { showNotification } = useNotification();
+  const { showNotification } = useNotification();
   const formatPhone = (phone: string): string => {
     const digits = phone.replace(/\D/g, '');
     const groups = digits.match(/.{1,3}/g);
     return groups ? groups.join(' ') : phone;
   };
+  const customModalRef = useRef<CustomModalRef>(null);
 
   const removeSpaces = (phone: string): string => phone.replace(/\s/g, '');
 
@@ -194,7 +196,7 @@ function ProfileScreen() {
         message: "Perfil actualizado correctamente",
         type: "success",
       });
-      
+
     } catch (error) {
       console.error('Error al guardar los cambios:', error);
     }
@@ -279,9 +281,19 @@ function ProfileScreen() {
 
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
-      showNotification({
+      customModalRef.current?.showNotification({
         message: "Las contraseñas no coinciden",
         type: "error",
+        duration: 2000,
+      });
+      return;
+    }
+
+    if (newPassword.length < 6 || confirmPassword.length < 6) {
+      customModalRef.current?.showNotification({
+        message: "La contraseña debe tener al menos 6 caracteres",
+        type: "error",
+        duration: 2000,
       });
       return;
     }
@@ -523,29 +535,31 @@ function ProfileScreen() {
           </View>
 
           <CustomModal
+            ref={customModalRef}
             visible={showPasswordModal}
             onClose={() => { setShowPasswordModal(false) }}
             title="Cambiar contraseña"
             style={styles.modalContent}>
             <View style={styles.modalContent}>
-              <TextInput
-                style={styles.modalInput}
+              <CustomTextInput
                 placeholder="Nueva contraseña"
                 placeholderTextColor="#666"
                 secureTextEntry
+                showPasswordToggle={false}
                 value={newPassword}
                 maxLength={36}
                 onChangeText={setNewPassword}
               />
-              <TextInput
-                style={styles.modalInput}
+              <CustomTextInput
                 placeholder="Confirmar contraseña"
                 placeholderTextColor="#666"
                 secureTextEntry
+                showPasswordToggle={false}
                 maxLength={36}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
               />
+
               <View style={styles.modalButtons}>
                 <CustomButton
                   title="Cancelar"
@@ -766,6 +780,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '90%',
+    gap: 10,
     maxWidth: 400,
     paddingHorizontal: '2%',
     backgroundColor: GlobalStyles.white,
@@ -775,6 +790,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   modalButtons: {
+    width: '100%',
+    alignSelf: 'center',
     marginTop: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -790,18 +807,6 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     backgroundColor: GlobalStyles.red,
-  },
-  modalInput: {
-    width: '100%',
-    backgroundColor: GlobalStyles.lightGrey,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    fontSize: 16,
-    color: '#333',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 10,
   },
 });
 

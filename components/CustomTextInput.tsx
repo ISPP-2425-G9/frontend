@@ -6,12 +6,14 @@ import { Platform, StyleSheet, TextInput, TextInputProps, TouchableOpacity, View
 type CustomTextInputProps = TextInputProps & {
   style?: object;
   placeholder?: string;
+  showPasswordToggle?: boolean;
 };
 
 export const CustomTextInput: React.FC<CustomTextInputProps> = ({
   style,
   placeholder,
   secureTextEntry,
+  showPasswordToggle = true,
   ...props
 }) => {
   const [hidePassword, setHidePassword] = useState(secureTextEntry || false);
@@ -35,7 +37,7 @@ export const CustomTextInput: React.FC<CustomTextInputProps> = ({
         onBlur={() => setIsFocused(false)}
         {...props}
       />
-      {secureTextEntry && (
+      {secureTextEntry && showPasswordToggle && (
         <TouchableOpacity
           style={styles.iconContainer}
           onPress={() => setHidePassword(!hidePassword)}
