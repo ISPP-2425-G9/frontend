@@ -27,6 +27,7 @@ export const CustomTextInput: React.FC<CustomTextInputProps> = ({
       <TextInput
         style={[
           styles.input,
+          style,
           Platform.OS === 'web' ? { outline: 'none' } : {},
         ]}
         placeholder={placeholder}

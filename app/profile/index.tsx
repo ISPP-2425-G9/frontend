@@ -11,7 +11,7 @@ import { useNotification } from '@/context/NotificationContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, View } from 'react-native';
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
 
@@ -36,11 +36,20 @@ function ProfileScreen() {
   };
   const customModalRef = useRef<CustomModalRef>(null);
 
+  const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const phoneRegex = /^\d{9}$/;
+  const zipCodeRegex = /^\d{5}$/;
+
   const removeSpaces = (phone: string): string => phone.replace(/\s/g, '');
 
   const handlePhoneChange = (text: string, field: keyof CustomerProfile) => {
     const formatted = formatPhone(text);
     handleInputChange(field, formatted);
+  };
+
+  const handlePhoneChangeCompany = (text: string, field: keyof CompanyProfile) => {
+    const formatted = formatPhone(text);
+    handleInputChangeCompany(field, formatted);
   };
 
   const fetchProfile = async () => {
@@ -171,8 +180,6 @@ function ProfileScreen() {
         return;
       }
 
-      const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
       if (!emailRegex.test(editedCustomer.email)) {
         showNotification({
           message: "El email no es válido",
@@ -180,8 +187,6 @@ function ProfileScreen() {
         });
         return;
       }
-
-      const phoneRegex = /^\d{9}$/;
 
       if (!phoneRegex.test(removeSpaces(editedCustomer.telephone))) {
         showNotification({
@@ -248,7 +253,7 @@ function ProfileScreen() {
       const updatedData = {
         name: editedCompany.name,
         email: editedCompany.email,
-        telephone: removeSpaces(editedCustomer.telephone),
+        telephone: removeSpaces(editedCompany.telephone),
         password: editedCompany.password,
         address: editedCompany.address,
         city: editedCompany.city,
@@ -257,6 +262,61 @@ function ProfileScreen() {
         description: editedCompany.description,
         imageUrl: editedCompany.imageUrl,
       };
+
+      if (editedCompany.name.length < 1) {
+        showNotification({
+          message: "El nombre de la empresa es obligatorio",
+          type: "error",
+        });
+        return;
+      }
+
+      if (!emailRegex.test(editedCompany.email)) {
+        showNotification({
+          message: "El email no es válido",
+          type: "error",
+        });
+        return;
+      }
+      if (!phoneRegex.test(removeSpaces(editedCompany.telephone))) {
+        showNotification({
+          message: "El teléfono no es válido",
+          type: "error",
+        });
+        return;
+      }
+
+      if (!zipCodeRegex.test(removeSpaces(editedCompany.zipCode))) {
+        showNotification({
+          message: "El código postal no es válido",
+          type: "error",
+        });
+        return;
+      }
+
+      if (editedCompany.description.length < 1) {
+        showNotification({
+          message: "La descripción es obligatoria",
+          type: "error",
+        });
+        return;
+      }
+
+      if (editedCompany.city.length < 1) {
+        showNotification({
+          message: "La ciudad es obligatoria",
+          type: "error",
+        });
+        return;
+      }
+
+      if (editedCompany.address.length < 1) {
+        showNotification({
+          message: "La dirección es obligatoria",
+          type: "error",
+        });
+        return;
+      }
 
       const response = await fetch(BACKEND_API + `/api/auth/companies/${userId}`, {
         method: 'PUT',
@@ -384,13 +444,13 @@ function ProfileScreen() {
       <ThemedText style={styles.label}>{label}</ThemedText>
       {isEditing ? (
         <CustomTextInput
-          style={styles.input}
           value={value}
           onChangeText={(text) =>
             field === 'telephone' ? handlePhoneChange(text, field) : handleInputChange(field, text)
           }
           placeholder={placeholder}
           placeholderTextColor={'#666'}
+          maxLength={field === 'telephone' ? 11 : 50}
         />
       ) : (
         <ThemedText style={styles.value}>
@@ -407,19 +467,20 @@ function ProfileScreen() {
     placeholder: string
   ) => (
     <>
-      <ThemedText style={styles.labelCompany}>{label}</ThemedText>
+      <ThemedText style={styles.label}>{label}</ThemedText>
       {isEditing ? (
-        <TextInput
-          style={
-            field === 'description'
-              ? styles.inputCompanyDescription
-              : styles.inputCompany
-          }
+        <CustomTextInput
           value={value}
-          onChangeText={(text) => { handleInputChangeCompany(field, text) }}
+          onChangeText={(text) =>
+            field === 'telephone'
+              ? handlePhoneChangeCompany(text, field)
+              : handleInputChangeCompany(field, text)
+          }
           placeholder={placeholder}
           placeholderTextColor={'#666'}
           multiline={field === 'description'}
+          maxLength={field === 'telephone' ? 11 : field === 'description' ? 500 : 50}
+          style={field === 'description' ? { height: 100, width: 300 } : styles.input}
         />
       ) : (
         <ThemedText
@@ -428,7 +489,7 @@ function ProfileScreen() {
               ? styles.valueName
               : field === 'description'
                 ? styles.valueDescription
-                : styles.valueCompany
+                : styles.value
           }
         >
           {field === 'telephone' ? formatPhone(value) : value}
@@ -451,14 +512,14 @@ function ProfileScreen() {
         <>
           <View style={styles.profileContainer}>
             {role === "CUSTOMER" ? (
-              <View>
+              <View style={styles.customerContainer}>
                 <ThemedText style={styles.ThemedText}>Mis datos</ThemedText>
                 <View style={styles.profileData}>
-                {renderEditableField('Nombre', editedCustomer.name, 'name', 'Nombre de usuario')}
-                {renderEditableField('Email', editedCustomer.email, 'email', 'Email')}
-                {renderEditableField('Teléfono', editedCustomer.telephone, 'telephone', 'Número de teléfono')}
-                <ThemedText style={styles.label}>DNI</ThemedText>
-                <ThemedText style={styles.value}>{editedCustomer.dni}</ThemedText>
+                  {renderEditableField('Nombre', editedCustomer.name, 'name', 'Nombre de usuario')}
+                  {renderEditableField('Email', editedCustomer.email, 'email', 'Email')}
+                  {renderEditableField('Teléfono', editedCustomer.telephone, 'telephone', 'Número de teléfono')}
+                  <ThemedText style={styles.label}>DNI</ThemedText>
+                  <ThemedText style={styles.value}>{editedCustomer.dni}</ThemedText>
                 </View>
                 {isEditing ? (
                   <View style={styles.buttonContainer}>
@@ -498,12 +559,13 @@ function ProfileScreen() {
                         source={{ uri: editedCompany.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
                         style={styles.companyImage}
                       />
-                      <TextInput
-                        style={styles.inputImage}
+                      <CustomTextInput
                         value={customImageUrl}
                         onChangeText={setCustomImageUrl}
                         placeholder="Ingresa URL de imagen"
                         placeholderTextColor="#666"
+                        maxLength={200}
+                        style={{ width: 300 }}
                       />
                       <CustomButton
                         title="Actualizar imagen"
@@ -525,8 +587,8 @@ function ProfileScreen() {
                     {renderEditableFieldCompany('Teléfono', editedCompany.telephone, 'telephone', 'Teléfono')}
                   </View>
                   <View style={styles.column}>
-                    <ThemedText style={styles.labelCompany}>NIF</ThemedText>
-                    <ThemedText style={styles.valueCompany}>{editedCompany.nif}</ThemedText>
+                    <ThemedText style={styles.label}>NIF</ThemedText>
+                    <ThemedText style={styles.value}>{editedCompany.nif}</ThemedText>
                     {renderEditableFieldCompany('Dirección', editedCompany.address, 'address', 'Dirección')}
                     {renderEditableFieldCompany('Ciudad', editedCompany.city, 'city', 'Ciudad')}
                     {renderEditableFieldCompany('Código Postal', editedCompany.zipCode, 'zipCode', 'Código Postal')}
@@ -606,7 +668,7 @@ function ProfileScreen() {
           </CustomModal>
         </>
       ) : (
-        <ThemedText style={styles.text}>No se pudo cargar el perfil.</ThemedText>
+        <ThemedText style={styles.ThemedText}>No se pudo cargar el perfil.</ThemedText>
       )
       }
     </ThemedView >
@@ -622,7 +684,12 @@ const styles = StyleSheet.create({
     backgroundColor: GlobalStyles.white,
   },
   profileContainer: {
-    paddingHorizontal: 20,
+    paddingTop: 20,
+    width: '100%',
+    height: '100%',
+  },
+  customerContainer: {
+    paddingHorizontal: 40,
     paddingVertical: 10,
     backgroundColor: "#fff",
     borderRadius: 25,
@@ -632,7 +699,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
     width: '90%',
-    maxWidth: 550,
+    maxWidth: 450,
     alignSelf: 'center',
   },
   profileData: {
@@ -640,60 +707,52 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   companyContainer: {
-    paddingTop: 120,
+    backgroundColor: "#fff",
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    paddingTop: 50,
+    elevation: 5,
     padding: 20,
-    width: '100%',
-    height: '80%',
+    maxWidth: 850,
+    width: '90%',
+    alignSelf: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    justifyContent: 'center',
   },
   twoColumnsContainerCompany: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    width: '70%',
+    width: '90%',
   },
   column: {
+    marginLeft: '5%',
     width: '50%',
     height: '100%',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   label: {
     fontSize: 16,
-    color: '#666',
+    color: GlobalStyles.grey,
     marginBottom: 5,
     textAlign: 'left',
     width: '100%',
-  },
-  labelCompany: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 5,
-    textAlign: 'left',
-    width: '70%',
   },
   value: {
     fontSize: 16,
-    color: '#000',
     marginBottom: 15,
     fontWeight: 'bold',
     textAlign: 'left',
     width: '100%',
   },
-  valueCompany: {
-    fontSize: 18,
-    color: '#000',
-    marginBottom: 15,
-    fontWeight: 'bold',
-    textAlign: 'left',
-    width: '70%',
-  },
   valueName: {
-    fontSize: 24,
-    color: '#000',
-    marginBottom: 15,
-    fontWeight: 'bold',
-    textAlign: 'left',
-    width: '40%',
+    fontSize: 28,
+    fontFamily: GlobalStyles.font,
+    textAlign: "left",
+    color: GlobalStyles.darkGrey,
   },
   imageHeaderContainer: {
     flexDirection: 'row',
@@ -701,69 +760,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
-  input: {
-    width: '90%',
-    backgroundColor: GlobalStyles.lightGrey,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    fontSize: 16,
-    color: '#333',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 10,
-  },
-  inputImage: {
-    width: '50%',
-    alignSelf: 'center',
-    backgroundColor: GlobalStyles.lightGrey,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    fontSize: 16,
-    color: '#333',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 10,
-  },
-  inputCompany: {
-    width: '70%',
-    backgroundColor: GlobalStyles.lightGrey,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    fontSize: 16,
-    color: '#333',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 10,
-  },
-  inputCompanyDescription: {
-    width: '70%',
-    height: '50%',
-    backgroundColor: GlobalStyles.lightGrey,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    fontSize: 16,
-    color: '#333',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 10,
-  },
   valueDescription: {
-    fontSize: 18,
+    fontSize: 16,
     height: '50%',
-    color: '#000',
     marginBottom: 15,
     fontWeight: 'bold',
     textAlign: 'left',
     width: '70%',
-  },
-  text: {
-    fontSize: 18,
-    color: '#000',
-    marginBottom: 10,
   },
   ThemedText: {
     fontSize: 28,
@@ -795,8 +798,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textDecorationLine: 'underline',
   },
+  input: {
+    width: 300,
+  },
   companyHeader: {
-    width: '60%',
+    width: '80%',
     flexDirection: 'column',
     alignItems: 'flex-start',
     alignContent: 'center',
@@ -806,12 +812,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 10,
-    marginBottom: 10,
-  },
-  companyName: {
-    fontSize: 20,
-    color: '#000',
-    fontWeight: 'bold',
+    marginVertical: 10,
   },
   modalContent: {
     width: '90%',
