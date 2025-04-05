@@ -3,6 +3,7 @@ import useAuth from '@/hooks/useAuth';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useNavigationState } from '@react-navigation/native';
+import { BlurView } from 'expo-blur';
 import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import CustomButton from './CustomButton';
@@ -27,10 +28,33 @@ const CustomNavbar = () => {
         userRoles = roles;
         userName = name;
     }
+    const [title, setTitle] = useState<string>('CARONTE');
 
     useEffect(() => {
-        if (currentRoute) setActiveItem(currentRoute);
+        if (currentRoute) {
+            setActiveItem(currentRoute);
+            setTitle(getTitleFromRoute(currentRoute));
+        }
     }, [currentRoute]);
+
+    const getTitleFromRoute = (route: string): string => {
+        const routeTitles: Record<string, string> = {
+            'home': 'Inicio',
+            'certificate/index': 'Cargar certificado',
+            'about/index': 'Sobre nosotros',
+            'contact/index': 'Contáctanos',
+            'login/index': 'Iniciar sesión',
+            'register/index': 'Registrarse',
+            'admin/listUsers': 'Usuarios',
+            'obituaries/index': 'Esquelas',
+            'messages/listMyMessages': 'Mensajes',
+            'contacts/index': 'Contactos de emergencia',
+            'services/index': 'Servicios',
+            'subscribe/index': 'Planes',
+            'profile/index': 'Mi perfil'
+        };
+        return routeTitles[route] || 'CARONTE';
+    };
 
     const handleLogout = () => {
         try {
@@ -65,11 +89,13 @@ const CustomNavbar = () => {
             </TouchableOpacity>
             {
                 isNarrow ? (
-                    <View>
-                        <TouchableOpacity onPress={() => { setMenuOpen(!menuOpen); }}>                            <Ionicons name="menu" size={28} color="#333" />
+                    <View style={{ width: '90%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Text style={styles.navItemMobile}>{title}</Text>
+                        <TouchableOpacity onPress={() => setMenuOpen(!menuOpen)}>
+                            <Ionicons name={menuOpen ? "close" : "menu"} size={28} color="#333" />
                         </TouchableOpacity>
                         {menuOpen && (
-                            <View style={styles.dropdown}>
+                            <BlurView intensity={80} tint="light" style={styles.dropdown}>
                                 <TouchableOpacity onPress={() => { handleNavigation('certificate/index'); setMenuOpen(false); }}>
                                     <Text style={styles.dropdownNavItem}>Cargar certificado</Text>
                                 </TouchableOpacity>
@@ -142,7 +168,7 @@ const CustomNavbar = () => {
                                         </TouchableOpacity>
                                     </>
                                 )}
-                            </View>
+                            </BlurView>
                         )}
                     </View>
                 ) : (
@@ -303,7 +329,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: '#f8f8f8',
+        backgroundColor: '#fff',
         paddingVertical: 10,
         paddingHorizontal: 15,
         height: 60,
@@ -327,6 +353,13 @@ const styles = StyleSheet.create({
         fontFamily: GlobalStyles.font,
         marginHorizontal: 10,
     },
+    navItemMobile: {
+        fontSize: 16,
+        color: GlobalStyles.blue,
+        fontFamily: GlobalStyles.font,
+        marginHorizontal: 10,
+        textAlign: 'left',
+    },
     activeIndicator: {
         borderBottomWidth: 2,
         borderBottomColor: GlobalStyles.blue,
@@ -336,8 +369,7 @@ const styles = StyleSheet.create({
     dropdown: {
         position: 'absolute',
         top: 60,
-        right: 15,
-        backgroundColor: '#f8f8f8',
+        right: 0,
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 10,
