@@ -21,7 +21,7 @@ function PlanManagementView() {
       const foundRole = rolesUser.find((r: string) => VALID_ROLES.includes(r)) ?? null;
       setRole(foundRole);
       const experedPlanDateStr = experedPlanDate?.toLocaleDateString("es-ES") ?? null
-      setFechaExpiracion(experedPlanDateStr); // TODO: Obtener fecha del backend
+      setFechaExpiracion(experedPlanDateStr);
     };
     fetchUser();
   }, [roles]);
