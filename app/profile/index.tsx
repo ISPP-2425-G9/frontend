@@ -40,7 +40,7 @@ function ProfileScreen() {
   const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const phoneRegex = /^\d{9}$/;
   const zipCodeRegex = /^\d{5}$/;
-  
+
   const isMobile = deviceWidth < 768;
 
   const removeSpaces = (phone: string): string => phone.replace(/\s/g, '');
@@ -344,6 +344,7 @@ function ProfileScreen() {
       await AsyncStorage.setItem('user_data', JSON.stringify({
         ...userData,
         email: editedCustomer.email,
+        name: editedCompany.name,
         token: data.token || userData.token,
       }));
 
@@ -511,174 +512,174 @@ function ProfileScreen() {
 
   return (
     <ScrollView
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
     >
-    <ThemedView style={styles.container}>
-      {(customer || company) ? (
-        <>
-          <View style={styles.profileContainer}>
-            {role === "CUSTOMER" ? (
-              <View style={styles.customerContainer}>
-                <ThemedText style={styles.ThemedText}>Mis datos</ThemedText>
-                <View style={styles.profileData}>
-                  {renderEditableField('Nombre', editedCustomer.name, 'name', 'Nombre de usuario')}
-                  {renderEditableField('Email', editedCustomer.email, 'email', 'Email')}
-                  {renderEditableField('Teléfono', editedCustomer.telephone, 'telephone', 'Número de teléfono')}
-                  <ThemedText style={styles.label}>DNI</ThemedText>
-                  <ThemedText style={styles.value}>{editedCustomer.dni}</ThemedText>
-                </View>
-                {isEditing ? (
-                  <View style={styles.buttonContainer}>
-                    <CustomButton
-                      title="Guardar"
-                      onPress={handleSave}
-                      color="blue"
-                    />
-                    <LogoutButton />
+      <ThemedView style={styles.container}>
+        {(customer || company) ? (
+          <>
+            <View style={styles.profileContainer}>
+              {role === "CUSTOMER" ? (
+                <View style={styles.customerContainer}>
+                  <ThemedText style={styles.ThemedText}>Mis datos</ThemedText>
+                  <View style={styles.profileData}>
+                    {renderEditableField('Nombre', editedCustomer.name, 'name', 'Nombre de usuario')}
+                    {renderEditableField('Email', editedCustomer.email, 'email', 'Email')}
+                    {renderEditableField('Teléfono', editedCustomer.telephone, 'telephone', 'Número de teléfono')}
+                    <ThemedText style={styles.label}>DNI</ThemedText>
+                    <ThemedText style={styles.value}>{editedCustomer.dni}</ThemedText>
                   </View>
-                ) : (
-                  <View style={styles.buttonContainer}>
-                    <CustomButton
-                      title="Editar usuario"
-                      onPress={() => { setIsEditing(true) }}
-                      color="blue"
-                    />
-                    <DeleteAccountButton />
-                  </View>
-                )}
-
-                <ThemedText style={styles.changePasswordText}>
-                  ¿Desea cambiar su contraseña?{' '}
-                  <Pressable onPress={() => { setShowPasswordModal(true) }}>
-                    <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
-                  </Pressable>
-                </ThemedText>
-              </View>
-            ) : (
-              <View style={styles.companyContainer}>
-                <View style={isMobile ? styles.verticalCompanyHeader : styles.companyHeader}>
-                  {renderEditableFieldCompany('', editedCompany.name, 'name', 'Name')}
-                  {isEditing ?
-                    <View style={isMobile ? styles.verticalImageHeaderContainer : styles.imageHeaderContainer}>
-
-                      <Image
-                        source={{ uri: editedCompany.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
-                        style={styles.companyImage}
-                      />
-                      <CustomTextInput
-                        value={customImageUrl}
-                        onChangeText={setCustomImageUrl}
-                        placeholder="Ingresa URL de imagen"
-                        placeholderTextColor="#666"
-                        maxLength={200}
-                        style={{ width: 300 }}
-                      />
-                      <CustomButton
-                        title="Actualizar imagen"
-                        onPress={handleUpdateImageUrl}
-                        color="blue"
-                      />
-                    </View>
-                    :
-                    <Image
-                      source={{ uri: editedCompany.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
-                      style={styles.companyImage}
-                    />}
-                </View>
-
-                <View style={isMobile ? styles.columnContainerCompany : styles.twoColumnsContainerCompany}>
-                <View style={isMobile ? {width: '80%'} : styles.column}>
-                {renderEditableFieldCompany('Descripción', editedCompany.description, 'description', 'Descripción')}
-                    {renderEditableFieldCompany('Email', editedCompany.email, 'email', 'Email')}
-                    {renderEditableFieldCompany('Teléfono', editedCompany.telephone, 'telephone', 'Teléfono')}
-                  </View>
-                  <View style={isMobile ? {marginTop: 10, width: '80%'} : styles.column}>
-                    <ThemedText style={styles.label}>NIF</ThemedText>
-                    <ThemedText style={styles.value}>{editedCompany.nif}</ThemedText>
-                    {renderEditableFieldCompany('Dirección', editedCompany.address, 'address', 'Dirección')}
-                    {renderEditableFieldCompany('Ciudad', editedCompany.city, 'city', 'Ciudad')}
-                    {renderEditableFieldCompany('Código Postal', editedCompany.zipCode, 'zipCode', 'Código Postal')}
-                  </View>
-                </View>
-
-                {isEditing ? (
-                  <View style={styles.buttonContainer}>
-                    <CustomButton
-                      title="Guardar"
-                      onPress={handleSaveCompany}
-                      color="blue"
-                    />
-                    <LogoutButton />
-                  </View>
-                ) : (
-                  <View>
+                  {isEditing ? (
                     <View style={styles.buttonContainer}>
                       <CustomButton
-                        title="Editar información"
+                        title="Guardar"
+                        onPress={handleSave}
+                        color="blue"
+                      />
+                      <LogoutButton />
+                    </View>
+                  ) : (
+                    <View style={styles.buttonContainer}>
+                      <CustomButton
+                        title="Editar usuario"
                         onPress={() => { setIsEditing(true) }}
                         color="blue"
                       />
                       <DeleteAccountButton />
                     </View>
-                    <ThemedText style={styles.changePasswordText}>
-                      ¿Desea cambiar su contraseña?{' '}
-                      <Pressable onPress={() => { setShowPasswordModal(true) }}>
-                        <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
-                      </Pressable>
-                    </ThemedText>
+                  )}
+
+                  <ThemedText style={styles.changePasswordText}>
+                    ¿Desea cambiar su contraseña?{' '}
+                    <Pressable onPress={() => { setShowPasswordModal(true) }}>
+                      <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
+                    </Pressable>
+                  </ThemedText>
+                </View>
+              ) : (
+                <View style={styles.companyContainer}>
+                  <View style={isMobile ? styles.verticalCompanyHeader : styles.companyHeader}>
+                    {renderEditableFieldCompany('', editedCompany.name, 'name', 'Name')}
+                    {isEditing ?
+                      <View style={isMobile ? styles.verticalImageHeaderContainer : styles.imageHeaderContainer}>
+
+                        <Image
+                          source={{ uri: editedCompany.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
+                          style={styles.companyImage}
+                        />
+                        <CustomTextInput
+                          value={customImageUrl}
+                          onChangeText={setCustomImageUrl}
+                          placeholder="Ingresa URL de imagen"
+                          placeholderTextColor="#666"
+                          maxLength={200}
+                          style={{ width: 300 }}
+                        />
+                        <CustomButton
+                          title="Actualizar imagen"
+                          onPress={handleUpdateImageUrl}
+                          color="blue"
+                        />
+                      </View>
+                      :
+                      <Image
+                        source={{ uri: editedCompany.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
+                        style={styles.companyImage}
+                      />}
                   </View>
-                )}
-              </View>
-            )}
-          </View>
 
-          <CustomModal
-            ref={customModalRef}
-            visible={showPasswordModal}
-            onClose={() => { setShowPasswordModal(false) }}
-            title="Cambiar contraseña"
-            style={styles.modalContent}>
-            <View style={styles.modalContent}>
-              <CustomTextInput
-                placeholder="Nueva contraseña"
-                placeholderTextColor="#666"
-                secureTextEntry
-                showPasswordToggle={false}
-                value={newPassword}
-                maxLength={36}
-                onChangeText={setNewPassword}
-              />
-              <CustomTextInput
-                placeholder="Confirmar contraseña"
-                placeholderTextColor="#666"
-                secureTextEntry
-                showPasswordToggle={false}
-                maxLength={36}
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-              />
+                  <View style={isMobile ? styles.columnContainerCompany : styles.twoColumnsContainerCompany}>
+                    <View style={isMobile ? { width: '80%' } : styles.column}>
+                      {renderEditableFieldCompany('Descripción', editedCompany.description, 'description', 'Descripción')}
+                      {renderEditableFieldCompany('Email', editedCompany.email, 'email', 'Email')}
+                      {renderEditableFieldCompany('Teléfono', editedCompany.telephone, 'telephone', 'Teléfono')}
+                    </View>
+                    <View style={isMobile ? { marginTop: 10, width: '80%' } : styles.column}>
+                      <ThemedText style={styles.label}>NIF</ThemedText>
+                      <ThemedText style={styles.value}>{editedCompany.nif}</ThemedText>
+                      {renderEditableFieldCompany('Dirección', editedCompany.address, 'address', 'Dirección')}
+                      {renderEditableFieldCompany('Ciudad', editedCompany.city, 'city', 'Ciudad')}
+                      {renderEditableFieldCompany('Código Postal', editedCompany.zipCode, 'zipCode', 'Código Postal')}
+                    </View>
+                  </View>
 
-              <View style={styles.modalButtons}>
-                <CustomButton
-                  title="Cancelar"
-                  onPress={() => { setShowPasswordModal(false) }}
-                  style={StyleSheet.flatten([styles.modalButton, styles.cancelButton])}
-                />
-                <CustomButton
-                  title="Guardar"
-                  onPress={handleChangePassword}
-                  style={StyleSheet.flatten([styles.modalButton, styles.saveButton])}
-                />
-              </View>
+                  {isEditing ? (
+                    <View style={styles.buttonContainer}>
+                      <CustomButton
+                        title="Guardar"
+                        onPress={handleSaveCompany}
+                        color="blue"
+                      />
+                      <LogoutButton />
+                    </View>
+                  ) : (
+                    <View>
+                      <View style={styles.buttonContainer}>
+                        <CustomButton
+                          title="Editar información"
+                          onPress={() => { setIsEditing(true) }}
+                          color="blue"
+                        />
+                        <DeleteAccountButton />
+                      </View>
+                      <ThemedText style={styles.changePasswordText}>
+                        ¿Desea cambiar su contraseña?{' '}
+                        <Pressable onPress={() => { setShowPasswordModal(true) }}>
+                          <ThemedText style={styles.changePasswordLink}>Cambiar contraseña</ThemedText>
+                        </Pressable>
+                      </ThemedText>
+                    </View>
+                  )}
+                </View>
+              )}
             </View>
-          </CustomModal>
-        </>
-      ) : (
-        <ThemedText style={styles.ThemedText}>No se pudo cargar el perfil.</ThemedText>
-      )
-      }
-    </ThemedView>
+
+            <CustomModal
+              ref={customModalRef}
+              visible={showPasswordModal}
+              onClose={() => { setShowPasswordModal(false) }}
+              title="Cambiar contraseña"
+              style={styles.modalContent}>
+              <View style={styles.modalContent}>
+                <CustomTextInput
+                  placeholder="Nueva contraseña"
+                  placeholderTextColor="#666"
+                  secureTextEntry
+                  showPasswordToggle={false}
+                  value={newPassword}
+                  maxLength={36}
+                  onChangeText={setNewPassword}
+                />
+                <CustomTextInput
+                  placeholder="Confirmar contraseña"
+                  placeholderTextColor="#666"
+                  secureTextEntry
+                  showPasswordToggle={false}
+                  maxLength={36}
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                />
+
+                <View style={styles.modalButtons}>
+                  <CustomButton
+                    title="Cancelar"
+                    onPress={() => { setShowPasswordModal(false) }}
+                    style={StyleSheet.flatten([styles.modalButton, styles.cancelButton])}
+                  />
+                  <CustomButton
+                    title="Guardar"
+                    onPress={handleChangePassword}
+                    style={StyleSheet.flatten([styles.modalButton, styles.saveButton])}
+                  />
+                </View>
+              </View>
+            </CustomModal>
+          </>
+        ) : (
+          <ThemedText style={styles.ThemedText}>No se pudo cargar el perfil.</ThemedText>
+        )
+        }
+      </ThemedView>
     </ScrollView>
   );
 
