@@ -91,7 +91,7 @@ const PlanCard: React.FC<PlanCardProps> = ({
         - Publicidad destacada en búsquedas.
         `,
         price: '9.99€/mes',
-        nextPayment: expirationDate,
+        nextPayment: isPremium ? expirationDate: "",
         borderColor: GlobalStyles.red,
         backgroundColor: isPremium ? GlobalStyles.lightGrey : GlobalStyles.white,
       };
@@ -108,7 +108,7 @@ const PlanCard: React.FC<PlanCardProps> = ({
         - Tranquilidad y seguridad garantizadas.
         `,
         price: '0.99€/mes',
-        nextPayment: expirationDate,
+        nextPayment: isPremium ? expirationDate: "",
         borderColor: GlobalStyles.blue,
         backgroundColor: isPremium ? GlobalStyles.lightGrey : GlobalStyles.white,
       };
