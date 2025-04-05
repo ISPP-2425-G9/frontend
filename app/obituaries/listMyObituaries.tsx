@@ -18,7 +18,7 @@ const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
 type RootStackParamList = {
-  'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number };
+  'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number, is_visualization?: boolean};
   'obituaries/index': undefined;
 };
 
@@ -40,7 +40,7 @@ function ObituaryIndex() {
     imageTemplate: {
       imageId: number;
       imageUrl: string;
-    }, 
+    },
     deathCertificate: {
       isVerified: boolean;
     }
@@ -49,7 +49,7 @@ function ObituaryIndex() {
   const [obituaries, setObituaries] = useState<Obituary[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedObituaryId, setSelectedObituaryId] = useState<number | null>(null);
-  const [ isVerified, setIsVerified ] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -134,6 +134,17 @@ function ObituaryIndex() {
     });
   };
 
+  const handleObituaryVisualizationPress = (imageTemplateId: number, imageUrl: string, obituaryId: number) => {
+    navigation.navigate(
+      'obituaries/createObituary', {
+      imageTemplateId,
+      imageUrl,
+      is_newObituary: false,
+      obituaryId,
+      is_visualization: true,
+    });
+  };
+
   if (loading) {
     return (
       <ThemedView style={styles.centeredContainer}>
@@ -146,7 +157,7 @@ function ObituaryIndex() {
   return isAuthenticated ? (
     <ThemedView style={styles.container}>
       <Text style={styles.title}>Sus esquelas</Text>
-  
+
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.listContainer}>
           {obituaries.map((item) => (
@@ -164,34 +175,37 @@ function ObituaryIndex() {
                 <Text style={styles.overlayText}>
                   {item.isMine ? `${item.name} (Su propia esquela)` : item.name}
                 </Text>
-  
+
                 <View style={{ flex: 1, justifyContent: 'flex-end' }}>
                   <View style={styles.buttonsContainer}>
                     {item.isMine ? (
                       <>
                         <CustomButton
-                          title="Edita la esquela"
-                          onPress={() =>
-                            {handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id)}
+                          title="Visualiza tu esquela"
+                          onPress={() => { handleObituaryVisualizationPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id) }
+                          }
+                        />
+                        <CustomButton
+                          title="Edita tu esquela"
+                          onPress={() => { handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id) }
                           }
                         />
                         <CustomButton
                           title="Eliminar"
                           color="red"
-                          onPress={() =>{showConfirmationModal(item.id)}}
+                          onPress={() => { showConfirmationModal(item.id) }}
                         />
                       </>
                     ) : (
                       <>
                         <CustomButton
                           title="Visualiza la esquela"
-                          onPress={() =>
-                          {handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id)}
-                          }                          />
+                          onPress={() => { handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id) }
+                          } />
                         {item.deathCertificate?.isVerified ? (
-                          <CustomButton title="Esquela ya enviada" color = "green" onPress={() => { }} />
+                          <CustomButton title="Esquela ya enviada" color="green" onPress={() => { }} />
                         ) : (
-                          <CustomButton title="Pendiente de aceptar" color= "orange" onPress={() => { }} />
+                          <CustomButton title="Pendiente de aceptar" color="orange" onPress={() => { }} />
                         )}
                       </>
                     )}
@@ -202,12 +216,12 @@ function ObituaryIndex() {
           ))}
         </View>
       </ScrollView>
-  
+
       <View style={styles.divider} />
       <View style={styles.buttonContainer}>
-        <CustomButton title="Crea una esquela" onPress={() => {navigation.navigate('obituaries/index');}} />
+        <CustomButton title="Crea una esquela" onPress={() => { navigation.navigate('obituaries/index'); }} />
       </View>
-  
+
       {modalVisible && (
         <CustomModal
           visible={modalVisible}
@@ -231,7 +245,7 @@ function ObituaryIndex() {
       <Text style={styles.title}>Debes iniciar sesión para poder acceder a esta sección</Text>
     </ThemedView>
   );
-}  
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -268,8 +282,8 @@ const styles = StyleSheet.create({
     elevation: 3,
     alignItems: 'center',
     overflow: 'hidden',
-    width: width > 600 ?  width* 0.20 : width * 0.95, 
-    height: height * 0.65 
+    width: width > 600 ? width * 0.20 : width * 0.95,
+    height: height * 0.65
   },
   image: {
     width: '100%',

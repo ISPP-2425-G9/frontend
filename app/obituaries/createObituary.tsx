@@ -34,6 +34,7 @@ type RootStackParamList = {
     jsonData: string,
     is_mine: boolean;
     selectedColor: string;
+    is_visualization?: boolean;
   };
   "obituaries/index": {
     is_newObituary: boolean,
@@ -62,6 +63,10 @@ function EsquelaCustomizer() {
   const is_newObituary = route.params?.is_newObituary ?? true;
 
   const obituaryId = route.params?.obituaryId ?? undefined;
+
+  const is_visualization = route.params?.is_visualization ?? undefined;
+
+  console.log("is_visualization", is_visualization);
 
   const imageId = route.params?.imageTemplateId;
 
@@ -123,6 +128,8 @@ function EsquelaCustomizer() {
     const initializeForm = async () => {
       setLoading(true);
       setSelectedColor("")
+
+      console.log("jsonData",jsonData);
 
 
       if (jsonData && jsonData.trim() !== "") {
@@ -190,6 +197,7 @@ function EsquelaCustomizer() {
           setSelectedColor(`rgb(${data.wordColor})`);
           setIsMine(data.isMine);
           data.isMine ? setIsSended(false) : setIsSended(true);
+
 
           setFormData({
             name: data.name || "",
@@ -513,7 +521,7 @@ function EsquelaCustomizer() {
             onChangeText={(text) => { handleChange("farewellPhrase", text) }}
           />
 
-          {!is_sended && (
+          {(!is_sended && !is_visualization) && (
             <>
               <View
                 style={{
