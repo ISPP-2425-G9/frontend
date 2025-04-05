@@ -22,7 +22,7 @@ interface Message {
     title: string;
     body: string;
     code: string;
-    //customImages: string[];
+    customImages: string[];
 }
 
 type RootStackParamList = {
@@ -33,6 +33,7 @@ type RootStackParamList = {
         messageId: number | undefined;
         is_newMessage: boolean;
         is_owner: boolean | undefined;
+        is_visualization?: true,
     } | undefined;
 };
 
@@ -131,9 +132,6 @@ function MessageList() {
                 <Text style={styles.introText}>
                     En esta sección, podrás ver y crear mensajes para tus seres queridos.
                 </Text>
-                <Text style={styles.introText}>
-                    (En estos momentos la imagen de preview por defecto es siempre la misma. En la próxima versión podrá visualizar sus imágenes correctamente)
-                </Text>
             </ThemedView>
 
             <CustomButton
@@ -150,8 +148,18 @@ function MessageList() {
                         style={styles.messageContainer}
                     >
                         <Text style={styles.messageText}>Título: {message.title}</Text>
-                        <Image source={require('@/assets/images/caronte_gris.png')} style={styles.messagePreviewImage} />
+                        {message.customImages.length > 0 ? (
+                            <Image source={{ uri: message.customImages[0] }} style={styles.messagePreviewImage} />
+                        ) : (
+                            <Image source={require('@/assets/images/caronte_gris.png')} style={styles.messagePreviewImage} />
+                        )}
                         <View style={styles.buttonContainer}>
+                            <CustomButton
+                                title="Visualizar"
+                                color="blue"
+                                style={styles.button1}
+                                onPress={() => navigation.navigate('messages/index', { messageId: message.messageId, is_newMessage: false, is_owner: undefined, is_visualization: true })}
+                            />
                             <CustomButton
                                 title="Editar"
                                 color="blue"
@@ -216,7 +224,7 @@ const styles = StyleSheet.create({
         width: 150,
         height: 150,
         alignSelf: 'center',
-        borderRadius: 10,
+        borderRadius: 30,
         resizeMode: "contain"
     },
     allMessagesContainer: {
@@ -245,7 +253,7 @@ const styles = StyleSheet.create({
 
     },
     messageContainer: {
-        width: width > 600 ? "18%" : "40%",
+        width: width > 600 ? "22%" : "85%",
         padding: 15,
         borderRadius: 12,
         backgroundColor: GlobalStyles.lightGrey,
@@ -274,14 +282,18 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     buttonContainer: {
-        flexDirection: "row",
+        flexDirection: width > 600 ? "row" : "column",
         alignContent: "center",
-        justifyContent: "center",
+        justifyContent: "space-between",
         gap: 10,
         marginTop: 10,
+        paddingHorizontal: 10,
+        flex:1,
+        width: "100%",
     },
     button1: {
-        width: width > 600 ? "80%" : "30%",
+        flex: 1,
+        alignSelf: 'center',
     },
     modalStyle: {
         backgroundColor: '#fff',

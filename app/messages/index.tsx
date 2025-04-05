@@ -26,16 +26,16 @@ interface Message {
 type RootStackParamList = {
   //'messages/listMyMessages': {messageId: number};
   'messages/listMyMessages': { 
-    messageId: number 
+    messageId: number;
     is_newMessage: boolean;
     is_owner: boolean;
-
+    is_visualization?: boolean;
   } | undefined;
   'messages/index': { 
     messageId: number;
     is_newMessage: boolean;
     is_owner: boolean;
-
+    is_visualization?: boolean;
   } | undefined;
 };
 
@@ -46,6 +46,8 @@ function MessageCreation() {
   const route = useRoute<RouteProp<RootStackParamList, 'messages/listMyMessages'>>();
 
   const messageId = route.params?.messageId || undefined;
+
+  const is_visualization = route.params?.is_visualization || undefined;
 
   const is_newMessage = route.params?.is_newMessage;
 
@@ -464,7 +466,7 @@ function MessageCreation() {
             <CustomTextInput
               style={{ width: "100%" }}
               placeholder="Título del mensaje"
-              maxLength={100}
+              maxLength={80}
               value={formData.title}
               onChangeText={(text) => setFormData({ ...formData, title: text })}
               editable={isOwner} 
@@ -479,7 +481,7 @@ function MessageCreation() {
               onChangeText={(text) => setFormData({ ...formData, body: text })}
               editable={isOwner} 
             />
-            {isOwner && (
+            {isOwner && !is_visualization && (
               <View>
                 <View style={styles.buttonContainer}>
                   <CustomButton
