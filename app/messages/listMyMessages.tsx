@@ -32,7 +32,6 @@ type RootStackParamList = {
     'messages/index': {
         messageId: number | undefined;
         is_newMessage: boolean;
-        is_owner: boolean | undefined;
         is_visualization?: true,
     } | undefined;
 };
@@ -138,7 +137,7 @@ function MessageList() {
                 title="Crea un mensaje para un ser querido"
                 color="green"
                 style={styles.floatingButton}
-                onPress={() => navigation.navigate('messages/index', { messageId: undefined, is_newMessage: true, is_owner: true })}
+                onPress={() => navigation.navigate('messages/index', { messageId: undefined, is_newMessage: true })}
             />
 
             <View style={styles.messagesWrapper}>
@@ -158,13 +157,13 @@ function MessageList() {
                                 title="Editar"
                                 color="blue"
                                 style={styles.button1}
-                                onPress={() => navigation.navigate('messages/index', { messageId: message.messageId, is_newMessage: false, is_owner: undefined })}
+                                onPress={() => navigation.navigate('messages/index', { messageId: message.messageId, is_newMessage: false  })}
                             />
                             <CustomButton
                                 title="Visualizar"
                                 color="blue"
                                 style={styles.button1}
-                                onPress={() => navigation.navigate('messages/index', { messageId: message.messageId, is_newMessage: false, is_owner: undefined, is_visualization: true })}
+                                onPress={() => navigation.navigate('messages/index', { messageId: message.messageId, is_newMessage: false, is_visualization: true })}
                             />
                             <CustomButton
                                 title="Eliminar"
