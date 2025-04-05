@@ -99,14 +99,14 @@ const CustomNavbar = () => {
                                 <TouchableOpacity onPress={() => { handleNavigation('certificate/index'); setMenuOpen(false); }}>
                                     <Text style={styles.dropdownNavItem}>Subir certificado</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => { handleNavigation('about/index'); setMenuOpen(false); }}>
-                                    <Text style={styles.dropdownNavItem}>Sobre nosotros</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => { handleNavigation('contact/index'); setMenuOpen(false); }}>
-                                    <Text style={styles.dropdownNavItem}>Contáctanos</Text>
-                                </TouchableOpacity>
+
                                 {!isAuthenticated && (
-                                    <>
+                                    <><TouchableOpacity onPress={() => { handleNavigation('about/index'); setMenuOpen(false); }}>
+                                        <Text style={styles.dropdownNavItem}>Sobre nosotros</Text>
+                                    </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => { handleNavigation('contact/index'); setMenuOpen(false); }}>
+                                            <Text style={styles.dropdownNavItem}>Contáctanos</Text>
+                                        </TouchableOpacity>
                                         <TouchableOpacity onPress={() => { handleNavigation('login/index'); setMenuOpen(false); }}>
                                             <Text style={styles.dropdownNavItem}>Iniciar sesión</Text>
                                         </TouchableOpacity>
@@ -124,6 +124,12 @@ const CustomNavbar = () => {
                                             setUserMenuOpen(false);
                                             setIsLogoutModalVisible(true);
                                         }}>
+                                            <TouchableOpacity onPress={() => { handleNavigation('about/index'); setMenuOpen(false); }}>
+                                                <Text style={styles.dropdownNavItem}>Sobre nosotros</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={() => { handleNavigation('contact/index'); setMenuOpen(false); }}>
+                                                <Text style={styles.dropdownNavItem}>Contáctanos</Text>
+                                            </TouchableOpacity>
                                             <Text style={styles.dropdownNavItem}>Cerrar sesión</Text>
                                         </TouchableOpacity>
                                     </>
@@ -153,6 +159,12 @@ const CustomNavbar = () => {
                                         <TouchableOpacity onPress={() => { handleNavigation('subscribe/index'); setMenuOpen(false); }}>
                                             <Text style={styles.dropdownNavItem}>Planes</Text>
                                         </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => { handleNavigation('about/index'); setMenuOpen(false); }}>
+                                            <Text style={styles.dropdownNavItem}>Sobre nosotros</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => { handleNavigation('contact/index'); setMenuOpen(false); }}>
+                                            <Text style={styles.dropdownNavItem}>Contáctanos</Text>
+                                        </TouchableOpacity>
                                         <TouchableOpacity onPress={() => {
                                             setUserMenuOpen(false);
                                             handleNavigation('profile/index');
@@ -160,6 +172,7 @@ const CustomNavbar = () => {
                                         }}>
                                             <Text style={styles.dropdownNavItem}>{userName}</Text>
                                         </TouchableOpacity>
+
                                         <TouchableOpacity onPress={() => {
                                             setUserMenuOpen(false);
                                             setIsLogoutModalVisible(true);
@@ -180,20 +193,21 @@ const CustomNavbar = () => {
                                     {activeItem === 'certificate/index' && <View style={styles.activeIndicator} />}
                                 </View>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => { handleNavigation('about/index') }}>
-                                <View>
-                                    <Text style={styles.navItem}>Sobre nosotros</Text>
-                                    {activeItem === 'about/index' && <View style={styles.activeIndicator} />}
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => { handleNavigation('contact/index') }}>
-                                <View>
-                                    <Text style={styles.navItem}>Contáctanos</Text>
-                                    {activeItem === 'contact/index' && <View style={styles.activeIndicator} />}
-                                </View>
-                            </TouchableOpacity>
+
                             {!isAuthenticated && (
                                 <>
+                                    <TouchableOpacity onPress={() => { handleNavigation('about/index') }}>
+                                        <View>
+                                            <Text style={styles.navItem}>Sobre nosotros</Text>
+                                            {activeItem === 'about/index' && <View style={styles.activeIndicator} />}
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => { handleNavigation('contact/index') }}>
+                                        <View>
+                                            <Text style={styles.navItem}>Contáctanos</Text>
+                                            {activeItem === 'contact/index' && <View style={styles.activeIndicator} />}
+                                        </View>
+                                    </TouchableOpacity>
                                     <TouchableOpacity onPress={() => { handleNavigation('login/index') }}>
                                         <View>
                                             <Text style={styles.navItem}>Iniciar sesión</Text>
@@ -214,6 +228,18 @@ const CustomNavbar = () => {
                                         <View>
                                             <Text style={styles.navItem}>Usuarios</Text>
                                             {activeItem === 'admin/listUsers' && <View style={styles.activeIndicator} />}
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => { handleNavigation('about/index') }}>
+                                        <View>
+                                            <Text style={styles.navItem}>Sobre nosotros</Text>
+                                            {activeItem === 'about/index' && <View style={styles.activeIndicator} />}
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => { handleNavigation('contact/index') }}>
+                                        <View>
+                                            <Text style={styles.navItem}>Contáctanos</Text>
+                                            {activeItem === 'contact/index' && <View style={styles.activeIndicator} />}
                                         </View>
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => {
@@ -266,6 +292,18 @@ const CustomNavbar = () => {
                                             {activeItem === 'subscribe/index' && <View style={styles.activeIndicator} />}
                                         </View>
                                     </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => { handleNavigation('about/index') }}>
+                                        <View>
+                                            <Text style={styles.navItem}>Sobre nosotros</Text>
+                                            {activeItem === 'about/index' && <View style={styles.activeIndicator} />}
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => { handleNavigation('contact/index') }}>
+                                        <View>
+                                            <Text style={styles.navItem}>Contáctanos</Text>
+                                            {activeItem === 'contact/index' && <View style={styles.activeIndicator} />}
+                                        </View>
+                                    </TouchableOpacity>
                                     <TouchableOpacity onPress={() => { setUserMenuOpen(!userMenuOpen) }}>
                                         <View>
                                             <Text style={styles.navItem}>{userName}</Text>
@@ -273,7 +311,7 @@ const CustomNavbar = () => {
                                         </View>
                                     </TouchableOpacity>
                                     {userMenuOpen && (
-                                        <View style={styles.dropdown}>
+                                        <BlurView intensity={80} tint="light" style={styles.dropdown}>
                                             <TouchableOpacity onPress={() => {
                                                 setUserMenuOpen(false);
                                                 handleNavigation('profile/index');
@@ -286,7 +324,7 @@ const CustomNavbar = () => {
                                             }}>
                                                 <Text style={styles.dropdownNavItem}>Cerrar sesión</Text>
                                             </TouchableOpacity>
-                                        </View>
+                                        </BlurView>
                                     )}
                                 </>
                             )}

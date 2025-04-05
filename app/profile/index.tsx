@@ -588,12 +588,12 @@ function ProfileScreen() {
                 </View>
 
                 <View style={isMobile ? styles.columnContainerCompany : styles.twoColumnsContainerCompany}>
-                <View style={isMobile ? undefined : styles.column}>
+                <View style={isMobile ? {width: '80%'} : styles.column}>
                 {renderEditableFieldCompany('Descripción', editedCompany.description, 'description', 'Descripción')}
                     {renderEditableFieldCompany('Email', editedCompany.email, 'email', 'Email')}
                     {renderEditableFieldCompany('Teléfono', editedCompany.telephone, 'telephone', 'Teléfono')}
                   </View>
-                  <View style={isMobile ? {marginTop: 10} : styles.column}>
+                  <View style={isMobile ? {marginTop: 10, width: '80%'} : styles.column}>
                     <ThemedText style={styles.label}>NIF</ThemedText>
                     <ThemedText style={styles.value}>{editedCompany.nif}</ThemedText>
                     {renderEditableFieldCompany('Dirección', editedCompany.address, 'address', 'Dirección')}
