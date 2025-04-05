@@ -2,63 +2,44 @@ import PlanCard from '@/components/PlanCard';
 import { ThemedView } from '@/components/ThemedView';
 import { GlobalStyles } from '@/constants/Colors';
 import { useFocusEffect } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AUTHORITIES, AuthorityType } from '../_util/Authorities';
-import { useAuth } from '../_util/useAuth';
 import { withAuth } from '../_util/withAuth';
+import useAuth from '@/hooks/useAuth';
 
-const VALID_ROLES: AuthorityType[] = ['CUSTOMER_FREE', 'CUSTOMER_PREMIUM', 'COMPANY_FREE', 'COMPANY_PREMIUM'];
+const VALID_ROLES: string[] = ['CUSTOMER_FREE', 'CUSTOMER_PREMIUM', 'COMPANY_FREE', 'COMPANY_PREMIUM'];
 
 function PlanManagementView() {
-  const { user, getUserFromStorage } = useAuth();
-  const [storedUser, setStoredUser] = useState(user);
-  const [loading, setLoading] = useState(true);
-  const [role, setRole] = useState<'CUSTOMER_FREE' | 'CUSTOMER_PREMIUM' | 'COMPANY_FREE' | 'COMPANY_PREMIUM' | null>(null);
+  const { roles, experedPlanDate } = useAuth();
+  const [role, setRole] = useState<string | null>(null);
   const [fechaExpiracion, setFechaExpiracion] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
-      if (!user) {
-        const storedData = await getUserFromStorage();
-        setStoredUser(storedData || { roles: [AUTHORITIES.ANONYMOUS] });
-      } else {
-        setStoredUser(user);
-      }
-      setLoading(false);
+      const rolesUser = roles ?? [AUTHORITIES.ANONYMOUS];
+      const foundRole = rolesUser.find((r: string) => VALID_ROLES.includes(r)) ?? null;
+      setRole(foundRole);
+      const experedPlanDateStr = experedPlanDate?.toLocaleDateString("es-ES") ?? null
+      setFechaExpiracion(experedPlanDateStr);
     };
-
     fetchUser();
-  }, [user]);
-
-  useEffect(() => {
-    if (storedUser && storedUser.roles) {
-      const foundRole = storedUser.roles.find((r: AuthorityType) => VALID_ROLES.includes(r));
-      if (foundRole) {
-        setRole(foundRole as 'CUSTOMER_FREE' | 'CUSTOMER_PREMIUM' | 'COMPANY_FREE' | 'COMPANY_PREMIUM');
-        if (foundRole.includes('PREMIUM')) {
-          setFechaExpiracion('2024-04-15');   // TODO: Pasar la fecha de pago desde el backend
-        }
-      }
-    }
-  }, [storedUser]);
+  }, [roles]);
 
   useFocusEffect(
-      React.useCallback(() => {
-        document.title = 'Planes';
-      }, [])
-    );
+    useCallback(() => {
+      document.title = 'Planes'; // Esto solo aplica si se ejecuta en Web
+    }, [])
+  );
 
-  if (loading) {
-    return <Text>Cargando...</Text>;
-  }
+  if (!role) return <Text>Cargando...</Text>;
 
   return (
     <ThemedView style={styles.container}>
       <Text style={styles.title}>Gestión de planes</Text>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={[styles.planContainer]}>
-          {role && user?.id && <PlanCard userId={user.id} role={role} fechaExpiracion={fechaExpiracion ?? undefined} />}
+        <View style={styles.planContainer}>
+          <PlanCard role={role} fechaExpiracion={fechaExpiracion ?? undefined} />
         </View>
       </ScrollView>
     </ThemedView>
