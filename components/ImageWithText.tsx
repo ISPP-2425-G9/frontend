@@ -23,7 +23,7 @@ const ImageWithText: React.FC<ImageWithTextProps> = ({ image, text, style, onPre
 
   return (
     <Pressable style={[styles.container, style]} onPress={handlePress} disabled={!onPress && !redirectTo}>
-      <Image source={typeof image === 'string' ? { uri: image } : image} style={styles.image} resizeMode="contain" />
+      <Image testID='image' source={typeof image === 'string' ? { uri: image } : image} style={styles.image} resizeMode="contain" />
       <Text style={styles.text}>{text}</Text>
     </Pressable>
   );
