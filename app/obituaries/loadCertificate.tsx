@@ -1,3 +1,4 @@
+import React from 'react';
 import CustomButton from "@/components/CustomButton";
 import CustomModal from "@/components/CustomModal";
 import { CustomTextInput } from "@/components/CustomTextInput";
@@ -14,6 +15,8 @@ import { AUTHORITIES } from "../_util/Authorities";
 import { withAuth } from "../_util/withAuth";
 import { useNotification } from '@/context/NotificationContext';
 import { ScrollView } from "react-native-gesture-handler";
+import PaymentModal from "@/components/PaymentModalObituary";
+import SuccessModal from "@/components/SuccessModalObituary";
 
 type RootStackParamList = {
   "obituaries/loadCertificate": {
@@ -49,6 +52,10 @@ function LoadCertificate() {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
+  // Nuevos estados para el pago
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const json = route.params?.jsonData;
 
@@ -172,8 +179,22 @@ function LoadCertificate() {
       setDniError("El DNI debe tener el formato 12345678A.");
       return;
     }
-    setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido.")
-    setModalVisible(true);
+    setShowPaymentModal(true);
+  };
+
+  const handlePaymentSuccess = async () => {
+    setShowPaymentModal(false);
+    setShowSuccessModal(true);
+    await handleSubmit();
+  };
+
+  const handlePaymentCancel = () => {
+    setShowPaymentModal(false);
+  };
+
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    navigation.navigate("obituaries/index");
   };
 
   const handleCloseModal = () => {
@@ -225,7 +246,7 @@ function LoadCertificate() {
     }
   };
 
-  return isAuthenticated ? (
+  const content = isAuthenticated ? (
     <ScrollView style={{ flex: 1, width: "100%" }} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
       <View style={styles.container}>
         <View style={styles.introContainer}>
@@ -339,6 +360,24 @@ function LoadCertificate() {
     <ThemedView style={styles.container}>
       <Text style={styles.title}>Debes iniciar sesión para poder acceder a esta sección</Text>
     </ThemedView>
+  );
+
+  return (
+    <>
+      {content}
+      <PaymentModal
+        visible={showPaymentModal}
+        onClose={handlePaymentCancel}
+        amount={1.99}
+        planType="obituary"
+        description="Pago por la creación de una esquela digital"
+        onSuccess={handlePaymentSuccess}
+      />
+      <SuccessModal
+        visible={showSuccessModal}
+        onClose={handleCloseSuccessModal}
+      />
+    </>
   );
 }
 
