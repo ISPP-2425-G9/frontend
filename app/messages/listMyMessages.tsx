@@ -65,7 +65,6 @@ function MessageList() {
 
                     if (response.ok) {
                         const data: Message[] = await response.json();
-                        console.log(data);
                         setMessages(data);
                     }
 
