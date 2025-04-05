@@ -24,17 +24,14 @@ interface Message {
 }
 
 type RootStackParamList = {
-  //'messages/listMyMessages': {messageId: number};
   'messages/listMyMessages': {
     messageId: number;
     is_newMessage: boolean;
-    is_owner: boolean;
     is_visualization?: boolean;
   } | undefined;
   'messages/index': {
     messageId: number;
     is_newMessage: boolean;
-    is_owner: boolean;
     is_visualization?: boolean;
   } | undefined;
 };
@@ -49,11 +46,9 @@ function MessageCreation() {
 
   const is_visualization = route.params?.is_visualization || undefined;
 
-  const is_newMessage = route.params?.is_newMessage;
+  const is_newMessage = route.params?.is_newMessage === true;
 
-  const is_owner = route.params?.is_owner || false;
-
-  const [isOwner, setIsOwner] = useState<boolean>(is_owner);
+  const [isOwner, setIsOwner] = useState<boolean>();
 
   const { showNotification } = useNotification();
 
@@ -68,49 +63,50 @@ function MessageCreation() {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [code, setCode] = useState<string>("");
 
-  useFocusEffect(
-    useCallback(() => {
-      setSelectedMedia(null);
-      const fetchOwnerStatus = async () => {
-        if (is_newMessage) {
-          setFormData({
-            title: '',
-            body: '',
-            customImages: [],
-          });
-          setContacts([]);
-        } else {
-          try {
-            const authToken = await AsyncStorage.getItem('authToken');
-
-            if (!authToken) {
-              console.error('No se encontró el token de autenticación');
-              return;
-            }
-            const response = await fetch(`${BACKEND_API}/api/messages/${messageId}/is-owner`, {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`,
-              },
-            });
-
-            if (!response.ok) {
-              throw new Error(`Error en la solicitud: ${response.status} ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            setIsOwner(data.isOwner);
-          } catch (error) {
-            console.error('Error al verificar la propiedad del mensaje:', error);
+  useEffect(() => {
+    setSelectedMedia(null);
+  
+    const fetchOwnerStatus = async () => {
+      if (is_newMessage) {
+        setFormData({
+          title: '',
+          body: '',
+          customImages: [],
+        });
+        setContacts([]);
+      } else {
+        try {
+          const authToken = await AsyncStorage.getItem('authToken');
+  
+          if (!authToken) {
+            console.error('No se encontró el token de autenticación');
+            return;
           }
+  
+          const response = await fetch(`${BACKEND_API}/api/messages/${messageId}/is-owner`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authToken}`,
+            },
+          });
+  
+          if (!response.ok) {
+            throw new Error(`Error en la solicitud: ${response.status} ${response.statusText}`);
+          }
+  
+          const data = await response.json();
+          setIsOwner(data.isOwner);
+        } catch (error) {
+          console.error('Error al verificar la propiedad del mensaje:', error);
         }
-      };
+      }
+    };
+  
+    fetchOwnerStatus();
+  }, [is_newMessage, messageId]);
+  
 
-      fetchOwnerStatus();
-
-    }, [is_newMessage])
-  );
   const fetchMessageData = useCallback(async () => {
     if (!is_newMessage && isOwner) {
 
@@ -410,9 +406,9 @@ function MessageCreation() {
     });
   };
   const handleVerifyCode = async () => {
-    if (!code || code.trim() === "") {
+    if (!code || code.length !== 5) {
       showNotification({
-        message: "El código no puede estar vacío",
+        message: "El código debe tener 5 números",
         type: "info",
         duration: 2500,
       });
@@ -486,7 +482,7 @@ function MessageCreation() {
             <CustomTextInput
               style={styles.textArea}
               placeholder="Texto personalizado"
-              maxLength={1999}
+              maxLength={2000}
               multiline
               value={formData.body}
               onChangeText={(text) => setFormData({ ...formData, body: text })}
@@ -517,8 +513,6 @@ function MessageCreation() {
                 />
               </View>
             )}
-
-
           </View>
 
           <View style={styles.mediaContainer}>
@@ -659,7 +653,7 @@ function MessageCreation() {
           <CustomTextInput
             placeholder="Código"
             value={code}
-            maxLength={10}
+            maxLength={5}
             onChangeText={(text) => setCode(text)}
             style={styles.input}
           />
@@ -668,7 +662,6 @@ function MessageCreation() {
             title="Enviar"
             onPress={handleVerifyCode}
           />
-
         </View>
       )}
     </>
