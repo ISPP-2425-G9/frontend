@@ -1,13 +1,17 @@
+import { useAuth as useAuthApp} from "@/app/_util/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 
+
 const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [roles, setRoles] = useState<any | null>(null);
-  const [email, setEmail] = useState<string | null>(null);
+  const [roles, setRoles] = useState<string[] | null>(null);
   const [name, setName] = useState<string | null>(null);
+  const [experedPlanDate, setExperedPlanDate] = useState<Date | null>(null);
+  const { logout, decodeJWT } = useAuthApp();
+
   useEffect(() => {
-    const checkAuth = async () => {
+    const useAuth = async () => {
       try {
         const userData: string | null = await AsyncStorage.getItem("user_data");
         let user = null;
@@ -17,20 +21,22 @@ const useAuth = () => {
           token = user.token;
         }
 
-        setIsAuthenticated(!!token);
         if(!!token){
+          const { exp } = decodeJWT(token);
+          const expirationDate = new Date(exp * 1000)
+          if(expirationDate < new Date()) {
+            await logout();
+          }
           const userRoles = user.roles
-          setRoles(userRoles)
-
-          // TODO
-          const userEmail = "email_test";
           const userName = user.name;
+          const userExperedPlanDate = new Date(user.experedPlanDate);
+          setRoles(userRoles)
           setName(userName)
-          setEmail(userEmail)
+          setExperedPlanDate(userExperedPlanDate);
+          setIsAuthenticated(true);
         } else {
           await AsyncStorage.clear();
           setRoles(null);
-          setEmail(null);
           setName(null);
           setIsAuthenticated(false);
         }
@@ -39,15 +45,15 @@ const useAuth = () => {
         setIsAuthenticated(false);
       }
     };
-    checkAuth();
+    useAuth();
 
-    const intervalId = setInterval(checkAuth, 500); // Revisa cada 0,5 segundos
+    const intervalId = setInterval(useAuth, 500);
 
     return () => {clearInterval(intervalId)};
-  }, []); // Se ejecuta solo una vez al cargar el componente
+  }, []); 
 
 
-  return { isAuthenticated, roles, email, name };
+  return { isAuthenticated, roles, name, experedPlanDate };
 };
 
 export default useAuth;
