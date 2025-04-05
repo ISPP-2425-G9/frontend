@@ -11,10 +11,11 @@ import { useNotification } from '@/context/NotificationContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Dimensions, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
 
+const deviceWidth = Dimensions.get("window").width;
 
 function ProfileScreen() {
   const [customer, setCustomer] = useState<CustomerProfile | null>(null);
@@ -39,6 +40,8 @@ function ProfileScreen() {
   const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const phoneRegex = /^\d{9}$/;
   const zipCodeRegex = /^\d{5}$/;
+  
+  const isMobile = deviceWidth < 768;
 
   const removeSpaces = (phone: string): string => phone.replace(/\s/g, '');
 
@@ -507,6 +510,10 @@ function ProfileScreen() {
   }
 
   return (
+    <ScrollView
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+    >
     <ThemedView style={styles.container}>
       {(customer || company) ? (
         <>
@@ -550,10 +557,10 @@ function ProfileScreen() {
               </View>
             ) : (
               <View style={styles.companyContainer}>
-                <View style={styles.companyHeader}>
+                <View style={isMobile ? styles.verticalCompanyHeader : styles.companyHeader}>
                   {renderEditableFieldCompany('', editedCompany.name, 'name', 'Name')}
                   {isEditing ?
-                    <View style={styles.imageHeaderContainer}>
+                    <View style={isMobile ? styles.verticalImageHeaderContainer : styles.imageHeaderContainer}>
 
                       <Image
                         source={{ uri: editedCompany.imageUrl || 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Unknown_person.jpg/925px-Unknown_person.jpg' }}
@@ -580,13 +587,13 @@ function ProfileScreen() {
                     />}
                 </View>
 
-                <View style={styles.twoColumnsContainerCompany}>
-                  <View style={styles.column}>
-                    {renderEditableFieldCompany('Descripción', editedCompany.description, 'description', 'Descripción')}
+                <View style={isMobile ? styles.columnContainerCompany : styles.twoColumnsContainerCompany}>
+                <View style={isMobile ? undefined : styles.column}>
+                {renderEditableFieldCompany('Descripción', editedCompany.description, 'description', 'Descripción')}
                     {renderEditableFieldCompany('Email', editedCompany.email, 'email', 'Email')}
                     {renderEditableFieldCompany('Teléfono', editedCompany.telephone, 'telephone', 'Teléfono')}
                   </View>
-                  <View style={styles.column}>
+                  <View style={isMobile ? {marginTop: 10} : styles.column}>
                     <ThemedText style={styles.label}>NIF</ThemedText>
                     <ThemedText style={styles.value}>{editedCompany.nif}</ThemedText>
                     {renderEditableFieldCompany('Dirección', editedCompany.address, 'address', 'Dirección')}
@@ -671,7 +678,8 @@ function ProfileScreen() {
         <ThemedText style={styles.ThemedText}>No se pudo cargar el perfil.</ThemedText>
       )
       }
-    </ThemedView >
+    </ThemedView>
+    </ScrollView>
   );
 
 }
@@ -728,6 +736,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '90%',
   },
+  columnContainerCompany: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    width: '90%',
+  },
   column: {
     marginLeft: '5%',
     width: '50%',
@@ -750,12 +763,21 @@ const styles = StyleSheet.create({
   },
   valueName: {
     fontSize: 28,
+    marginBottom: 15,
     fontFamily: GlobalStyles.font,
     textAlign: "left",
     color: GlobalStyles.darkGrey,
   },
   imageHeaderContainer: {
+    marginTop: 20,
     flexDirection: 'row',
+    gap: 20,
+    alignItems: 'center',
+    width: '100%',
+  },
+  verticalImageHeaderContainer: {
+    marginTop: 20,
+    flexDirection: 'column',
     gap: 20,
     alignItems: 'center',
     width: '100%',
@@ -805,6 +827,13 @@ const styles = StyleSheet.create({
     width: '80%',
     flexDirection: 'column',
     alignItems: 'flex-start',
+    alignContent: 'center',
+    marginBottom: 20,
+  },
+  verticalCompanyHeader: {
+    width: '80%',
+    flexDirection: 'column',
+    alignItems: 'center',
     alignContent: 'center',
     marginBottom: 20,
   },
