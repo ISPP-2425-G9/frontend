@@ -155,16 +155,16 @@ function MessageList() {
                         )}
                         <View style={styles.buttonContainer}>
                             <CustomButton
-                                title="Visualizar"
-                                color="blue"
-                                style={styles.button1}
-                                onPress={() => navigation.navigate('messages/index', { messageId: message.messageId, is_newMessage: false, is_owner: undefined, is_visualization: true })}
-                            />
-                            <CustomButton
                                 title="Editar"
                                 color="blue"
                                 style={styles.button1}
                                 onPress={() => navigation.navigate('messages/index', { messageId: message.messageId, is_newMessage: false, is_owner: undefined })}
+                            />
+                            <CustomButton
+                                title="Visualizar"
+                                color="blue"
+                                style={styles.button1}
+                                onPress={() => navigation.navigate('messages/index', { messageId: message.messageId, is_newMessage: false, is_owner: undefined, is_visualization: true })}
                             />
                             <CustomButton
                                 title="Eliminar"
@@ -221,11 +221,10 @@ const styles = StyleSheet.create({
         lineHeight: 24,
     },
     messagePreviewImage: {
-        width: 150,
-        height: 150,
+        width: 250,
+        height: 175,
         alignSelf: 'center',
-        borderRadius: 30,
-        resizeMode: "contain"
+        resizeMode: "contain",
     },
     allMessagesContainer: {
         width: '100%',
@@ -271,11 +270,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 10,
     },
-    changeScreenButton: {
-        marginTop: 10,
-        width: 50,
-        height: 50,
-    },
     floatingButton: {
         padding: 10,
         width: width > 600 ? '30%' : '80%',
@@ -288,7 +282,7 @@ const styles = StyleSheet.create({
         gap: 10,
         marginTop: 10,
         paddingHorizontal: 10,
-        flex:1,
+        flex: 1,
         width: "100%",
     },
     button1: {

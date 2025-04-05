@@ -20,18 +20,18 @@ interface Message {
   title: string;
   body: string;
   code: string;
-  //customImages: string[];
+  customImages: string[];
 }
 
 type RootStackParamList = {
   //'messages/listMyMessages': {messageId: number};
-  'messages/listMyMessages': { 
+  'messages/listMyMessages': {
     messageId: number;
     is_newMessage: boolean;
     is_owner: boolean;
     is_visualization?: boolean;
   } | undefined;
-  'messages/index': { 
+  'messages/index': {
     messageId: number;
     is_newMessage: boolean;
     is_owner: boolean;
@@ -65,8 +65,8 @@ function MessageCreation() {
     customImages: [] as string[],
   });
 
-  const [ isVisible, setIsVisible ] = useState<boolean>(false);
-  const [ code, setCode ] = useState<string>("");
+  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [code, setCode] = useState<string>("");
 
   useFocusEffect(
     useCallback(() => {
@@ -82,11 +82,11 @@ function MessageCreation() {
         } else {
           try {
             const authToken = await AsyncStorage.getItem('authToken');
-  
+
             if (!authToken) {
               console.error('No se encontró el token de autenticación');
               return;
-            }  
+            }
             const response = await fetch(`${BACKEND_API}/api/messages/${messageId}/is-owner`, {
               method: 'GET',
               headers: {
@@ -94,11 +94,11 @@ function MessageCreation() {
                 'Authorization': `Bearer ${authToken}`,
               },
             });
-  
+
             if (!response.ok) {
               throw new Error(`Error en la solicitud: ${response.status} ${response.statusText}`);
             }
-  
+
             const data = await response.json();
             setIsOwner(data.isOwner);
           } catch (error) {
@@ -106,22 +106,22 @@ function MessageCreation() {
           }
         }
       };
-  
-      fetchOwnerStatus(); 
-  
+
+      fetchOwnerStatus();
+
     }, [is_newMessage])
   );
   const fetchMessageData = useCallback(async () => {
-    if (!is_newMessage && isOwner) {       
-      
+    if (!is_newMessage && isOwner) {
+
       try {
         const authToken = await AsyncStorage.getItem('authToken');
-  
+
         if (!authToken) {
           console.error("No se encontró el token de autenticación");
           return;
         }
-  
+
         const response = await fetch(`${BACKEND_API}/api/messages/${messageId}`, {
           method: 'GET',
           headers: {
@@ -129,7 +129,7 @@ function MessageCreation() {
             'Authorization': `Bearer ${authToken}`,
           },
         });
-  
+
         if (response.ok) {
           const data = await response.json();
           setFormData({
@@ -141,17 +141,17 @@ function MessageCreation() {
           const formatPhoneNumber = (phone: string) => {
             return phone.replace(/\D/g, '').replace(/(\d{3})(?=\d)/g, '$1 ');
           };
-          
+
           const contactsData = data.recipients.map((contact: any) => ({
             id: Date.now(),
             name: contact.name,
             telephone: formatPhoneNumber(contact.telephone),
             email: contact.email,
           }));
-          
-      
+
+
           setContacts(contactsData);
-          
+
         } else {
           console.error('Error al obtener los datos del mensaje');
         }
@@ -159,13 +159,13 @@ function MessageCreation() {
         console.error('Error en la solicitud:', error);
       }
     }
-  }, [is_newMessage, isOwner, messageId]); 
-  
+  }, [is_newMessage, isOwner, messageId]);
+
   useEffect(() => {
     fetchMessageData();
-  }, [fetchMessageData]); 
-  
-  
+  }, [fetchMessageData]);
+
+
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -173,7 +173,7 @@ function MessageCreation() {
       allowsEditing: true,
       quality: 1,
     });
-    
+
     if (!result.canceled) {
 
       const allowedFormats = ["jpg", "jpeg", "png"];
@@ -211,7 +211,7 @@ function MessageCreation() {
     }
   };
 
-    
+
   const handleSubmitMessage = async () => {
 
     const url = !is_newMessage ? `${BACKEND_API}/api/messages/${messageId}` : `${BACKEND_API}/api/messages`;
@@ -220,11 +220,11 @@ function MessageCreation() {
       ...formData,
       recipients: contacts.map(contact => ({
         ...contact,
-        telephone: contact.telephone.replace(/\s+/g, '') 
+        telephone: contact.telephone.replace(/\s+/g, '')
       })),
     };
-        
-    const errors = validateMessageData(formData.title,formData.body);
+
+    const errors = validateMessageData(formData.title, formData.body);
 
     if (errors && errors.length > 0) {
       showNotification({
@@ -283,6 +283,17 @@ function MessageCreation() {
     setSelectedMedia(uri);
   };
 
+  const handleRemoveImage = (uriToRemove: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      customImages: prev.customImages.filter((uri) => uri !== uriToRemove),
+    }));
+
+    if (selectedMedia === uriToRemove) {
+      setSelectedMedia(null);
+    }
+  };
+
 
   // Modal to Select contacts y su lógica
 
@@ -293,7 +304,7 @@ function MessageCreation() {
     email: string;
   };
 
- const [newContact, setNewContact] = useState<Contact>({
+  const [newContact, setNewContact] = useState<Contact>({
     id: Date.now(),
     name: "",
     telephone: "",
@@ -301,10 +312,10 @@ function MessageCreation() {
   });
 
   const [contacts, setContacts] = useState<Contact[]>([]);
-  
+
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
 
-  
+
 
   const [isContactModalVisible, setIsContactModalVisible] = useState(false);
 
@@ -407,7 +418,7 @@ function MessageCreation() {
       });
       return;
     }
-  
+
     try {
       const response = await fetch(`${BACKEND_API}/api/messages/${messageId}/validate-code/${code}`, {
         method: 'GET',
@@ -415,36 +426,36 @@ function MessageCreation() {
           'Content-Type': 'application/json',
         },
       });
-  
+
       if (!response.ok) {
         throw new Error(`Error en la solicitud: ${response.status} ${response.statusText}`);
       }
-  
+
       const data = await response.json();
-  
+
       setIsVisible(true);
       setCode("");
-  
+
       setFormData({
         title: data.title,
         body: data.body,
         customImages: data.customImages || [],
       });
-  
+
       const formatPhoneNumber = (phone: string) => {
         return phone.replace(/\D/g, '').replace(/(\d{3})(?=\d)/g, '$1 ');
       };
-      
+
       const contactsData = data.recipients.map((contact: any) => ({
         id: Date.now(),
         name: contact.name,
         telephone: formatPhoneNumber(contact.telephone),
         email: contact.email,
       }));
-      
-  
+
+
       setContacts(contactsData);
-  
+
     } catch (error) {
       showNotification({
         message: "Código erróneo. Inténtalo de nuevo.",
@@ -453,25 +464,25 @@ function MessageCreation() {
       });
     }
   };
-  
+
   return (
     <>
       {isVisible || isOwner ? (
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.formContainer}>
-          <Text style={styles.textTitle}>
-            {is_newMessage ? "Crea tu mensaje personalizado" : "Actualiza tu mensaje"}
-          </Text>            
-  
+            <Text style={styles.textTitle}>
+              {is_newMessage ? "Crea tu mensaje personalizado" : (is_visualization ? "Tu mensaje" : "Actualiza tu mensaje")}
+            </Text>
+
             <CustomTextInput
               style={{ width: "100%" }}
               placeholder="Título del mensaje"
               maxLength={80}
               value={formData.title}
               onChangeText={(text) => setFormData({ ...formData, title: text })}
-              editable={isOwner} 
+              editable={isOwner}
             />
-  
+
             <CustomTextInput
               style={styles.textArea}
               placeholder="Texto personalizado"
@@ -479,7 +490,7 @@ function MessageCreation() {
               multiline
               value={formData.body}
               onChangeText={(text) => setFormData({ ...formData, body: text })}
-              editable={isOwner} 
+              editable={isOwner}
             />
             {isOwner && !is_visualization && (
               <View>
@@ -509,7 +520,7 @@ function MessageCreation() {
 
 
           </View>
-  
+
           <View style={styles.mediaContainer}>
             <View style={styles.mediaVisualizer}>
               {selectedMedia ? (
@@ -520,7 +531,7 @@ function MessageCreation() {
                 </Text>
               )}
             </View>
-  
+
             <View style={styles.mediaItems}>
               <ScrollView horizontal>
                 {formData.customImages.length > 0 &&
@@ -530,12 +541,30 @@ function MessageCreation() {
                       onPress={() => handleMediaPress(uri)}
                     >
                       <Image source={{ uri }} style={styles.customImage} />
+                      {selectedMedia === uri && (
+                        <View style={{ position: "absolute", top: 25, left: 25 }}>
+                          <AntDesign name="checkcircleo" size={20} color="green" />
+                        </View>
+
+                      )}
+                      {!is_visualization && (
+                        <TouchableOpacity
+                          onPress={() => handleRemoveImage(uri)}
+                          style={{
+                            position: 'absolute',
+                            top: 25,
+                            right: 25,
+                          }}
+                        >
+                          <AntDesign name="closecircle" size={20} color="red" />
+                        </TouchableOpacity>
+                      )}
                     </TouchableOpacity>
                   ))}
               </ScrollView>
             </View>
           </View>
-  
+
           {isContactModalVisible && (
             <View style={styles.modalContactContainer}>
               <Pressable
@@ -544,9 +573,9 @@ function MessageCreation() {
               >
                 <AntDesign name="close" size={24} color="#434343" />
               </Pressable>
-  
+
               <Text style={styles.contactTitle}>Agrega a tus contactos</Text>
-  
+
               <View style={styles.contactContainer}>
                 <CustomTextInput
                   placeholder="Nombre"
@@ -581,7 +610,7 @@ function MessageCreation() {
                   onPress={addContact}
                 />
               </View>
-  
+
               <Text style={styles.contactTitle}>Lista de contactos añadidos</Text>
               <ScrollView style={styles.tableContainer} horizontal>
                 <View>
@@ -591,7 +620,7 @@ function MessageCreation() {
                     <Text style={styles.headerCell}>Email</Text>
                     <Text style={styles.headerCell}>Acción</Text>
                   </View>
-  
+
                   <ScrollView style={{ maxHeight: width > 600 ? width * 0.1 : width * 0.4 }}>
                     <FlatList
                       data={contacts}
@@ -626,26 +655,26 @@ function MessageCreation() {
         </ScrollView>
       ) : (
         <View style={styles.codeContainer}>
-        <Text style={styles.codeText}> Ingresa el código</Text>
-        <CustomTextInput
-          placeholder="Código"
-          value={code}
-          maxLength={10}
-          onChangeText={(text) => setCode(text)}
-          style={styles.input}
-        />
-        <CustomButton 
-          style={styles.addButton}
-          title="Enviar"
-          onPress={handleVerifyCode}
-        />
+          <Text style={styles.codeText}> Ingresa el código</Text>
+          <CustomTextInput
+            placeholder="Código"
+            value={code}
+            maxLength={10}
+            onChangeText={(text) => setCode(text)}
+            style={styles.input}
+          />
+          <CustomButton
+            style={styles.addButton}
+            title="Enviar"
+            onPress={handleVerifyCode}
+          />
 
         </View>
       )}
     </>
   );
 }
-  
+
 
 const styles = StyleSheet.create({
   container: {
@@ -856,7 +885,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
 
   },
-  codeContainer : {
+  codeContainer: {
     width: width > 600 ? '100%' : "100%",
     justifyContent: 'center',
     alignItems: 'center',
