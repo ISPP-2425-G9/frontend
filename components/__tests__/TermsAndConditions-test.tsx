@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import TermsAndConditions from '../../TermsAndConditions';
+import TermsAndConditions from '../TermsAndConditions';
 
 describe('TermsAndConditions', () => {
   test('should render the component correctly', () => {

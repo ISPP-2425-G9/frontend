@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import ImageWithText from '../../ImageWithText'; 
+import ImageWithText from '../ImageWithText'; 
 
 describe('ImageWithText', () => {
   it('should render image and text', () => {

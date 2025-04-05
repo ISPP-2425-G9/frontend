@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import Logo from '../../Logo';
+import Logo from '../Logo';
 import { GlobalStyles } from '@/constants/Colors';
 
 describe('Logo', () => {

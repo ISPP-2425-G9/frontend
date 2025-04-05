@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import CustomPicker from '../../CustomPicker';
+import CustomPicker from '../CustomPicker';
 
 describe('CustomPicker Component', () => {
   const items = [

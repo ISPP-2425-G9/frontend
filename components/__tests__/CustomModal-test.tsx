@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
-import CustomModal from '../../CustomModal';
+import CustomModal from '../CustomModal';
 import { Text } from 'react-native';
 
 jest.mock('expo-font');

@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import CustomTableRow from '../../CustomTableRow';
+import CustomTableRow from '../CustomTableRow';
 import { Text, View, Button } from 'react-native';
 
 describe('CustomTableRow Component', () => {
