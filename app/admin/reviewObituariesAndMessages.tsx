@@ -61,7 +61,7 @@ function ReviewObituairesAndMessagesView() {
   const route = useRoute<RouteProp<RouteParams, 'ReviewObituairesAndMessagesView'>>();
   const { certificateId } = route.params;
   const navigation = useNavigation();
-  const [showMessages, setShowMessages] = useState(true);
+  const [showMessages, setShowMessages] = useState(false);
 
   const handleDelete = (id: number) => {
     console.log(`Eliminar ${showMessages ? 'mensaje' : 'esquela'} con ID: ${id}`);
@@ -98,19 +98,19 @@ function ReviewObituairesAndMessagesView() {
 
   return (
     <ThemedView style={styles.container}>
-      <CustomButton title="Volver" onPress={() => navigation.goBack()} color="blue" style={styles.backButton} />
+      <CustomButton title="Volver al listado" onPress={() => navigation.goBack()} color="blue" style={styles.backButton} />
 
       <View style={styles.switchButtons}>
-        <CustomButton
-          title="Mensajes"
-          onPress={() => setShowMessages(true)}
-          color={showMessages ? 'blue' : 'grey'}
-          style={styles.toggleButton}
-        />
         <CustomButton
           title="Esquelas"
           onPress={() => setShowMessages(false)}
           color={!showMessages ? 'blue' : 'grey'}
+          style={styles.toggleButton}
+        />
+        <CustomButton
+          title="Mensajes"
+          onPress={() => setShowMessages(true)}
+          color={showMessages ? 'blue' : 'grey'}
           style={styles.toggleButton}
         />
       </View>
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     backgroundColor: GlobalStyles.white,
   },
   backButton: {
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
     marginBottom: 20,
   },
   switchButtons: {
