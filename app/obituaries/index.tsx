@@ -251,7 +251,6 @@ function ObituaryIndex() {
       <Text style={styles.title}>Debes iniciar sesión para poder acceder a esta sección</Text>
     </ThemedView>
   );
-
 }
 
 const styles = StyleSheet.create({
