@@ -1,28 +1,28 @@
 import CustomButton from "@/components/CustomButton";
 import { CustomTextInput } from "@/components/CustomTextInput";
 import TermsAndConditions from "@/components/TermsAndConditions";
+import { InputField } from '@/components/TextInputArraysForm';
+import { ThemedText } from "@/components/ThemedText";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
+import { useNotification } from "@/context/NotificationContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Picker } from "@react-native-picker/picker";
 import { useNavigation } from "@react-navigation/native";
 import Checkbox from "expo-checkbox";
 import { useFocusEffect } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  Alert,
-  Dimensions,
+  Alert, Animated, Dimensions,
   Modal,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+  Platform,
+  Pressable,
+  ScrollView, StyleSheet,
+  View
+} from 'react-native';
 import { AUTHORITIES } from "../_util/Authorities";
 import { useAuth } from "../_util/useAuth";
 import { withAuth } from "../_util/withAuth";
-
-import { Picker } from "@react-native-picker/picker";
 
 const deviceWidth = Dimensions.get("window").width;
 
@@ -37,6 +37,9 @@ const RegisterScreen: React.FC = () => {
   const [termsError, setTermsError] = useState<string>("");
   const navigation = useNavigation();
   const { login } = useAuth();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+  const { showNotification } = useNotification();
 
   useEffect(() => {
     setUserType(null);
@@ -48,6 +51,18 @@ const RegisterScreen: React.FC = () => {
   useFocusEffect(
     React.useCallback(() => {
       document.title = "Registrarse";
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ]).start();
       setUserType(null);
       setFormValues({});
       setFormErrors([]);
@@ -57,45 +72,51 @@ const RegisterScreen: React.FC = () => {
   );
 
   // Company fields for the form
-  const companyFields = [
+  const companyFields: InputField[] = [
     {
       name: "name",
-      placeholder: "Floristería Loli S.L.",
-      description: "Nombre de la empresa",
+      placeholder: "Empresa S.L.",
+      description: "Nombre",
+      maxLength: 50
     },
     {
       name: "description",
-      placeholder: "Descripción de la empresa...",
+      placeholder: "Descripción",
       description: "Descripción",
+      maxLength: 500,
     },
     {
       name: "companyType",
       placeholder: "Tipo de empresa",
-      description: "Tipo de empresa",
+      description: "Tipo",
     },
-    { name: "nif", placeholder: "F12345678", description: "NIF de la empresa" },
+    { name: "nif", placeholder: "A01024892", description: "NIF" },
     {
       name: "email",
-      placeholder: "floresloli@gmail.com",
+      placeholder: "ejemplo@mail.com",
       keyboardType: "email-address",
       description: "Email",
+      maxLength: 50,
     },
     {
       name: "telephone",
-      placeholder: "600100200",
+      placeholder: "600 000 000",
       keyboardType: "phone-pad",
       description: "Teléfono",
     },
     {
       name: "address",
-      placeholder: "C/ Arquímedes, 3",
+      placeholder: "Calle, número, piso, etc.",
       description: "Dirección",
+      maxLength: 75,
     },
-    { name: "city", placeholder: "Sevilla", description: "Ciudad" },
+    {
+      name: "city", placeholder: "Ciudad", description: "Ciudad", maxLength: 50,
+    },
 
     {
       name: "zipCode",
-      placeholder: "41001",
+      placeholder: "41012",
       description: "Código postal",
       keyboardType: "numeric",
     },
@@ -104,32 +125,36 @@ const RegisterScreen: React.FC = () => {
       placeholder: "******",
       secureTextEntry: true,
       description: "Contraseña",
+      maxLength: 36,
     },
     {
       name: "password2",
       placeholder: "******",
       secureTextEntry: true,
       description: "Confirmar contraseña",
+      maxLength: 36,
     },
   ];
 
   // Customer fields for the form
-  const clientFields = [
+  const clientFields: InputField[] = [
     {
       name: "name",
-      placeholder: "Jesús García",
+      placeholder: "Nombre y apellidos",
       description: "Nombre completo",
+      maxLength: 50,
     },
     {
       name: "email",
-      placeholder: "jesus@gmail.com",
+      placeholder: "ejemplo@mail.com",
       keyboardType: "email-address",
       description: "Email",
+      maxLength: 50,
     },
-    { name: "dni", placeholder: "12345678P", description: "DNI" },
+    { name: "dni", placeholder: "65450808F", description: "DNI" },
     {
       name: "telephone",
-      placeholder: "600100200",
+      placeholder: "600 000 000",
       keyboardType: "phone-pad",
       description: "Teléfono",
     },
@@ -138,12 +163,14 @@ const RegisterScreen: React.FC = () => {
       placeholder: "******",
       secureTextEntry: true,
       description: "Contraseña",
+      maxLength: 36,
     },
     {
       name: "password2",
       placeholder: "******",
       secureTextEntry: true,
       description: "Confirmar contraseña",
+      maxLength: 36,
     },
   ];
 
@@ -179,69 +206,121 @@ const RegisterScreen: React.FC = () => {
     const errors: string[] = [];
 
     const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const nifRegex = /^[A-Z]\d{7}[A-J0-9]$/;
     const zipCodeRegex = /^\d{5}$/;
-    const phoneRegex = /^\+?\d{9,15}$/;
-    const dniRegex = /^\d{8}[A-Z]$/;
+    const phoneRegex = /^\d{9}$/;
+
+    const validatePhone = (phone: string) => {
+      const digitsOnly = phone.replace(/\s/g, '');
+      return phoneRegex.test(digitsOnly);
+    };
+
+    const validateDni = (dni: string) => {
+      const dniRegex = /^\d{8}[A-Z]$/;
+      if (!dniRegex.test(dni)) {
+        {
+          showNotification({
+            message: "El DNI debe tener 8 números y una letra mayúscula",
+            type: "error",
+          });
+        }
+        return false
+      }
+      const dniNumber = dni.slice(0, 8);
+      const dniLetter = dni.charAt(8);
+      const dniLetters = "TRWAGMYFPDXBNJZSQVHLCKE";
+      const dniIndex = parseInt(dniNumber, 10) % 23;
+      const expectedLetter = dniLetters.charAt(dniIndex);
+      return dniLetter === expectedLetter;
+    };
+
+    const validateNif = (nif: string) => {
+      const nifRegex = /^[A-W]\d{7}[A-J0-9]$/;
+      if (!nifRegex.test(nif)) {
+        showNotification({
+          message: "El NIF debe comenzar con una letra mayúscula, seguido de 7 números y un carácter de control.",
+          type: "error",
+        });
+        return false;
+      }
+
+      const nifNumbers = nif.slice(1, 8).split('');
+      const nifControlChar = nif.charAt(8);
+
+      const nifPairSum = parseInt(nifNumbers[1]) + parseInt(nifNumbers[3]) + parseInt(nifNumbers[5]);
+      let nifImparSum = 0;
+      for (let i = 0; i < nifNumbers.length; i += 2) {
+        const value = parseInt(nifNumbers[i]) * 2;
+        const digitsArray = value.toString().split("");
+        const sumDigits = digitsArray.reduce((sum, digit) => sum + parseInt(digit, 10), 0);
+        nifImparSum += sumDigits;
+      }
+      const totalSum = (nifPairSum + nifImparSum) % 10;
+      let nifControlCharValue = 0;
+      if (totalSum !== 0) {
+        nifControlCharValue = 10 - totalSum;
+      }
+
+      if (!isNaN(Number(nifControlChar))) {
+        return nifControlCharValue === parseInt(nifControlChar);
+      } else if (/^[A-W]$/.test(nifControlChar)) {
+        const nifLetters = "JABCDEFGHI";
+        const nifIndex = nifControlCharValue;
+        const expectedLetter = nifLetters.charAt(nifIndex);
+        return expectedLetter === nifControlChar;
+      } else {
+        showNotification({
+          message: "El carácter de control es inválido.",
+          type: "error",
+        });
+        return false;
+      }
+    }
 
     if (uType === "Empresa") {
       if (
         !values.nif ||
         typeof values.nif !== "string" ||
-        !nifRegex.test(values.nif)
-      ) {
-        errors.push("El NIF no es válido.");
-      }
-
-      if(typeof values.name === "string" && values.name.length > 100) {
-        errors.push("El nombre debe tener 100 caracteres como máximo.");
-      }
+        !validateNif(values.nif)
+      ) showNotification({
+        message: "El NIF no es válido",
+        type: "error",
+      });
 
       if (
         !values.zipCode ||
         typeof values.zipCode !== "string" ||
         !zipCodeRegex.test(values.zipCode)
-      ) {
-        errors.push("El código postal debe tener 5 dígitos.");
-      }
+      ) showNotification({
+        message: "El código postal no es válido",
+        type: "error",
+      });
 
       if (
         !values.city ||
         typeof values.city !== "string" ||
         values.city.trim() === ""
-      ) {
-        errors.push("La ciudad es obligatoria.");
-      }
-
-      if (typeof values.city === "string" && values.city.length > 100) {
-        errors.push("La ciudad debe tener 100 caracteres como máximo.");
-      }
-
+      ) showNotification({
+        message: "La ciudad es obligatoria",
+        type: "error",
+      });
 
       if (
         !values.address ||
         typeof values.address !== "string" ||
         values.address.trim() === ""
-      ) {
-        errors.push("La dirección es obligatoria.");
-      }
-
-      if (typeof values.address === "string" && values.address.length > 100) {
-        errors.push("La dirección debe tener 100 caracteres como máximo.");
-      }
-    
+      ) showNotification({
+        message: "La dirección es obligatoria",
+        type: "error",
+      });
 
       if (
         !values.description ||
         typeof values.description !== "string" ||
         values.description.trim() === ""
-      ) {
-        errors.push("La descripción es obligatoria.");
-      }
-
-      if (typeof values.description === "string" && values.description.length > 1024) {
-        errors.push("La descripción debe tener 1024 caracteres como máximo.");
-      }
+      ) showNotification({
+        message: "La descripción es obligatoria",
+        type: "error",
+      });
 
       if (
         !values.companyType ||
@@ -253,61 +332,63 @@ const RegisterScreen: React.FC = () => {
           "DESPACHO_DE_ABOGADOS",
           "OTRO",
         ].includes(values.companyType)
-      ) {
-        errors.push("El tipo de empresa no es válido.");
-      }
+      ) showNotification({
+        message: "El tipo de empresa no es válido",
+        type: "error",
+      });
     }
     if (uType === "Cliente") {
       if (
         !values.dni ||
         typeof values.dni !== "string" ||
-        !dniRegex.test(values.dni)
-      ) {
-        errors.push("El DNI debe tener 8 números y una letra mayúscula.");
-      }
+        !validateDni(values.dni)
+      ) showNotification({
+        message: "El DNI no es válido",
+        type: "error",
+      });
     }
     if (
       !values.name ||
       typeof values.name !== "string" ||
       values.name.trim() === ""
-    ) {
-      errors.push("El nombre es obligatorio.");
-    }
-
-    if (typeof values.name === "string" && values.name.length > 100) {
-      errors.push("El nombre debe tener 100 caracteres como máximo.");
-    }
+    ) showNotification({
+      message: "El nombre es obligatorio",
+      type: "error",
+    });
 
     if (
       !values.telephone ||
       typeof values.telephone !== "string" ||
-      !phoneRegex.test(values.telephone)
-    ) {
-      errors.push("El número de teléfono no es válido.");
-    }
+      !validatePhone(values.telephone)
+    ) showNotification({
+      message: "El teléfono no es válido",
+      type: "error",
+    });
 
     if (
       !values.email ||
       typeof values.email !== "string" ||
       !emailRegex.test(values.email)
-    ) {
-      errors.push("El email no es válido.");
-    }
+    ) showNotification({
+      message: "El email no es válido",
+      type: "error",
+    });
 
     if (
       !values.password1 ||
       typeof values.password1 !== "string" ||
       values.password1.length < 6
-    ) {
-      errors.push("La contraseña debe tener al menos 6 caracteres.");
-    }
-
-    if (typeof values.password1 === "string" && values.password1.length > 20) {
-      errors.push("La contraseña debe tener 20 caracteres como máximo.");
-    }
+    )
+      showNotification({
+        message: "La contraseña debe tener al menos 6 caracteres",
+        type: "error",
+      });
 
     if (values.password1 !== values.password2) {
-      errors.push("Las contraseñas no coinciden.");
+      showNotification({
+        message: "Las contraseñas no coinciden",
+        type: "error",
+      });
     }
 
     return errors;
@@ -316,11 +397,17 @@ const RegisterScreen: React.FC = () => {
   const handleSubmit = async (values: Record<string, string>) => {
     try {
       if (!acceptedTerms) {
-        setFormErrors(["Debe aceptar los términos y condiciones"]);
+        showNotification({
+          message: "Debes aceptar los términos y condiciones",
+          type: "error",
+        });
         return;
       }
-      console.log("handleSubmit llamado con:", values);
-      if (Object.keys(values).length === 0) {
+      const modifiedValues = {
+        ...values,
+        telephone: values.telephone.replace(/\s/g, '')
+      };
+      if (Object.keys(modifiedValues).length === 0) {
         Alert.alert("Información", "Debe completar el formulario");
         return;
       }
@@ -338,90 +425,121 @@ const RegisterScreen: React.FC = () => {
       const response = await fetch(BACKEND_API + `/${reqUrl}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify(modifiedValues),
       });
       const data = await response.json();
+      console.log(data);
       if (!response.ok) {
-        let errorMessage = "Hubo un error inesperado.";
         if (data.errors) {
-          errorMessage = Object.values(data.errors).flat().join("\n");
-        } else if (data.error) {
-          if (data.error.toLowerCase().includes("dni")) {
-            errorMessage = "El DNI ya ha sido registrado.";
-          } else if (data.error.toLowerCase().includes("email")) {
-            errorMessage = "El email ya ha sido registrado.";
-          } else {
-            errorMessage = data.error;
+          if (data.errors.dni && !data.errors.dni.includes("format")) {
+            showNotification({
+              message: "El DNI ya está en uso",
+              type: "error",
+            });
+            return;
+          } else if (data.errors.nif) {
+            showNotification({
+              message: "El NIF ya está en uso",
+              type: "error",
+            });
+            return;
+          } else if (data.errors.email) {
+            showNotification({
+              message: data.errors.email.join(', '),
+              type: "error",
+            });
+            return;
           }
         }
-        throw new Error(errorMessage);
       }
       if (!data.token) {
-        throw new Error("No se recibió token de autenticación.");
+        throw new Error("No se recibió token de autenticación");
       }
       await AsyncStorage.setItem("authToken", data.token);
-      await login(data.id, data.token, data.roles, data.username, data.name, data.expiredPlanDate);
+      await login(data.id, data.token, data.roles, data.username, data.name, data.experedPlanDate);
+      showNotification({
+        message: "Bienvenido",
+        type: "success",
+      });
+
       navigation.navigate("home" as never);
     } catch (error: any) {
       setFormErrors([error.message || error]);
-      Alert.alert("Error", error.message || error);
     }
   };
 
   return (
     <View style={styles.container}>
       {!userType ? (
-        <View style={styles.selectionContainer}>
-          <Text style={styles.formTitle}>¿Qué tipo de usuario eres?</Text>
-          <View style={styles.optionsContainer}>
-            <View style={styles.optionCard}>
-              <Text style={styles.optionTitle}>Soy cliente</Text>
-              <Text style={styles.optionDescription}>
-                Gestiona el envío de mensajes finales y esquelas digitales a una
-                lista de contactos personalizada.
-              </Text>
-              <CustomButton
-                title="Registrarse como cliente"
-                onPress={() => {handleUserTypeSelection("Cliente")}}
-                color="blue"
-                style={{
-                  ...styles.typeButton,
-                  ...(isMobile ? {} : { width: 400 }),
-                }}
-              />
-            </View>
-            <View style={styles.optionCard}>
-              <Text style={styles.optionTitle}>Soy empresa</Text>
-              <Text style={styles.optionDescription}>
-                Llega a más clientes ofreciendo tus soluciones y servicios
-                especializados en el sector funerario.
-              </Text>
-              <CustomButton
-                title="Registrarse como empresa"
-                onPress={() => {handleUserTypeSelection("Empresa")}}
-                color="blue"
-                style={{
-                  ...styles.typeButton,
-                  ...(isMobile ? {} : { width: 400 }),
-                }}
-              />
-            </View>
-          </View>
-        </View>
-      ) : (
         <ScrollView
-          contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.formTitle}>
-            {userType === "Empresa"
-              ? "Registro de empresa"
-              : "Registro de cliente"}
-          </Text>
+          <Animated.View
+            style={[
+              styles.selectionContainer,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }],
+              },
+            ]}
+          >
+            <ThemedText style={styles.ThemedText}>¿Qué tipo de usuario eres?</ThemedText>
+            <View style={styles.optionsContainer}>
+              <View style={styles.optionCard}>
+                <ThemedText style={styles.optionTitle}>Soy un cliente</ThemedText>
+                <ThemedText style={styles.optionDescription}>
+                  Gestiona el envío de mensajes finales y esquelas digitales a una
+                  lista de contactos personalizada.
+                </ThemedText>
+                <CustomButton
+                  title="Registrarse como cliente"
+                  onPress={() => { handleUserTypeSelection("Cliente") }}
+                  color="blue"
+                  style={{
+                    ...styles.typeButton,
+                  }}
+                />
+              </View>
+              <View style={styles.optionCard}>
+                <ThemedText style={styles.optionTitle}>Soy una empresa</ThemedText>
+                <ThemedText style={styles.optionDescription}>
+                  Llega a más clientes ofreciendo tus soluciones y servicios
+                  especializados en el sector funerario.
+                </ThemedText>
+                <CustomButton
+                  title="Registrarse como empresa"
+                  onPress={() => { handleUserTypeSelection("Empresa") }}
+                  color="blue"
+                  style={{
+                    ...styles.typeButton,
+                  }}
+                />
+                <ThemedText style={styles.registerText}>
+                  ¿Ya tienes una cuenta?{' '}
+                  <Pressable onPress={() => { navigation.navigate('login/index' as never) }}>
+                    <ThemedText style={styles.loginLink}>Inicia sesión</ThemedText>
+                  </Pressable>
+                </ThemedText>
+              </View>
+            </View>
+          </Animated.View>
 
-          {userType === "Empresa"
-            ? companyFields.map((field, index) => (
+        </ScrollView>
+      ) : (
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.formContainer}>
+            <ThemedText style={styles.ThemedText}>
+              {userType === "Empresa"
+                ? "Registro de empresa"
+                : "Registro de cliente"}
+            </ThemedText>
+
+            {userType === "Empresa"
+              ? companyFields.map((field, index) => (
                 <View
                   key={`company-${field.name}-${index}`}
                   style={[
@@ -429,14 +547,16 @@ const RegisterScreen: React.FC = () => {
                     !isMobile && { width: 400, alignSelf: "center" },
                   ]}
                 >
-                  <Text>{field.description}</Text>
+                  <ThemedText>{field.description}</ThemedText>
                   {field.name === "companyType" ? (
                     <View style={styles.pickerContainer}>
                       <Picker
-                        style={styles.picker}
+                        style={[
+                          styles.picker,
+                          Platform.OS === 'web' ? { outline: 'none' } : {},
+                        ]}
                         selectedValue={formValues[field.name] || ""}
-                        onValueChange={(value) =>
-                          {setFormValues({ ...formValues, [field.name]: value })}
+                        onValueChange={(value) => { setFormValues({ ...formValues, [field.name]: value }) }
                         }
                       >
                         <Picker.Item
@@ -458,6 +578,7 @@ const RegisterScreen: React.FC = () => {
                       placeholder={field.placeholder}
                       secureTextEntry={field.secureTextEntry}
                       value={formValues[field.name] || ""}
+                      maxLength={field.maxLength}
                       onChangeText={(text) => {
                         if (field.name === "nif") {
                           let filtered = "";
@@ -484,16 +605,9 @@ const RegisterScreen: React.FC = () => {
                             [field.name]: filtered,
                           });
                         } else if (field.name === "telephone") {
-                          let filtered = "";
-                          for (let i = 0; i < text.length && i < 9; i++) {
-                            if (/[0-9+]/.test(text[i])) {
-                              filtered += text[i];
-                            }
-                          }
-                          setFormValues({
-                            ...formValues,
-                            [field.name]: filtered,
-                          });
+                          let digits = text.replace(/\D/g, '').slice(0, 9);
+                          let formatted = digits.match(/.{1,3}/g)?.join(' ') || '';
+                          setFormValues({ ...formValues, [field.name]: formatted });
                         } else if (field.name === "zipCode") {
                           let filtered = "";
                           for (let i = 0; i < text.length && i < 5; i++) {
@@ -514,7 +628,7 @@ const RegisterScreen: React.FC = () => {
                   )}
                 </View>
               ))
-            : clientFields.map((field, index) => (
+              : clientFields.map((field, index) => (
                 <View
                   key={`client-${field.name}-${index}`}
                   style={[
@@ -522,11 +636,12 @@ const RegisterScreen: React.FC = () => {
                     !isMobile && { width: 400, alignSelf: "center" },
                   ]}
                 >
-                  <Text>{field.description}</Text>
+                  <ThemedText>{field.description}</ThemedText>
                   <CustomTextInput
                     placeholder={field.placeholder}
                     secureTextEntry={field.secureTextEntry}
                     value={formValues[field.name] || ""}
+                    maxLength={field.maxLength}
                     onChangeText={(text) => {
                       if (field.name === "dni") {
                         let filtered = "";
@@ -546,16 +661,9 @@ const RegisterScreen: React.FC = () => {
                           [field.name]: filtered,
                         });
                       } else if (field.name === "telephone") {
-                        let filtered = "";
-                        for (let i = 0; i < text.length && i < 9; i++) {
-                          if (/[0-9+]/.test(text[i])) {
-                            filtered += text[i];
-                          }
-                        }
-                        setFormValues({
-                          ...formValues,
-                          [field.name]: filtered,
-                        });
+                        let digits = text.replace(/\D/g, '').slice(0, 9);
+                        let formatted = digits.match(/.{1,3}/g)?.join(' ') || '';
+                        setFormValues({ ...formValues, [field.name]: formatted });
                       } else if (field.name === "email") {
                         let filtered = "";
                         for (let i = 0; i < text.length; i++) {
@@ -576,77 +684,72 @@ const RegisterScreen: React.FC = () => {
                 </View>
               ))}
 
-          {formErrors.length > 0 && (
-            <View style={styles.errorContainer}>
-              {formErrors.map((error, index) => (
-                <Text key={`error-${index}`} style={styles.errorText}>
-                  {error}
-                </Text>
-              ))}
+            <View style={styles.checkboxContainer}>
+              <Checkbox
+                value={acceptedTerms}
+                onValueChange={(value) => {
+                  if (!hasVisitedTerms) {
+                    showNotification({
+                      message: "Por favor, lee los términos y condiciones antes de aceptarlos.",
+                      type: "error",
+                    });
+                    return;
+                  }
+                  setTermsError("");
+                  setAcceptedTerms(value);
+                }}
+                color={acceptedTerms ? GlobalStyles.blue : undefined}
+              />
+              <ThemedText style={styles.checkboxLabel}>
+                Acepto los{" "}
+                <ThemedText
+                  onPress={() => setModalVisible(true)}
+                  style={[
+                    { textDecorationLine: "underline", color: GlobalStyles.blue },
+                  ]}
+                >
+                  términos y condiciones de uso
+                </ThemedText>
+              </ThemedText>
             </View>
-          )}
+            {termsError ? <ThemedText style={styles.errorText}>{termsError}</ThemedText> : null}
 
-          <View style={styles.checkboxContainer}>
-            <Checkbox
-              value={acceptedTerms}
-              onValueChange={(value) => {
-                if (!hasVisitedTerms) {
-                  setTermsError("Por favor, lee los términos y condiciones antes de aceptarlos.");
-                  return;
-                }
-                setTermsError("");
-                setAcceptedTerms(value);
+            <CustomButton
+              title="Registrarse"
+              onPress={() => { handleSubmit(formValues) }}
+              color="blue"
+              style={{
+                ...styles.submitButton,
+                ...(isMobile ? {} : { width: 400 }),
               }}
-              color={acceptedTerms ? GlobalStyles.blue : undefined}
             />
-            <Text style={styles.checkboxLabel}>Acepto los</Text>
-            <TouchableOpacity onPress={() => {setModalVisible(true)}}>
-              <Text
-                style={[
-                  styles.checkboxLabel,
-                  { textDecorationLine: "underline", color: GlobalStyles.blue },
-                ]}
-              >
-                términos y condiciones de uso
-              </Text>
-            </TouchableOpacity>
+
+            <CustomButton
+              title="Volver"
+              onPress={handleGoBack}
+              color="grey"
+              style={styles.backButton}
+            />
           </View>
-          {termsError ? <Text style={styles.errorText}>{termsError}</Text> : null}
 
-          <CustomButton
-            title="Completar registro"
-            onPress={() => {handleSubmit(formValues)}}
-            color="blue"
-            style={{
-              ...styles.submitButton,
-              ...(isMobile ? {} : { width: 400 }),
-            }}
-          />
-
-          <CustomButton
-            title="Volver"
-            onPress={handleGoBack}
-            color="grey"
-            style={styles.backButton}
-          />
 
           <Modal
             visible={modalVisible}
             animationType="fade"
             transparent={true}
-            onRequestClose={() => {setModalVisible(false)}}
+            onRequestClose={() => { setModalVisible(false) }}
           >
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
                 <ScrollView>
-                  <Text style={styles.modalTitle}>
+                  <ThemedText style={styles.modalTitle}>
                     Términos y condiciones de uso
-                  </Text>
+                  </ThemedText>
                   <TermsAndConditions />
                 </ScrollView>
                 <CustomButton
                   title="Cerrar"
-                  onPress={() => {setModalVisible(false); setHasVisitedTerms(true);}}
+                  onPress={() => { setModalVisible(false); setHasVisitedTerms(true); }}
                   color="blue"
                   style={styles.modalButton}
                 />
@@ -663,20 +766,23 @@ const styles = StyleSheet.create({
   container: {
     fontFamily: GlobalStyles.font,
     flex: 1,
-    backgroundColor: GlobalStyles.white,
-    paddingHorizontal: 20,
     alignSelf: 'center',
-    paddingTop: 20,
     width: '100%',
   },
   selectionContainer: {
-    flex: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    backgroundColor: "#f2f2f2",
+    marginVertical: '5%',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: "#fff",
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
     elevation: 5,
-    padding: 20,
+    width: '90%',
+    maxWidth: 550,
+    alignSelf: 'center',
   },
   title: {
     fontSize: 28,
@@ -689,6 +795,11 @@ const styles = StyleSheet.create({
     color: GlobalStyles.darkGrey,
     marginBottom: 40,
   },
+  formLabel: {
+    fontFamily: GlobalStyles.font,
+    fontSize: 16,
+    color: GlobalStyles.darkGrey,
+  },
   buttonBox: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -697,24 +808,39 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   typeButton: {
-    width: "90%",
+    width: "auto",
+    paddingHorizontal: '5%',
+    paddingVertical: '5%',
+    marginTop: 10,
     marginHorizontal: 5,
-    marginVertical: 10,
-    minHeight: 50,
     alignSelf: "center",
   },
-  scrollContainer: {
+  formContainer: {
     flexGrow: 1,
-    paddingBottom: 40,
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  formTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
+    backgroundColor: "#fff",
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    padding: 20,
     marginVertical: 20,
+    elevation: 5,
+    width: '90%',
+    maxWidth: 550,
+    height: 'auto',
+    alignSelf: 'center',
+  },
+  ThemedText: {
+    fontSize: 28,
+    fontFamily: GlobalStyles.font,
     textAlign: "center",
+    color: GlobalStyles.darkGrey,
+    marginTop: 20,
+    marginBottom: 20,
+    marginHorizontal: 20,
   },
   inputContainer: {
     marginBottom: 20,
@@ -751,24 +877,20 @@ const styles = StyleSheet.create({
   optionCard: {
     width: deviceWidth < 375 ? "95%" : "90%",
     backgroundColor: "#fff",
-    padding: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
     borderRadius: 10,
     marginVertical: 10,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: "#ddd",
   },
   optionTitle: {
     fontSize: 22,
-    fontWeight: "bold",
     marginBottom: 8,
+    fontWeight: "bold",
     color: GlobalStyles.blue,
   },
   optionDescription: {
+    fontFamily: GlobalStyles.font,
     fontSize: 16,
     textAlign: "center",
     marginBottom: 12,
@@ -780,8 +902,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   checkboxLabel: {
-    marginLeft: 8,
     fontSize: 16,
+    marginLeft: 10,
     color: GlobalStyles.darkGrey,
   },
   modalContainer: {
@@ -814,7 +936,7 @@ const styles = StyleSheet.create({
   pickerContainer: {
     borderWidth: 1,
     borderColor: "#ddd",
-    borderRadius: 8,
+    borderRadius: 15,
     backgroundColor: GlobalStyles.lightGrey,
     height: 48,
     justifyContent: "center",
@@ -828,6 +950,18 @@ const styles = StyleSheet.create({
     backgroundColor: GlobalStyles.lightGrey,
     borderColor: GlobalStyles.lightGrey,
     borderWidth: 0,
+  },
+  registerText: {
+    marginTop: 30,
+    color: GlobalStyles.darkGrey,
+    fontFamily: GlobalStyles.font,
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  loginLink: {
+    color: GlobalStyles.blue,
+    fontSize: 14,
+    textDecorationLine: 'underline',
   },
 });
 

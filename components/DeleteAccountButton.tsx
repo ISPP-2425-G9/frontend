@@ -37,16 +37,16 @@ export default function DeleteAccountButton() {
     <>
       <CustomButton
         title="Eliminar cuenta"
-        onPress={() => {setIsModalVisible(true)}}
+        onPress={() => { setIsModalVisible(true) }}
         color="red"
         style={styles.button}
       />
 
       <CustomModal
         visible={isModalVisible}
-        onClose={() => {setIsModalVisible(false)}}
+        onClose={() => { setIsModalVisible(false) }}
         title="Eliminar cuenta"
-        style={styles.modal}
+        style={styles.modalContent}
       >
         <View style={styles.modalContent}>
           <ThemedText style={styles.modalText}>
@@ -55,14 +55,14 @@ export default function DeleteAccountButton() {
           </ThemedText>
           <View style={styles.modalButtons}>
             <CustomButton
+              title="Cancelar"
+              onPress={() => { setIsModalVisible(false) }}
+              style={StyleSheet.flatten([styles.modalButton, styles.cancelButton])}
+            />
+            <CustomButton
               title="Eliminar"
               onPress={handleDeleteAccount}
               style={StyleSheet.flatten([styles.modalButton, styles.deleteButton])}
-            />
-            <CustomButton
-              title="Cancelar"
-              onPress={() => {setIsModalVisible(false)}}
-              style={StyleSheet.flatten([styles.modalButton, styles.cancelButton])}
             />
           </View>
         </View>
@@ -75,27 +75,25 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
   },
-  modal: {
-    padding: 20,
-    width: 'auto',
-  },
   modalContent: {
-    padding: 10,
+    width: '90%',
+    maxWidth: 400,
+    padding: '2%',
   },
   modalText: {
+    marginTop: -10,
     textAlign: 'center',
     fontSize: 16,
   },
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 10,
-    marginTop: 20,
   },
   modalButton: {
     flex: 1,
     paddingVertical: 12,
     borderRadius: 8,
+    marginHorizontal: 5,
   },
   cancelButton: {
     backgroundColor: GlobalStyles.blue,
