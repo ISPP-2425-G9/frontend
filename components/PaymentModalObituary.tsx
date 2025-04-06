@@ -141,7 +141,7 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
       >
         <View style={styles.container}>
           <Text style={styles.description}>{description}</Text>
-          <Text style={styles.amount}>{amount.toFixed(2)}€/mes</Text>
+          <Text style={styles.amount}>{amount.toFixed(2)}€</Text>
 
           <View style={styles.cardContainer}>
             <SecureField 
