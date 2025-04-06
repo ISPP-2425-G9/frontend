@@ -589,18 +589,34 @@ function ProfileScreen() {
                   </View>
 
                   <View style={isMobile ? styles.columnContainerCompany : styles.twoColumnsContainerCompany}>
-                    <View style={isMobile ? { width: '80%' } : styles.column}>
-                      {renderEditableFieldCompany('Descripción', editedCompany.description, 'description', 'Descripción')}
-                      {renderEditableFieldCompany('Email', editedCompany.email, 'email', 'Email')}
-                      {renderEditableFieldCompany('Teléfono', editedCompany.telephone, 'telephone', 'Teléfono')}
-                    </View>
-                    <View style={isMobile ? { marginTop: 10, width: '80%' } : styles.column}>
-                      <ThemedText style={styles.label}>NIF</ThemedText>
-                      <ThemedText style={styles.value}>{editedCompany.nif}</ThemedText>
-                      {renderEditableFieldCompany('Dirección', editedCompany.address, 'address', 'Dirección')}
-                      {renderEditableFieldCompany('Ciudad', editedCompany.city, 'city', 'Ciudad')}
-                      {renderEditableFieldCompany('Código Postal', editedCompany.zipCode, 'zipCode', 'Código Postal')}
-                    </View>
+                    {isMobile ? (
+                      <><View style={{ width: '80%' }}>
+                        {renderEditableFieldCompany('Descripción', editedCompany.description, 'description', 'Descripción')}
+                        {renderEditableFieldCompany('Email', editedCompany.email, 'email', 'Email')}
+                        {renderEditableFieldCompany('Teléfono', editedCompany.telephone, 'telephone', 'Teléfono')}
+                        <ThemedText style={styles.label}>NIF</ThemedText>
+                        <ThemedText style={styles.value}>{editedCompany.nif}</ThemedText>
+                        {renderEditableFieldCompany('Dirección', editedCompany.address, 'address', 'Dirección')}
+                        {renderEditableFieldCompany('Ciudad', editedCompany.city, 'city', 'Ciudad')}
+                        {renderEditableFieldCompany('Código Postal', editedCompany.zipCode, 'zipCode', 'Código Postal')}
+                      </View>
+                      </>
+                    ) : (
+                      <>
+                        <View style={styles.column}>
+                          {renderEditableFieldCompany('Descripción', editedCompany.description, 'description', 'Descripción')}
+                          {renderEditableFieldCompany('Email', editedCompany.email, 'email', 'Email')}
+                          {renderEditableFieldCompany('Teléfono', editedCompany.telephone, 'telephone', 'Teléfono')}
+                        </View>
+                        <View style={styles.column}>
+                          <ThemedText style={styles.label}>NIF</ThemedText>
+                          <ThemedText style={styles.value}>{editedCompany.nif}</ThemedText>
+                          {renderEditableFieldCompany('Dirección', editedCompany.address, 'address', 'Dirección')}
+                          {renderEditableFieldCompany('Ciudad', editedCompany.city, 'city', 'Ciudad')}
+                          {renderEditableFieldCompany('Código Postal', editedCompany.zipCode, 'zipCode', 'Código Postal')}
+                        </View>
+                      </>
+                    )}
                   </View>
 
                   {isEditing ? (
@@ -724,9 +740,12 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     paddingTop: 50,
     elevation: 5,
-    padding: 20,
-    maxWidth: 850,
-    width: '90%',
+    marginHorizontal: '5%',
+    marginVertical: 10,
+    padding: '1%',
+    minWidth: '60%',
+    maxWidth: 1250,
+    width: 'auto',
     alignSelf: 'center',
     justifyContent: 'flex-start',
     alignItems: 'center',
@@ -736,6 +755,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '90%',
+    marginBottom: 20,
   },
   columnContainerCompany: {
     flexDirection: 'column',
@@ -785,7 +805,7 @@ const styles = StyleSheet.create({
   },
   valueDescription: {
     fontSize: 16,
-    height: '50%',
+    height: 'auto',
     marginBottom: 15,
     fontWeight: 'bold',
     textAlign: 'left',
@@ -807,7 +827,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
     gap: 20,
-
   },
   changePasswordText: {
     color: GlobalStyles.darkGrey,
@@ -837,6 +856,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignContent: 'center',
     marginBottom: 20,
+    paddingHorizontal: 20,
   },
   companyImage: {
     width: 120,

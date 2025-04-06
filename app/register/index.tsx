@@ -428,20 +428,29 @@ const RegisterScreen: React.FC = () => {
         body: JSON.stringify(modifiedValues),
       });
       const data = await response.json();
+      console.log(data);
       if (!response.ok) {
-        let errorMessage = "Hubo un error inesperado.";
         if (data.errors) {
-          errorMessage = Object.values(data.errors).flat().join("\n");
-        } else if (data.error) {
-          if (data.error.toLowerCase().includes("dni")) {
-            errorMessage = "El DNI ya ha sido registrado";
-          } else if (data.error.toLowerCase().includes("email")) {
-            errorMessage = "El email ya ha sido registrado";
-          } else {
-            errorMessage = data.error;
+          if (data.errors.dni && !data.errors.dni.includes("format")) {
+            showNotification({
+              message: "El DNI ya está en uso",
+              type: "error",
+            });
+            return;
+          } else if (data.errors.nif) {
+            showNotification({
+              message: "El NIF ya está en uso",
+              type: "error",
+            });
+            return;
+          } else if (data.errors.email) {
+            showNotification({
+              message: data.errors.email.join(', '),
+              type: "error",
+            });
+            return;
           }
         }
-        throw new Error(errorMessage);
       }
       if (!data.token) {
         throw new Error("No se recibió token de autenticación");
@@ -455,65 +464,69 @@ const RegisterScreen: React.FC = () => {
       navigation.navigate("home" as never);
     } catch (error: any) {
       setFormErrors([error.message || error]);
-      Alert.alert("Error", error.message || error);
     }
   };
 
   return (
     <View style={styles.container}>
       {!userType ? (
-        <Animated.View
-          style={[
-            styles.selectionContainer,
-            {
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-            },
-          ]}
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <ThemedText style={styles.ThemedText}>¿Qué tipo de usuario eres?</ThemedText>
-          <View style={styles.optionsContainer}>
-            <View style={styles.optionCard}>
-              <ThemedText style={styles.optionTitle}>Soy un cliente</ThemedText>
-              <ThemedText style={styles.optionDescription}>
-                Gestiona el envío de mensajes finales y esquelas digitales a una
-                lista de contactos personalizada.
-              </ThemedText>
-              <CustomButton
-                title="Registrarse como cliente"
-                onPress={() => { handleUserTypeSelection("Cliente") }}
-                color="blue"
-                style={{
-                  ...styles.typeButton,
-                }}
-              />
+          <Animated.View
+            style={[
+              styles.selectionContainer,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }],
+              },
+            ]}
+          >
+            <ThemedText style={styles.ThemedText}>¿Qué tipo de usuario eres?</ThemedText>
+            <View style={styles.optionsContainer}>
+              <View style={styles.optionCard}>
+                <ThemedText style={styles.optionTitle}>Soy un cliente</ThemedText>
+                <ThemedText style={styles.optionDescription}>
+                  Gestiona el envío de mensajes finales y esquelas digitales a una
+                  lista de contactos personalizada.
+                </ThemedText>
+                <CustomButton
+                  title="Registrarse como cliente"
+                  onPress={() => { handleUserTypeSelection("Cliente") }}
+                  color="blue"
+                  style={{
+                    ...styles.typeButton,
+                  }}
+                />
+              </View>
+              <View style={styles.optionCard}>
+                <ThemedText style={styles.optionTitle}>Soy una empresa</ThemedText>
+                <ThemedText style={styles.optionDescription}>
+                  Llega a más clientes ofreciendo tus soluciones y servicios
+                  especializados en el sector funerario.
+                </ThemedText>
+                <CustomButton
+                  title="Registrarse como empresa"
+                  onPress={() => { handleUserTypeSelection("Empresa") }}
+                  color="blue"
+                  style={{
+                    ...styles.typeButton,
+                  }}
+                />
+                <ThemedText style={styles.registerText}>
+                  ¿Ya tienes una cuenta?{' '}
+                  <Pressable onPress={() => { navigation.navigate('login/index' as never) }}>
+                    <ThemedText style={styles.loginLink}>Inicia sesión</ThemedText>
+                  </Pressable>
+                </ThemedText>
+              </View>
             </View>
-            <View style={styles.optionCard}>
-              <ThemedText style={styles.optionTitle}>Soy una empresa</ThemedText>
-              <ThemedText style={styles.optionDescription}>
-                Llega a más clientes ofreciendo tus soluciones y servicios
-                especializados en el sector funerario.
-              </ThemedText>
-              <CustomButton
-                title="Registrarse como empresa"
-                onPress={() => { handleUserTypeSelection("Empresa") }}
-                color="blue"
-                style={{
-                  ...styles.typeButton,
-                }}
-              />
-              <ThemedText style={styles.registerText}>
-                ¿Ya tienes una cuenta?{' '}
-                <Pressable onPress={() => { navigation.navigate('login/index' as never) }}>
-                  <ThemedText style={styles.loginLink}>Inicia sesión</ThemedText>
-                </Pressable>
-              </ThemedText>
-            </View>
-          </View>
-        </Animated.View>
+          </Animated.View>
+
+        </ScrollView>
       ) : (
         <ScrollView
-          contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -670,7 +683,6 @@ const RegisterScreen: React.FC = () => {
                 </View>
               ))}
 
-
             <View style={styles.checkboxContainer}>
               <Checkbox
                 value={acceptedTerms}
@@ -753,12 +765,11 @@ const styles = StyleSheet.create({
   container: {
     fontFamily: GlobalStyles.font,
     flex: 1,
-    paddingHorizontal: 20,
     alignSelf: 'center',
     width: '100%',
   },
   selectionContainer: {
-    marginTop: '5%',
+    marginVertical: '5%',
     paddingHorizontal: 20,
     paddingVertical: 10,
     backgroundColor: "#fff",
@@ -803,9 +814,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     alignSelf: "center",
   },
-  scrollContainer: {
-    padding: 20,
-  },
   formContainer: {
     flexGrow: 1,
     justifyContent: "flex-start",
@@ -816,7 +824,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    padding: 30,
+    padding: 20,
+    marginVertical: 20,
     elevation: 5,
     width: '90%',
     maxWidth: 550,
