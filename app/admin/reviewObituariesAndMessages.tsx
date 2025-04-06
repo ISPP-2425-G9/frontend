@@ -98,7 +98,12 @@ function ReviewObituairesAndMessagesView() {
 
   return (
     <ThemedView style={styles.container}>
-      <CustomButton title="Volver al listado" onPress={() => navigation.goBack()} color="blue" style={styles.backButton} />
+      <CustomButton
+        title="Volver al listado"
+        onPress={() => navigation.navigate('admin/certificatesManagement')}
+        color="blue"
+        style={styles.backButton}
+      />
 
       <View style={styles.switchButtons}>
         <CustomButton
