@@ -15,8 +15,8 @@ import { AUTHORITIES } from "../_util/Authorities";
 import { withAuth } from "../_util/withAuth";
 import { useNotification } from '@/context/NotificationContext';
 import { ScrollView } from "react-native-gesture-handler";
-import PaymentModal from "@/components/PaymentModalObituary";
-import SuccessModal from "@/components/SuccessModalObituary";
+import PaymentModalObituary from "@/components/PaymentModalObituary";
+import SuccessModalObituary from "@/components/SuccessModalObituary";
 
 type RootStackParamList = {
   "obituaries/loadCertificate": {
@@ -184,8 +184,8 @@ function LoadCertificate() {
 
   const handlePaymentSuccess = async () => {
     setShowPaymentModal(false);
-    setShowSuccessModal(true);
     await handleSubmit();
+    setShowSuccessModal(true);
   };
 
   const handlePaymentCancel = () => {
@@ -365,15 +365,14 @@ function LoadCertificate() {
   return (
     <>
       {content}
-      <PaymentModal
+      <PaymentModalObituary
         visible={showPaymentModal}
         onClose={handlePaymentCancel}
         amount={1.99}
-        planType="obituary"
         description="Pago por la creación de una esquela digital"
         onSuccess={handlePaymentSuccess}
       />
-      <SuccessModal
+      <SuccessModalObituary
         visible={showSuccessModal}
         onClose={handleCloseSuccessModal}
       />
