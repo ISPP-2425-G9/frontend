@@ -211,10 +211,10 @@ function ProfileScreen() {
       if (!response.ok) {
         const errorData = await response.json();
         showNotification({
-          message: "Error al actualizar el perfil, comprueba los datos",
+          message: errorData.error || errorData.detail || "Error desconocido",
           type: "error",
         });
-        throw new Error(errorData.message || 'Error al actualizar el perfil');
+        return;
       }
 
       const data = await response.json();
@@ -333,10 +333,10 @@ function ProfileScreen() {
       if (!response.ok) {
         const errorData = await response.json();
         showNotification({
-          message: "Error al actualizar el perfil, comprueba los datos",
+          message: errorData.error || errorData.detail || "Error desconocido",
           type: "error",
         });
-        throw new Error(errorData.message || 'Error al actualizar el perfil');
+        return;
       }
 
       const data = await response.json();
