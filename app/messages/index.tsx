@@ -648,11 +648,13 @@ function MessageCreation() {
                           <View style={styles.actionCell}>
                             <CustomButton
                               title="Editar"
+                              textStyle={{ fontSize: 12 }}
                               style={styles.editButton}
                               onPress={() => handleEditContact(item)}
                             />
                             <CustomButton
                               title="Eliminar"
+                              textStyle={{ fontSize: 12 }}
                               style={styles.editButton}
                               color="red"
                               onPress={() => removeContact(item.id)}
@@ -818,7 +820,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: GlobalStyles.white,
     borderRadius: 10,
-    width: '80%',
+    width: "80%",
     alignSelf: 'center',
     position: 'absolute',
     justifyContent: 'center',
@@ -875,7 +877,7 @@ const styles = StyleSheet.create({
   actionCell: {
     flex: 1,
     flexDirection: "row",
-    gap: 4,
+    gap: 2,
     alignItems: "center",
     justifyContent: "center",
     width: width * 0.6,
@@ -883,10 +885,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   editButton: {
-    marginLeft: 5,
-    marginRight: 10,
     alignSelf: "center",
-    width: "20%",
+    width: width > 600 ? "20%" : "50%",
   },
   tableContainer: {
     flex: 1,
