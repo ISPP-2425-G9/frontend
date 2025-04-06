@@ -96,7 +96,7 @@ function MessageList() {
                 setMessages(messages.filter(m => m.messageId !== messageId));
                 setModalVisible(false);
             } else {
-                console.error('Error al eliminar el mensage');
+                console.error('Error al eliminar el mensaje');
             }
         } catch (error) {
             console.error('Error en la solicitud:', error);
