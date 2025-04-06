@@ -91,7 +91,7 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
           await updateUser({
             "token": responseData.token,
             "roles": responseData.roles,
-            "experedPlanDate": responseData.experedPlanDate,
+            "expiredPlanDate": responseData.expiredPlanDate,
           });
 
           onSuccess?.();
