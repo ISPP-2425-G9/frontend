@@ -121,7 +121,7 @@ function ReviewObituairesAndMessagesView() {
       </View>
 
       <Text style={styles.sectionTitle}>
-        {showMessages ? 'Listado de Mensajes' : 'Listado de Esquelas'}
+        {showMessages ? 'Listado de mensajes' : 'Listado de esquelas'}
       </Text>
 
       <ScrollView horizontal contentContainerStyle={styles.scrollContainer}>
@@ -202,6 +202,8 @@ const styles = StyleSheet.create({
   contentCell: {
     flex: 1,
     paddingHorizontal: 10,
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   actionCell: {
     flex: 1,
