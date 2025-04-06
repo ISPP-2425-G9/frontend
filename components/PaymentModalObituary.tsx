@@ -82,7 +82,7 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
           if (!response.ok) {
             const errorData = await response.text();
             console.error('Error en la respuesta:', errorData);
-            throw new Error('Error al actualizar el plan');
+            throw new Error('Error al pagar la esquela');
           }
 
           const responseData = await response.json();
