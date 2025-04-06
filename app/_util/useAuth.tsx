@@ -94,5 +94,5 @@ export const useAuth = () => {
     }
   };
 
-  return { getUserFromStorage, login, logout, updateUser, loading, decodeJWT };
+  return { getUserFromStorage, login, logout, updateUser, loading, decodeJWT, user };
 };
