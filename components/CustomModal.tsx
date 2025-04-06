@@ -1,7 +1,26 @@
-import { GlobalStyles } from '@/constants/Colors';
-import { AntDesign } from '@expo/vector-icons';
-import React from 'react';
-import { Modal, Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { GlobalStyles } from "@/constants/Colors";
+import { AntDesign } from "@expo/vector-icons";
+import React, { forwardRef, useImperativeHandle, useState } from "react";
+import {
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle
+} from "react-native";
+import Notification from "./Notification";
+
+export type NotificationParams = {
+  message: string;
+  type?: "success" | "error" | "info" | "warning";
+  duration?: number;
+};
+
+export type CustomModalRef = {
+  showNotification: (params: NotificationParams) => void;
+  hideNotification: () => void;
+};
 
 type ModalProps = {
   visible: boolean;
@@ -11,58 +30,92 @@ type ModalProps = {
   style?: ViewStyle;
 };
 
-const CustomModal: React.FC<ModalProps> = ({ visible, onClose, title, children, style }) => {
-  return (
-    <Modal testID='custom-modal' visible={visible} transparent animationType="fade">
-      <View style={styles.overlay}>
-        <View style={[styles.modalContainer, style]}>
-          <Pressable testID='close-button' style={styles.closeButton} onPress={onClose}>
-            <AntDesign name="close" size={24} color="#434343" />
-          </Pressable>
+const CustomModal = forwardRef<CustomModalRef, ModalProps>(
+  ({ visible, onClose, title, children, style }, ref) => {
+    const [notif, setNotif] = useState<NotificationParams | null>(null);
 
-          {title && <Text style={styles.title}>{title}</Text>}
+    const showNotification = (params: NotificationParams) => {
+      setNotif(params);
+    };
 
-          <View style={styles.content}>{children}</View>
+    const hideNotification = () => {
+      setNotif(null);
+    };
+
+    useImperativeHandle(ref, () => ({
+      showNotification,
+      hideNotification
+    }));
+
+    return (
+      <Modal testID="custom-modal" visible={visible} transparent animationType="fade">
+        <View style={styles.overlay}>
+          {notif && (
+            <Notification
+              message={notif.message}
+              type={notif.type}
+              duration={notif.duration}
+              onHide={hideNotification}
+            />
+          )}
+          <View style={[styles.modalContainer, style]}>
+            <Pressable
+              testID="close-button"
+              style={styles.closeButton}
+              onPress={() => {
+                onClose();
+                hideNotification();
+              }}
+            >
+              <AntDesign name="close" size={24} color="#434343" />
+            </Pressable>
+            {title && <Text style={styles.title}>{title}</Text>}
+            <View style={styles.content}>
+              {children}
+            </View>
+          </View>
         </View>
-      </View>
-    </Modal>
-  );
-};
+      </Modal>
+    );
+  }
+);
 
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center"
   },
   modalContainer: {
-    width: 'auto',
-    backgroundColor: GlobalStyles.lightGrey,
-    padding: 20,
+    width: "auto",
+    backgroundColor: GlobalStyles.white,
+    padding: 10,
     borderRadius: 10,
-    alignItems: 'center',
-    position: 'relative',
+    alignItems: "center",
+    position: "relative",
+    paddingBottom: 30,
   },
   closeButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 10,
     right: 10,
-    padding: 5,
+    padding: 5
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: GlobalStyles.darkGrey,
     marginBottom: 15,
-    textAlign: 'center', 
+    textAlign: "center",
     marginTop: 20
   },
   content: {
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    top: 10,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center"
+  }
 });
 
 export default CustomModal;

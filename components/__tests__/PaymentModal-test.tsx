@@ -41,7 +41,7 @@ describe('PaymentModal', () => {
 
         await waitFor(() => {
           expect(findByText('Pago seguro con')).toBeTruthy();
-          expect(findByText('10.00€/mes')).toBeTruthy();
+          expect(findByText('9.99€/mes')).toBeTruthy();
           expect(findByText('Número de tarjeta')).toBeTruthy();
           expect(findByText('Fecha exp.')).toBeTruthy();
           expect(findByText('CVV')).toBeTruthy();

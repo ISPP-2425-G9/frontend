@@ -1,3 +1,4 @@
+import React from 'react';
 import CustomButton from "@/components/CustomButton";
 import CustomModal from "@/components/CustomModal";
 import { CustomTextInput } from "@/components/CustomTextInput";
@@ -14,6 +15,7 @@ import { AUTHORITIES } from "../_util/Authorities";
 import { withAuth } from "../_util/withAuth";
 import { useNotification } from '@/context/NotificationContext';
 import { ScrollView } from "react-native-gesture-handler";
+import PaymentModalObituary from "@/components/PaymentModalObituary";
 
 type RootStackParamList = {
   "obituaries/loadCertificate": {
@@ -49,6 +51,10 @@ function LoadCertificate() {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
+  // Nuevos estados para el pago
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const json = route.params?.jsonData;
 
@@ -154,7 +160,21 @@ function LoadCertificate() {
 
   const validateDni = (dni: string) => {
     const dniRegex = /^\d{8}[A-Z]$/;
-    return dniRegex.test(dni);
+    if (!dniRegex.test(dni)){
+      {
+        showNotification({
+          message: "El DNI debe tener 8 números y una letra mayúscula",
+          type: "error",
+        });
+      }
+      return false
+    }
+    const dniNumber = dni.slice(0, 8);
+    const dniLetter = dni.charAt(8);
+    const dniLetters = "TRWAGMYFPDXBNJZSQVHLCKE";
+    const dniIndex = parseInt(dniNumber, 10) % 23;
+    const expectedLetter = dniLetters.charAt(dniIndex);
+    return dniLetter === expectedLetter;
   };
 
 
@@ -169,11 +189,25 @@ function LoadCertificate() {
     }
     if (!validateDni(dni)) {
       setDni("");
-      setDniError("El DNI debe tener el formato 12345678A.");
+      setDniError("El DNI no es válido");
       return;
     }
-    setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido.")
-    setModalVisible(true);
+    setShowPaymentModal(true);
+  };
+
+  const handlePaymentSuccess = async () => {
+    setShowPaymentModal(false);
+    await handleSubmit();
+    setShowSuccessModal(true);
+  };
+
+  const handlePaymentCancel = () => {
+    setShowPaymentModal(false);
+  };
+
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    navigation.navigate("obituaries/index");
   };
 
   const handleCloseModal = () => {
@@ -225,7 +259,7 @@ function LoadCertificate() {
     }
   };
 
-  return isAuthenticated ? (
+  const content = isAuthenticated ? (
     <ScrollView style={{ flex: 1, width: "100%" }} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
       <View style={styles.container}>
         <View style={styles.introContainer}>
@@ -339,6 +373,19 @@ function LoadCertificate() {
     <ThemedView style={styles.container}>
       <Text style={styles.title}>Debes iniciar sesión para poder acceder a esta sección</Text>
     </ThemedView>
+  );
+
+  return (
+    <>
+      {content}
+      <PaymentModalObituary
+        visible={showPaymentModal}
+        onClose={handlePaymentCancel}
+        amount={1.99}
+        description="Pago por la creación de una esquela digital"
+        onSuccess={handlePaymentSuccess}
+      />
+    </>
   );
 }
 

@@ -5,7 +5,7 @@ import { Animated, StyleSheet, Text } from "react-native";
 const Notification = ({
     message,
     type = "info",
-    duration = 1000,
+    duration = 2000,
     onHide,
 }: {
     message: string;
@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
     },
     text: {
         color: "white",
+        fontWeight: "bold",
         fontSize: 14,
         textAlign: "center",
     },
