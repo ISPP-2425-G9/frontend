@@ -98,7 +98,7 @@ function LoadCertificate() {
       }
     };
 
-    await initializeForm();
+    void initializeForm();
   }, [is_newObituary]);
 
 
@@ -334,7 +334,7 @@ function LoadCertificate() {
             style={styles.certificateButton} textStyle={styles.certificateText}
             onPress={() => {
               if (is_newObituary) {
-                await showConfirmationModal();
+                void showConfirmationModal();
               } else {
                 window.alert("Función todavía no implementada");
               }

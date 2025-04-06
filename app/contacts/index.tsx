@@ -100,7 +100,7 @@ function EmergencyContactScreen() {
   
   useFocusEffect(
     useCallback(() => {
-      await fetchContacts();
+      void fetchContacts();
     }, [])
   );
 
