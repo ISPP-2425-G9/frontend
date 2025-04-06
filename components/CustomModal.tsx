@@ -90,10 +90,11 @@ const styles = StyleSheet.create({
   modalContainer: {
     width: "auto",
     backgroundColor: GlobalStyles.white,
-    padding: 20,
+    padding: 10,
     borderRadius: 10,
     alignItems: "center",
-    position: "relative"
+    position: "relative",
+    paddingBottom: 30,
   },
   closeButton: {
     position: "absolute",
