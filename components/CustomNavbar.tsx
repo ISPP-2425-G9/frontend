@@ -92,7 +92,11 @@ const CustomNavbar = () => {
                     { title: 'Usuarios', route: 'admin/listUsers' },
                     { title: 'Certificados de defunción', route: 'admin/certificatesManagement' },
                     { title: 'Sobre nosotros', route: 'about/index' },
-                    { title: 'Contáctanos', route: 'contact/index' }
+                    { title: 'Contáctanos', route: 'contact/index' },
+                    { title: 'Cerrar sesión', action: () => {
+                        setUserMenuOpen(false);
+                        setIsLogoutModalVisible(true);
+                    }}
                 );
             }
             if (userRoles?.includes("CUSTOMER")) {
@@ -111,8 +115,7 @@ const CustomNavbar = () => {
                     { title: 'Sobre nosotros', route: 'about/index' },
                     { title: 'Contáctanos', route: 'contact/index' },
                     { title: userName || '', route: 'profile/index' },
-                    {
-                        title: 'Cerrar sesión', action: () => {
+                    { title: 'Cerrar sesión', action: () => {
                             setUserMenuOpen(false);
                             setIsLogoutModalVisible(true);
                         }
