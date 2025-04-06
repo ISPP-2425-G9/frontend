@@ -11,6 +11,7 @@ import { useNavigation, NavigationProp, useRoute, RouteProp, useFocusEffect } fr
 import { BACKEND_API } from '@/constants/Mysc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNotification } from '@/context/NotificationContext';
+import CustomModal from '@/components/CustomModal';
 
 
 const { width } = Dimensions.get("window");
@@ -20,24 +21,21 @@ interface Message {
   title: string;
   body: string;
   code: string;
-  //customImages: string[];
+  customImages: string[];
 }
 
 type RootStackParamList = {
-  //'messages/listMyMessages': {messageId: number};
-  'messages/listMyMessages': { messageId: number 
-    is_newMessage: boolean;
-
-  } | undefined;
-  'messages/index': { 
+  'messages/listMyMessages': {
     messageId: number;
     is_newMessage: boolean;
-
+    is_visualization?: boolean;
+    is_owner: boolean;
   } | undefined;
-  
-
-  
-
+  'messages/index': {
+    messageId: number;
+    is_newMessage: boolean;
+    is_visualization?: boolean;
+  } | undefined;
 };
 
 function MessageCreation() {
@@ -47,11 +45,20 @@ function MessageCreation() {
   const route = useRoute<RouteProp<RootStackParamList, 'messages/listMyMessages'>>();
 
   const messageId = route.params?.messageId || undefined;
-  const is_newMessage = route.params?.is_newMessage;
+
+  const is_visualization = route.params?.is_visualization || undefined;
+
+  const is_newMessage = route.params?.is_newMessage === true;
+
+  const is_owner = route.params?.is_owner || false;
+
+  const [isOwner, setIsOwner] = useState<boolean>(is_owner);
 
   const { showNotification } = useNotification();
 
   const [selectedMedia, setSelectedMedia] = useState<string | null>(null);
+
+  const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -59,18 +66,108 @@ function MessageCreation() {
     customImages: [] as string[],
   });
 
-    useFocusEffect(
-      useCallback(() => {
+  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [code, setCode] = useState<string>("");
 
-        if (is_newMessage) {
-          setFormData({
-            title: '',
-            body: '',
-            customImages: [],
+  useEffect(() => {
+    setSelectedMedia(null);
+  
+    const fetchOwnerStatus = async () => {
+      if (is_newMessage) {
+        setFormData({
+          title: '',
+          body: '',
+          customImages: [],
+        });
+        setContacts([]);
+      } else {
+        try {
+          const authToken = await AsyncStorage.getItem('authToken');
+  
+          if (!authToken) {
+            console.error('No se encontró el token de autenticación');
+            return;
+          }
+  
+          const response = await fetch(`${BACKEND_API}/api/messages/${messageId}/is-owner`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authToken}`,
+            },
           });
+  
+          if (!response.ok) {
+            throw new Error(`Error en la solicitud: ${response.status} ${response.statusText}`);
+          }
+  
+          const data = await response.json();
+          setIsOwner(data.isOwner);
+        } catch (error) {
+          console.error('Error al verificar la propiedad del mensaje:', error);
         }
-      }, [is_newMessage])
-    );
+      }
+    };
+  
+    fetchOwnerStatus();
+  }, [is_newMessage, messageId]);
+  
+
+  const fetchMessageData = useCallback(async () => {
+    if (!is_newMessage && isOwner) {
+
+      try {
+        const authToken = await AsyncStorage.getItem('authToken');
+
+        if (!authToken) {
+          console.error("No se encontró el token de autenticación");
+          return;
+        }
+
+        const response = await fetch(`${BACKEND_API}/api/messages/${messageId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setFormData({
+            title: data.title,
+            body: data.body,
+            customImages: data.customImages || [],
+          });
+
+          const formatPhoneNumber = (phone: string) => {
+            return phone.replace(/\D/g, '').replace(/(\d{3})(?=\d)/g, '$1 ');
+          };
+
+          const contactsData = data.recipients.map((contact: any) => ({
+            id: Date.now(),
+            name: contact.name,
+            telephone: formatPhoneNumber(contact.telephone),
+            email: contact.email,
+          }));
+
+
+          setContacts(contactsData);
+
+        } else {
+          console.error('Error al obtener los datos del mensaje');
+        }
+      } catch (error) {
+        console.error('Error en la solicitud:', error);
+      }
+    }
+  }, [is_newMessage, isOwner, messageId]);
+
+  useEffect(() => {
+    fetchMessageData();
+  }, [fetchMessageData]);
+
+
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -78,7 +175,6 @@ function MessageCreation() {
       allowsEditing: true,
       quality: 1,
     });
-
 
     if (!result.canceled) {
 
@@ -117,49 +213,23 @@ function MessageCreation() {
     }
   };
 
-  useEffect(() => {
-    const fetchMessageData = async () => {
-      if (!is_newMessage) {
-        
-        try {
-          const authToken = await AsyncStorage.getItem('authToken');
-          const response = await fetch(`${BACKEND_API}/api/messages/${messageId}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${authToken}`,
-            },
-          });
-
-          if (response.ok) {
-            console.log("response", response);
-            const data = await response.json();
-            setFormData({
-              title: data.title,
-              body: data.body,
-              customImages: data.customImages || [],
-            });
-            setContacts(data.contacts || []);
-          } else {
-            console.error('Error al obtener los datos del mensaje');
-          }
-        } catch (error) {
-          console.error('Error en la solicitud:', error);
-        }
-      } else{
-       
-      }
-    }
-      fetchMessageData();
-    }, [is_newMessage]);
-
 
   const handleSubmitMessage = async () => {
 
     const url = !is_newMessage ? `${BACKEND_API}/api/messages/${messageId}` : `${BACKEND_API}/api/messages`;
     const method = !is_newMessage ? 'PUT' : 'POST';
+    const dataToSend = {
+      ...formData,
+      recipients: contacts.map(contact => ({
+        ...contact,
+        telephone: contact.telephone.replace(/\s+/g, '')
+      })),
+    };
 
-    const errors = validateMessageData(formData.title,formData.body);
+    const recipientEmails = dataToSend.recipients.map((recipient) => recipient.email);
+    const errors = validateMessageData(formData.title, formData.body, recipientEmails);
+
+    closeConfirmationModal();
 
     if (errors && errors.length > 0) {
       showNotification({
@@ -180,7 +250,7 @@ function MessageCreation() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authToken.trim()}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSend),
       });
 
       if (response.ok) {
@@ -195,7 +265,7 @@ function MessageCreation() {
     }
   };
 
-  const validateMessageData = (title: string, body: string) => {
+  const validateMessageData = (title: string, body: string, recipients: string[]) => {
     const errors: string[] = [];
 
 
@@ -207,22 +277,37 @@ function MessageCreation() {
       errors.push("El cuerpo del mensaje no puede estar vacío");
     }
 
+    if (recipients.length === 0) {
+      errors.push("Debe añadir al menos un contacto");
+    }
+
+    setIsConfirmationModalVisible(true);
+
     return errors;
   };
 
 
-
-
-  const handleChange = (field: string, value: string) => {
-    setFormData({ ...formData, [field]: value });
-  };
-
-  const handleSaveMessage = () => {
-    handleSubmitMessage();
-  };
-
   const handleMediaPress = (uri: string) => {
     setSelectedMedia(uri);
+  };
+
+  const showConfirmationModal = () => {
+    setIsConfirmationModalVisible(true);
+  }
+
+  const closeConfirmationModal = () => {
+    setIsConfirmationModalVisible(false);
+  }
+
+  const handleRemoveImage = (uriToRemove: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      customImages: prev.customImages.filter((uri) => uri !== uriToRemove),
+    }));
+
+    if (selectedMedia === uriToRemove) {
+      setSelectedMedia(null);
+    }
   };
 
 
@@ -231,22 +316,22 @@ function MessageCreation() {
   type Contact = {
     id: number;
     name: string;
-    phone: string;
+    telephone: string;
     email: string;
   };
 
- const [newContact, setNewContact] = useState<Contact>({
+  const [newContact, setNewContact] = useState<Contact>({
     id: Date.now(),
     name: "",
-    phone: "",
+    telephone: "",
     email: "",
   });
 
   const [contacts, setContacts] = useState<Contact[]>([]);
-  
+
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
 
-  
+
 
   const [isContactModalVisible, setIsContactModalVisible] = useState(false);
 
@@ -258,7 +343,7 @@ function MessageCreation() {
 
   const addContact = () => {
 
-    if (!newContact.name || !newContact.phone || !newContact.email) {
+    if (!newContact.name || !newContact.telephone || !newContact.email) {
       showNotification({
         message: `Todos los campos son obligatorios`,
         type: "info",
@@ -276,9 +361,8 @@ function MessageCreation() {
       return;
     }
 
-    setNewContact({ id: Date.now(), name: "", phone: "", email: "" });
+    setNewContact({ id: Date.now(), name: "", telephone: "", email: "" });
     setContacts([...contacts, newContact]);
-    console.log("newContact", newContact);
   };
 
   const removeContact = (id: number) => {
@@ -290,16 +374,16 @@ function MessageCreation() {
   const validateContactData = (values: Contact) => {
     const errors: string[] = [];
     const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const phoneRegex = /^\d{3} \d{3} \d{3}$/;
+    const telephoneRegex = /^\d{3} \d{3} \d{3}$/;
 
-    const phoneSet = new Set();
+    const telephoneSet = new Set();
     const emailSet = new Set();
 
     if (!values.name || values.name.trim() === "") {
       errors.push("El nombre es obligatorio para el contacto");
     }
 
-    if (!values.phone || !phoneRegex.test(values.phone)) {
+    if (!values.telephone || !telephoneRegex.test(values.telephone)) {
       errors.push("Por favor, introduce un teléfono válido (sin prefijo)");
     }
 
@@ -308,10 +392,10 @@ function MessageCreation() {
     }
 
     contacts.forEach((contact) => {
-      phoneSet.add(contact.phone);
+      telephoneSet.add(contact.telephone);
     });
 
-    if (phoneSet.has(values.phone)) {
+    if (telephoneSet.has(values.telephone)) {
       errors.push("El teléfono ya ha sido añadido");
     }
 
@@ -327,189 +411,310 @@ function MessageCreation() {
     return errors;
   };
 
-  // Logica para poner modal a true
   const handleSelectContacts = () => {
-    //alert("Esta función estará disponible muy pronto!");
     setIsContactModalVisible(true);
   };
 
-  const handleEditContact = (contact: { id: number; name: string; phone: string; email: string; }) => {
+  const handleEditContact = (contact: { id: number; name: string; telephone: string; email: string; }) => {
     removeContact(contact.id);
     setEditingContact(contact);
     setNewContact({
       id: contact.id,
       name: contact.name,
-      phone: contact.phone,
+      telephone: contact.telephone,
       email: contact.email,
     });
   };
+  const handleVerifyCode = async () => {
+    if (!code || code.length !== 5) {
+      showNotification({
+        message: "El código debe tener 5 números",
+        type: "info",
+        duration: 2500,
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(`${BACKEND_API}/api/messages/${messageId}/validate-code/${code}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error en la solicitud: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      setIsVisible(true);
+      setCode("");
+
+      setFormData({
+        title: data.title,
+        body: data.body,
+        customImages: data.customImages || [],
+      });
+
+      const formatPhoneNumber = (phone: string) => {
+        return phone.replace(/\D/g, '').replace(/(\d{3})(?=\d)/g, '$1 ');
+      };
+
+      const contactsData = data.recipients.map((contact: any) => ({
+        id: Date.now(),
+        name: contact.name,
+        telephone: formatPhoneNumber(contact.telephone),
+        email: contact.email,
+      }));
+
+
+      setContacts(contactsData);
+
+    } catch (error) {
+      showNotification({
+        message: "Código erróneo. Inténtalo de nuevo.",
+        type: "error",
+        duration: 3000,
+      });
+    }
+  };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.formContainer}>
-        <Text style={styles.textTitle}>Crea tu mensaje personalizado</Text>
-  
-        <CustomTextInput
-          style={{ width: "100%" }}
-          placeholder="Título del mensaje"
-          maxLength={100}
-          value={formData.title}
-          onChangeText={(text) => setFormData({ ...formData, title: text })}
-        />
-  
-        <CustomTextInput
-          style={styles.textArea}
-          placeholder="Texto personalizado"
-          maxLength={1999}
-          multiline
-          value={formData.body}
-          onChangeText={(text) => setFormData({ ...formData, body: text })}
-        />
-  
-        <View style={styles.buttonContainer}>
-          <CustomButton
-            color="blue"
-            style={styles.customButton1}
-            title="Seleccionar imágenes"
-            onPress={pickImage}
-          />
-  
-          <CustomButton
-            color="blue"
-            style={styles.customButton1}
-            title="Seleccionar contactos"
-            onPress={() => showNotification({
-              message:"Esta función estará disponible muy pronto",
-              type:"info",
-              duration:2500,
-            })}
-          />
-        </View>
-  
-        <CustomButton
-          color="grey"
-          style={styles.customButton2}
-          title="Guardar mensaje"
-          onPress={handleSaveMessage}
-        />
-      </View>
-  
-      <View style={styles.mediaContainer}>
-        <View style={styles.mediaVisualizer}>
-          {selectedMedia ? (
-            <Image source={{ uri: selectedMedia }} style={styles.selectedMedia} />
-          ) : (
-            <Text style={styles.previewMessage}>
-              No se ha seleccionado ningún archivo
+    <>
+      {isVisible || isOwner ? (
+        <ScrollView contentContainerStyle={styles.container}>
+          <View style={styles.formContainer}>
+            <Text style={styles.textTitle}>
+              {is_newMessage ? "Crea tu mensaje personalizado" : (is_visualization ? "Tu mensaje" : "Actualiza tu mensaje")}
             </Text>
-          )}
-        </View>
-  
-        <View style={styles.mediaItems}>
-          <ScrollView horizontal>
-            {formData.customImages.length > 0 &&
-              formData.customImages.map((uri, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => handleMediaPress(uri)}
-                >
-                  <Image source={{ uri }} style={styles.customImage} />
-                </TouchableOpacity>
-              ))}
-          </ScrollView>
-        </View>
-      </View>
-  
-      {isContactModalVisible && (
-        <View style={styles.modalContactContainer}>
-          <Pressable
-            style={styles.closeButton}
-            onPress={() => setIsContactModalVisible(false)}
-          >
-            <AntDesign name="close" size={24} color="#434343" />
-          </Pressable>
-  
-          <Text style={styles.contactTitle}>Agrega a tus contactos</Text>
-  
-          <View style={styles.contactContainer}>
+
             <CustomTextInput
-              placeholder="Nombre"
-              value={newContact.name}
-              maxLength={50}
-              onChangeText={(text) => handleChangeContact("name", text)}
-              style={styles.input}
+              style={{ width: "100%" }}
+              placeholder="Título del mensaje"
+              maxLength={80}
+              value={formData.title}
+              onChangeText={(text) => setFormData({ ...formData, title: text })}
+              editable={isOwner}
             />
+
             <CustomTextInput
-              placeholder="Teléfono (sin prefijo)"
-              value={newContact.phone}
-              maxLength={11}
-              keyboardType="phone-pad"
-              onChangeText={(text) => {
-                const numericText = text.replace(/\D/g, "");
-                const formattedText = numericText.replace(/(\d{3})/g, "$1 ").trim();
-                handleChangeContact("phone", formattedText);
-              }}
-              style={styles.input}
+              style={styles.textArea}
+              placeholder="Texto personalizado"
+              maxLength={2000}
+              multiline
+              value={formData.body}
+              onChangeText={(text) => setFormData({ ...formData, body: text })}
+              editable={isOwner}
             />
-            <CustomTextInput
-              placeholder="Email"
-              value={newContact.email}
-              maxLength={50}
-              keyboardType="email-address"
-              onChangeText={(text) => handleChangeContact("email", text)}
-              style={styles.input}
-            />
-            <CustomButton
-              style={styles.addButton}
-              title="Añadir"
-              onPress={addContact}
-            />
-          </View>
-  
-          <Text style={styles.contactTitle}>Lista de contactos añadidos</Text>
-          <ScrollView style={styles.tableContainer} horizontal>
-            <View>
-              <View style={styles.tableHeader}>
-                <Text style={styles.headerCell}>Nombre</Text>
-                <Text style={styles.headerCell}>Teléfono</Text>
-                <Text style={styles.headerCell}>Email</Text>
-                <Text style={styles.headerCell}>Acción</Text>
-              </View>
-  
-              <ScrollView style={{ maxHeight: width > 600 ? width * 0.1 : width * 0.4 }}>
-                <FlatList
-                  data={contacts}
-                  keyExtractor={(item) => item.id.toString()}
-                  nestedScrollEnabled={true}
-                  renderItem={({ item }) => (
-                    <View style={styles.tableRow}>
-                      <Text style={styles.cell}>{item.name}</Text>
-                      <Text style={styles.cell}>{item.phone}</Text>
-                      <Text style={styles.cell}>{item.email}</Text>
-                      <View style={styles.actionCell}>
-                        <CustomButton
-                          title="Editar"
-                          style={styles.editButton}
-                          onPress={() => handleEditContact(item)}
-                        />
-                        <CustomButton
-                          title="Eliminar"
-                          style={styles.editButton}
-                          color="red"
-                          onPress={() => removeContact(item.id)}
-                        />
-                      </View>
-                    </View>
-                  )}
+            {isOwner && !is_visualization && (
+              <View>
+                <View style={styles.buttonContainer}>
+                  <CustomButton
+                    color="blue"
+                    style={styles.customButton1}
+                    title={is_newMessage ? "Seleccionar imágenes" : "Actualizar imágenes"}
+                    onPress={pickImage}
+                  />
+                  <CustomButton
+                    color="blue"
+                    style={styles.customButton1}
+                    title={is_newMessage ? "Seleccionar contactos" : "Actualizar contactos"}
+                    onPress={handleSelectContacts}
+                  />
+                </View>
+
+                <CustomButton
+                  color="grey"
+                  style={styles.customButton2}
+                  title={is_newMessage ? "Guardar mensaje" : "Actualizar mensaje"}
+                  onPress={showConfirmationModal}
                 />
+              </View>
+            )}
+          </View>
+
+          <View style={styles.mediaContainer}>
+            <View style={styles.mediaVisualizer}>
+              {selectedMedia ? (
+                <Image source={{ uri: selectedMedia }} style={styles.selectedMedia} />
+              ) : (
+                <Text style={styles.previewMessage}>
+                  No se ha seleccionado ningún archivo
+                </Text>
+              )}
+            </View>
+
+            <View style={styles.mediaItems}>
+              <ScrollView horizontal>
+                {formData.customImages.length > 0 &&
+                  formData.customImages.map((uri, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => handleMediaPress(uri)}
+                    >
+                      <Image source={{ uri }} style={styles.customImage} />
+                      {selectedMedia === uri && (
+                        <View style={{ position: "absolute", top: 25, left: 25 }}>
+                          <AntDesign name="checkcircleo" size={20} color="green" />
+                        </View>
+
+                      )}
+                      {!is_visualization && isOwner && (
+                        <TouchableOpacity
+                          onPress={() => handleRemoveImage(uri)}
+                          style={{
+                            position: 'absolute',
+                            top: 25,
+                            right: 25,
+                          }}
+                        >
+                          <AntDesign name="closecircle" size={20} color="red" />
+                        </TouchableOpacity>
+                      )}
+                    </TouchableOpacity>
+                  ))}
               </ScrollView>
             </View>
-          </ScrollView>
+          </View>
+
+          {isContactModalVisible && (
+            <View style={styles.modalContactContainer}>
+              <Pressable
+                style={styles.closeButton}
+                onPress={() => setIsContactModalVisible(false)}
+              >
+                <AntDesign name="close" size={24} color="#434343" />
+              </Pressable>
+
+              <Text style={styles.contactTitle}>Agrega a tus contactos</Text>
+
+              <View style={styles.contactContainer}>
+                <CustomTextInput
+                  placeholder="Nombre"
+                  value={newContact.name}
+                  maxLength={50}
+                  onChangeText={(text) => handleChangeContact("name", text)}
+                  style={styles.input}
+                />
+                <CustomTextInput
+                  placeholder="Teléfono (sin prefijo)"
+                  value={newContact.telephone}
+                  maxLength={11}
+                  keyboardType="phone-pad"
+                  onChangeText={(text) => {
+                    const numericText = text.replace(/\D/g, "");
+                    const formattedText = numericText.replace(/(\d{3})/g, "$1 ").trim();
+                    handleChangeContact("telephone", formattedText);
+                  }}
+                  style={styles.input}
+                />
+                <CustomTextInput
+                  placeholder="Email"
+                  value={newContact.email}
+                  maxLength={50}
+                  keyboardType="email-address"
+                  onChangeText={(text) => handleChangeContact("email", text)}
+                  style={styles.input}
+                />
+                <CustomButton
+                  style={styles.addButton}
+                  title="Añadir"
+                  onPress={addContact}
+                />
+              </View>
+
+              <Text style={styles.contactTitle}>Lista de contactos añadidos</Text>
+              <ScrollView style={styles.tableContainer} horizontal>
+                <View>
+                  <View style={styles.tableHeader}>
+                    <Text style={styles.headerCell}>Nombre</Text>
+                    <Text style={styles.headerCell}>Teléfono</Text>
+                    <Text style={styles.headerCell}>Email</Text>
+                    <Text style={styles.headerCell}>Acción</Text>
+                  </View>
+
+                  <ScrollView style={{ maxHeight: width > 600 ? width * 0.1 : width * 0.4 }}>
+                    <FlatList
+                      data={contacts}
+                      keyExtractor={(item) => item.id.toString()}
+                      nestedScrollEnabled={true}
+                      renderItem={({ item }) => (
+                        <View style={styles.tableRow}>
+                          <Text style={styles.cell}>{item.name}</Text>
+                          <Text style={styles.cell}>{item.telephone}</Text>
+                          <Text style={styles.cell}>{item.email}</Text>
+                          <View style={styles.actionCell}>
+                            <CustomButton
+                              title="Editar"
+                              textStyle={{ fontSize: 12 }}
+                              style={styles.editButton}
+                              onPress={() => handleEditContact(item)}
+                            />
+                            <CustomButton
+                              title="Eliminar"
+                              textStyle={{ fontSize: 12 }}
+                              style={styles.editButton}
+                              color="red"
+                              onPress={() => removeContact(item.id)}
+                            />
+                          </View>
+                        </View>
+                      )}
+                    />
+                  </ScrollView>
+                </View>
+              </ScrollView>
+            </View>
+          )}
+          {isConfirmationModalVisible && (
+            <CustomModal
+              visible={isConfirmationModalVisible}
+              onClose={closeConfirmationModal}
+              title={"¿Desea guardar el mensaje?"}
+              style={styles.modalStyle2}
+            >
+              <View style={styles.buttonContainer2}>
+                <TouchableOpacity
+                  style={styles.button2}
+                  onPress={handleSubmitMessage}
+                >
+                  <Text style={styles.buttonText}>Aceptar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.button2}
+                  onPress={closeConfirmationModal}
+                >
+                  <Text style={styles.buttonText}>Cancelar</Text>
+                </TouchableOpacity>
+              </View>
+            </CustomModal>
+
+          )}
+        </ScrollView >
+      ) : (
+        <View style={styles.codeContainer}>
+          <Text style={styles.codeText}> Ingresa el código</Text>
+          <CustomTextInput
+            placeholder="Código"
+            value={code}
+            maxLength={5}
+            onChangeText={(text) => setCode(text)}
+            style={styles.input}
+          />
+          <CustomButton
+            style={styles.addButton}
+            title="Enviar"
+            onPress={handleVerifyCode}
+          />
         </View>
-      )}
-    </ScrollView>
+      )
+      }
+    </>
   );
-}  
+}
+
 
 const styles = StyleSheet.create({
   container: {
@@ -615,7 +820,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: GlobalStyles.white,
     borderRadius: 10,
-    width: '80%',
+    width: "80%",
     alignSelf: 'center',
     position: 'absolute',
     justifyContent: 'center',
@@ -672,7 +877,7 @@ const styles = StyleSheet.create({
   actionCell: {
     flex: 1,
     flexDirection: "row",
-    gap: 4,
+    gap: 2,
     alignItems: "center",
     justifyContent: "center",
     width: width * 0.6,
@@ -680,10 +885,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   editButton: {
-    marginLeft: 5,
-    marginRight: 10,
     alignSelf: "center",
-    width: "20%",
+    width: width > 600 ? "20%" : "50%",
   },
   tableContainer: {
     flex: 1,
@@ -714,7 +917,46 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
+  codeText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
 
+  },
+  codeContainer: {
+    width: width > 600 ? '100%' : "100%",
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+    padding: 20,
+    marginTop: 20,
+  },
+  modalStyle2: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 15,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
+    width: width > 600 ? "40%" : "80%",
+  },
+  buttonContainer2: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: "1%",
+    flexDirection: "row",
+    width: "35%",
+    gap: "2%",
+  },
+  button2: {
+    backgroundColor: GlobalStyles.blue,
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 8,
+    alignItems: "center",
+  },
 });
 
-export default withAuth(MessageCreation, [AUTHORITIES.CUSTOMER_PREMIUM]);
+export default withAuth(MessageCreation, [AUTHORITIES.ANONYMOUS, AUTHORITIES.CUSTOMER_PREMIUM,]);
