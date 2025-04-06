@@ -18,11 +18,11 @@ const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
 interface Message {
-    id: number;
+    messageId: number;
     title: string;
     body: string;
     code: string;
-    //customImages: string[];
+    customImages: string[];
 }
 
 type RootStackParamList = {
@@ -32,6 +32,8 @@ type RootStackParamList = {
     'messages/index': {
         messageId: number | undefined;
         is_newMessage: boolean;
+        is_visualization?: true,
+        is_owner: boolean | undefined;
     } | undefined;
 };
 
@@ -49,13 +51,11 @@ function MessageList() {
         React.useCallback(() => {
             const fetchData = async () => {
                 setLoading(true);
-                const userData = await AsyncStorage.getItem('user_data');
-                const userId = userData ? JSON.parse(userData).id : null;
                 try {
                     const authToken = await AsyncStorage.getItem('authToken');
                     if (!authToken) throw new Error('No se encontró un token de autenticación');
 
-                    const response = await fetch(`${BACKEND_API}/api/messages/${userId}/my_messages`, {
+                    const response = await fetch(`${BACKEND_API}/api/messages/my-messages`, {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
@@ -94,10 +94,10 @@ function MessageList() {
             });
 
             if (response.ok) {
-                setMessages(messages.filter(m => m.id !== messageId));
+                setMessages(messages.filter(m => m.messageId !== messageId));
                 setModalVisible(false);
             } else {
-                console.error('Error al eliminar el mensage');
+                console.error('Error al eliminar el mensaje');
             }
         } catch (error) {
             console.error('Error en la solicitud:', error);
@@ -128,12 +128,9 @@ function MessageList() {
     return isAuthenticated && (
         <ScrollView contentContainerStyle={styles.container}>
             <ThemedView style={styles.introContainer}>
-                <Text style={styles.introTitle}>Mensajes ✉️</Text>
+                <Text style={styles.introTitle}>✉️ Mensajes ✉️</Text>
                 <Text style={styles.introText}>
                     En esta sección, podrás ver y crear mensajes para tus seres queridos.
-                </Text>
-                <Text style={styles.introText}>
-                    (En estos momentos la imagen de preview por defecto es siempre la misma. En la próxima versión podrá visualizar sus imágenes correctamente)
                 </Text>
             </ThemedView>
 
@@ -141,29 +138,39 @@ function MessageList() {
                 title="Crea un mensaje para un ser querido"
                 color="green"
                 style={styles.floatingButton}
-                onPress={() => navigation.navigate('messages/index', { messageId: undefined, is_newMessage: true })}
+                onPress={() => navigation.navigate('messages/index', { messageId: undefined, is_newMessage: true, is_owner: true })}
             />
 
             <View style={styles.messagesWrapper}>
                 {messages.map((message) => (
                     <View
-                        key={message.id}
+                        key={message.messageId}
                         style={styles.messageContainer}
                     >
                         <Text style={styles.messageText}>Título: {message.title}</Text>
-                        <Image source={require('@/assets/images/caronte_gris.png')} style={styles.messagePreviewImage} />
+                        {message.customImages.length > 0 ? (
+                            <Image source={{ uri: message.customImages[0] }} style={styles.messagePreviewImage} />
+                        ) : (
+                            <Image source={require('@/assets/images/caronte_gris.png')} style={styles.messagePreviewImage} />
+                        )}
                         <View style={styles.buttonContainer}>
                             <CustomButton
                                 title="Editar"
                                 color="blue"
                                 style={styles.button1}
-                                onPress={() => navigation.navigate('messages/index', { messageId: message.id, is_newMessage: false })}
+                                onPress={() => navigation.navigate('messages/index', { messageId: message.messageId, is_newMessage: false, is_owner: true })}
+                            />
+                            <CustomButton
+                                title="Visualizar"
+                                color="blue"
+                                style={styles.button1}
+                                onPress={() => navigation.navigate('messages/index', { messageId: message.messageId, is_newMessage: false, is_visualization: true, is_owner: true })}
                             />
                             <CustomButton
                                 title="Eliminar"
                                 color="red"
                                 style={styles.button1}
-                                onPress={() => { showConfirmationModal(message.id) }}
+                                onPress={() => { showConfirmationModal(message.messageId) }}
                             />
                         </View>
                     </View>
@@ -214,11 +221,10 @@ const styles = StyleSheet.create({
         lineHeight: 24,
     },
     messagePreviewImage: {
-        width: 150,
-        height: 150,
+        width: 250,
+        height: 175,
         alignSelf: 'center',
-        borderRadius: 10,
-        resizeMode: "contain"
+        resizeMode: "contain",
     },
     allMessagesContainer: {
         width: '100%',
@@ -246,7 +252,7 @@ const styles = StyleSheet.create({
 
     },
     messageContainer: {
-        width: width > 600 ? "18%" : "45%",
+        width: width > 600 ? "22%" : "85%",
         padding: 15,
         borderRadius: 12,
         backgroundColor: GlobalStyles.lightGrey,
@@ -262,11 +268,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: GlobalStyles.darkGrey,
         textAlign: 'center',
-    },
-    changeScreenButton: {
-        marginTop: 10,
-        width: 50,
-        height: 50,
+        marginBottom: 10,
     },
     floatingButton: {
         padding: 10,
@@ -274,14 +276,18 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     buttonContainer: {
-        flexDirection: "row",
+        flexDirection: width > 600 ? "row" : "column",
         alignContent: "center",
-        justifyContent: "center",
+        justifyContent: "space-between",
         gap: 10,
-
+        marginTop: 10,
+        paddingHorizontal: 10,
+        flex: 1,
+        width: "100%",
     },
     button1: {
-        width: width > 600 ? "80%" : "40%",
+        flex: 1,
+        alignSelf: 'center',
     },
     modalStyle: {
         backgroundColor: '#fff',
