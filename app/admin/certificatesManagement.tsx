@@ -7,6 +7,7 @@ import { AUTHORITIES } from '../_util/Authorities';
 import { GlobalStyles } from '@/constants/Colors';
 import CustomButton from '@/components/CustomButton';
 import { ThemedText } from '@/components/ThemedText';
+import CustomModal from '@/components/CustomModal';
 
 
 type Certificate = {
@@ -59,6 +60,8 @@ const MOCK_DATA: Certificate[] = [
 const CertificateManagement: React.FC = () => {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [deathDates, setDeathDates] = useState<{ [id: number]: string }>({});
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedCertificateId, setSelectedCertificateId] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const navigation = useNavigation();
 
@@ -140,8 +143,9 @@ const CertificateManagement: React.FC = () => {
             style={styles.actionsButton}
             onPress={() => {
               setErrorMessage("");
-              console.log(`Certificado denegado ID: ${item.id}`);
-            }}
+              setSelectedCertificateId(item.id);
+              setModalVisible(true);
+            }}            
           />
         </View>
       </View>
@@ -186,6 +190,29 @@ const CertificateManagement: React.FC = () => {
           </ScrollView>
         </View>
       </ScrollView>
+
+      {modalVisible && (
+        <CustomModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          title="Confirmar denegación"
+        >
+          <ThemedText>¿Estás seguro de que deseas denegar este certificado?</ThemedText>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20, gap: 10 }}>
+            <CustomButton title="Cancelar" color="grey" onPress={() => setModalVisible(false)} />
+            <CustomButton
+              title="Denegar"
+              color="red"
+              onPress={() => {
+                if (selectedCertificateId !== null) {
+                  console.log(`Certificado denegado ID: ${selectedCertificateId}`);
+                }
+                setModalVisible(false);
+              }}
+            />
+          </View>
+        </CustomModal>
+      )}
     </ThemedView>
   );
 };
