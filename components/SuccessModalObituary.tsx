@@ -3,12 +3,18 @@ import { View, Text, Animated, StyleSheet } from 'react-native';
 import CustomModal from '@/components/CustomModal';
 import CustomButton from '@/components/CustomButton';
 import { FontAwesome } from '@expo/vector-icons';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+
+type RootStackParamList = {
+  'obituaries/index': undefined;
+};
 
 const SuccessModal: React.FC<{ visible: boolean; onClose: () => void }> = ({ visible, onClose }) => {
     const [scaleAnim] = useState(new Animated.Value(0));
     const [rotateAnim] = useState(new Animated.Value(0));
     const [fadeAnim] = useState(new Animated.Value(0));
     const [slideAnim] = useState(new Animated.Value(50));
+    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     useEffect(() => {
         if (visible) {
@@ -43,6 +49,11 @@ const SuccessModal: React.FC<{ visible: boolean; onClose: () => void }> = ({ vis
         inputRange: [0, 1],
         outputRange: ['0deg', '360deg'],
     });
+
+    const handleContinue = () => {
+        onClose();
+        navigation.navigate('obituaries/index');
+    };
 
     return (
         <CustomModal visible={visible} onClose={onClose} title="¡Pago exitoso!">
@@ -91,7 +102,7 @@ const SuccessModal: React.FC<{ visible: boolean; onClose: () => void }> = ({ vis
                 >
                     <CustomButton
                         title="Continuar"
-                        onPress={onClose}
+                        onPress={handleContinue}
                         color="blue"
                         style={styles.successButton}
                     />
@@ -141,6 +152,5 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     }
 });
-
 
 export default SuccessModal;
