@@ -7,7 +7,7 @@ const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [roles, setRoles] = useState<string[] | null>(null);
   const [name, setName] = useState<string | null>(null);
-  const [experedPlanDate, setExperedPlanDate] = useState<Date | null>(null);
+  const [expiredPlanDate, setExpiredPlanDate] = useState<Date | null>(null);
   const { logout, decodeJWT } = useAuthApp();
 
   useEffect(() => {
@@ -29,10 +29,10 @@ const useAuth = () => {
           }
           const userRoles = user.roles
           const userName = user.name;
-          const userExperedPlanDate = new Date(user.experedPlanDate);
+          const userExpiredPlanDate = new Date(user.expiredPlanDate);
           setRoles(userRoles)
           setName(userName)
-          setExperedPlanDate(userExperedPlanDate);
+          setExpiredPlanDate(userExpiredPlanDate);
           setIsAuthenticated(true);
         } else {
           await AsyncStorage.clear();
@@ -53,7 +53,7 @@ const useAuth = () => {
   }, []); 
 
 
-  return { isAuthenticated, roles, name, experedPlanDate };
+  return { isAuthenticated, roles, name, expiredPlanDate };
 };
 
 export default useAuth;
