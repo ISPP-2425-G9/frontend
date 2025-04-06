@@ -73,6 +73,70 @@ const CustomNavbar = () => {
         setUserMenuOpen(false);
     };
 
+    const renderDropdown = () => {
+        if (!menuOpen) return null;
+
+        const items: { title: string; route?: string; action?: () => void }[] = [];
+
+        if (!isAuthenticated) {
+            items.push(
+                { title: 'Sobre nosotros', route: 'about/index' },
+                { title: 'Contáctanos', route: 'contact/index' },
+                { title: 'Iniciar sesión', route: 'login/index' },
+                { title: 'Registrarse', route: 'register/index' }
+            );
+        } else {
+            if (userRoles?.includes("ADMIN")) {
+                items.push(
+                    { title: 'Usuarios', route: 'admin/listUsers' },
+                    { title: 'Sobre nosotros', route: 'about/index' },
+                    { title: 'Contáctanos', route: 'contact/index' }
+                );
+            }
+            if (userRoles?.includes("CUSTOMER")) {
+                items.push({ title: 'Esquelas', route: 'obituaries/index' });
+            }
+            if (userRoles?.includes("CUSTOMER_PREMIUM")) {
+                items.push(
+                    { title: 'Mensajes', route: 'messages/listMyMessages' },
+                    { title: 'Contactos de emergencia', route: 'contacts/index' }
+                );
+            }
+            if (userRoles?.includes("CUSTOMER") || userRoles?.includes("COMPANY")) {
+                items.push(
+                    { title: 'Servicios', route: 'services/index' },
+                    { title: 'Planes', route: 'subscribe/index' },
+                    { title: 'Sobre nosotros', route: 'about/index' },
+                    { title: 'Contáctanos', route: 'contact/index' },
+                    { title: userName || '', route: 'profile/index' },
+                    {
+                        title: 'Cerrar sesión', action: () => {
+                            setUserMenuOpen(false);
+                            setIsLogoutModalVisible(true);
+                        }
+                    }
+                );
+            }
+        }
+
+        return (
+            <BlurView intensity={90} tint="light" style={styles.dropdown}>
+                {items.map((item, index) => (
+                    <TouchableOpacity key={index} onPress={() => {
+                        if (item.route) {
+                            handleNavigation(item.route);
+                        } else if (item.action) {
+                            item.action();
+                        }
+                        setMenuOpen(false);
+                    }}>
+                        <Text style={styles.dropdownNavItem}>{item.title}</Text>
+                    </TouchableOpacity>
+                ))}
+            </BlurView>
+        );
+    };
+
     return (
         <View style={styles.navbar}>
             <TouchableOpacity
@@ -94,95 +158,7 @@ const CustomNavbar = () => {
                         <TouchableOpacity onPress={() => setMenuOpen(!menuOpen)}>
                             <Ionicons name={menuOpen ? "close" : "menu"} size={28} color="#333" />
                         </TouchableOpacity>
-                        {menuOpen && (
-                            <BlurView intensity={80} tint="light" style={styles.dropdown}>
-                                <TouchableOpacity onPress={() => { handleNavigation('certificate/index'); setMenuOpen(false); }}>
-                                    <Text style={styles.dropdownNavItem}>Subir certificado</Text>
-                                </TouchableOpacity>
-
-                                {!isAuthenticated && (
-                                    <><TouchableOpacity onPress={() => { handleNavigation('about/index'); setMenuOpen(false); }}>
-                                        <Text style={styles.dropdownNavItem}>Sobre nosotros</Text>
-                                    </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => { handleNavigation('contact/index'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Contáctanos</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => { handleNavigation('login/index'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Iniciar sesión</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => { handleNavigation('register/index'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Registrarse</Text>
-                                        </TouchableOpacity>
-                                    </>
-                                )}
-                                {isAuthenticated && userRoles?.includes("ADMIN") && (
-                                    <>
-                                        <TouchableOpacity onPress={() => { handleNavigation('admin/listUsers'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Usuarios</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => {
-                                            setUserMenuOpen(false);
-                                            setIsLogoutModalVisible(true);
-                                        }}>
-                                            <TouchableOpacity onPress={() => { handleNavigation('about/index'); setMenuOpen(false); }}>
-                                                <Text style={styles.dropdownNavItem}>Sobre nosotros</Text>
-                                            </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => { handleNavigation('contact/index'); setMenuOpen(false); }}>
-                                                <Text style={styles.dropdownNavItem}>Contáctanos</Text>
-                                            </TouchableOpacity>
-                                            <Text style={styles.dropdownNavItem}>Cerrar sesión</Text>
-                                        </TouchableOpacity>
-                                    </>
-                                )}
-                                {isAuthenticated && userRoles?.includes("CUSTOMER") && (
-                                    <>
-                                        <TouchableOpacity onPress={() => { handleNavigation('obituaries/index'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Esquelas</Text>
-                                        </TouchableOpacity>
-                                    </>
-                                )}
-                                {isAuthenticated && userRoles?.includes("CUSTOMER_PREMIUM") && (
-                                    <>
-                                        <TouchableOpacity onPress={() => { handleNavigation('messages/listMyMessages'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Mensajes</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => { handleNavigation('contacts/index'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Contactos de emergencia</Text>
-                                        </TouchableOpacity>
-                                    </>
-                                )}
-                                {isAuthenticated && (userRoles?.includes("CUSTOMER") || userRoles?.includes("COMPANY")) && (
-                                    <>
-                                        <TouchableOpacity onPress={() => { handleNavigation('services/index'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Servicios</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => { handleNavigation('subscribe/index'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Planes</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => { handleNavigation('about/index'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Sobre nosotros</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => { handleNavigation('contact/index'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Contáctanos</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => {
-                                            setUserMenuOpen(false);
-                                            handleNavigation('profile/index');
-                                            setMenuOpen(false);
-                                        }}>
-                                            <Text style={styles.dropdownNavItem}>{userName}</Text>
-                                        </TouchableOpacity>
-
-                                        <TouchableOpacity onPress={() => {
-                                            setUserMenuOpen(false);
-                                            setIsLogoutModalVisible(true);
-                                        }}>
-                                            <Text style={styles.dropdownNavItem}>Cerrar sesión</Text>
-                                        </TouchableOpacity>
-                                    </>
-                                )}
-                            </BlurView>
-                        )}
+                        {renderDropdown()}
                     </View>
                 ) : (
                     <React.Fragment>
@@ -311,7 +287,7 @@ const CustomNavbar = () => {
                                         </View>
                                     </TouchableOpacity>
                                     {userMenuOpen && (
-                                        <BlurView intensity={80} tint="light" style={styles.dropdown}>
+                                        <BlurView intensity={90} tint="light" style={styles.dropdown}>
                                             <TouchableOpacity onPress={() => {
                                                 setUserMenuOpen(false);
                                                 handleNavigation('profile/index');
