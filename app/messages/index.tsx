@@ -29,6 +29,7 @@ type RootStackParamList = {
     messageId: number;
     is_newMessage: boolean;
     is_visualization?: boolean;
+    is_owner: boolean;
   } | undefined;
   'messages/index': {
     messageId: number;
@@ -49,7 +50,9 @@ function MessageCreation() {
 
   const is_newMessage = route.params?.is_newMessage === true;
 
-  const [isOwner, setIsOwner] = useState<boolean>();
+  const is_owner = route.params?.is_owner || false;
+
+  const [isOwner, setIsOwner] = useState<boolean>(is_owner);
 
   const { showNotification } = useNotification();
 
