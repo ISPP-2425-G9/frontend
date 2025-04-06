@@ -354,8 +354,8 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: GlobalStyles.blue,
     paddingHorizontal: 25,
-    width: width > 600 ? '20%'  :'13%',
-    height: width > 600 ? 40 : '40%',
+    width: width > 600 ? '20%'  :'30%',
+    height: width > 600 ? 40 : '120%',
     borderRadius: 8,
     alignItems: "center",
     alignSelf: "center",
@@ -371,7 +371,8 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
     width: width > 600 ? "40%" : "80%",
-    height: width > 600 ? "15%" : "32%",
+    minHeight: 200,
+    justifyContent: "space-between",
   },
   successModal: {
     backgroundColor: 'white',
@@ -422,7 +423,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 5,
   },
-
 });
 
 export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER, AUTHORITIES.ANONYMOUS]);
