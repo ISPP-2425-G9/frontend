@@ -50,6 +50,7 @@ function LoadCertificate() {
   const [dniError, setDniError] = useState<string>("");
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
 
   // Nuevos estados para el pago
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -192,10 +193,16 @@ function LoadCertificate() {
       setDniError("El DNI no es válido");
       return;
     }
-    setShowPaymentModal(true);
+    
+    if (!is_mine) {
+      setShowPaymentModal(true);
+    } else {
+      await handleSubmit();
+    }
   };
 
-  const handlePaymentSuccess = async () => {
+  const handlePaymentSuccess = async (paymentMethod: { id: string }) => {
+    setPaymentMethodId(paymentMethod.id);
     setShowPaymentModal(false);
     await handleSubmit();
     setShowSuccessModal(true);
@@ -216,11 +223,20 @@ function LoadCertificate() {
 
 
   const handleSubmit = async () => {
-
     const authToken = await AsyncStorage.getItem("authToken");
     const jsonData = route.params.jsonData ?? '';
     const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
     console.log("adios", jsonData);
+    
+    if (!is_mine && !paymentMethodId) {
+      showNotification({
+        message: "Debes realizar el pago para crear una esquela para otra persona",
+        type: "error",
+        duration: 2500,
+      });
+      return;
+    }
+    
     const dataToSend = {
       ...JSON.parse(jsonData),
       deathCertificate: {
@@ -231,13 +247,23 @@ function LoadCertificate() {
     };
 
     try {
+      const requestBody = {
+        ...dataToSend
+      };
+      
+      if (paymentMethodId) {
+        requestBody.paymentMethodId = paymentMethodId;
+      }
+      
+      console.log("Request body:", JSON.stringify(requestBody));
+      
       const response = await fetch(BACKEND_API + '/api/obituary/create', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify(dataToSend),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
