@@ -222,15 +222,24 @@ const RegisterScreen: React.FC = () => {
             message: "El DNI debe tener 8 números y una letra mayúscula",
             type: "error",
           });
+          errors.push("El DNI debe tener 8 números y una letra mayúscula");
         }
-        return false
+        return false;
       }
       const dniNumber = dni.slice(0, 8);
       const dniLetter = dni.charAt(8);
       const dniLetters = "TRWAGMYFPDXBNJZSQVHLCKE";
       const dniIndex = parseInt(dniNumber, 10) % 23;
       const expectedLetter = dniLetters.charAt(dniIndex);
-      return dniLetter === expectedLetter;
+      if (dniLetter !== expectedLetter) {
+        showNotification({
+          message: "El DNI no es válido",
+          type: "error",
+        });
+        errors.push("El DNI no es válido");
+        return false;
+      }
+      return true;
     };
 
     const validateNif = (nif: string) => {
@@ -240,6 +249,7 @@ const RegisterScreen: React.FC = () => {
           message: "El NIF debe comenzar con una letra mayúscula, seguido de 7 números y un carácter de control.",
           type: "error",
         });
+        errors.push("El NIF debe comenzar con una letra mayúscula, seguido de 7 números y un carácter de control.");
         return false;
       }
 
@@ -269,58 +279,61 @@ const RegisterScreen: React.FC = () => {
         return expectedLetter === nifControlChar;
       } else {
         showNotification({
-          message: "El carácter de control es inválido.",
+          message: "El carácter de control es inválido",
           type: "error",
         });
+        errors.push("El carácter de control es inválido");
         return false;
       }
     }
 
     if (uType === "Empresa") {
-      if (
-        !values.nif ||
-        typeof values.nif !== "string" ||
-        !validateNif(values.nif)
-      ) showNotification({
-        message: "El NIF no es válido",
-        type: "error",
-      });
+      if (typeof values.nif === "string") 
+        validateNif(values.nif);
 
       if (
         !values.zipCode ||
         typeof values.zipCode !== "string" ||
         !zipCodeRegex.test(values.zipCode)
-      ) showNotification({
+      ) {showNotification({
         message: "El código postal no es válido",
         type: "error",
       });
+        errors.push("El código postal no es válido");
+      }
 
       if (
         !values.city ||
         typeof values.city !== "string" ||
         values.city.trim() === ""
-      ) showNotification({
+      ) {showNotification({
         message: "La ciudad es obligatoria",
         type: "error",
       });
+        errors.push("La ciudad es obligatoria");
+      }
 
       if (
         !values.address ||
         typeof values.address !== "string" ||
         values.address.trim() === ""
-      ) showNotification({
+      ) {showNotification({
         message: "La dirección es obligatoria",
         type: "error",
       });
+        errors.push("La dirección es obligatoria");
+      }
 
       if (
         !values.description ||
         typeof values.description !== "string" ||
         values.description.trim() === ""
-      ) showNotification({
+      ) {showNotification({
         message: "La descripción es obligatoria",
         type: "error",
       });
+        errors.push("La descripción es obligatoria");
+      }
 
       if (
         !values.companyType ||
@@ -332,63 +345,66 @@ const RegisterScreen: React.FC = () => {
           "DESPACHO_DE_ABOGADOS",
           "OTRO",
         ].includes(values.companyType)
-      ) showNotification({
+      ) {showNotification({
         message: "El tipo de empresa no es válido",
         type: "error",
       });
+        errors.push("El tipo de empresa no es válido");
+      }
     }
-    if (uType === "Cliente") {
-      if (
-        !values.dni ||
-        typeof values.dni !== "string" ||
-        !validateDni(values.dni)
-      ) showNotification({
-        message: "El DNI no es válido",
-        type: "error",
-      });
-    }
+    if (uType === "Cliente" && typeof values.dni === "string") 
+        validateDni(values.dni);
+      
     if (
       !values.name ||
       typeof values.name !== "string" ||
       values.name.trim() === ""
-    ) showNotification({
+    ) {showNotification({
       message: "El nombre es obligatorio",
       type: "error",
     });
+      errors.push("El nombre es obligatorio");
+    }
 
     if (
       !values.telephone ||
       typeof values.telephone !== "string" ||
       !validatePhone(values.telephone)
-    ) showNotification({
+    ) {showNotification({
       message: "El teléfono no es válido",
       type: "error",
     });
+      errors.push("El teléfono no es válido");
+    }
 
     if (
       !values.email ||
       typeof values.email !== "string" ||
       !emailRegex.test(values.email)
-    ) showNotification({
+    ) {showNotification({
       message: "El email no es válido",
       type: "error",
     });
+      errors.push("El email no es válido");
+    }
 
     if (
       !values.password1 ||
       typeof values.password1 !== "string" ||
       values.password1.length < 6
-    )
-      showNotification({
+    ) {showNotification({
         message: "La contraseña debe tener al menos 6 caracteres",
         type: "error",
       });
+      errors.push("La contraseña debe tener al menos 6 caracteres");
+    }
 
     if (values.password1 !== values.password2) {
       showNotification({
         message: "Las contraseñas no coinciden",
         type: "error",
       });
+      errors.push("Las contraseñas no coinciden");
     }
 
     return errors;
