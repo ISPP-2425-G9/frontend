@@ -13,7 +13,7 @@ import Checkbox from "expo-checkbox";
 import { useFocusEffect } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Alert, Animated, Dimensions,
+  Animated, Dimensions,
   Modal,
   Platform,
   Pressable,
@@ -407,10 +407,15 @@ const RegisterScreen: React.FC = () => {
         ...values,
         telephone: values.telephone.replace(/\s/g, '')
       };
-      if (Object.keys(modifiedValues).length === 0) {
-        Alert.alert("Información", "Debe completar el formulario");
+      
+      if (Object.values(modifiedValues).every(val => val.trim() === "")) {
+        showNotification({
+          message: "Por favor, rellena todos los campos",
+          type: "error",
+        });
         return;
       }
+
       const errors: string[] = await validateData(values, userType);
       if (errors.length !== 0) {
         setFormErrors(errors);
@@ -428,7 +433,6 @@ const RegisterScreen: React.FC = () => {
         body: JSON.stringify(modifiedValues),
       });
       const data = await response.json();
-      console.log(data);
       if (!response.ok) {
         if (data.errors) {
           if (data.errors.dni && !data.errors.dni.includes("format")) {
