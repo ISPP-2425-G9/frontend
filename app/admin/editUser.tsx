@@ -113,7 +113,7 @@ function EditUserScreen() {
     if (!userId) {
       return
     };
-    void fetchProfile();
+    await fetchProfile();
   }, [userId, isCustomer]);
 
   useFocusEffect(
