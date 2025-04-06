@@ -216,7 +216,7 @@ const RegisterScreen: React.FC = () => {
 
     const validateDni = (dni: string) => {
       const dniRegex = /^\d{8}[A-Z]$/;
-      if (!dniRegex.test(dni)){
+      if (!dniRegex.test(dni)) {
         {
           showNotification({
             message: "El DNI debe tener 8 números y una letra mayúscula",
@@ -236,11 +236,11 @@ const RegisterScreen: React.FC = () => {
     const validateNif = (nif: string) => {
       const nifRegex = /^[A-W]\d{7}[A-J0-9]$/;
       if (!nifRegex.test(nif)) {
-      showNotification({
-        message: "El NIF debe comenzar con una letra mayúscula, seguido de 7 números y un carácter de control.",
-        type: "error",
-      });
-      return false;
+        showNotification({
+          message: "El NIF debe comenzar con una letra mayúscula, seguido de 7 números y un carácter de control.",
+          type: "error",
+        });
+        return false;
       }
 
       const nifNumbers = nif.slice(1, 8).split('');
@@ -249,10 +249,10 @@ const RegisterScreen: React.FC = () => {
       const nifPairSum = parseInt(nifNumbers[1]) + parseInt(nifNumbers[3]) + parseInt(nifNumbers[5]);
       let nifImparSum = 0;
       for (let i = 0; i < nifNumbers.length; i += 2) {
-      const value = parseInt(nifNumbers[i]) * 2;
-      const digitsArray = value.toString().split("");
-      const sumDigits = digitsArray.reduce((sum, digit) => sum + parseInt(digit, 10), 0);
-      nifImparSum += sumDigits;
+        const value = parseInt(nifNumbers[i]) * 2;
+        const digitsArray = value.toString().split("");
+        const sumDigits = digitsArray.reduce((sum, digit) => sum + parseInt(digit, 10), 0);
+        nifImparSum += sumDigits;
       }
       const totalSum = (nifPairSum + nifImparSum) % 10;
       let nifControlCharValue = 0;
@@ -261,18 +261,18 @@ const RegisterScreen: React.FC = () => {
       }
 
       if (!isNaN(Number(nifControlChar))) {
-      return nifControlCharValue === parseInt(nifControlChar);
+        return nifControlCharValue === parseInt(nifControlChar);
       } else if (/^[A-W]$/.test(nifControlChar)) {
-      const nifLetters = "JABCDEFGHI";
-      const nifIndex = nifControlCharValue;
-      const expectedLetter = nifLetters.charAt(nifIndex);
-      return expectedLetter === nifControlChar;
+        const nifLetters = "JABCDEFGHI";
+        const nifIndex = nifControlCharValue;
+        const expectedLetter = nifLetters.charAt(nifIndex);
+        return expectedLetter === nifControlChar;
       } else {
-      showNotification({
-        message: "El carácter de control es inválido.",
-        type: "error",
-      });
-      return false;
+        showNotification({
+          message: "El carácter de control es inválido.",
+          type: "error",
+        });
+        return false;
       }
     }
 
@@ -379,10 +379,10 @@ const RegisterScreen: React.FC = () => {
       typeof values.password1 !== "string" ||
       values.password1.length < 6
     )
-    showNotification({
-      message: "La contraseña debe tener al menos 6 caracteres",
-      type: "error",
-    });
+      showNotification({
+        message: "La contraseña debe tener al menos 6 caracteres",
+        type: "error",
+      });
 
     if (values.password1 !== values.password2) {
       showNotification({
@@ -447,7 +447,11 @@ const RegisterScreen: React.FC = () => {
         throw new Error("No se recibió token de autenticación");
       }
       await AsyncStorage.setItem("authToken", data.token);
-      await login(data.id, data.token, data.roles, data.username, data.name);
+      void login(data.id, data.token, data.roles, data.username, data.name, data.experedPlanDate);
+      showNotification({
+        message: "Bienvenido",
+        type: "success",
+      });
       navigation.navigate("home" as never);
     } catch (error: any) {
       setFormErrors([error.message || error]);
@@ -499,11 +503,11 @@ const RegisterScreen: React.FC = () => {
                 }}
               />
               <ThemedText style={styles.registerText}>
-                        ¿Ya tienes una cuenta?{' '}
-                        <Pressable onPress={() => { navigation.navigate('login/index' as never) }}>
-                          <ThemedText style={styles.loginLink}>Inicia sesión</ThemedText>
-                        </Pressable>
-                      </ThemedText>
+                ¿Ya tienes una cuenta?{' '}
+                <Pressable onPress={() => { navigation.navigate('login/index' as never) }}>
+                  <ThemedText style={styles.loginLink}>Inicia sesión</ThemedText>
+                </Pressable>
+              </ThemedText>
             </View>
           </View>
         </Animated.View>
@@ -534,9 +538,9 @@ const RegisterScreen: React.FC = () => {
                     <View style={styles.pickerContainer}>
                       <Picker
                         style={[
-                                  styles.picker,
-                                  Platform.OS === 'web' ? { outline: 'none' } : {},
-                                ]}
+                          styles.picker,
+                          Platform.OS === 'web' ? { outline: 'none' } : {},
+                        ]}
                         selectedValue={formValues[field.name] || ""}
                         onValueChange={(value) => { setFormValues({ ...formValues, [field.name]: value }) }
                         }
@@ -749,15 +753,13 @@ const styles = StyleSheet.create({
   container: {
     fontFamily: GlobalStyles.font,
     flex: 1,
-    backgroundColor: GlobalStyles.white,
     paddingHorizontal: 20,
     alignSelf: 'center',
-    paddingTop: 20,
     width: '100%',
   },
   selectionContainer: {
     marginTop: '5%',
-    paddingHorizontal: 0,
+    paddingHorizontal: 20,
     paddingVertical: 10,
     backgroundColor: "#fff",
     borderRadius: 25,
@@ -783,8 +785,8 @@ const styles = StyleSheet.create({
   },
   formLabel: {
     fontFamily: GlobalStyles.font,
-    fontSize: 16, // Ajusta el tamaño según necesites
-    color: GlobalStyles.darkGrey, // Opcional: cambiar color
+    fontSize: 16,
+    color: GlobalStyles.darkGrey,
   },
   buttonBox: {
     flexDirection: "row",

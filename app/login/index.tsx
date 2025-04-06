@@ -147,12 +147,12 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: GlobalStyles.white,
     flex: 1,
-    marginTop: '5%',
     alignContent: 'center',
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
   formContainer: {
+    marginTop: '5%',
     paddingHorizontal: 20,
     paddingVertical: 10,
     backgroundColor: "#fff",
