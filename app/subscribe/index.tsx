@@ -11,7 +11,7 @@ import useAuth from '@/hooks/useAuth';
 const VALID_ROLES: string[] = ['CUSTOMER_FREE', 'CUSTOMER_PREMIUM', 'COMPANY_FREE', 'COMPANY_PREMIUM'];
 
 function PlanManagementView() {
-  const { roles, experedPlanDate } = useAuth();
+  const { roles, expiredPlanDate } = useAuth();
   const [role, setRole] = useState<string | null>(null);
   const [fechaExpiracion, setFechaExpiracion] = useState<string | null>(null);
 
@@ -20,8 +20,8 @@ function PlanManagementView() {
       const rolesUser = roles ?? [AUTHORITIES.ANONYMOUS];
       const foundRole = rolesUser.find((r: string) => VALID_ROLES.includes(r)) ?? null;
       setRole(foundRole);
-      const experedPlanDateStr = experedPlanDate?.toLocaleDateString("es-ES") ?? null
-      setFechaExpiracion(experedPlanDateStr);
+      const expiredPlanDateStr = expiredPlanDate?.toLocaleDateString("es-ES") ?? null
+      setFechaExpiracion(expiredPlanDateStr);
     };
     fetchUser();
   }, [roles]);

@@ -8,7 +8,7 @@ type UserType = {
   id: string;
   token: string;
   roles: AuthorityType[];
-  experedPlanDate: Date;
+  expiredPlanDate: Date;
 };
 
 export const useAuth = () => {
@@ -44,9 +44,9 @@ export const useAuth = () => {
     roles: AuthorityType[],
     username: string,
     name: string,
-    experedPlanDate: Date
+    expiredPlanDate: Date
   ) => {
-    const userData = { id, token, roles, username, name, experedPlanDate };
+    const userData = { id, token, roles, username, name, expiredPlanDate };
 
     try {
       setUser(userData);

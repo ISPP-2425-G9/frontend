@@ -16,7 +16,6 @@ import { withAuth } from "../_util/withAuth";
 import { useNotification } from '@/context/NotificationContext';
 import { ScrollView } from "react-native-gesture-handler";
 import PaymentModalObituary from "@/components/PaymentModalObituary";
-import SuccessModalObituary from "@/components/SuccessModalObituary";
 
 type RootStackParamList = {
   "obituaries/loadCertificate": {
@@ -385,10 +384,6 @@ function LoadCertificate() {
         amount={1.99}
         description="Pago por la creación de una esquela digital"
         onSuccess={handlePaymentSuccess}
-      />
-      <SuccessModalObituary
-        visible={showSuccessModal}
-        onClose={handleCloseSuccessModal}
       />
     </>
   );
