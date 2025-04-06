@@ -82,8 +82,6 @@ function EsquelaCustomizer() {
 
   const [isMine, setIsMine] = useState(Boolean);
 
-  console.log("isMine", isMine)
-  console.log("is_mine", is_mine)
 
   const [is_sended, setIsSended] = useState(false);
 

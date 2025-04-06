@@ -50,15 +50,10 @@ function LoadCertificate() {
   const [dniError, setDniError] = useState<string>("");
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-  const [paymentMethodId, setPaymentMethodId] = useState<string | null>(null);
 
   // Nuevos estados para el pago
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  const json = route.params?.jsonData;
-
 
   const is_mine = route.params?.is_mine;
   const [formData, setFormData] = useState({
@@ -202,9 +197,8 @@ function LoadCertificate() {
   };
 
   const handlePaymentSuccess = async (paymentMethod: { id: string }) => {
-    setPaymentMethodId(paymentMethod.id);
     setShowPaymentModal(false);
-    await handleSubmit();
+    await handleSubmit(paymentMethod.id);
     setShowSuccessModal(true);
   };
 
@@ -222,7 +216,7 @@ function LoadCertificate() {
   };
 
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (paymentMethodId?: string) => {
     const authToken = await AsyncStorage.getItem("authToken");
     const jsonData = route.params.jsonData ?? '';
     const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
@@ -245,7 +239,6 @@ function LoadCertificate() {
         requestBody.paymentMethodId = paymentMethodId;
       }
       
-      console.log("Request body:", JSON.stringify(requestBody));
       
       const response = await fetch(BACKEND_API + '/api/obituary/create', {
         method: "POST",
