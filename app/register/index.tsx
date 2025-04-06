@@ -206,7 +206,6 @@ const RegisterScreen: React.FC = () => {
     const errors: string[] = [];
 
     const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const nifRegex = /^[A-Z]\d{7}[A-J0-9]$/;
     const zipCodeRegex = /^\d{5}$/;
     const phoneRegex = /^\d{9}$/;
 
@@ -234,13 +233,54 @@ const RegisterScreen: React.FC = () => {
       return dniLetter === expectedLetter;
     };
 
-    
+    const validateNif = (nif: string) => {
+      const nifRegex = /^[A-W]\d{7}[A-J0-9]$/;
+      if (!nifRegex.test(nif)) {
+      showNotification({
+        message: "El NIF debe comenzar con una letra mayúscula, seguido de 7 números y un carácter de control.",
+        type: "error",
+      });
+      return false;
+      }
+
+      const nifNumbers = nif.slice(1, 8).split('');
+      const nifControlChar = nif.charAt(8);
+
+      const nifPairSum = parseInt(nifNumbers[1]) + parseInt(nifNumbers[3]) + parseInt(nifNumbers[5]);
+      let nifImparSum = 0;
+      for (let i = 0; i < nifNumbers.length; i += 2) {
+      const value = parseInt(nifNumbers[i]) * 2;
+      const digitsArray = value.toString().split("");
+      const sumDigits = digitsArray.reduce((sum, digit) => sum + parseInt(digit, 10), 0);
+      nifImparSum += sumDigits;
+      }
+      const totalSum = (nifPairSum + nifImparSum) % 10;
+      let nifControlCharValue = 0;
+      if (totalSum !== 0) {
+        nifControlCharValue = 10 - totalSum;
+      }
+
+      if (!isNaN(Number(nifControlChar))) {
+      return nifControlCharValue === parseInt(nifControlChar);
+      } else if (/^[A-W]$/.test(nifControlChar)) {
+      const nifLetters = "JABCDEFGHI";
+      const nifIndex = nifControlCharValue;
+      const expectedLetter = nifLetters.charAt(nifIndex);
+      return expectedLetter === nifControlChar;
+      } else {
+      showNotification({
+        message: "El carácter de control es inválido.",
+        type: "error",
+      });
+      return false;
+      }
+    }
 
     if (uType === "Empresa") {
       if (
         !values.nif ||
         typeof values.nif !== "string" ||
-        !nifRegex.test(values.nif)
+        !validateNif(values.nif)
       ) showNotification({
         message: "El NIF no es válido",
         type: "error",
@@ -292,9 +332,10 @@ const RegisterScreen: React.FC = () => {
           "DESPACHO_DE_ABOGADOS",
           "OTRO",
         ].includes(values.companyType)
-      ) {
-        errors.push("El tipo de empresa no es válido.");
-      }
+      ) showNotification({
+        message: "El tipo de empresa no es válido",
+        type: "error",
+      });
     }
     if (uType === "Cliente") {
       if (
