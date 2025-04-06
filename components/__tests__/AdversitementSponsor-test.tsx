@@ -19,7 +19,7 @@ describe('AdvertisementSponsor Component', () => {
     const { getByText, getByTestId } = render(<AdvertisementSponsor sponsor={mockSponsor} />);
 
     expect(getByText(mockSponsor.name)).toBeTruthy();
-    expect(getByText(`📧 ${mockSponsor.email}`)).toBeTruthy();
+    expect(getByText(`✉️ ${mockSponsor.email}`)).toBeTruthy();
     expect(getByText(`📞 ${mockSponsor.telephone}`)).toBeTruthy();
     expect(getByText(`📍 ${mockSponsor.address}, ${mockSponsor.city}, ${mockSponsor.zipCode}`)).toBeTruthy();
     expect(getByText(`🆔 NIF: ${mockSponsor.nif}`)).toBeTruthy();
