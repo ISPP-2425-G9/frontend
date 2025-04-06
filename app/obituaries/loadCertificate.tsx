@@ -226,16 +226,6 @@ function LoadCertificate() {
     const authToken = await AsyncStorage.getItem("authToken");
     const jsonData = route.params.jsonData ?? '';
     const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
-    console.log("adios", jsonData);
-    
-    if (!is_mine && !paymentMethodId) {
-      showNotification({
-        message: "Debes realizar el pago para crear una esquela para otra persona",
-        type: "error",
-        duration: 2500,
-      });
-      return;
-    }
     
     const dataToSend = {
       ...JSON.parse(jsonData),
