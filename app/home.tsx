@@ -55,9 +55,10 @@ export default function HomeScreen() {
       </View>
       <ImageCarousel />
       <View style={styles.featuresContainer}>
-        <ThemedText style={styles.featuresTitle}>
-          ¿Por qué elegirnos?
-        </ThemedText>
+        <View style={styles.featuresTitleContainer}>
+          <ThemedText style={styles.featuresTitle}>¿Por qué elegirnos?</ThemedText>
+          <View style={styles.activeIndicator} />
+        </View>
         <View style={styles.featuresGrid}>
           {features.map((feature, index) => (
             <FeatureCard
@@ -159,16 +160,19 @@ const ImageCarousel: React.FC = () => {
 };
 
 const videoItems = [
-  { videoId: "WHBSjduVhoo", title: "PRUEBA 1" },
-  { videoId: "A_VFqpbJ5Yw", title: "PRUEBA 2" },
-  { videoId: "KkkRXSZX0lg?si=caXEZSRZN4IG8Gjk", title: "PRUEBA 3" },
+  { videoId: "WHBSjduVhoo", title: "Para clientes" },
+  { videoId: "WHBSjduVhoo", title: "Para empresas" },
+  { videoId: "WHBSjduVhoo", title: "Para inversores" },
 ];
 
 const GallerySection: React.FC = () => {
   return (
     <>
       <View style={{ height: 40 }} />
-      <ThemedText style={styles.featuresTitle}>Galería</ThemedText>
+      <View style={styles.featuresTitleContainer}>
+        <ThemedText style={styles.featuresTitle}>Galería</ThemedText>
+        <View style={styles.activeIndicator} />
+      </View>
       <View style={styles.galleryContainer}>
         <View style={styles.galleryGrid}>
           {videoItems.map((item, index) => (
@@ -376,7 +380,10 @@ export const TeamMemberCard: React.FC<{ member: TeamMember }> = ({ member }) => 
 export const TeamMembersSection: React.FC = () => {
   return (
     <>
-      <ThemedText style={[styles.featuresTitle]}>Sobre nosotros</ThemedText>
+      <View style={styles.featuresTitleContainer}>
+        <ThemedText style={styles.featuresTitle}>Sobre nosotros</ThemedText>
+        <View style={styles.activeIndicator} />
+      </View>
       <ThemedText style={[styles.subtitle]}>Conoce al equipo detrás de CARONTE</ThemedText>
       <View style={styles.introTextContainer}>
         <ThemedText style={[styles.introText]}>
@@ -542,12 +549,22 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
     backgroundColor: GlobalStyles.lightGrey,
   },
+  featuresTitleContainer: {
+    alignSelf: "center",
+  },
   featuresTitle: {
+    width: "auto",
     fontSize: 24,
     fontFamily: GlobalStyles.fontBold,
-    color: GlobalStyles.darkGrey,
+    color: GlobalStyles.blue,
     textAlign: "center",
+  },
+  activeIndicator: {
+    borderBottomWidth: 2,
+    borderBottomColor: GlobalStyles.blue,
+    marginTop: 10,
     marginBottom: 20,
+    borderRadius: 100,
   },
   featuresGrid: {
     flexDirection: "row",
@@ -650,7 +667,7 @@ const styles = StyleSheet.create({
   videoCaption: {
     width: "100%",
     marginBottom: 10,
-    fontSize: 16,
+    fontSize: 18,
     color: GlobalStyles.darkGrey,
     textAlign: 'center',
   },
@@ -665,9 +682,9 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     overflow: 'hidden',
     aspectRatio: 16 / 9,
-    width: document.documentElement.clientWidth > 800 ? 400 : 300,
-    maxWidth: 600,                
-    alignSelf: "center",         
+    width: 400,
+    maxWidth: 600,
+    alignSelf: "center",
     shadowColor: "#000",
     shadowOpacity: 0.5,
     shadowRadius: 10,
