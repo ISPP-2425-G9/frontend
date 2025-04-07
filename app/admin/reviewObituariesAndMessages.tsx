@@ -94,9 +94,38 @@ function ReviewObituairesAndMessagesView() {
     );
   }
 
-  const handleDelete = (id: number) => {
-    console.log(`Eliminar ${showMessages ? 'mensaje' : 'esquela'} con ID: ${id}`);
+  const handleDelete = async (id: number) => {
+    try {
+      const authToken = await AsyncStorage.getItem('authToken');
+      if (!authToken) throw new Error('Token no disponible');
+  
+      const url = showMessages
+        ? `${BACKEND_API}/api/messages/${id}`
+        : `${BACKEND_API}/api/obituary/delete/${id}`;
+  
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error('Error al eliminar');
+      }
+  
+      if (showMessages) {
+        setMessages((prev) => prev.filter((msg) => msg.id !== id));
+      } else {
+        setObituaries((prev) => prev.filter((obs) => obs.id !== id));
+      }
+  
+      console.log(`Elemento eliminado correctamente. ID: ${id}`);
+    } catch (error) {
+      console.error('Error al eliminar:', error);
+    }
   };
+  
 
   const renderMessageRow = ({ item }: { item: Message }) => (
     <View style={styles.tableRow}>
