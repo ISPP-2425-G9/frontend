@@ -419,10 +419,7 @@ const styles = StyleSheet.create({
   input: {
     width: "100%",
     height: 40,
-    borderWidth: 1,
-    borderColor: "#ccc",
     paddingHorizontal: 8,
-    marginBottom: 16,
     fontSize: 16,
   },
   divider: {
