@@ -11,6 +11,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome6";
+import { useNotification } from "@/context/NotificationContext";
 
 const Contact: React.FC = () => {
   const { width } = useWindowDimensions();
@@ -19,11 +20,11 @@ const Contact: React.FC = () => {
   const detailsAnim = useRef(new Animated.Value(0)).current;
   const extraInfoAnim = useRef(new Animated.Value(0)).current;
   const socialAnim = useRef(new Animated.Value(0)).current;
+  const { showNotification } = useNotification();
 
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [message, setMessage] = useState<string>("");
-  const [formErrors, setFormErrors] = useState<string[]>([]);
 
   useEffect(() => {
     Animated.timing(titleAnim, {
@@ -63,14 +64,32 @@ const Contact: React.FC = () => {
   }, []);
 
   const handleSubmit = () => {
-    setFormErrors([]);
-    const errors: string[] = [];
-    if (!name.trim()) errors.push("El nombre es obligatorio.");
-    if (!email.trim()) errors.push("El email es obligatorio.");
-    if (!message.trim()) errors.push("El mensaje es obligatorio.");
-
-    if (errors.length > 0) {
-      setFormErrors(errors);
+    if (!name.trim()) {
+      showNotification({
+        message: "El nombre es obligatorio.",
+        type: "error",
+      });
+      return;
+    }
+    if (!email.trim()) {
+      showNotification({
+        message: "El email es obligatorio.",
+        type: "error",
+      });
+      return;
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      showNotification({
+        message: "El email no es válido.",
+        type: "error",
+      });
+      return;
+    }
+    if (!message.trim()) {
+      showNotification({
+        message: "El mensaje es obligatorio.",
+        type: "error",
+      });
       return;
     }
 
@@ -90,8 +109,7 @@ const Contact: React.FC = () => {
           Contáctanos
         </Animated.Text>
         <Animated.Text style={[styles.subtitle, { opacity: subtitleAnim }]}>
-          ¿Tienes alguna duda, sugerencia o simplemente quieres saludarnos?
-          {"\n"}
+          ¿Tienes alguna duda, sugerencia o simplemente quieres saludarnos?{"\n"}
           No dudes en ponerte en contacto con nosotros.
         </Animated.Text>
 
@@ -141,15 +159,6 @@ const Contact: React.FC = () => {
                 value={message}
                 onChangeText={setMessage}
               />
-              {formErrors.length > 0 && (
-                <View style={styles.errorContainer}>
-                  {formErrors.map((error, index) => (
-                    <Text key={index} style={styles.errorText}>
-                      {error}
-                    </Text>
-                  ))}
-                </View>
-              )}
               <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                 <Text style={styles.buttonText}>Enviar</Text>
               </TouchableOpacity>
@@ -306,16 +315,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "600",
-  },
-  errorContainer: {
-    backgroundColor: "#ffe6e6",
-    padding: 10,
-    marginBottom: 15,
-    borderRadius: 4,
-  },
-  errorText: {
-    color: "red",
-    fontSize: 14,
   },
   extraInfoContainer: {
     marginTop: 30,
