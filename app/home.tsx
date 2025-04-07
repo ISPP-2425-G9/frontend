@@ -1,4 +1,5 @@
 import CustomButton from "@/components/CustomButton";
+import Footer from "@/components/Footer";
 import LineBreak from "@/components/LineBreak";
 import Logo from "@/components/Logo";
 import { GlobalStyles } from "@/constants/Colors";
@@ -68,6 +69,7 @@ export default function HomeScreen() {
             </Text>
           </View>
         </View>
+        
       </View>
 
       {isAuthenticated && userRoles?.includes("CUSTOMER") && (
@@ -88,6 +90,9 @@ export default function HomeScreen() {
           </View>
         </View>
       )}
+      <View style={{ width: '100%' }}>
+        <Footer />
+      </View>
     </ScrollView>
   );
 }
@@ -95,7 +100,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignItems: "center",
     paddingTop: 20,
   },
