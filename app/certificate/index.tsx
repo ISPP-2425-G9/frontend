@@ -109,7 +109,10 @@ function LoadCertificate() {
     }
     if (!validateDni(dni)) {
       setDni("");
-      setDniError("El DNI no es válido. Debe tener el formato 12345678A.");
+      showNotification({
+        message: "El DNI no es válido. Debe tener el formato 12345678A.",
+        type: "error",
+      });
       return;
     }
     setModalMessage("Una vez subido el certificado de defunción un administrador lo revisará. Si todo es correcto, se enviarán las esquelas y/o mensajes asociados al certificado. ¿Estás seguro de que quieres continuar?");
