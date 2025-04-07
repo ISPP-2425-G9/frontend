@@ -66,8 +66,8 @@ const PlanCard: React.FC<PlanCardProps> = ({
   useEffect(() => {
     const isPremium = Boolean(roles?.some(r => r.includes('PREMIUM')));  
     const isCustomer = Boolean(roles?.some(r => r.includes('CUSTOMER')));
-    setIsPremiun(isPremium || false);
-    setIsCustomer(isCustomer || true);
+    setIsPremiun(isPremium);
+    setIsCustomer(isCustomer);
     setExpirationDate(expiredPlanDate?.toLocaleDateString("es-ES") || null)
     const details = getPlanDetails(isCustomer, isPremium);
     if (details) {
