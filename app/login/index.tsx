@@ -15,12 +15,13 @@ const LoginScreen: React.FC = () => {
   const navigation = useNavigation();
   const { showNotification } = useNotification();
   const { login } = useAuth();
-  const [errorMessage, setErrorMessage] = useState<string>("");
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
+  const [formKey, setFormKey] = useState(0);
 
   useFocusEffect(
     React.useCallback(() => {
+      setFormKey(prev => prev + 1);
       document.title = 'Iniciar sesión';
       Animated.parallel([
         Animated.timing(fadeAnim, {
@@ -38,9 +39,11 @@ const LoginScreen: React.FC = () => {
   );
 
   const handleSubmit = async (values: Record<string, string>) => {
-
     if (!values.identifier || !values.password) {
-      setErrorMessage('Por favor, rellena todos los campos');
+      showNotification({
+        message: "Por favor, rellena todos los campos",
+        type: "error",
+      });
       return;
     }
 
@@ -57,22 +60,37 @@ const LoginScreen: React.FC = () => {
         throw new Error('Credenciales incorrectas.');
       }
       const data = await response.json();
-      void login(data.id, data.token, data.roles, data.username, data.name, data.experedPlanDate);
+      await login(data.id, data.token, data.roles, data.username, data.name, data.expiredPlanDate);
       navigation.navigate('home' as never);
       showNotification({
         message: "Has iniciado sesión correctamente",
         type: "success",
       });
     } catch (error: any) {
-      setErrorMessage('Credenciales incorrectas. Por favor, inténtalo de nuevo.');
+      showNotification({
+        message: "Credenciales incorrectas",
+        type: "error",
+      });
     }
   };
 
   const loginFields: InputField[] = [
-    { name: 'identifier', placeholder: 'NIF, DNI o email', keyboardType: 'default', description: 'Introduce tu NIF, DNI o email' },
-    { name: 'password', placeholder: '******', keyboardType: 'default', secureTextEntry: true, description: 'Introduce tu contraseña' },
+    {
+      name: 'identifier',
+      placeholder: 'NIF, DNI o email',
+      keyboardType: 'default',
+      description: 'Introduce tu NIF, DNI o email',
+      maxLength: 50
+    },
+    {
+      name: 'password',
+      placeholder: '******',
+      keyboardType: 'default',
+      secureTextEntry: true,
+      description: 'Introduce tu contraseña',
+      maxLength: 36
+    },
   ];
-
 
   return (
     <View style={styles.container}>
@@ -86,17 +104,14 @@ const LoginScreen: React.FC = () => {
         ]}
       >
         <ThemedText style={styles.ThemedText}>Bienvenido</ThemedText>
-        <ThemedText style={styles.subTitle}>Inicia sesión para continuar</ThemedText>
         <TextInputArraysForm
+          key={formKey}
           title=""
           inputs={loginFields}
           onSubmit={(values) => { handleSubmit(values as Record<string, string>) }}
           buttonText="Iniciar sesión"
           style={styles.formStyle}
         />
-        {errorMessage !== "" && (
-          <ThemedText style={styles.errorMessage}>{errorMessage}</ThemedText>
-        )}
         <ThemedText style={styles.registerText}>
           ¿Aún no tienes cuenta?{' '}
           <Pressable onPress={() => { navigation.navigate('register/index' as never) }}>
@@ -115,35 +130,29 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: GlobalStyles.darkGrey,
     marginTop: 20,
-    marginBottom: 5,
     marginHorizontal: 20,
-  },
-  subTitle: {
-    color: GlobalStyles.darkGrey,
-    fontSize: 14,
-    fontWeight: 'normal',
-    textAlign: 'center',
   },
   registerText: {
     color: GlobalStyles.darkGrey,
+    fontFamily: GlobalStyles.font,
     fontSize: 14,
     textAlign: 'center',
-    marginTop: 10,
+    marginBottom: 10,
   },
   registerLink: {
     color: GlobalStyles.blue,
     fontSize: 14,
-    textAlign: 'center',
+    textDecorationLine: 'underline',
   },
   container: {
     backgroundColor: GlobalStyles.white,
     flex: 1,
-    marginTop: '5%',
     alignContent: 'center',
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
   formContainer: {
+    marginTop: '5%',
     paddingHorizontal: 20,
     paddingVertical: 10,
     backgroundColor: "#fff",
@@ -162,13 +171,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: '100%',
   },
-  errorMessage: {
-    color: 'red',
-    textAlign: 'center',
-    marginTop: 10,
-    fontSize: 14,
-  },
 });
-
 
 export default withAuth(LoginScreen, [AUTHORITIES.ANONYMOUS]);

@@ -3,14 +3,12 @@ import CustomModal from "@/components/CustomModal";
 import { CustomTextInput } from "@/components/CustomTextInput";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
+import { useNotification } from '@/context/NotificationContext';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationProp, useFocusEffect, useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { useCallback, useState } from "react";
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { AUTHORITIES } from "../_util/Authorities";
-import { withAuth } from "../_util/withAuth";
-import { useNotification } from '@/context/NotificationContext';
 import { ScrollView } from "react-native-gesture-handler";
 
 type RootStackParamList = {
@@ -68,7 +66,7 @@ function LoadCertificate() {
       setCertificateImage(null);
       setFileName(null);
       setDniError("");
-      document.title = 'Cargar certificado';
+      document.title = 'Subir certificado';
     }, [])
   );
 
@@ -89,7 +87,15 @@ function LoadCertificate() {
 
   const validateDni = (dni: string) => {
     const dniRegex = /^\d{8}[A-Z]$/;
-    return dniRegex.test(dni);
+    if (!dniRegex.test(dni)){
+      return false
+    }
+    const dniNumber = dni.slice(0, 8);
+    const dniLetter = dni.charAt(8);
+    const dniLetters = "TRWAGMYFPDXBNJZSQVHLCKE";
+    const dniIndex = parseInt(dniNumber, 10) % 23;
+    const expectedLetter = dniLetters.charAt(dniIndex);
+    return dniLetter === expectedLetter;
   };
 
   const showConfirmationModal = async () => {
@@ -106,7 +112,7 @@ function LoadCertificate() {
       setDniError("El DNI no es válido. Debe tener el formato 12345678A.");
       return;
     }
-    setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido. Podrá modificar su esquela hasta que sea enviada a todos los contactos que usted eligió.");
+    setModalMessage("Una vez subido el certificado de defunción un administrador lo revisará. Si todo es correcto, se enviarán las esquelas y/o mensajes asociados al certificado. ¿Estás seguro de que quieres continuar?");
     setModalVisible(true);
   };
 
@@ -299,10 +305,11 @@ const styles = StyleSheet.create({
   dataContainer: {
     flex: 1,
     justifyContent: "flex-start",
-    alignItems: "center",
+    alignItems: "stretch",
     width: "90%",
     maxWidth: 500,
     padding: 20,
+    gap: 10,
   },
   title: {
     fontSize: 30,
@@ -317,13 +324,9 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   input: {
-    width: "100%",
-    height: 40,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    paddingHorizontal: 8,
-    marginBottom: 16,
-    fontSize: 16,
+    width: '100%',
+    flex: 1,
+
   },
   buttonContainer: {
     alignItems: "center",
@@ -338,8 +341,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 14,
     fontWeight: "bold",
+    textAlign: "center",
   },
   imagePreview: {
+    alignContent: "center",
+    alignSelf: "center",
     width: "30%",
     height: "30%",
     marginTop: 10,
@@ -354,10 +360,12 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: GlobalStyles.blue,
     paddingHorizontal: 25,
-    width: '13%',
+    width: width > 600 ? '20%'  :'30%',
+    height: width > 600 ? 40 : '120%',
     borderRadius: 8,
     alignItems: "center",
     alignSelf: "center",
+    justifyContent: "center",
   },
   modalStyle: {
     backgroundColor: "#fff",
@@ -369,7 +377,8 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
     width: width > 600 ? "40%" : "80%",
-    height: width > 600 ? "15%" : "32%",
+    minHeight: 200,
+    justifyContent: "space-between",
   },
   successModal: {
     backgroundColor: 'white',
@@ -405,6 +414,7 @@ const styles = StyleSheet.create({
   acceptedFormats: {
     marginTop: 8,
     fontSize: 16,
+    textAlign: 'center',
     color: GlobalStyles.darkGrey,
     fontStyle: 'italic',
   },
@@ -420,7 +430,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 5,
   },
-
 });
 
-export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER, AUTHORITIES.ANONYMOUS]);
+export default LoadCertificate;

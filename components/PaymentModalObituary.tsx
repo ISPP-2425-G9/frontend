@@ -1,27 +1,25 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Dimensions, Image } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Image } from 'react-native';
 import { GlobalStyles } from '@/constants/Colors';
 import CustomModal from '@/components/CustomModal';
 import CustomButton from '@/components/CustomButton';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, useStripe, useElements, CardNumberElement, CardExpiryElement, CardCvcElement } from '@stripe/react-stripe-js';
-import { BACKEND_API } from '@/constants/Mysc';
 import { STRIPE_PUBLISHABLE_KEY } from '@/constants/Stripe';
 import { useAuth } from '@/app/_util/useAuth';
 import SecureField from './SecureField';
-import SuccessModal from './SuccessModal';
+import SuccessModalObituary from './SuccessModalObituary';
 import useIsDesktop from '@/hooks/useResponsiveLayout';
 
-interface PaymentModalProps {
+interface PaymentModalObituaryProps {
   visible: boolean;
   onClose: () => void;
   amount: number;
-  planType: string;
   description: string;
   onSuccess?: () => void;
 }
 
-const CheckoutForm: React.FC<PaymentModalProps> = ({
+const CheckoutForm: React.FC<PaymentModalObituaryProps> = ({
   visible,
   onClose,
   amount,
@@ -32,7 +30,7 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
   const [showSuccess, setShowSuccess] = useState(false);
   const stripe = useStripe();
   const elements = useElements();
-  const { updateUser, getUserFromStorage } = useAuth();
+  const { getUserFromStorage } = useAuth();
   const { isMobile } = useIsDesktop();
 
   const handlePayment = async () => {
@@ -56,44 +54,6 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
 
       if (paymentMethod) {
         try {
-          const userData = await getUserFromStorage();
-          const authToken = userData?.token;
-          const userId = userData?.id;
-
-          if (!authToken) {
-            throw new Error('No se encontró el token de autenticación');
-          }
-
-          if (!userId) {
-            throw new Error('No se encontró el ID de usuario');
-          }
-
-          const response = await fetch(`${BACKEND_API}/api/plans/${userId}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${authToken}`,
-            },
-            body: JSON.stringify({
-              paymentMethodId: paymentMethod.id,
-              planType: 'PREMIUM',
-            }),
-          });
-
-          if (!response.ok) {
-            const errorData = await response.text();
-            console.error('Error en la respuesta:', errorData);
-            throw new Error('Error al actualizar el plan');
-          }
-
-          const responseData = await response.json();
-
-          await updateUser({
-            "token": responseData.token,
-            "roles": responseData.roles,
-            "expiredPlanDate": responseData.expiredPlanDate,
-          });
-
           onSuccess?.();
           setShowSuccess(true);
           onClose();
@@ -142,7 +102,7 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
       >
         <View style={styles.container}>
           <Text style={styles.description}>{description}</Text>
-          <Text style={styles.amount}>{amount.toFixed(2)}€/mes</Text>
+          <Text style={styles.amount}>{amount.toFixed(2)}€</Text>
 
           <View style={styles.cardContainer}>
             <SecureField 
@@ -191,14 +151,14 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
           )}
         </View>
       </CustomModal>
-      <SuccessModal visible={showSuccess} onClose={handleSuccessClose} />
+      <SuccessModalObituary visible={showSuccess} onClose={handleSuccessClose} />
     </>
   );
 };
 
 const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 
-const PaymentModal: React.FC<PaymentModalProps> = (props) => (
+const PaymentModalObituary: React.FC<PaymentModalObituaryProps> = (props) => (
   <Elements stripe={stripePromise}>
     <CheckoutForm {...props} />
   </Elements>
@@ -302,4 +262,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PaymentModal;
+export default PaymentModalObituary;

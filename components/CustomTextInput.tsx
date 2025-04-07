@@ -1,39 +1,83 @@
-import React from 'react';
-import { TextInput, StyleSheet, TextInputProps } from 'react-native';
 import { GlobalStyles } from '@/constants/Colors';
+import { AntDesign } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import { Platform, StyleSheet, TextInput, TextInputProps, TouchableOpacity, View } from 'react-native';
 
 type CustomTextInputProps = TextInputProps & {
   style?: object;
   placeholder?: string;
+  showPasswordToggle?: boolean;
 };
 
+export const CustomTextInput: React.FC<CustomTextInputProps> = ({
+  style,
+  placeholder,
+  secureTextEntry,
+  showPasswordToggle = true,
+  ...props
+}) => {
+  const [hidePassword, setHidePassword] = useState(secureTextEntry || false);
+  const [isFocused, setIsFocused] = useState(false);
 
-
-export const CustomTextInput: React.FC<CustomTextInputProps> = ({ style, placeholder, ...props }) => {
   return (
-    <TextInput
-      style={[styles.input, style]}
-      placeholder={placeholder}
-      placeholderTextColor={GlobalStyles.darkGrey}
-      {...props}
-    />
+    <View style={[
+      styles.container,
+      isFocused && styles.containerFocused,
+    ]}>
+      <TextInput
+        style={[
+          styles.input,
+          style,
+          Platform.OS === 'web' ? { outline: 'none' } : {},
+        ]}
+        placeholder={placeholder}
+        placeholderTextColor={GlobalStyles.darkGrey}
+        secureTextEntry={secureTextEntry ? hidePassword : false}
+        selectionColor={GlobalStyles.lightGrey}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        {...props}
+      />
+      {secureTextEntry && showPasswordToggle && (
+        <TouchableOpacity
+          style={styles.iconContainer}
+          onPress={() => setHidePassword(!hidePassword)}
+        >
+          <AntDesign name={hidePassword ? 'eyeo' : 'eye'} size={24} color={GlobalStyles.grey} />
+        </TouchableOpacity>
+      )}
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 15,
+    backgroundColor: GlobalStyles.lightGrey,
+  },
   input: {
     fontFamily: GlobalStyles.font,
     fontSize: 16,
-    width: '100%',
+    flex: 1,
     minWidth: 200,
-    height: 40,
-    borderColor: GlobalStyles.lightGrey,
-    borderWidth: 1,
-    borderRadius: 15,
+    height: 30,
     paddingHorizontal: 10,
     marginVertical: 7.5,
-    backgroundColor: GlobalStyles.lightGrey,
     color: GlobalStyles.darkGrey,
+  },
+  iconContainer: {
+    padding: 5,
+    marginRight: '1%',
+  },
+  containerFocused: {
+    borderWidth: 2,
+    backgroundColor: GlobalStyles.white,
+    borderColor: GlobalStyles.blue,
+    shadowColor: GlobalStyles.blue,
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
   },
 });
 

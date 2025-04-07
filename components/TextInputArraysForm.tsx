@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import CustomTextInput from './CustomTextInput';
-import { AntDesign } from '@expo/vector-icons';
 import { GlobalStyles } from '@/constants/Colors';
+import { AntDesign } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import React, { useState } from 'react';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import CustomTextInput from './CustomTextInput';
 import { ThemedText } from './ThemedText';
 
 export interface InputField {
@@ -13,6 +13,7 @@ export interface InputField {
   secureTextEntry?: boolean;
   description?: string;
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'number-pad' | 'decimal-pad';
+  maxLength?: number;
 }
 
 interface CustomFormProps {
@@ -86,24 +87,28 @@ const TextInputArraysForm: React.FC<CustomFormProps> = ({
       <Text style={styles.title}>{title}</Text>
       {description && <Text style={styles.description}>{description}</Text>}
       <View style={styles.inputsWrapper}>
-        {inputs.map((input) => (
-          <View key={input.name} style={styles.inputContainer}>
-            <ThemedText>{input.description}</ThemedText>
-            <CustomTextInput
-              placeholder={input.placeholder}
-              style={[styles.input, input.style]}
-              secureTextEntry={input.secureTextEntry}
-              keyboardType={input.keyboardType || 'default'}
-              onChangeText={(value) => {handleChange(input.name, value)}}
-              value={formValues[input.name] || ''}
-            />
-          </View>
-        ))}
+        {inputs.map((input, index) => {
+          return (
+            <View key={input.name} style={styles.inputContainer}>
+              <ThemedText>{input.description}</ThemedText>
+              <CustomTextInput
+                placeholder={input.placeholder}
+                style={[styles.input, input.style]}
+                secureTextEntry={input.secureTextEntry}
+                keyboardType={input.keyboardType || 'default'}
+                onChangeText={(value) => handleChange(input.name, value)}
+                value={formValues[input.name] || ''}
+                maxLength={input.maxLength}
+                onSubmitEditing={handleSubmit}
+              />
+            </View>
+          );
+        })}
       </View>
 
       {imageFields.map((field) => (
         <View key={field} style={styles.imageContainer}>
-          <TouchableOpacity style={styles.uploadButton} onPress={() => {pickImage(field)}}>
+          <TouchableOpacity style={styles.uploadButton} onPress={() => { pickImage(field) }}>
             <Text style={styles.buttonText}>Seleccionar {field}</Text>
           </TouchableOpacity>
           {images[field] && <Image source={{ uri: images[field] }} style={styles.imagePreview} />}
@@ -119,6 +124,8 @@ const TextInputArraysForm: React.FC<CustomFormProps> = ({
 
 const styles = StyleSheet.create({
   container: {
+    fontFamily: GlobalStyles.font,
+    fontSize: 14,
     padding: 20,
     borderRadius: 10,
     backgroundColor: '#fff',
@@ -136,13 +143,13 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   title: {
-    fontSize: 18,
+    fontSize: 9,
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'center',
   },
   description: {
-    fontSize: 14,
+    fontSize: 9,
     color: '#666',
     marginBottom: 15,
     textAlign: 'center',
@@ -153,6 +160,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     width: '90%',
+    marginVertical: 5,
     marginBottom: 10,
   },
   input: {
@@ -182,7 +190,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   imagePreview: {

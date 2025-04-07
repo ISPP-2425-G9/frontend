@@ -62,13 +62,13 @@ const PlanCard: React.FC<PlanCardProps> = ({
   const [borderColor, setBorderColor] = useState('');
   const [backgroundColor, setBackgroundColor] = useState('');
 
-  const { roles, experedPlanDate } = useAuth();
+  const { roles, expiredPlanDate } = useAuth();
   useEffect(() => {
     const isPremium = Boolean(roles?.some(r => r.includes('PREMIUM')));  
     const isCustomer = Boolean(roles?.some(r => r.includes('CUSTOMER')));
-    setIsPremiun(isPremium || false);
-    setIsCustomer(isCustomer || true);
-    setExpirationDate(experedPlanDate?.toLocaleDateString("es-ES") || null)
+    setIsPremiun(isPremium);
+    setIsCustomer(isCustomer);
+    setExpirationDate(expiredPlanDate?.toLocaleDateString("es-ES") || null)
     const details = getPlanDetails(isCustomer, isPremium);
     if (details) {
       setTitle(details.title || '');
@@ -78,7 +78,7 @@ const PlanCard: React.FC<PlanCardProps> = ({
       setBorderColor(details.borderColor || '');
       setBackgroundColor(details.backgroundColor || '');
     }
-  }, [roles, experedPlanDate]);
+  }, [roles, expiredPlanDate]);
 
 
   const getPlanDetails = (isCustomer: boolean, isPremium: boolean) => {
@@ -91,7 +91,7 @@ const PlanCard: React.FC<PlanCardProps> = ({
         - Publicidad destacada en búsquedas.
         `,
         price: '9.99€/mes',
-        nextPayment: expirationDate,
+        nextPayment: isPremium ? expirationDate: "",
         borderColor: GlobalStyles.red,
         backgroundColor: isPremium ? GlobalStyles.lightGrey : GlobalStyles.white,
       };
@@ -108,7 +108,7 @@ const PlanCard: React.FC<PlanCardProps> = ({
         - Tranquilidad y seguridad garantizadas.
         `,
         price: '0.99€/mes',
-        nextPayment: expirationDate,
+        nextPayment: isPremium ? expirationDate: "",
         borderColor: GlobalStyles.blue,
         backgroundColor: isPremium ? GlobalStyles.lightGrey : GlobalStyles.white,
       };
@@ -174,7 +174,7 @@ const PlanCard: React.FC<PlanCardProps> = ({
       await updateUser({
         "token": responseData.token,
         "roles": responseData.roles,
-        "experedPlanDate": responseData.experedPlanDate,
+        "expiredPlanDate": responseData.expiredPlanDate,
       });
 
       disableCancelModal();
