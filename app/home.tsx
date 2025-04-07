@@ -173,14 +173,17 @@ const videoIds = [
 
 const GallerySection: React.FC = ({ }) => {
   return (
-    <View style={styles.galleryContainer}>
+    <>
+      <View style={{ height: 40 }} />
       <ThemedText style={styles.featuresTitle}>Galería</ThemedText>
-      <View style={styles.galleryGrid}>
-        {videoIds.map((videoId, index) => (
-          <YoutubeVideo key={index} videoId={videoId} />
-        ))}
+      <View style={styles.galleryContainer}>
+        <View style={styles.galleryGrid}>
+          {videoIds.map((videoId, index) => (
+            <YoutubeVideo key={index} videoId={videoId} />
+          ))}
+        </View>
       </View>
-    </View>
+    </>
   );
 };
 
@@ -197,16 +200,16 @@ const YoutubeVideo: React.FC<{ videoId: string }> = ({ videoId }) => {
           renderToHardwareTextureAndroid: true,
           androidLayerType: 'hardware',
           injectedJavaScript: `
-            // Disable YouTube logging
-            try {
-              XMLHttpRequest.prototype.open = function() {
-                if (!arguments[1].includes('/log_event')) {
-                  return XMLHttpRequest.prototype.open.apply(this, arguments);
-                }
-              };
-            } catch(e) {}
-            true;
-          `,
+              // Disable YouTube logging
+              try {
+                XMLHttpRequest.prototype.open = function() {
+                  if (!arguments[1].includes('/log_event')) {
+                    return XMLHttpRequest.prototype.open.apply(this, arguments);
+                  }
+                };
+              } catch(e) {}
+              true;
+            `,
           onMessage: () => setPlayerReady(true)
         }}
       />
@@ -433,10 +436,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: GlobalStyles.lightGrey,
     padding: 40,
-    borderRadius: 20,
-    shadowColor: "#000",
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
+    borderRadius: 25,
     alignSelf: "center",
     minHeight: "auto",
     marginBottom: 30,
@@ -494,15 +494,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: GlobalStyles.darkGrey,
-  },
-  actionContainer: {
-    width: "90%",
-
-    marginTop: 20,
-    borderRadius: 10,
-    padding: 20,
-    backgroundColor: GlobalStyles.lightGrey,
-    alignItems: "center",
   },
   featuresContainer: {
     alignSelf: "center",
@@ -597,7 +588,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    borderRadius: 10,
+    borderRadius: 25,
     alignItems: 'center',
     elevation: 3,
     alignContent: 'center',
@@ -631,21 +622,23 @@ const styles = StyleSheet.create({
     width: "90%",
     height: "auto",
     maxWidth: 1200,
-    paddingTop: 20,
-    paddingBottom: 30,
     backgroundColor: GlobalStyles.lightGrey,
-    borderRadius: 10,
-    marginVertical: 30,
+    borderRadius: 25,
+    paddingVertical: 20,
+    marginBottom: 40,
   },
   galleryGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
     height: "100%",
-    gap: 50,
+    columnGap: 50,
+    rowGap: 20,
     width: "100%",
   },
   videoContainer: {
+    borderRadius: 15,
+    overflow: 'hidden',
     width: "90%",
     maxWidth: 350,
     height: "auto",
