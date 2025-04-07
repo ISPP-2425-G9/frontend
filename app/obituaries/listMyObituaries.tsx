@@ -29,6 +29,8 @@ function ObituaryIndex() {
   const { isAuthenticated } = useAuth();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
+  const [filterOption, setFilterOption] = useState<'all' | 'mine' | 'others'>('all');
+
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
 
@@ -153,6 +155,12 @@ function ObituaryIndex() {
     );
   }
 
+  const filteredObituaries = obituaries.filter(ob => {
+    if (filterOption === 'mine') return ob.isMine;
+    if (filterOption === 'others') return !ob.isMine;
+    return true;
+  });
+
 
   return isAuthenticated ? (
 
@@ -165,7 +173,7 @@ function ObituaryIndex() {
             En esta sección podrás visualizar, editar y comprobar el estado de tus esquelas creadas.
           </Text>
           <Text style={styles.introText}>
-            Recuerda que las esquelas para seres queridos tendrán que ser verificadas por un <Text style={{fontWeight: "bold"}}>administrador</Text> de la aplicación antes de ser enviadas.
+            Recuerda que las esquelas para seres queridos tendrán que ser verificadas por un <Text style={{ fontWeight: "bold" }}>administrador</Text> de la aplicación antes de ser enviadas.
           </Text>
           <Text style={styles.introText}>
             Si la esquela es para ti, permanecerá guardada y podrás editarla en cualquier momento.
@@ -175,11 +183,38 @@ function ObituaryIndex() {
           <CustomButton title="Crea una esquela" style={styles.button3} textStyle={styles.button3Text} onPress={() => { navigation.navigate('obituaries/index'); }} />
         </View>
 
+        <View style={styles.filterContainer}>
+          <CustomButton
+            title="Todas"
+            onPress={() => setFilterOption('all')}
+            style={StyleSheet.flatten([
+              styles.filterButton,
+              filterOption === 'all' && styles.selectedFilterButton,
+            ])}
+          />
+          <CustomButton
+            title="Mías"
+            onPress={() => setFilterOption('mine')}
+            style={StyleSheet.flatten([
+              styles.filterButton,
+              filterOption === 'mine' && styles.selectedFilterButton,
+            ])}
+          />
+          <CustomButton
+            title="Seres queridos"
+            onPress={() => setFilterOption('others')}
+            style={StyleSheet.flatten([
+              styles.filterButton,
+              filterOption === 'others' && styles.selectedFilterButton,
+            ])}
+          />
+        </View>
+
 
 
         <Text style={styles.title}>Sus esquelas</Text>
         <View style={styles.listContainer}>
-          {obituaries.map((item) => (
+          {filteredObituaries.map((item) => (
             <View
               key={item.id}
               style={[
@@ -403,10 +438,30 @@ const styles = StyleSheet.create({
   button3: {
     width: width > 600 ? "30%" : '80%',
     height: "100%",
+    backgroundColor: GlobalStyles.green,
   },
   button3Text: {
     fontSize: 17,
     color: GlobalStyles.white,
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 20,
+    marginTop: 20,
+    flexWrap: 'wrap',
+    width: '100%',
+  },
+  filterButton: {
+    backgroundColor: GlobalStyles.grey,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    width: width > 600 ? '20%' : '28%',
+  },
+  selectedFilterButton: {
+    backgroundColor: GlobalStyles.blue,
   },
 });
 
