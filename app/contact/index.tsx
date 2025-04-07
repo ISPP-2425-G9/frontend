@@ -1,4 +1,5 @@
 import CustomTextInput from "@/components/CustomTextInput";
+import { GlobalStyles } from "@/constants/Colors";
 import { useNotification } from "@/context/NotificationContext";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -66,28 +67,28 @@ const Contact: React.FC = () => {
   const handleSubmit = () => {
     if (!name.trim()) {
       showNotification({
-        message: "El nombre es obligatorio.",
+        message: "El nombre es obligatorio",
         type: "error",
       });
       return;
     }
     if (!email.trim()) {
       showNotification({
-        message: "El email es obligatorio.",
+        message: "El email es obligatorio",
         type: "error",
       });
       return;
     }
     if (!/\S+@\S+\.\S+/.test(email)) {
       showNotification({
-        message: "El email no es válido.",
+        message: "El email no es válido",
         type: "error",
       });
       return;
     }
     if (!message.trim()) {
       showNotification({
-        message: "El mensaje es obligatorio.",
+        message: "El mensaje es obligatorio",
         type: "error",
       });
       return;
@@ -247,7 +248,7 @@ const Contact: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: GlobalStyles.white,
   },
   innerContainer: {
     paddingVertical: 60,
