@@ -9,6 +9,7 @@ import { GlobalStyles } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_API } from '@/constants/Mysc';
 import CustomModal from '@/components/CustomModal';
+import { ThemedText } from '@/components/ThemedText';
 
 
 type RouteParams = {
@@ -45,6 +46,18 @@ function ReviewObituairesAndMessagesView() {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [elementIdToDelete, setElementIdToDelete] = useState<number | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const [failureMessage, setFailureMessage] = useState<string>("");
+
+  const showSuccessMessage = (msg: string) => {
+    setSuccessMessage(msg);
+    setTimeout(() => setSuccessMessage(""), 3000);
+  };
+
+  const showFailureMessage = (msg: string) => {
+    setFailureMessage(msg);
+    setTimeout(() => setFailureMessage(""), 3000);
+  };
 
 
   useEffect(() => {
@@ -53,7 +66,6 @@ function ReviewObituairesAndMessagesView() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        console.log('Fetching data for certificate ID:', certificateId);
         const authToken = await AsyncStorage.getItem('authToken');
         if (!authToken) throw new Error('Token no disponible');
         
@@ -78,7 +90,8 @@ function ReviewObituairesAndMessagesView() {
         setMessages(messagesData);
         setObituaries(obituariesData);
       } catch (error) {
-        console.error('Error al obtener datos:', error);
+        const error_str = 'Error al obtener datos:' + error;
+        showFailureMessage(error_str);
       } finally {
         setLoading(false);
       }
@@ -122,10 +135,10 @@ function ReviewObituairesAndMessagesView() {
       } else {
         setObituaries((prev) => prev.filter((obs) => obs.id !== id));
       }
-  
-      console.log(`Elemento eliminado correctamente. ID: ${id}`);
+      showSuccessMessage(`Elemento eliminado correctamente.`);
     } catch (error) {
-      console.error('Error al eliminar:', error);
+      const error_str = 'Error al eliminar:' + error;
+      showFailureMessage(error_str);
     }
   };
   
@@ -194,6 +207,13 @@ function ReviewObituairesAndMessagesView() {
       <Text style={styles.sectionTitle}>
         {showMessages ? 'Listado de mensajes' : 'Listado de esquelas'}
       </Text>
+
+      {successMessage !== "" && (
+        <ThemedText style={styles.successMessage}>{successMessage}</ThemedText>
+      )}
+      {failureMessage !== "" && (
+        <ThemedText style={styles.failureMessage}>{failureMessage}</ThemedText>
+      )}
 
       {loading ? (
         <ActivityIndicator size="large" color={GlobalStyles.blue} style={{ marginTop: 30 }} />
@@ -341,6 +361,18 @@ const styles = StyleSheet.create({
     color: GlobalStyles.blue,
     marginTop: 30,
   },  
+  successMessage: {
+    color: 'green',
+    textAlign: 'center',
+    marginTop: 10,
+    fontSize: 14,
+  },  
+  failureMessage: {
+    color: 'red',
+    textAlign: 'center',
+    marginTop: 10,
+    fontSize: 14,
+  }, 
 });
 
 export default withAuth(ReviewObituairesAndMessagesView, [AUTHORITIES.ADMIN]);
