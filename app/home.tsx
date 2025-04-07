@@ -4,9 +4,9 @@ import { ThemedText } from "@/components/ThemedText";
 import { GlobalStyles } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
 import { MaterialIcons } from "@expo/vector-icons";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import React, { useEffect, useState } from 'react';
-import { Animated, Dimensions, Image, ScrollView, StyleSheet, TouchableOpacity, View, useWindowDimensions } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useRef, useState } from 'react';
+import { Animated, Image, Platform, Pressable, ScrollView, StyleSheet, TouchableOpacity, View, useWindowDimensions } from "react-native";
 
 export default function HomeScreen() {
   const { isAuthenticated, roles } = useAuth();
@@ -21,8 +21,6 @@ export default function HomeScreen() {
       document.title = 'CARONTE';
     }, [])
   );
-
-  const navigation = useNavigation();
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -55,13 +53,7 @@ export default function HomeScreen() {
           </ThemedText>
         </View>
       </View>
-
       <ImageCarousel />
-
-      <GallerySection />
-
-      <AboutUs />
-
       <View style={styles.featuresContainer}>
         <ThemedText style={styles.featuresTitle}>
           ¿Por qué elegirnos?
@@ -77,16 +69,17 @@ export default function HomeScreen() {
           ))}
         </View>
       </View>
-
+      <GallerySection />
+      <TeamMembersSection />
     </ScrollView>
   );
 }
 
 const ImageCarousel: React.FC = () => {
   const images = [
-    "https://i.ytimg.com/vi/xRBR3agfWQA/maxresdefault.jpg",
-    "https://i.ytimg.com/vi/Q2qeMli8oq8/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLAkq3ofCqRd7ZFinG2x5DJTB0tTZA",
-    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREWIQ3FJppj1dL2JSBp2O7d2ZealsPYiobdw&s",
+    "https://cdn.autobild.es/sites/navi.axelspringer.es/public/media/image/2022/07/honda-nsx-2760235.jpg?tf=3840x",
+    "https://www.autonocion.com/wp-content/uploads/2023/04/Nissan-Skyline-R34-GT-R-Paul-Walker-0.jpeg",
+    "https://www.super-hobby.nl/zdjecia/5/8/6/11874_rd.jpg",
   ];
 
   const [currentIndex, setCurrentIndex] = React.useState(0);
@@ -227,27 +220,27 @@ const features: {
 }[] = [
     {
       icon: "security",
-      heading: "Seguridad",
+      heading: "SEGURIDAD",
       description:
-        "Verificación de fallecimiento y cifrado seguro garantizan la integridad de tus mensajes.",
+        "Verificación de fallecimiento y cifrado seguro garantizan la integridad de tus mensajes",
     },
     {
       icon: "check-circle",
-      heading: "Confianza",
+      heading: "CONFIANZA",
       description:
-        "Plataforma transparente y accesible para que no te preocupes por nada.",
+        "Plataforma transparente y accesible para que no te preocupes por nada",
     },
     {
       icon: "autorenew",
-      heading: "Automaticación",
+      heading: "AUTOMATIZACIÓN",
       description:
-        "Notificaciones automáticas a contactos de emergencia y envío de mensajes sin complicaciones.",
+        "Notificaciones automáticas a contactos de emergencia y envío de mensajes sin complicaciones",
     },
     {
       icon: "brush",
-      heading: "Personalización",
+      heading: "PERSONALIZACIÓN",
       description:
-        "Personaliza mensajes y esquelas con fotos, videos y detalles del funeral.",
+        "Personaliza mensajes y esquelas con fotos, videos y detalles del funeral",
     },
   ];
 
@@ -256,84 +249,156 @@ const FeatureCard: React.FC<{
   heading: string;
   description: string;
 }> = ({ icon, heading, description }) => {
-  const scale = React.useRef(new Animated.Value(0.8)).current;
+  const animatedValue = useRef(new Animated.Value(0)).current;
 
-  React.useEffect(() => {
-    Animated.spring(scale, {
-      toValue: 1,
-      friction: 5,
+  const flipInterpolationFront = animatedValue.interpolate({
+    inputRange: [0, 180],
+    outputRange: ['0deg', '180deg'],
+  });
+  const flipInterpolationBack = animatedValue.interpolate({
+    inputRange: [0, 180],
+    outputRange: ['180deg', '360deg'],
+  });
+
+  const handleShowDescription = () => {
+    Animated.timing(animatedValue, {
+      toValue: 180,
+      duration: 500,
       useNativeDriver: true,
     }).start();
-  }, []);
+  };
+
+  const handleShowHeading = () => {
+    Animated.timing(animatedValue, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const pressableProps =
+    Platform.OS === 'web'
+      ? { onMouseEnter: handleShowDescription, onMouseLeave: handleShowHeading }
+      : { onPressIn: handleShowDescription, onPressOut: handleShowHeading };
 
   return (
-    <Animated.View style={[styles.featureCard, { transform: [{ scale }] }]}>
-      <MaterialIcons name={icon} size={32} color={GlobalStyles.blue} />
-      <ThemedText style={styles.featureCardHeading}>{heading}</ThemedText>
-      <ThemedText style={styles.featureCardDescription}>{description}</ThemedText>
-    </Animated.View>
+    <Pressable {...pressableProps}>
+      <View style={styles.cardContainer}>
+        <Animated.View style={[styles.cardFace, { transform: [{ rotateY: flipInterpolationFront }] }]}>
+          <MaterialIcons name={icon} size={80} color={GlobalStyles.blue} />
+          <ThemedText style={styles.featureCardHeading}>{heading}</ThemedText>
+        </Animated.View>
+        <Animated.View style={[styles.cardFace, styles.cardBack, { transform: [{ rotateY: flipInterpolationBack }] }]}>
+          <ThemedText style={styles.featureCardDescription}>{description}</ThemedText>
+        </Animated.View>
+      </View>
+    </Pressable>
   );
 };
 
-const AboutUs: React.FC = () => {
-  const [fadeAnim] = useState(new Animated.Value(0));
+export interface TeamMember {
+  name: string;
+  role: string;
+  hobbies: string;
+  image: any;
+}
 
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 1000,
+export const teamMembers: TeamMember[] = [
+  { name: "Hugo Angulo Borrego", role: "Desarrollador Frontend", image: require('@/assets/images/team/hugo.png'), hobbies: "Amante de la tecnología y los gatos" },
+  { name: "Álvaro Chico Castellano", role: "Desarrollador Full-Stack y Especialista en Marketing", image: require('@/assets/images/team/alvaro.png'), hobbies: "Apasionado de la ingeniería software e interesado en la inteligencia artificial" },
+  { name: "Rafael Duque Colete", role: "Desarrollador Frontend", image: require('@/assets/images/team/rafael.png'), hobbies: "Amante del fútbol, el deporte y las buenas series" },
+  { name: "Daniel Galván Cancio", role: "Coordinador de Marketing y Desarrollador Frontend", image: require('@/assets/images/team/daniel.png'), hobbies: "Apasionado de nuevos retos tecnológicos" },
+  { name: "Juan García Carballo", role: "Coordinador de Backend y Desarrollador Full-Stack", image: require('@/assets/images/team/juan.png'), hobbies: "Amante de los libros y el cine" },
+  { name: "Ángel García Escudero", role: "DevRel y Desarrollador Backend", image: require('@/assets/images/team/angel.png'), hobbies: "Apasionado por la aviación, el deporte y el mundo del motorsport" },
+  { name: "Andrés Francisco García Rivero", role: "Desarrollador Frontend", image: require('@/assets/images/team/andres.png'), hobbies: "Apasionado por el motorsport y la electrónica" },
+  { name: "David Guillén Fernández", role: "Desarrollador Backend y Especialista en Marketing", image: require('@/assets/images/team/david.png'), hobbies: "Apasionado del deporte y la programación" },
+  { name: "Lucas Manuel Herencia Solís", role: "Desarrollador Backend", image: require('@/assets/images/team/lucas.png'), hobbies: "Amante de Java" },
+  { name: "Jaime Linares Barrera", role: "Coordinador de Frontend y Desarrollador Frontend", image: require('@/assets/images/team/jaime.png'), hobbies: "Fanático del fútbol y apasionado de la inteligencia artificial" },
+  { name: "Jorge Muñoz Rodríguez", role: "Coordinador de Despliegue y Desarrollador DevOps", image: require('@/assets/images/team/jorge.png'), hobbies: "Apasionado por la tecnología y los coches" },
+  { name: "Alejandro Pérez Santiago", role: "Desarrollador DevOps", image: require('@/assets/images/team/alejandro.png'), hobbies: "Apasionado por la tecnología, siempre enfocado en la mejora continua y en afrontar nuevos retos" },
+  { name: "Javier Rodríguez Reina", role: "Desarrollador Backend", image: require('@/assets/images/team/javier.png'), hobbies: "Apasionado de la literatura y los juegos de estrategia" },
+  { name: "Isaac Solís Padilla", role: "Desarrollador Backend", image: require('@/assets/images/team/isaac.png'), hobbies: "Amante de los videojuegos" },
+  { name: "Karim Youssafi Benichikh", role: "Desarrollador Frontend y Especialista en Marketing", image: require('@/assets/images/team/karim.png'), hobbies: "Amante de la tecnología y la inteligencia artificial" },
+];
+
+export const TeamMemberCard: React.FC<{ member: TeamMember }> = ({ member }) => {
+  const animatedValue = useRef(new Animated.Value(0)).current;
+
+  const flipInterpolationFront = animatedValue.interpolate({
+    inputRange: [0, 180],
+    outputRange: ['0deg', '180deg'],
+  });
+  const flipInterpolationBack = animatedValue.interpolate({
+    inputRange: [0, 180],
+    outputRange: ['180deg', '360deg'],
+  });
+
+  const flipToBack = () => {
+    Animated.timing(animatedValue, {
+      toValue: 180,
+      duration: 500,
       useNativeDriver: true,
     }).start();
-  }, [fadeAnim]);
+  };
+
+  const flipToFront = () => {
+    Animated.timing(animatedValue, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const pressableProps =
+    Platform.OS === 'web'
+      ? { onMouseEnter: flipToBack, onMouseLeave: flipToFront }
+      : { onPressIn: flipToBack, onPressOut: flipToFront };
 
   return (
-    <View style={styles.section}>
-      <Animated.Text style={[styles.featuresTitle, { opacity: fadeAnim }]}>Sobre nosotros</Animated.Text>
-      <Animated.Text style={[styles.subtitle, { opacity: fadeAnim }]}>Conoce al equipo detrás de CARONTE</Animated.Text>
+    <Pressable {...pressableProps}>
+      <View style={styles.teamCardContainer}>
+        <Animated.View style={[styles.teamCardFace, { transform: [{ rotateY: flipInterpolationFront }] }]}>
+          <Image source={member.image} style={styles.teamImage} />
+          <ThemedText style={styles.teamName}>{member.name}</ThemedText>
+        </Animated.View>
+        <Animated.View style={[styles.teamCardFace, styles.teamCardBack, { transform: [{ rotateY: flipInterpolationBack }] }]}>
+          <ThemedText style={styles.teamName}>{member.name}</ThemedText>
+          <ThemedText style={styles.teamRole}>{member.role}</ThemedText>
+          <ThemedText style={styles.teamHobbies}>{member.hobbies}</ThemedText>
+        </Animated.View>
+      </View>
+    </Pressable>
+  );
+};
 
+export const TeamMembersSection: React.FC = () => {
+  return (
+    <>
+      <ThemedText style={[styles.featuresTitle]}>Sobre nosotros</ThemedText>
+      <ThemedText style={[styles.subtitle]}>Conoce al equipo detrás de CARONTE</ThemedText>
       <View style={styles.introTextContainer}>
-        <Animated.Text style={[styles.introText, { opacity: fadeAnim }]}>
+        <ThemedText style={[styles.introText]}>
           <ThemedText style={styles.bold}>CARONTE</ThemedText> nace como una solución digital innovadora en la <ThemedText style={styles.bold}>Universidad de Sevilla</ThemedText>, dentro de la asignatura
           de Ingeniería del Software y Práctica Profesional. Nuestra misión es revolucionar la manera en la que las personas pueden <ThemedText style={styles.bold}>dejar su legado digital</ThemedText>,
           asegurando que sus últimas palabras y mensajes sean entregados en el momento preciso.
-        </Animated.Text>
-        <Animated.Text style={[styles.introText, { opacity: fadeAnim }]}>
+        </ThemedText>
+        <ThemedText style={[styles.introText]}>
           Detrás de <ThemedText style={styles.bold}>CARONTE</ThemedText> hay un equipo de <ThemedText style={styles.bold}>15 desarrolladores apasionados</ThemedText> que han trabajado para hacer de esta idea una realidad.
           Nuestro equipo está especializado en desarrollo full-stack, asegurando que la experiencia del usuario sea fluida y eficiente.
-        </Animated.Text>
+        </ThemedText>
       </View>
 
       <View style={styles.teamGrid}>
         {teamMembers.map((member, index) => (
-          <View key={index} style={styles.teamMember}>
-            <Image source={member.image} style={styles.memberImage} />
-            <ThemedText style={styles.memberName}>{member.name}</ThemedText>
-            <ThemedText style={styles.memberRole}>{member.role}</ThemedText>
-            <ThemedText style={styles.hobbies}>{member.hobbies}</ThemedText>
-          </View>
+          <TeamMemberCard key={index} member={member} />
         ))}
       </View>
-    </View>
+    </>
   );
 };
 
-const teamMembers = [
-  { name: "Hugo Angulo Borrego", role: "Desarrollador Frontend", image: require('@/assets/images/team/hugo.png'), hobbies: "Amante de la tecnología y los gatos." },
-  { name: "Álvaro Chico Castellano", role: "Desarrollador Full-Stack y Especialista en Marketing", image: require('@/assets/images/team/alvaro.png'), hobbies: "Apasionado de la ingeniería software e interesado en la inteligencia artificial." },
-  { name: "Rafael Duque Colete", role: "Desarrollador Frontend", image: require('@/assets/images/team/rafael.png'), hobbies: "Amante del fútbol, el deporte y las buenas series." },
-  { name: "Daniel Galván Cancio", role: "Coordinador de Marketing y Desarrollador Frontend", image: require('@/assets/images/team/daniel.png'), hobbies: "Apasionado de nuevos retos tecnológicos." },
-  { name: "Juan García Carballo", role: "Coordinador de Backend y Desarrollador Full-Stack", image: require('@/assets/images/team/juan.png'), hobbies: "Amante de los libros y el cine." },
-  { name: "Ángel García Escudero", role: "DevRel y Desarrollador Backend", image: require('@/assets/images/team/angel.png'), hobbies: "Apasionado por la aviación, el deporte y mundo del motorsport." },
-  { name: "Andrés Francisco García Rivero", role: "Desarrollador Frontend", image: require('@/assets/images/team/andres.png'), hobbies: "Apasionado por el motorsport y la electrónica." },
-  { name: "David Guillén Fernández", role: "Desarrollador Backend y Especialista en Marketing", image: require('@/assets/images/team/david.png'), hobbies: "Apasionado del deporte y la programación." },
-  { name: "Lucas Manuel Herencia Solís", role: "Desarrollador Backend", image: require('@/assets/images/team/lucas.png'), hobbies: "Amante de Java." },
-  { name: "Jaime Linares Barrera", role: "Coordinador de Frontend y Desarrollador Frontend", image: require('@/assets/images/team/jaime.png'), hobbies: "Fanático del fútbol y apasionado de la inteligencia artificial." },
-  { name: "Jorge Muñoz Rodríguez", role: "Coordinador de Despliegue y Desarrollador DevOps", image: require('@/assets/images/team/jorge.png'), hobbies: "Apasionado por la tecnología y los coches." },
-  { name: "Alejandro Pérez Santiago", role: "Desarrollador DevOps", image: require('@/assets/images/team/alejandro.png'), hobbies: "Apasionado por la tecnología, siempre enfocado en la mejora continua y en afrontar nuevos retos." },
-  { name: "Javier Rodríguez Reina", role: "Desarrollador Backend", image: require('@/assets/images/team/javier.png'), hobbies: "Le gusta la literatura y los juegos de estrategia." },
-  { name: "Isaac Solís Padilla", role: "Desarrollador Backend", image: require('@/assets/images/team/isaac.png'), hobbies: "Amante de los videojuegos." },
-  { name: "Karim Youssafi Benichikh", role: "Desarrollador Frontend y Especialista en Marketing", image: require('@/assets/images/team/karim.png'), hobbies: "Amante de la tecnología y la inteligencia artificial." },
-];
+
+
 
 const styles = StyleSheet.create({
   scrollContainer: {
@@ -349,8 +414,7 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
   carouselContainer: {
-    width: "100%",
-    backgroundColor: GlobalStyles.lightGrey,
+    width: "80%",
     position: "relative",
     top: 0,
     justifyContent: "center",
@@ -360,7 +424,9 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   carouselImage: {
-    width: Dimensions.get("window").width,
+    width: "100%",
+    backgroundColor: GlobalStyles.lightGrey,
+    borderRadius: 25,
     height: 400,
   },
   carouselButtons: {
@@ -449,35 +515,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     color: GlobalStyles.darkGrey,
   },
-  buttonSection: {
-    backgroundColor: GlobalStyles.lightGrey,
-    padding: 20,
-    width: "100%",
-    alignItems: "center",
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    gap: 15,
-  },
-  buttonWrapper: {
-    alignItems: "center",
-    minWidth: 250,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontFamily: GlobalStyles.font,
-    textAlign: "center",
-    color: GlobalStyles.darkGrey,
-    marginBottom: 5,
-  },
-  infoItem: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 8,
-    flexWrap: "nowrap",
-  },
   icon: {
     marginRight: 10,
     alignSelf: "flex-start",
@@ -499,6 +536,7 @@ const styles = StyleSheet.create({
   featuresContainer: {
     alignSelf: "center",
     width: "100%",
+    marginTop: 40,
     paddingVertical: 30,
     backgroundColor: GlobalStyles.lightGrey,
   },
@@ -517,41 +555,17 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 20,
   },
-  featureCard: {
-    width: "24%",
-    maxWidth: 250,
-    aspectRatio: 1,
-    minWidth: 250,
-    borderRadius: 10,
-    padding: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
   featureCardHeading: {
-    fontSize: 16,
-    fontFamily: GlobalStyles.fontBold,
+    fontSize: 20,
+    marginTop: 8,
     color: GlobalStyles.blue,
     textAlign: "center",
-    marginTop: 8,
   },
   featureCardDescription: {
-    fontSize: 12,
-    fontFamily: GlobalStyles.font,
+    fontSize: 18,
     color: GlobalStyles.grey,
     textAlign: "center",
-    marginTop: 4,
-  },
-  section: {
-    width: "90%",
-    marginBottom: 30,
-    borderRadius: 10,
-    padding: 20,
+    paddingHorizontal: 10,
   },
   subtitle: {
     fontSize: 18,
@@ -569,13 +583,17 @@ const styles = StyleSheet.create({
     color: GlobalStyles.darkGrey,
     marginBottom: 15,
     lineHeight: 24,
-    maxWidth: 1200,
+    maxWidth: 1500,
+    width: "90%",
   },
   teamGrid: {
+    width: "90%",
+    maxWidth: 1400,
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
     marginBottom: 20,
+    gap: 30,
   },
   teamMember: {
     aspectRatio: 1.5,
@@ -643,5 +661,89 @@ const styles = StyleSheet.create({
     width: "90%",
     maxWidth: 350,
     height: "auto",
+  },
+  cardContainer: {
+    width: "22%",
+    maxWidth: 320,
+    aspectRatio: 1,
+    minWidth: 250,
+    borderRadius: 25,
+    padding: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  cardFace: {
+    position: 'absolute',
+    backfaceVisibility: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  cardBack: {
+    backgroundColor: "#fff",
+    borderRadius: 25,
+  },
+  teamCardContainer: {
+    width: "22%",
+    maxWidth: 320,
+    aspectRatio: 1,
+    minWidth: 250,
+    borderRadius: 25,
+    padding: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  teamCardFace: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    backfaceVisibility: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+  },
+  teamCardBack: {
+    borderRadius: 25,
+    backgroundColor: "#fff",
+  },
+  teamImage: {
+    width: 150,
+    height: 150,
+    borderRadius: 100,
+    borderWidth: 2,
+    borderColor: GlobalStyles.lightGrey,
+    marginBottom: 10,
+  },
+  teamName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: GlobalStyles.darkGrey,
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+  teamRole: {
+    fontSize: 16,
+    color: GlobalStyles.blue,
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+  teamHobbies: {
+    fontSize: 14,
+    color: GlobalStyles.grey,
+    textAlign: 'center',
+    paddingHorizontal: 10,
   },
 });
