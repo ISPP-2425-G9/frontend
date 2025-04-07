@@ -1,4 +1,4 @@
-import { Linking, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image, Platform } from "react-native";
+import { Linking, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, Animated } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome6";
 import { GlobalStyles } from "@/constants/Colors";
 import React, { useState } from "react";
@@ -6,6 +6,7 @@ import TermsAndConditions from "./TermsAndConditions";
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from "./CustomButton";
 import Logo from "./Logo";
+import AnimatedIcon from "./AnimatedIcon";
 
 const socialLinks = [
   { name: "instagram", url: "https://instagram.com/caronte_es" },
@@ -118,12 +119,10 @@ const Footer = () => {
     <View style={styles.footer}>
   {/* Sección izquierda: Redes sociales */}
   <View style={styles.leftSection}>
-    {socialLinks.map((link, index) => (
-      <TouchableOpacity key={index} onPress={() => Linking.openURL(link.url)}>
-        <Icon name={link.name} size={20} color="white" style={styles.icon} />
-      </TouchableOpacity>
-    ))}
-  </View>
+  {socialLinks.map((link, index) => (
+    <AnimatedIcon key={index} name={link.name} url={link.url} />
+  ))}
+</View>
 
   {/* Sección central: Texto + enlaces */}
   <View style={styles.centerSection}>
