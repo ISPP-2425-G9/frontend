@@ -8,6 +8,7 @@ import { AUTHORITIES } from '../_util/Authorities';
 import { GlobalStyles } from '@/constants/Colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_API } from '@/constants/Mysc';
+import CustomModal from '@/components/CustomModal';
 
 
 type RouteParams = {
@@ -42,6 +43,8 @@ function ReviewObituairesAndMessagesView() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [obituaries, setObituaries] = useState<Obituary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [elementIdToDelete, setElementIdToDelete] = useState<number | null>(null);
 
 
   useEffect(() => {
@@ -137,7 +140,10 @@ function ReviewObituairesAndMessagesView() {
         ))}
       </View>
       <View style={styles.actionCell}>
-        <CustomButton title="Eliminar" color="red" onPress={() => handleDelete(item.id)} />
+        <CustomButton title="Eliminar" color="red" onPress={() => {
+          setElementIdToDelete(item.id);
+          setModalVisible(true);
+        }} />
       </View>
     </View>
   );
@@ -153,7 +159,10 @@ function ReviewObituairesAndMessagesView() {
         ) : null}
       </View>
       <View style={styles.actionCell}>
-        <CustomButton title="Eliminar" color="red" onPress={() => handleDelete(item.id)} />
+        <CustomButton title="Eliminar" color="red" onPress={() => {
+          setElementIdToDelete(item.id);
+          setModalVisible(true);
+        }} />
       </View>
     </View>
   );
@@ -209,6 +218,33 @@ function ReviewObituairesAndMessagesView() {
           </ScrollView>
         </ScrollView>
       )}
+
+      {modalVisible && (
+        <CustomModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          title="Confirmar eliminación"
+        >
+          <Text style={{ textAlign: 'center' }}>
+            ¿Estás seguro de que deseas eliminar {showMessages ? 'este mensaje' : 'esta esquela'}?
+          </Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20, gap: 10 }}>
+            <CustomButton title="Cancelar" color="grey" onPress={() => setModalVisible(false)} />
+            <CustomButton
+              title="Eliminar"
+              color="red"
+              onPress={async () => {
+                if (elementIdToDelete !== null) {
+                  await handleDelete(elementIdToDelete);
+                  setModalVisible(false);
+                  setElementIdToDelete(null);
+                }
+              }}
+            />
+          </View>
+        </CustomModal>
+      )}
+
     </ThemedView>
   );
 }
