@@ -1,11 +1,11 @@
-import { Linking, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image, Platform } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome6";
 import { GlobalStyles } from "@/constants/Colors";
-import React, { useState } from "react";
-import TermsAndConditions from "./TermsAndConditions";
 import { useNavigation } from '@react-navigation/native';
+import React, { useState } from "react";
+import { Dimensions, Image, Linking, Modal, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Icon from "react-native-vector-icons/FontAwesome6";
 import CustomButton from "./CustomButton";
 import Logo from "./Logo";
+import TermsAndConditions from "./TermsAndConditions";
 
 const socialLinks = [
   { name: "instagram", url: "https://instagram.com/caronte_es" },
@@ -117,7 +117,6 @@ const Footer = () => {
       <View style={styles.centerSection}>
         <Text style={styles.text}>&copy; 2025 CARONTE. Todos los derechos reservados.</Text>
         <Text style={styles.textLink} onPress={() => {setModalVisible(true)}}>Términos y condiciones de uso</Text>
-        <Text style={styles.textLink} onPress={()=> { navigation.navigate("about/index" as never);}}>Sobre nosotros</Text>
         <Text style={styles.textLink} onPress={()=> { navigation.navigate("contact/index" as never);}}>Contáctanos</Text>
         {/* <Text style={styles.textLink} onPress={() => Linking.openURL('/privacy')}>Política de privacidad</Text> */}
       </View>
