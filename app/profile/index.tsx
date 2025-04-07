@@ -536,7 +536,6 @@ function ProfileScreen() {
                         onPress={handleSave}
                         color="blue"
                       />
-                      <LogoutButton />
                     </View>
                   ) : (
                     <View style={styles.buttonContainer}>
@@ -545,6 +544,7 @@ function ProfileScreen() {
                         onPress={() => { setIsEditing(true) }}
                         color="blue"
                       />
+                      <LogoutButton />
                       <DeleteAccountButton />
                     </View>
                   )}
@@ -626,7 +626,6 @@ function ProfileScreen() {
                         onPress={handleSaveCompany}
                         color="blue"
                       />
-                      <LogoutButton />
                     </View>
                   ) : (
                     <View>
@@ -636,6 +635,7 @@ function ProfileScreen() {
                           onPress={() => { setIsEditing(true) }}
                           color="blue"
                         />
+                        <LogoutButton />
                         <DeleteAccountButton />
                       </View>
                       <ThemedText style={styles.changePasswordText}>
