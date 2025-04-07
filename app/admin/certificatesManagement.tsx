@@ -20,13 +20,15 @@ type Certificate = {
 };
 
 const CertificateManagement: React.FC = () => {
+  const navigation = useNavigation();
+
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [deathDates, setDeathDates] = useState<{ [id: number]: string }>({});
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCertificateId, setSelectedCertificateId] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [successMessageVisible, setSuccessMessageVisible] = useState(false);
-  const navigation = useNavigation();
+  const [successMessage, setSuccessMessage] = useState<string>("");
+  const [failureMessage, setFailureMessage] = useState<string>("");
 
   const isValidDeathDate = (dateStr: string): { valid: boolean; message?: string } => {
     if (!dateStr) {
@@ -46,6 +48,15 @@ const CertificateManagement: React.FC = () => {
     return { valid: true };
   };
   
+  const showSuccessMessage = (msg: string) => {
+    setSuccessMessage(msg);
+    setTimeout(() => setSuccessMessage(""), 3000);
+  };
+
+  const showFailureMessage = (msg: string) => {
+    setFailureMessage(msg);
+    setTimeout(() => setFailureMessage(""), 3000);
+  };
 
   const fetchCertificates = async () => {
     try {
@@ -63,10 +74,10 @@ const CertificateManagement: React.FC = () => {
       if (!response.ok) throw new Error('Error al obtener certificados');
   
       const data = await response.json();
-      console.log(data)
       setCertificates(data);
     } catch (error) {
-      console.error('Error al obtener certificados:', error);
+      const error_str = 'Error al obtener certificados:' + error;
+      showFailureMessage(error_str);
     }
   };
   
@@ -133,13 +144,14 @@ const CertificateManagement: React.FC = () => {
                 });
   
                 if (response.ok) {
-                  console.log("Certificado aprobado", `ID ${item.id} aprobado correctamente.`);
+                  showSuccessMessage(`Certificado aprobado correctamente.`);
                   fetchCertificates();
                 } else {
-                  console.error('Error al aprobar el certificado');
+                  showFailureMessage('Error al aprobar el certificado');
                 }
               } catch (error) {
-                console.error('Error de red al aprobar certificado:', error);
+                const error_str = 'Error de red al aprobar el certificado:' + error;
+                showFailureMessage(error_str);
               }
             }}
           />
@@ -170,6 +182,12 @@ const CertificateManagement: React.FC = () => {
             que aún no han sido valorados.
           </Text>
         </View>
+        {successMessage !== "" && (
+          <ThemedText style={styles.successMessage}>{successMessage}</ThemedText>
+        )}
+        {failureMessage !== "" && (
+          <ThemedText style={styles.failureMessage}>{failureMessage}</ThemedText>
+        )}
         {errorMessage !== "" && (
           <ThemedText style={styles.errorMessage}>{errorMessage}</ThemedText>
         )}
@@ -226,14 +244,15 @@ const CertificateManagement: React.FC = () => {
                     });
         
                     if (response.ok) {
-                      console.log("Certificado denegado", `ID ${selectedCertificateId} denegado correctamente.`);
+                      showSuccessMessage(`Certificado denegado correctamente.`);
                       setModalVisible(false);
                       fetchCertificates();
                     } else {
-                      console.error('Error al denegar el certificado');
+                      showFailureMessage('Error al denegar el certificado');
                     }
                   } catch (error) {
-                    console.error('Error de red al denegar certificado:', error);
+                    const error_str = 'Error de red al denegar el certificado:' + error;
+                    showFailureMessage(error_str);
                   }
                 }
               }}
@@ -371,6 +390,18 @@ const styles = StyleSheet.create({
     color: GlobalStyles.blue,
     marginTop: 20,
   },
+  successMessage: {
+    color: 'green',
+    textAlign: 'center',
+    marginTop: 10,
+    fontSize: 14,
+  },  
+  failureMessage: {
+    color: 'red',
+    textAlign: 'center',
+    marginTop: 10,
+    fontSize: 14,
+  }, 
 });
 
 export default withAuth(CertificateManagement, [AUTHORITIES.ADMIN]);
