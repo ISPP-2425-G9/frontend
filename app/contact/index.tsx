@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Alert,
   Animated,
   Linking,
   ScrollView,
@@ -24,6 +23,7 @@ const Contact: React.FC = () => {
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [message, setMessage] = useState<string>("");
+  const [formErrors, setFormErrors] = useState<string[]>([]);
 
   useEffect(() => {
     Animated.timing(titleAnim, {
@@ -63,10 +63,17 @@ const Contact: React.FC = () => {
   }, []);
 
   const handleSubmit = () => {
-    if (!name || !email || !message) {
-      Alert.alert("Error", "Por favor, llena todos los campos.");
+    setFormErrors([]);
+    const errors: string[] = [];
+    if (!name.trim()) errors.push("El nombre es obligatorio.");
+    if (!email.trim()) errors.push("El email es obligatorio.");
+    if (!message.trim()) errors.push("El mensaje es obligatorio.");
+
+    if (errors.length > 0) {
+      setFormErrors(errors);
       return;
     }
+
     const subject = `Mensaje de ${name} (${email})`;
     const body = encodeURIComponent(message);
     Linking.openURL(
@@ -88,9 +95,7 @@ const Contact: React.FC = () => {
           No dudes en ponerte en contacto con nosotros.
         </Animated.Text>
 
-        <Animated.View
-          style={[styles.detailsContainer, { opacity: detailsAnim }]}
-        >
+        <Animated.View style={[styles.detailsContainer, { opacity: detailsAnim }]}>
           <View style={styles.halfContainer}>
             <Text style={styles.sectionTitle}>Ubicación</Text>
             <View style={styles.mapContainer}>
@@ -136,6 +141,15 @@ const Contact: React.FC = () => {
                 value={message}
                 onChangeText={setMessage}
               />
+              {formErrors.length > 0 && (
+                <View style={styles.errorContainer}>
+                  {formErrors.map((error, index) => (
+                    <Text key={index} style={styles.errorText}>
+                      {error}
+                    </Text>
+                  ))}
+                </View>
+              )}
               <TouchableOpacity style={styles.button} onPress={handleSubmit}>
                 <Text style={styles.buttonText}>Enviar</Text>
               </TouchableOpacity>
@@ -143,56 +157,42 @@ const Contact: React.FC = () => {
           </View>
         </Animated.View>
 
-        <Animated.View
-          style={[styles.extraInfoContainer, { opacity: extraInfoAnim }]}
-        >
+        <Animated.View style={[styles.extraInfoContainer, { opacity: extraInfoAnim }]}>
           <View style={styles.contactItem}>
             <Text style={styles.icon}>✉️</Text>
-            <TouchableOpacity
-              onPress={() => Linking.openURL("mailto:info@caronte.site")}
-            >
+            <TouchableOpacity onPress={() => Linking.openURL("mailto:info@caronte.site")}>
               <Text style={styles.contactLink}>info@caronte.site</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.contactItem}>
             <Text style={styles.icon}>📞</Text>
-            <TouchableOpacity
-              onPress={() => Linking.openURL("tel:+34615145215")}
-            >
+            <TouchableOpacity onPress={() => Linking.openURL("tel:+34615145215")}>
               <Text style={styles.contactLink}>+34 615 14 52 15</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>
 
-        <Animated.View
-          style={[styles.socialContainer, { opacity: socialAnim }]}
-        >
+        <Animated.View style={[styles.socialContainer, { opacity: socialAnim }]}>
           <Text style={styles.sectionTitle}>Nuestras redes sociales</Text>
           <View style={styles.socialIcons}>
             <TouchableOpacity
               style={styles.socialIcon}
               onPress={() =>
-                Linking.openURL(
-                  "https://whatsapp.com/channel/0029Vb8vAcUDzgTBG01Tdw1f"
-                )
+                Linking.openURL("https://whatsapp.com/channel/0029Vb8vAcUDzgTBG01Tdw1f")
               }
             >
               <Icon name="whatsapp" size={30} color="#42B5FC" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.socialIcon}
-              onPress={() =>
-                Linking.openURL("https://www.linkedin.com/in/caronte-app/")
-              }
+              onPress={() => Linking.openURL("https://www.linkedin.com/in/caronte-app/")}
             >
               <Icon name="linkedin" size={30} color="#42B5FC" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.socialIcon}
               onPress={() =>
-                Linking.openURL(
-                  "https://www.facebook.com/profile.php?id=61573575124143"
-                )
+                Linking.openURL("https://www.facebook.com/profile.php?id=61573575124143")
               }
             >
               <Icon name="facebook" size={30} color="#42B5FC" />
@@ -205,17 +205,13 @@ const Contact: React.FC = () => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.socialIcon}
-              onPress={() =>
-                Linking.openURL("https://instagram.com/caronteapp")
-              }
+              onPress={() => Linking.openURL("https://instagram.com/caronteapp")}
             >
               <Icon name="instagram" size={30} color="#42B5FC" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.socialIcon}
-              onPress={() =>
-                Linking.openURL("https://www.tiktok.com/@caronteapp")
-              }
+              onPress={() => Linking.openURL("https://www.tiktok.com/@caronteapp")}
             >
               <Icon name="tiktok" size={30} color="#42B5FC" />
             </TouchableOpacity>
@@ -310,6 +306,16 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "600",
+  },
+  errorContainer: {
+    backgroundColor: "#ffe6e6",
+    padding: 10,
+    marginBottom: 15,
+    borderRadius: 4,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 14,
   },
   extraInfoContainer: {
     marginTop: 30,
