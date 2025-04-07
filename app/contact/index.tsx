@@ -1,3 +1,5 @@
+import CustomTextInput from "@/components/CustomTextInput";
+import { useNotification } from "@/context/NotificationContext";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -5,13 +7,11 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
-  useWindowDimensions,
+  useWindowDimensions
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome6";
-import { useNotification } from "@/context/NotificationContext";
 
 const Contact: React.FC = () => {
   const { width } = useWindowDimensions();
@@ -123,7 +123,6 @@ const Contact: React.FC = () => {
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6342.67312084915!2d-5.989684023552625!3d37.358212536045464!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd126dd4a3055555%3A0x29c3f634f8a021b8!2sEscuela%20T%C3%A9cnica%20Superior%20de%20Ingenier%C3%ADa%20Inform%C3%A1tica!5e0!3m2!1ses!2ses!4v1741824402518!5m2!1ses!2ses"
                   width="100%"
                   height="100%"
-                  frameBorder="0"
                   style={{ border: 0 }}
                   allowFullScreen
                   loading="lazy"
@@ -135,25 +134,26 @@ const Contact: React.FC = () => {
           <View style={styles.halfContainer}>
             <Text style={styles.sectionTitle}>Envíanos un mensaje</Text>
             <View style={styles.formContainer}>
-              <TextInput
-                style={styles.input}
+              <CustomTextInput
                 placeholder="Nombre"
                 placeholderTextColor="#888"
+                maxLength={50}
                 value={name}
                 onChangeText={setName}
               />
-              <TextInput
-                style={styles.input}
+              <CustomTextInput
                 placeholder="Email"
                 placeholderTextColor="#888"
                 keyboardType="email-address"
+                maxLength={50}
                 value={email}
                 onChangeText={setEmail}
               />
-              <TextInput
-                style={[styles.input, styles.textArea]}
+              <CustomTextInput
+                style={[styles.textArea]}
                 placeholder="Tu mensaje"
                 placeholderTextColor="#888"
+                maxLength={500}
                 multiline
                 numberOfLines={4}
                 value={message}
@@ -295,18 +295,9 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   formContainer: {
+    rowGap: 10,
     flex: 1,
     justifyContent: "center",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 10,
-    marginBottom: 15,
-    borderRadius: 5,
-    fontSize: 16,
-    color: "#333",
-    backgroundColor: "#fff",
   },
   textArea: {
     height: 100,
