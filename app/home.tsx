@@ -6,8 +6,8 @@ import { GlobalStyles } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import React from 'react';
-import { Animated, Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
+import React, { useEffect, useState } from 'react';
+import { Animated, Dimensions, Image, ScrollView, StyleSheet, TouchableOpacity, View, useWindowDimensions } from "react-native";
 
 export default function HomeScreen() {
   const { isAuthenticated, roles } = useAuth();
@@ -27,14 +27,13 @@ export default function HomeScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <ImageCarousel />
 
       <View style={[styles.container, width > 800 ? styles.rowLayout : styles.columnLayout]}>
         <View style={styles.logoContainer}>
           <Logo size={250} />
           <LineBreak />
-          <Text style={styles.tagline}>Honrando memorias,</Text>
-          <Text style={styles.tagline}>facilitando despedidas</Text>
+          <ThemedText style={styles.tagline}>Honrando memorias,</ThemedText>
+          <ThemedText style={styles.tagline}>facilitando despedidas</ThemedText>
           <LineBreak />
           <LineBreak />
         </View>
@@ -42,31 +41,43 @@ export default function HomeScreen() {
         <View style={styles.spacer} />
 
         <View style={[styles.infoBox, { width: width > 800 ? 900 : "90%" }]}>
-          <Text style={styles.title}>¿Qué hacemos?</Text>
-          <View style={styles.infoItem}>
-            <Text style={styles.description}>
-              Somos una plataforma innovadora que te permite gestionar el envío de mensajes finales y esquelas digitales a tus contactos.
-            </Text>
-          </View>
-          <View style={styles.infoItem}>
-            <Text style={styles.description}>
-              <Text style={styles.bold}>No queremos que dejes palabras sin decir:</Text> garantizamos que
-              los mensajes y esquelas sean enviados tras la confirmación del fallecimiento, asegurando la entrega en el momento
-              adecuado.
-            </Text>
-          </View>
-          <View style={styles.infoItem}>
-            <Text style={styles.description}>
-              <Text style={styles.bold}>Cumplimos tu último deseo facilitando despedidas seguras y recuerdos eternos.</Text>
-            </Text>
-          </View>
-          <View style={styles.infoItem}>
-            <Text style={styles.description}>
-              Además, ofrecemos un espacio para que las empresas relacionadas con el sector funerario puedan patrocinar sus servicios.
-            </Text>
-          </View>
+          <ThemedText style={styles.title}>¿Qué es CARONTE?</ThemedText>
+          <ThemedText style={styles.description}>
+            Somos una <ThemedText style={styles.bold}>plataforma innovadora</ThemedText> que te permite gestionar el envío de mensajes finales y esquelas digitales a tus contactos.
+          </ThemedText>
+          <ThemedText style={styles.description}>
+            <ThemedText style={styles.bold}>No queremos que dejes palabras sin decir. </ThemedText>Tus mensajes se envían tras la confirmación del fallecimiento, garantizando la entrega en el momento adecuado.
+          </ThemedText>
+          <ThemedText style={styles.description}>
+            Cumplimos tu último deseo facilitando despedidas seguras y recuerdos eternos.
+          </ThemedText>
+          <ThemedText style={styles.description}>
+            Además, ofrecemos un espacio para que las empresas relacionadas con el sector funerario puedan patrocinar sus servicios.
+          </ThemedText>
         </View>
       </View>
+
+      <ImageCarousel />
+
+      {isAuthenticated && userRoles?.includes("CUSTOMER") && (
+        <View style={styles.actionContainer}>
+          <ThemedText style={styles.featuresTitle}>
+            ¿Qué quieres hacer?
+          </ThemedText>          <View style={styles.buttonContainer}>
+            <View style={styles.buttonWrapper}>
+              <CustomButton title="Crear una esquela" onPress={() => { navigation.navigate("obituaries/index" as never) }} color="blue" />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <CustomButton title="Ver planes" onPress={() => { navigation.navigate("subscribe/index" as never) }} color="blue" />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <CustomButton title="Ver servicios" onPress={() => { navigation.navigate("services/index" as never) }} color="blue" />
+            </View>
+          </View>
+        </View>
+      )}
+
+      <AboutUs />
 
       <View style={styles.featuresContainer}>
         <ThemedText style={styles.featuresTitle}>
@@ -84,24 +95,6 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {isAuthenticated && userRoles?.includes("CUSTOMER") && (
-        <View style={styles.buttonSection}>
-          <View style={styles.buttonContainer}>
-            <View style={[styles.buttonWrapper, { width: width > 800 ? "30%" : "90%" }]}>
-              <Text style={styles.buttonText}>Pulsa aquí, si quieres personalizar la esquela para un familiar o amigo que haya fallecido</Text>
-              <CustomButton title="Personalizar esquela" onPress={() => { navigation.navigate("obituaries/index" as never) }} color="blue" />
-            </View>
-            <View style={[styles.buttonWrapper, { width: width > 800 ? "30%" : "90%" }]}>
-              <Text style={styles.buttonText}>Pulsa aquí, si quieres pagar el plan para personalizar mensajes para familiares o amigos una vez que haya fallecido o para promocionar tu empresa relacionada con el sector funerario.</Text>
-              <CustomButton title="Suscribirse" onPress={() => { navigation.navigate("subscribe/index" as never) }} color="blue" />
-            </View>
-            <View style={[styles.buttonWrapper, { width: width > 800 ? "30%" : "90%" }]}>
-              <Text style={styles.buttonText}>Si quieres ver los servicios que ofrecen empresas del sector funerario, pulsa aquí</Text>
-              <CustomButton title="Ver servicios" onPress={() => { navigation.navigate("services/index" as never) }} color="blue" />
-            </View>
-          </View>
-        </View>
-      )}
     </ScrollView>
   );
 }
@@ -244,6 +237,66 @@ const FeatureCard: React.FC<{
   );
 };
 
+const AboutUs: React.FC = () => {
+  const [fadeAnim] = useState(new Animated.Value(0));
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
+
+  return (
+    <View style={styles.section}>
+      <Animated.Text style={[styles.featuresTitle, { opacity: fadeAnim }]}>Sobre nosotros</Animated.Text>
+      <Animated.Text style={[styles.subtitle, { opacity: fadeAnim }]}>Conoce al equipo detrás de CARONTE</Animated.Text>
+
+      <View style={styles.introTextContainer}>
+        <Animated.Text style={[styles.introText, { opacity: fadeAnim }]}>
+          <ThemedText style={styles.bold}>CARONTE</ThemedText> nace como una solución digital innovadora en la <ThemedText style={styles.bold}>Universidad de Sevilla</ThemedText>, dentro de la asignatura
+          de Ingeniería del Software y Práctica Profesional. Nuestra misión es revolucionar la manera en la que las personas pueden <ThemedText style={styles.bold}>dejar su legado digital</ThemedText>,
+          asegurando que sus últimas palabras y mensajes sean entregados en el momento preciso.
+        </Animated.Text>
+        <Animated.Text style={[styles.introText, { opacity: fadeAnim }]}>
+          Detrás de <ThemedText style={styles.bold}>CARONTE</ThemedText> hay un equipo de <ThemedText style={styles.bold}>15 desarrolladores apasionados</ThemedText> que han trabajado para hacer de esta idea una realidad.
+          Nuestro equipo está especializado en desarrollo full-stack, asegurando que la experiencia del usuario sea fluida y eficiente.
+        </Animated.Text>
+      </View>
+
+      <View style={styles.teamGrid}>
+        {teamMembers.map((member, index) => (
+          <View key={index} style={styles.teamMember}>
+            <Image source={member.image} style={styles.memberImage} />
+            <ThemedText style={styles.memberName}>{member.name}</ThemedText>
+            <ThemedText style={styles.memberRole}>{member.role}</ThemedText>
+            <ThemedText style={styles.hobbies}>{member.hobbies}</ThemedText>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+};
+
+const teamMembers = [
+  { name: "Hugo Angulo Borrego", role: "Desarrollador Frontend", image: require('@/assets/images/team/hugo.png'), hobbies: "Amante de la tecnología y los gatos." },
+  { name: "Álvaro Chico Castellano", role: "Desarrollador Full-Stack y Especialista en Marketing", image: require('@/assets/images/team/alvaro.png'), hobbies: "Apasionado de la ingeniería software e interesado en la inteligencia artificial." },
+  { name: "Rafael Duque Colete", role: "Desarrollador Frontend", image: require('@/assets/images/team/rafael.png'), hobbies: "Amante del fútbol, el deporte y las buenas series." },
+  { name: "Daniel Galván Cancio", role: "Coordinador de Marketing y Desarrollador Frontend", image: require('@/assets/images/team/daniel.png'), hobbies: "Apasionado de nuevos retos tecnológicos." },
+  { name: "Juan García Carballo", role: "Coordinador de Backend y Desarrollador Full-Stack", image: require('@/assets/images/team/juan.png'), hobbies: "Amante de los libros y el cine." },
+  { name: "Ángel García Escudero", role: "DevRel y Desarrollador Backend", image: require('@/assets/images/team/angel.png'), hobbies: "Apasionado por la aviación, el deporte y mundo del motorsport." },
+  { name: "Andrés Francisco García Rivero", role: "Desarrollador Frontend", image: require('@/assets/images/team/andres.png'), hobbies: "Apasionado por el motorsport y la electrónica." },
+  { name: "David Guillén Fernández", role: "Desarrollador Backend y Especialista en Marketing", image: require('@/assets/images/team/david.png'), hobbies: "Apasionado del deporte y la programación." },
+  { name: "Lucas Manuel Herencia Solís", role: "Desarrollador Backend", image: require('@/assets/images/team/lucas.png'), hobbies: "Amante de Java." },
+  { name: "Jaime Linares Barrera", role: "Coordinador de Frontend y Desarrollador Frontend", image: require('@/assets/images/team/jaime.png'), hobbies: "Fanático del fútbol y apasionado de la inteligencia artificial." },
+  { name: "Jorge Muñoz Rodríguez", role: "Coordinador de Despliegue y Desarrollador DevOps", image: require('@/assets/images/team/jorge.png'), hobbies: "Apasionado por la tecnología y los coches." },
+  { name: "Alejandro Pérez Santiago", role: "Desarrollador DevOps", image: require('@/assets/images/team/alejandro.png'), hobbies: "Apasionado por la tecnología, siempre enfocado en la mejora continua y en afrontar nuevos retos." },
+  { name: "Javier Rodríguez Reina", role: "Desarrollador Backend", image: require('@/assets/images/team/javier.png'), hobbies: "Le gusta la literatura y los juegos de estrategia." },
+  { name: "Isaac Solís Padilla", role: "Desarrollador Backend", image: require('@/assets/images/team/isaac.png'), hobbies: "Amante de los videojuegos." },
+  { name: "Karim Youssafi Benichikh", role: "Desarrollador Frontend y Especialista en Marketing", image: require('@/assets/images/team/karim.png'), hobbies: "Amante de la tecnología y la inteligencia artificial." },
+];
+
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
@@ -255,7 +308,7 @@ const styles = StyleSheet.create({
     maxWidth: 1500,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 20,
+    marginTop: 40,
   },
   carouselContainer: {
     width: "100%",
@@ -354,26 +407,34 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontFamily: GlobalStyles.fontBold,
     textAlign: "center",
     marginBottom: 12,
     color: GlobalStyles.darkGrey,
   },
   buttonSection: {
-    marginTop: 40,
+    backgroundColor: GlobalStyles.lightGrey,
+    padding: 20,
     width: "100%",
     alignItems: "center",
   },
   buttonContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "center",
+    justifyContent: "space-around",
     gap: 15,
   },
   buttonWrapper: {
+    flexDirection: "row",
     alignItems: "center",
-    minWidth: 250,
+    justifyContent: "center",
+    backgroundColor: GlobalStyles.blue,
+    borderRadius: 10,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    width: Dimensions.get("window").width > 800 ? "30%" : "90%",
+    marginVertical: 5,
   },
   buttonText: {
     fontSize: 16,
@@ -393,7 +454,8 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   description: {
-    fontSize: 20,
+    marginVertical: 5,
+    fontSize: 16,
     fontFamily: GlobalStyles.font,
     textAlign: "left",
     color: GlobalStyles.grey,
@@ -401,14 +463,23 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bold: {
-    fontFamily: GlobalStyles.fontBold,
+    fontSize: 16,
+    fontWeight: "600",
     color: GlobalStyles.darkGrey,
+  },
+  actionContainer: {
+    width: "90%",
+    maxWidth: 1000,
+    marginTop: 20,
+    borderRadius: 10,
+    padding: 20,
+    backgroundColor: GlobalStyles.lightGrey,
+    alignItems: "center",
   },
   featuresContainer: {
     alignSelf: "center",
     width: "100%",
-    marginVertical: 20,
-    paddingVertical: 20,
+    paddingVertical: 30,
     backgroundColor: GlobalStyles.lightGrey,
   },
   featuresTitle: {
@@ -416,7 +487,7 @@ const styles = StyleSheet.create({
     fontFamily: GlobalStyles.fontBold,
     color: GlobalStyles.darkGrey,
     textAlign: "center",
-    marginBottom: 15,
+    marginBottom: 20,
   },
   featuresGrid: {
     flexDirection: "row",
@@ -435,7 +506,7 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: GlobalStyles.white,
+    backgroundColor: "#fff",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -455,5 +526,77 @@ const styles = StyleSheet.create({
     color: GlobalStyles.grey,
     textAlign: "center",
     marginTop: 4,
+  },
+  section: {
+    width: "90%",
+    marginBottom: 30,
+    borderRadius: 10,
+    padding: 20,
+  },
+  subtitle: {
+    fontSize: 18,
+    textAlign: 'center',
+    color: GlobalStyles.darkGrey,
+    marginBottom: 20,
+  },
+  introTextContainer: {
+    marginBottom: 20,
+  },
+  introText: {
+    alignSelf: 'center',
+    fontSize: 16,
+    textAlign: 'justify',
+    color: GlobalStyles.darkGrey,
+    marginBottom: 15,
+    lineHeight: 24,
+    maxWidth: 1200,
+  },
+  teamGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  teamMember: {
+    aspectRatio: 1.5,
+    minHeight: 350,
+    width: "90%",
+    maxWidth: 400,
+    padding: 20,
+    margin: 10,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    borderRadius: 10,
+    alignItems: 'center',
+    elevation: 3,
+    alignContent: 'center',
+    justifyContent: 'center',
+  },
+  memberImage: {
+    width: 170,
+    height: 170,
+    borderRadius: 100,
+    borderWidth: 3,
+    borderColor: GlobalStyles.lightGrey,
+  },
+  memberName: {
+    fontSize: 16,
+    marginTop: 15,
+    fontWeight: 'bold',
+    color: GlobalStyles.darkGrey,
+  },
+  memberRole: {
+    fontSize: 14,
+    color: GlobalStyles.grey,
+    marginVertical: 5,
+  },
+  hobbies: {
+    fontSize: 12,
+    fontStyle: 'italic',
+    color: GlobalStyles.grey,
+    textAlign: 'center',
   },
 });
