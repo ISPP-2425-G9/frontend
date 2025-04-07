@@ -384,7 +384,7 @@ function EsquelaCustomizer() {
           </Text>
           <Text style={styles.formText}>Nombre del fallecido:</Text>
           <CustomTextInput
-            style={{ width: "75%" }}
+            containerStyle={{ width: '75%'}} 
             placeholder="Nombre"
             maxLength={37}
             value={formData.name}
@@ -393,7 +393,7 @@ function EsquelaCustomizer() {
 
           <Text style={styles.formText}>Fecha de nacimiento:</Text>
           <CustomTextInput
-            style={{ width: "75%" }}
+            containerStyle={{ width: '75%'}} 
             placeholder="Fecha de nacimiento (dd/mm/aaaa)"
             value={formData.birthDate}
             maxLength={10}
@@ -446,7 +446,7 @@ function EsquelaCustomizer() {
               <>
                 <Text style={styles.formText}>Fecha de fallecimiento:</Text>
                 <CustomTextInput
-                  style={{ width: "75%" }}
+                  containerStyle={{ width: '75%'}} 
                   placeholder={"Fecha de fallecimiento (dd/mm/aaaa)"}
                   value={formData.deathDate}
                   maxLength={12}
@@ -501,7 +501,7 @@ function EsquelaCustomizer() {
 
           <Text style={styles.formText}>Mensaje de despedida:</Text>
           <CustomTextInput
-            style={[{ width: "75%" }]}
+            containerStyle={{ width: '75%'}} 
             placeholder="Mensaje de despedida"
             value={formData.farewellMessage}
             maxLength={624}
@@ -511,7 +511,7 @@ function EsquelaCustomizer() {
 
           <Text style={styles.formText}>Frase de despedida:</Text>
           <CustomTextInput
-            style={{ width: "75%" }}
+            containerStyle={{ width: '75%'}} 
             placeholder="Frase de despedida"
             maxLength={90}
             value={formData.farewellPhrase}

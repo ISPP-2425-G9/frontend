@@ -525,15 +525,15 @@ function MessageCreation() {
                   />
 
                   <CustomButton
-                    color="green"
-                    style={styles.customButton1}
+                    color="grey"
+                    style={styles.customButton2}
                     title={"Volver"}
                     onPress={() => navigation.navigate("messages/listMyMessages" as never)}
                   />
                 </View>
                 <CustomButton
                   color="grey"
-                  style={styles.customButton2}
+                  style={styles.customButton3}
                   title={is_newMessage ? "Guardar mensaje" : "Actualizar mensaje"}
                   onPress={showConfirmationModal}
                 />
@@ -815,6 +815,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   customButton2: {
+    width: '32%',
+    alignSelf: 'center',
+    backgroundColor: GlobalStyles.grey,
+  },
+  customButton3: {
     width: '100%',
     alignSelf: 'center',
     marginTop: 20,
