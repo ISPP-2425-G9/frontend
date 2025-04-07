@@ -6,6 +6,8 @@ import { ThemedView } from '@/components/ThemedView';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
 import { GlobalStyles } from '@/constants/Colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BACKEND_API } from '@/constants/Mysc';
 
 
 type RouteParams = {
@@ -41,76 +43,47 @@ function ReviewObituairesAndMessagesView() {
   const [obituaries, setObituaries] = useState<Obituary[]>([]);
   const [loading, setLoading] = useState(true);
 
+
   useEffect(() => {
     if (!certificateId) return;
-
-    setLoading(true);
-    const loadData = async () => {
-      setTimeout(() => {
-        const mockMessages: Message[] = [
-          {
-            id: 1,
-            title: 'Última Voluntad 1',
-            body: 'Este es el último mensaje de prueba.',
-            images: [
-              'https://static.nationalgeographicla.com/files/styles/image_3200/public/comedy-wildlife-awards-squirel-stop.jpg',
-              'https://static.nationalgeographicla.com/files/styles/image_3200/public/comedy-wildlife-awards-squirel-stop.jpg'
-            ]
+  
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        console.log('Fetching data for certificate ID:', certificateId);
+        const authToken = await AsyncStorage.getItem('authToken');
+        if (!authToken) throw new Error('Token no disponible');
+        
+        const messagesRes = await fetch(`${BACKEND_API}/api/admin/messages/${certificateId}`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
           },
-          {
-            id: 2,
-            title: 'Mensaje General',
-            body: 'Otro mensaje de prueba.',
-            images: []
+        });
+  
+        if (!messagesRes.ok) throw new Error('Error al cargar mensajes');
+        const messagesData = await messagesRes.json();
+  
+        const obituariesRes = await fetch(`${BACKEND_API}/api/admin/obituaries/${certificateId}`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
           },
-          {
-            id: 3,
-            title: 'Mensaje General',
-            body: 'Otro mensaje de prueba.',
-            images: [
-              'https://static.nationalgeographicla.com/files/styles/image_3200/public/comedy-wildlife-awards-squirel-stop.jpg'
-            ]
-          },
-          {
-            id: 4,
-            title: 'Recuerdo especial',
-            body: 'Siempre estarás en nuestros corazones.',
-            images: []
-          }
-        ];
-
-        const mockObituaries: Obituary[] = [
-          {
-            id: 1,
-            name: 'Nombre Ejemplo 1',
-            farewellMessage: 'Mensaje de despedida 1',
-            farewellPhrase: 'Frase de despedida 1',
-            customImage: 'https://static.nationalgeographicla.com/files/styles/image_3200/public/comedy-wildlife-awards-squirel-stop.jpg'
-          },
-          {
-            id: 2,
-            name: 'Nombre Ejemplo 2',
-            farewellMessage: 'Mensaje de despedida 2',
-            farewellPhrase: 'Frase de despedida 2',
-            customImage: 'https://static.nationalgeographicla.com/files/styles/image_3200/public/comedy-wildlife-awards-squirel-stop.jpg'
-          },
-          {
-            id: 3,
-            name: 'Don Andrés Gómez',
-            farewellMessage: 'Gracias por tantos momentos compartidos.',
-            farewellPhrase: 'Hasta siempre, maestro.',
-            customImage: ''
-          }
-        ];
-
-        setMessages(mockMessages);
-        setObituaries(mockObituaries);
+        });
+  
+        if (!obituariesRes.ok) throw new Error('Error al cargar esquelas');
+        const obituariesData = await obituariesRes.json();
+  
+        setMessages(messagesData);
+        setObituaries(obituariesData);
+      } catch (error) {
+        console.error('Error al obtener datos:', error);
+      } finally {
         setLoading(false);
-      }, 1000);
+      }
     };
-
-    loadData();
+  
+    fetchData();
   }, [certificateId]);
+
 
   if (!certificateId) {
     return (
