@@ -189,12 +189,14 @@ const Contact: React.FC = () => {
               onPress={() =>
                 Linking.openURL("https://whatsapp.com/channel/0029Vb8vAcUDzgTBG01Tdw1f")
               }
+              testID="whatsapp"
             >
               <Icon name="whatsapp" size={30} color="#42B5FC" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.socialIcon}
               onPress={() => Linking.openURL("https://www.linkedin.com/in/caronte-app/")}
+              testID="linkedin"
             >
               <Icon name="linkedin" size={30} color="#42B5FC" />
             </TouchableOpacity>
@@ -203,30 +205,35 @@ const Contact: React.FC = () => {
               onPress={() =>
                 Linking.openURL("https://www.facebook.com/profile.php?id=61573575124143")
               }
+              testID="facebook"
             >
               <Icon name="facebook" size={30} color="#42B5FC" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.socialIcon}
               onPress={() => Linking.openURL("https://x.com/CaronteApp")}
+              testID="x-twitter"
             >
               <Icon name="x-twitter" size={30} color="#42B5FC" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.socialIcon}
               onPress={() => Linking.openURL("https://instagram.com/caronte_es")}
+              testID="instagram"
             >
               <Icon name="instagram" size={30} color="#42B5FC" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.socialIcon}
               onPress={() => Linking.openURL("https://www.tiktok.com/@caronteapp")}
+              testID="tiktok"
             >
               <Icon name="tiktok" size={30} color="#42B5FC" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.socialIcon}
               onPress={() => Linking.openURL("https://github.com/ISPP-2425-G9")}
+              testID="github"
             >
               <Icon name="github" size={30} color="#42B5FC" />
             </TouchableOpacity>
