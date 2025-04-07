@@ -10,8 +10,6 @@ import * as ImagePicker from "expo-image-picker";
 import { useCallback, useState } from "react";
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { AUTHORITIES } from "../_util/Authorities";
-import { withAuth } from "../_util/withAuth";
 
 type RootStackParamList = {
   "obituaries/loadCertificate": { jsonData: string },
@@ -434,4 +432,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER, AUTHORITIES.ANONYMOUS]);
+export default LoadCertificate;
