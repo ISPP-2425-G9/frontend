@@ -294,7 +294,7 @@ function SelectContacts() {
           setModalMessage("¿Desea guardar su propia esquela?");
         }
       } else {
-        setModalMessage("¿Desea crear y enviar una esquela para un ser querido?");
+        setModalMessage("¿Desea continuar? El próximo paso es subir el certificado de defunción.");
       }
 
       setModalVisible(true);
@@ -490,7 +490,7 @@ function SelectContacts() {
         {
           is_newObituary ? (
             <CustomButton
-              title={is_mine ? "Crear esquela" : "Subir certificado de defunción"}
+              title={is_mine ? "Crear esquela" : "Continuar"}
               onPress={() => { showConfirmationModal() }}
               style={styles.saveButton}
             />

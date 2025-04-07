@@ -18,7 +18,7 @@ const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
 type RootStackParamList = {
-  'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number, is_visualization?: boolean};
+  'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number, is_visualization?: boolean };
   'obituaries/index': undefined;
 };
 
@@ -155,10 +155,29 @@ function ObituaryIndex() {
 
 
   return isAuthenticated ? (
-    <ThemedView style={styles.container}>
-      <Text style={styles.title}>Sus esquelas</Text>
 
+    <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+
+        <View style={styles.introContainer}>
+          <Text style={styles.introTitle}>📜 Esquelas 📜</Text>
+          <Text style={styles.introText}>
+            En esta sección podrás visualizar, editar y comprobar el estado de tus esquelas creadas.
+          </Text>
+          <Text style={styles.introText}>
+            Recuerda que las esquelas para seres queridos tendrán que ser verificadas por un <Text style={{fontWeight: "bold"}}>administrador</Text> de la aplicación antes de ser enviadas.
+          </Text>
+          <Text style={styles.introText}>
+            Si la esquela es para ti, permanecerá guardada y podrás editarla en cualquier momento.
+          </Text>
+        </View>
+        <View style={styles.buttonContainer}>
+          <CustomButton title="Crea una esquela" style={styles.button3} textStyle={styles.button3Text} onPress={() => { navigation.navigate('obituaries/index'); }} />
+        </View>
+
+
+
+        <Text style={styles.title}>Sus esquelas</Text>
         <View style={styles.listContainer}>
           {obituaries.map((item) => (
             <View
@@ -217,11 +236,6 @@ function ObituaryIndex() {
         </View>
       </ScrollView>
 
-      <View style={styles.divider} />
-      <View style={styles.buttonContainer}>
-        <CustomButton title="Crea una esquela" onPress={() => { navigation.navigate('obituaries/index'); }} />
-      </View>
-
       {modalVisible && (
         <CustomModal
           visible={modalVisible}
@@ -249,11 +263,10 @@ function ObituaryIndex() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 8,
+    paddingBottom: 15,
     flex: 1,
     alignItems: 'center',
-    paddingTop: 30,
-    backgroundColor: '#ffff',
+    backgroundColor: GlobalStyles.white,
   },
   title: {
     fontSize: 30,
@@ -314,11 +327,11 @@ const styles = StyleSheet.create({
     padding: '20%',
   },
   buttonContainer: {
-    width: '90%',
-    alignItems: 'flex-end',
-    marginBottom: '0.5%',
-    marginRight: '6%',
-    gap: '4%',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 15,
+    marginTop: 15,
   },
   buttonsContainer: {
     flexDirection: 'column',
@@ -353,8 +366,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
   },
-
-
   modalStyle: {
     backgroundColor: '#fff',
     padding: 20,
@@ -365,6 +376,37 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
     width: width > 600 ? '40%' : '80%',
+  },
+  introContainer: {
+    width: '90%',
+    backgroundColor: GlobalStyles.lightGrey,
+    padding: 20,
+    borderRadius: 10,
+    marginBottom: 20,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  introTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: GlobalStyles.darkGrey,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  introText: {
+    fontSize: 20,
+    color: GlobalStyles.darkGrey,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 5,
+  },
+  button3: {
+    width: width > 600 ? "30%" : '80%',
+    height: "100%",
+  },
+  button3Text: {
+    fontSize: 17,
+    color: GlobalStyles.white,
   },
 });
 
