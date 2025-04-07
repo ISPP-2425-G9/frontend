@@ -214,7 +214,7 @@ const Contact: React.FC = () => {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.socialIcon}
-              onPress={() => Linking.openURL("https://instagram.com/caronteapp")}
+              onPress={() => Linking.openURL("https://instagram.com/caronte_es")}
             >
               <Icon name="instagram" size={30} color="#42B5FC" />
             </TouchableOpacity>
