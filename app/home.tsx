@@ -1,3 +1,5 @@
+import CustomButton from "@/components/CustomButton";
+import Footer from "@/components/Footer";
 import LineBreak from "@/components/LineBreak";
 import Logo from "@/components/Logo";
 import { ThemedText } from "@/components/ThemedText";
@@ -69,6 +71,7 @@ export default function HomeScreen() {
             />
           ))}
         </View>
+        
       </View>
       <GallerySection />
       <TeamMembersSection />
