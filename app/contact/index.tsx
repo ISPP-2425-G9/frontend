@@ -9,10 +9,12 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome6";
 
 const Contact: React.FC = () => {
+  const { width } = useWindowDimensions();
   const titleAnim = useRef(new Animated.Value(0)).current;
   const subtitleAnim = useRef(new Animated.Value(0)).current;
   const detailsAnim = useRef(new Animated.Value(0)).current;
@@ -76,7 +78,7 @@ const Contact: React.FC = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.innerContainer}>
+      <View style={[styles.innerContainer, { paddingHorizontal: width < 480 ? 20 : 90 }]}>
         <Animated.Text style={[styles.title, { opacity: titleAnim }]}>
           Contáctanos
         </Animated.Text>
@@ -237,7 +239,6 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     paddingVertical: 60,
-    paddingHorizontal: 20,
     alignItems: "center",
   },
   title: {
