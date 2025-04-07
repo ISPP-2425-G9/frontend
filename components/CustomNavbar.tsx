@@ -46,6 +46,7 @@ const CustomNavbar = () => {
             'login/index': 'Iniciar sesión',
             'register/index': 'Registrarse',
             'admin/listUsers': 'Usuarios',
+            'admin/certificatesManagement': 'Certificados de defunción',
             'obituaries/index': 'Esquelas',
             'messages/listMyMessages': 'Mensajes',
             'contacts/index': 'Contactos de emergencia',
@@ -89,8 +90,13 @@ const CustomNavbar = () => {
             if (userRoles?.includes("ADMIN")) {
                 items.push(
                     { title: 'Usuarios', route: 'admin/listUsers' },
+                    { title: 'Certificados de defunción', route: 'admin/certificatesManagement' },
                     { title: 'Sobre nosotros', route: 'about/index' },
-                    { title: 'Contáctanos', route: 'contact/index' }
+                    { title: 'Contáctanos', route: 'contact/index' },
+                    { title: 'Cerrar sesión', action: () => {
+                        setUserMenuOpen(false);
+                        setIsLogoutModalVisible(true);
+                    }}
                 );
             }
             if (userRoles?.includes("CUSTOMER")) {
@@ -109,8 +115,7 @@ const CustomNavbar = () => {
                     { title: 'Sobre nosotros', route: 'about/index' },
                     { title: 'Contáctanos', route: 'contact/index' },
                     { title: userName || '', route: 'profile/index' },
-                    {
-                        title: 'Cerrar sesión', action: () => {
+                    { title: 'Cerrar sesión', action: () => {
                             setUserMenuOpen(false);
                             setIsLogoutModalVisible(true);
                         }
@@ -205,6 +210,9 @@ const CustomNavbar = () => {
                                             <Text style={styles.navItem}>Usuarios</Text>
                                             {activeItem === 'admin/listUsers' && <View style={styles.activeIndicator} />}
                                         </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => { handleNavigation('admin/certificatesManagement'); setMenuOpen(false); }}>
+                                        <Text style={styles.dropdownNavItem}>Certificados de defunción</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => { handleNavigation('about/index') }}>
                                         <View>
