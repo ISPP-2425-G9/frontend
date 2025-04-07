@@ -74,6 +74,7 @@ function SelectContacts() {
   const [userRole, setUserRole] = useState<string | null>(null);
 
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [loading, setLoading] = useState(false);
 
 
   const hasError =
@@ -84,6 +85,7 @@ function SelectContacts() {
 
   useFocusEffect(
     useCallback(() => {
+      setLoading(false);
       if (is_newObituary) {
         setNewContact({ id: Date.now(), name: "", phone: "", email: "" });
         setContacts([]);
@@ -316,6 +318,8 @@ function SelectContacts() {
   };
 
   const handleSubmit = async () => {
+    if (loading) return;
+    setLoading(true);
 
     try {
       if (is_mine) {
@@ -325,6 +329,7 @@ function SelectContacts() {
       }
       setModalVisible(false);
     } catch (error: any) {
+      setLoading(false);
       if (Platform.OS === "web") {
         window.alert("Error: " + error.message);
       } else {
