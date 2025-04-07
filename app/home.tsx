@@ -78,9 +78,10 @@ export default function HomeScreen() {
 
 const ImageCarousel: React.FC = () => {
   const images = [
-    "https://cdn.autobild.es/sites/navi.axelspringer.es/public/media/image/2022/07/honda-nsx-2760235.jpg?tf=3840x",
-    "https://www.autonocion.com/wp-content/uploads/2023/04/Nissan-Skyline-R34-GT-R-Paul-Walker-0.jpeg",
-    "https://www.super-hobby.nl/zdjecia/5/8/6/11874_rd.jpg",
+    "https://us.123rf.com/450wm/outchill/outchill1712/outchill171202982/91290228-ejemplo-de-texto-escrito-en-sello-vintage-de-goma-de-c%C3%ADrculo-simple-rojo.jpg?ver=6",
+    "https://previews.123rf.com/images/outchill/outchill1712/outchill171204899/91292345-exemplo-texto-escrito-em-amarelo-simples-c%C3%ADrculo-borracha-vintage-selo.jpg",
+    "https://us.123rf.com/450wm/outchill/outchill1712/outchill171204062/91291455-texto-del-ejemplo-escrito-en-el-sello-vintage-de-goma-del-c%C3%ADrculo-simple-verde.jpg?ver=6",
+    "https://previews.123rf.com/images/outchill/outchill1712/outchill171204555/91291972-ejemplo-de-texto-escrito-en-sello-vintage-de-goma-de-c%C3%ADrculo-simple-rosa.jpg",
   ];
 
   const [currentIndex, setCurrentIndex] = React.useState(0);
