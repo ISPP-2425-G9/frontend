@@ -1,14 +1,10 @@
-import { Linking, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, Animated } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome6";
 import { GlobalStyles } from "@/constants/Colors";
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from "react";
-import { Dimensions, Image, Linking, Modal, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome6";
-import CustomButton from "./CustomButton";
-import Logo from "./Logo";
-import TermsAndConditions from "./TermsAndConditions";
+import { Dimensions, Modal, ScrollView, StyleSheet, Text, View } from "react-native";
 import AnimatedIcon from "./AnimatedIcon";
+import CustomButton from "./CustomButton";
+import TermsAndConditions from "./TermsAndConditions";
 
 const socialLinks = [
   { name: "instagram", url: "https://instagram.com/caronte_es" },
