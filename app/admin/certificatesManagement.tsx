@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { FlatList, StyleSheet, Text, View, ScrollView, TextInput } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { ThemedView } from '@/components/ThemedView';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
@@ -8,6 +8,8 @@ import { GlobalStyles } from '@/constants/Colors';
 import CustomButton from '@/components/CustomButton';
 import { ThemedText } from '@/components/ThemedText';
 import CustomModal from '@/components/CustomModal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BACKEND_API } from '@/constants/Mysc';
 
 
 type Certificate = {
@@ -16,46 +18,6 @@ type Certificate = {
   dni: string;
   certificateUrl: string;
 };
-
-const MOCK_DATA: Certificate[] = [
-  {
-    id: 1,
-    name: 'Juan Pérez García',
-    dni: '12345678A',
-    certificateUrl: 'https://static.nationalgeographicla.com/files/styles/image_3200/public/comedy-wildlife-awards-squirel-stop.jpg',
-  },
-  {
-    id: 2,
-    name: 'María López Sánchez',
-    dni: '12345678A',
-    certificateUrl: 'https://static.nationalgeographicla.com/files/styles/image_3200/public/comedy-wildlife-awards-squirel-stop.jpg',
-  },
-  {
-    id: 3,
-    name: 'Pepa López Juárez',
-    dni: '12345678A',
-    certificateUrl: 'https://static.nationalgeographicla.com/files/styles/image_3200/public/comedy-wildlife-awards-squirel-stop.jpg',
-  },
-  {
-    id: 4,
-    name: 'María Isabel López Sánchez',
-    dni: '12345678A',
-    certificateUrl: 'https://static.nationalgeographicla.com/files/styles/image_3200/public/comedy-wildlife-awards-squirel-stop.jpg',
-  },
-  {
-    id: 5,
-    name: 'Antonio López Sanchis',
-    dni: '12345678A',
-    certificateUrl: 'https://static.nationalgeographicla.com/files/styles/image_3200/public/comedy-wildlife-awards-squirel-stop.jpg',
-  },
-  {
-    id: 6,
-    name: 'Juan Antonio Pérez Sánchez',
-    dni: '12345678A',
-    certificateUrl: 'https://static.nationalgeographicla.com/files/styles/image_3200/public/comedy-wildlife-awards-squirel-stop.jpg',
-  },
-];
-
 
 const CertificateManagement: React.FC = () => {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
@@ -84,10 +46,33 @@ const CertificateManagement: React.FC = () => {
   };
   
 
-  useEffect(() => {
-    // Simulación de carga desde el backend
-    setCertificates(MOCK_DATA);
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const fetchCertificates = async () => {
+        try {
+          const authToken = await AsyncStorage.getItem('authToken');
+          if (!authToken) throw new Error('Token no disponible');
+  
+          const response = await fetch(`${BACKEND_API}/api/admin/certificates/pending`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authToken.trim()}`,
+            },
+          });
+  
+          if (!response.ok) throw new Error('Error al obtener certificados');
+  
+          const data = await response.json();
+          setCertificates(data);
+        } catch (error) {
+          console.error('Error al obtener certificados:', error);
+        }
+      };
+  
+      fetchCertificates();
+    }, [])
+  );
 
   const renderItem = ({ item }: { item: Certificate }) => (
     <View style={styles.tableRow}>
@@ -166,29 +151,33 @@ const CertificateManagement: React.FC = () => {
         {errorMessage !== "" && (
           <ThemedText style={styles.errorMessage}>{errorMessage}</ThemedText>
         )}
-        <View style={styles.tableContainer}>
-          <ScrollView
-            horizontal
-            style={styles.tableScrollContainer}
-            contentContainerStyle={styles.tableScrollContent}
-          >
-            <View style={styles.tableWrapper}>
-              <View style={styles.tableHeader}>
-                <Text style={styles.headerCell}>Nombre</Text>
-                <Text style={styles.headerCell}>DNI</Text>
-                <Text style={styles.headerCell}>Certificado</Text>
-                <Text style={styles.headerCell}>Esquelas/Mensajes</Text>
-                <Text style={styles.headerCell}>Fecha fallecimiento</Text>
-                <Text style={styles.headerCell}>Acciones</Text>
+        {certificates.length === 0 ? (
+          <ThemedText style={styles.noDataText}>No hay certificados pendientes.</ThemedText>
+        ) : (
+          <View style={styles.tableContainer}>
+            <ScrollView
+              horizontal
+              style={styles.tableScrollContainer}
+              contentContainerStyle={styles.tableScrollContent}
+            >
+              <View style={styles.tableWrapper}>
+                <View style={styles.tableHeader}>
+                  <Text style={styles.headerCell}>Nombre</Text>
+                  <Text style={styles.headerCell}>DNI</Text>
+                  <Text style={styles.headerCell}>Certificado</Text>
+                  <Text style={styles.headerCell}>Esquelas/Mensajes</Text>
+                  <Text style={styles.headerCell}>Fecha fallecimiento</Text>
+                  <Text style={styles.headerCell}>Acciones</Text>
+                </View>
+                <FlatList
+                  data={certificates}
+                  keyExtractor={(item) => item.id.toString()}
+                  renderItem={renderItem}
+                />
               </View>
-              <FlatList
-                data={certificates}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={renderItem}
-              />
-            </View>
-          </ScrollView>
-        </View>
+            </ScrollView>
+          </View>
+        )}
       </ScrollView>
 
       {modalVisible && (
@@ -336,6 +325,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 10,
     fontSize: 14,
+  },
+  noDataText: {
+    fontSize: 18,
+    textAlign: 'center',
+    color: GlobalStyles.darkGrey,
+    marginTop: 20,
   },
 });
 
