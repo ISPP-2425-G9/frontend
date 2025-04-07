@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
   noDataText: {
     fontSize: 18,
     textAlign: 'center',
-    color: GlobalStyles.darkGrey,
+    color: GlobalStyles.blue,
     marginTop: 20,
   },
 });

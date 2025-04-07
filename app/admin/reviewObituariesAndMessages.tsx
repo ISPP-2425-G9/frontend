@@ -188,6 +188,10 @@ function ReviewObituairesAndMessagesView() {
 
       {loading ? (
         <ActivityIndicator size="large" color={GlobalStyles.blue} style={{ marginTop: 30 }} />
+      ) : (showMessages ? messages.length === 0 : obituaries.length === 0) ? (
+        <Text style={styles.noDataText}>
+          No hay {showMessages ? 'mensajes' : 'esquelas'} disponibles.
+        </Text>
       ) : (
         <ScrollView style={{ maxHeight: '70%' }}>
           <ScrollView horizontal contentContainerStyle={styles.scrollContainer}>
@@ -295,6 +299,12 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     borderRadius: 8,
   },
+  noDataText: {
+    fontSize: 18,
+    textAlign: 'center',
+    color: GlobalStyles.blue,
+    marginTop: 30,
+  },  
 });
 
 export default withAuth(ReviewObituairesAndMessagesView, [AUTHORITIES.ADMIN]);
