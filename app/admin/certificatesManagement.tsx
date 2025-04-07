@@ -29,6 +29,8 @@ const CertificateManagement: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [failureMessage, setFailureMessage] = useState<string>("");
+  const [acceptModalVisible, setAcceptModalVisible] = useState(false);
+  const [selectedCertificateForApproval, setSelectedCertificateForApproval] = useState<Certificate | null>(null);
 
   const isValidDeathDate = (dateStr: string): { valid: boolean; message?: string } => {
     if (!dateStr) {
@@ -124,7 +126,7 @@ const CertificateManagement: React.FC = () => {
             title="Aceptar"
             color="green"
             style={styles.actionsButton}
-            onPress={async () => {
+            onPress={() => {
               setErrorMessage("");
               const dateStr = deathDates[item.id];
               const { valid, message } = isValidDeathDate(dateStr);
@@ -132,28 +134,9 @@ const CertificateManagement: React.FC = () => {
                 setErrorMessage(message || "");
                 return;
               }
-              try {
-                const authToken = await AsyncStorage.getItem('authToken');
-                const response = await fetch(`${BACKEND_API}/api/admin/certificates/approve/${item.id}`, {
-                  method: 'PUT',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${authToken}`,
-                  },
-                  body: JSON.stringify({ deathDate: dateStr }),
-                });
-  
-                if (response.ok) {
-                  showSuccessMessage(`Certificado aprobado correctamente.`);
-                  fetchCertificates();
-                } else {
-                  showFailureMessage('Error al aprobar el certificado');
-                }
-              } catch (error) {
-                const error_str = 'Error de red al aprobar el certificado:' + error;
-                showFailureMessage(error_str);
-              }
-            }}
+              setSelectedCertificateForApproval(item);
+              setAcceptModalVisible(true);
+            }}            
           />
           <CustomButton
             title="Denegar"
@@ -219,6 +202,55 @@ const CertificateManagement: React.FC = () => {
           </View>
         )}
       </ScrollView>
+
+      {acceptModalVisible && selectedCertificateForApproval && (
+        <CustomModal
+          visible={acceptModalVisible}
+          onClose={() => setAcceptModalVisible(false)}
+          title="Confirmar aceptación"
+        >
+          <ThemedText>¿Estás seguro de que deseas aceptar el certificado?</ThemedText>
+          <ThemedText>Si aceptas, espera un momento ya que esta acción lleva su tiempo.</ThemedText>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 20, gap: 10 }}>
+            <CustomButton
+              title="Cancelar"
+              color="grey"
+              onPress={() => setAcceptModalVisible(false)}
+            />
+            <CustomButton
+              title="Aceptar"
+              color="green"
+              onPress={async () => {
+                const item = selectedCertificateForApproval;
+                const dateStr = deathDates[item.id];
+                try {
+                  const authToken = await AsyncStorage.getItem('authToken');
+                  const response = await fetch(`${BACKEND_API}/api/admin/certificates/approve/${item.id}`, {
+                    method: 'PUT',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      Authorization: `Bearer ${authToken}`,
+                    },
+                    body: JSON.stringify({ deathDate: dateStr }),
+                  });
+
+                  if (response.ok) {
+                    showSuccessMessage(`Certificado aprobado correctamente.`);
+                    fetchCertificates();
+                  } else {
+                    showFailureMessage('Error al aprobar el certificado');
+                  }
+                } catch (error) {
+                  showFailureMessage('Error de red al aprobar el certificado: ' + error);
+                } finally {
+                  setAcceptModalVisible(false);
+                  setSelectedCertificateForApproval(null);
+                }
+              }}
+            />
+          </View>
+        </CustomModal>
+      )}
 
       {modalVisible && (
         <CustomModal
