@@ -33,15 +33,17 @@ const screenWidth = Dimensions.get('window').width;
 
 function ReviewObituairesAndMessagesView() {
   const route = useRoute<RouteProp<RouteParams, 'ReviewObituairesAndMessagesView'>>();
-  const { certificateId } = route.params;
   const navigation = useNavigation();
 
+  const certificateId = route.params?.certificateId;
   const [showMessages, setShowMessages] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [obituaries, setObituaries] = useState<Obituary[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!certificateId) return;
+
     setLoading(true);
     const loadData = async () => {
       setTimeout(() => {
@@ -109,6 +111,15 @@ function ReviewObituairesAndMessagesView() {
 
     loadData();
   }, [certificateId]);
+
+  if (!certificateId) {
+    return (
+      <ThemedView style={styles.container}>
+        <Text style={styles.sectionTitle}>Error: No se proporcionó un ID de certificado.</Text>
+        <CustomButton title="Volver al listado" onPress={() => navigation.goBack()} color="blue" />
+      </ThemedView>
+    );
+  }
 
   const handleDelete = (id: number) => {
     console.log(`Eliminar ${showMessages ? 'mensaje' : 'esquela'} con ID: ${id}`);
