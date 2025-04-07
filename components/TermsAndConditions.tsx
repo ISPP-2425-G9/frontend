@@ -1,7 +1,7 @@
 import React from "react";
 import { ScrollView, Text, StyleSheet, View } from "react-native";
 import { GlobalStyles } from "@/constants/Colors";
-import LineBreak from "./LineBreack";
+import LineBreak from "./LineBreak";
 
 const TermsAndConditions: React.FC = () => {
   return (
