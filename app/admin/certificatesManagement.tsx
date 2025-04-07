@@ -25,6 +25,7 @@ const CertificateManagement: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCertificateId, setSelectedCertificateId] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [successMessageVisible, setSuccessMessageVisible] = useState(false);
   const navigation = useNavigation();
 
   const isValidDeathDate = (dateStr: string): { valid: boolean; message?: string } => {
@@ -46,30 +47,31 @@ const CertificateManagement: React.FC = () => {
   };
   
 
+  const fetchCertificates = async () => {
+    try {
+      const authToken = await AsyncStorage.getItem('authToken');
+      if (!authToken) throw new Error('Token no disponible');
+  
+      const response = await fetch(`${BACKEND_API}/api/admin/certificates/pending`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken.trim()}`,
+        },
+      });
+  
+      if (!response.ok) throw new Error('Error al obtener certificados');
+  
+      const data = await response.json();
+      console.log(data)
+      setCertificates(data);
+    } catch (error) {
+      console.error('Error al obtener certificados:', error);
+    }
+  };
+  
   useFocusEffect(
     useCallback(() => {
-      const fetchCertificates = async () => {
-        try {
-          const authToken = await AsyncStorage.getItem('authToken');
-          if (!authToken) throw new Error('Token no disponible');
-  
-          const response = await fetch(`${BACKEND_API}/api/admin/certificates/pending`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${authToken.trim()}`,
-            },
-          });
-  
-          if (!response.ok) throw new Error('Error al obtener certificados');
-  
-          const data = await response.json();
-          setCertificates(data);
-        } catch (error) {
-          console.error('Error al obtener certificados:', error);
-        }
-      };
-  
       fetchCertificates();
     }, [])
   );
@@ -83,7 +85,7 @@ const CertificateManagement: React.FC = () => {
           title="Ver certificado"
           color="blue"
           style={styles.deathCertificateButton}
-          onPress={() => navigation.navigate('admin/certificateViewer', {certificateUrl: item.certificateUrl,})}
+          onPress={() => navigation.navigate('admin/certificateViewer', { certificateUrl: item.certificateUrl })}
         />
       </View>
       <View style={styles.cell}>
@@ -91,7 +93,7 @@ const CertificateManagement: React.FC = () => {
           title="Revisar esquelas/mensajes"
           color="blue"
           style={styles.obituariesMessagesButton}
-          onPress={() => navigation.navigate('admin/reviewObituariesAndMessages', {certificateId: item.id,})}
+          onPress={() => navigation.navigate('admin/reviewObituariesAndMessages', { certificateId: item.id })}
         />
       </View>
       <View style={styles.cell}>
@@ -111,14 +113,33 @@ const CertificateManagement: React.FC = () => {
             title="Aceptar"
             color="green"
             style={styles.actionsButton}
-            onPress={() => {
+            onPress={async () => {
               setErrorMessage("");
               const dateStr = deathDates[item.id];
               const { valid, message } = isValidDeathDate(dateStr);
               if (!valid) {
                 setErrorMessage(message || "");
-              } else {
-                console.log(`Certificado aceptado ID: ${item.id} con fecha: ${dateStr}`);
+                return;
+              }
+              try {
+                const authToken = await AsyncStorage.getItem('authToken');
+                const response = await fetch(`${BACKEND_API}/api/admin/certificates/approve/${item.id}`, {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${authToken}`,
+                  },
+                  body: JSON.stringify({ deathDate: dateStr }),
+                });
+  
+                if (response.ok) {
+                  console.log("Certificado aprobado", `ID ${item.id} aprobado correctamente.`);
+                  fetchCertificates();
+                } else {
+                  console.error('Error al aprobar el certificado');
+                }
+              } catch (error) {
+                console.error('Error de red al aprobar certificado:', error);
               }
             }}
           />
@@ -130,12 +151,13 @@ const CertificateManagement: React.FC = () => {
               setErrorMessage("");
               setSelectedCertificateId(item.id);
               setModalVisible(true);
-            }}            
+            }}
           />
         </View>
       </View>
     </View>
   );
+  
   
   
   return (
@@ -192,15 +214,32 @@ const CertificateManagement: React.FC = () => {
             <CustomButton
               title="Denegar"
               color="red"
-              onPress={() => {
+              onPress={async () => {
                 if (selectedCertificateId !== null) {
-                  console.log(`Certificado denegado ID: ${selectedCertificateId}`);
+                  try {
+                    const authToken = await AsyncStorage.getItem('authToken');
+                    const response = await fetch(`${BACKEND_API}/api/admin/certificates/disapprove/${selectedCertificateId}`, {
+                      method: 'DELETE',
+                      headers: {
+                        Authorization: `Bearer ${authToken}`,
+                      },
+                    });
+        
+                    if (response.ok) {
+                      console.log("Certificado denegado", `ID ${selectedCertificateId} denegado correctamente.`);
+                      setModalVisible(false);
+                      fetchCertificates();
+                    } else {
+                      console.error('Error al denegar el certificado');
+                    }
+                  } catch (error) {
+                    console.error('Error de red al denegar certificado:', error);
+                  }
                 }
-                setModalVisible(false);
               }}
             />
           </View>
-        </CustomModal>
+        </CustomModal>      
       )}
     </ThemedView>
   );
