@@ -1,4 +1,3 @@
-import CustomButton from "@/components/CustomButton";
 import LineBreak from "@/components/LineBreack";
 import Logo from "@/components/Logo";
 import { ThemedText } from "@/components/ThemedText";
@@ -59,23 +58,7 @@ export default function HomeScreen() {
 
       <ImageCarousel />
 
-      {isAuthenticated && userRoles?.includes("CUSTOMER") && (
-        <View style={styles.actionContainer}>
-          <ThemedText style={styles.featuresTitle}>
-            ¿Qué quieres hacer?
-          </ThemedText>          <View style={styles.buttonContainer}>
-            <View style={styles.buttonWrapper}>
-              <CustomButton title="Crear una esquela" onPress={() => { navigation.navigate("obituaries/index" as never) }} color="blue" />
-            </View>
-            <View style={styles.buttonWrapper}>
-              <CustomButton title="Ver planes" onPress={() => { navigation.navigate("subscribe/index" as never) }} color="blue" />
-            </View>
-            <View style={styles.buttonWrapper}>
-              <CustomButton title="Ver servicios" onPress={() => { navigation.navigate("services/index" as never) }} color="blue" />
-            </View>
-          </View>
-        </View>
-      )}
+      <GallerySection />
 
       <AboutUs />
 
@@ -101,9 +84,9 @@ export default function HomeScreen() {
 
 const ImageCarousel: React.FC = () => {
   const images = [
-    "https://store-images.s-microsoft.com/image/apps.58752.13942869738016799.078aba97-2f28-440f-97b6-b852e1af307a.95fdf1a1-efd6-4938-8100-8abae91695d6?q=90&w=336&h=200",
-    "https://hips.hearstapps.com/hmg-prod/images/red-dead-redemption-2-1539704658.jpg?crop=0.502xw:1.00xh;0.498xw,0&resize=1200:*",
-    "https://i.scdn.co/image/ab67616d0000b273f337a21d945f44e802a1eb1d",
+    "https://i.ytimg.com/vi/xRBR3agfWQA/maxresdefault.jpg",
+    "https://i.ytimg.com/vi/Q2qeMli8oq8/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLAkq3ofCqRd7ZFinG2x5DJTB0tTZA",
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcREWIQ3FJppj1dL2JSBp2O7d2ZealsPYiobdw&s",
   ];
 
   const [currentIndex, setCurrentIndex] = React.useState(0);
@@ -181,6 +164,58 @@ const ImageCarousel: React.FC = () => {
     </View>
   );
 };
+
+const videoIds = [
+  "WHBSjduVhoo",
+  "A_VFqpbJ5Yw",
+  "KkkRXSZX0lg?si=caXEZSRZN4IG8Gjk",
+];
+
+const GallerySection: React.FC = ({ }) => {
+  return (
+    <View style={styles.galleryContainer}>
+      <ThemedText style={styles.featuresTitle}>Galería</ThemedText>
+      <View style={styles.galleryGrid}>
+        {videoIds.map((videoId, index) => (
+          <YoutubeVideo key={index} videoId={videoId} />
+        ))}
+      </View>
+    </View>
+  );
+};
+
+const YoutubeVideo: React.FC<{ videoId: string }> = ({ videoId }) => {
+  const [playerReady, setPlayerReady] = useState(false);
+
+  return (
+    <View style={styles.videoContainer}>
+      <YoutubeIframe
+        videoId={videoId}
+        height={200}
+        onReady={() => setPlayerReady(true)}
+        webViewProps={{
+          renderToHardwareTextureAndroid: true,
+          androidLayerType: 'hardware',
+          injectedJavaScript: `
+            // Disable YouTube logging
+            try {
+              XMLHttpRequest.prototype.open = function() {
+                if (!arguments[1].includes('/log_event')) {
+                  return XMLHttpRequest.prototype.open.apply(this, arguments);
+                }
+              };
+            } catch(e) {}
+            true;
+          `,
+          onMessage: () => setPlayerReady(true)
+        }}
+      />
+    </View>
+  );
+};
+
+
+import YoutubeIframe from 'react-native-youtube-iframe';
 
 const features: {
   icon: "security" | "check-circle" | "autorenew" | "brush";
@@ -322,7 +357,7 @@ const styles = StyleSheet.create({
   },
   carouselImage: {
     width: Dimensions.get("window").width,
-    height: 300,
+    height: 400,
   },
   carouselButtons: {
     position: "absolute",
@@ -422,19 +457,12 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-around",
+    justifyContent: "center",
     gap: 15,
   },
   buttonWrapper: {
-    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: GlobalStyles.blue,
-    borderRadius: 10,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    width: Dimensions.get("window").width > 800 ? "30%" : "90%",
-    marginVertical: 5,
+    minWidth: 250,
   },
   buttonText: {
     fontSize: 16,
@@ -469,7 +497,7 @@ const styles = StyleSheet.create({
   },
   actionContainer: {
     width: "90%",
-    maxWidth: 1000,
+
     marginTop: 20,
     borderRadius: 10,
     padding: 20,
@@ -598,5 +626,28 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     color: GlobalStyles.grey,
     textAlign: 'center',
+  },
+  galleryContainer: {
+    width: "90%",
+    height: "auto",
+    maxWidth: 1200,
+    paddingTop: 20,
+    paddingBottom: 30,
+    backgroundColor: GlobalStyles.lightGrey,
+    borderRadius: 10,
+    marginVertical: 30,
+  },
+  galleryGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    height: "100%",
+    gap: 50,
+    width: "100%",
+  },
+  videoContainer: {
+    width: "90%",
+    maxWidth: 350,
+    height: "auto",
   },
 });
