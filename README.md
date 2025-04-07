@@ -1,6 +1,6 @@
 # CARONTE - Frontend  
 
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8a2b25799bbb4c179815520623e7a73d)](https://app.codacy.com/gh/ISPP-2425-G9/frontend/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)  
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8a2b25799bbb4c179815520623e7a73d)](https://app.codacy.com/gh/ISPP-2425-G9/frontend/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)  [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/8a2b25799bbb4c179815520623e7a73d)](https://app.codacy.com/gh/ISPP-2425-G9/frontend/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage) ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg) ![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg?logo=conventional-commits)
 
 ## Description  
 
