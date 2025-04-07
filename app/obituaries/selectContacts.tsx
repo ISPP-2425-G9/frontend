@@ -568,6 +568,7 @@ const styles = StyleSheet.create({
     width: width > 600 ? "100%" : "90%",
     marginBottom: 10,
     flexDirection: width > 600 ? "row" : "column",
+    gap: 10,
   },
   deleteButton: {
     marginRight: 5,

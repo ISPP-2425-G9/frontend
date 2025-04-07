@@ -60,6 +60,8 @@ function MessageCreation() {
 
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     title: '',
     body: '',
@@ -70,6 +72,7 @@ function MessageCreation() {
   const [code, setCode] = useState<string>("");
 
   useEffect(() => {
+    setLoading(false);
     setSelectedMedia(null);
 
     const fetchOwnerStatus = async () => {
@@ -215,6 +218,8 @@ function MessageCreation() {
 
 
   const handleSubmitMessage = async () => {
+    if (loading) return;
+    setLoading(true);
 
     const url = !is_newMessage ? `${BACKEND_API}/api/messages/${messageId}` : `${BACKEND_API}/api/messages`;
     const method = !is_newMessage ? 'PUT' : 'POST';
@@ -260,6 +265,7 @@ function MessageCreation() {
         throw new Error(`Error en la creación del mensaje 1: ${errorText}`);
       }
     } catch (error: any) {
+      setLoading(false);
       console.error("Error en la creación del mensaje 2:", error.message);
       window.alert(`Error en la creación del mensaje 2: ${error.message}`);
     }
@@ -850,6 +856,7 @@ const styles = StyleSheet.create({
     width: width > 600 ? "100%" : 1000,
     marginBottom: 10,
     flexDirection: width > 600 ? "row" : "column",
+    gap: 10,  
   },
   input: {
     width: 250,
