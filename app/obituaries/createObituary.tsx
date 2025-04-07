@@ -141,7 +141,7 @@ function EsquelaCustomizer() {
             deathDate: parsedData.deathDate || "",
             farewellMessage: parsedData.farewellMessage || "",
             farewellPhrase: parsedData.farewellPhrase || "",
-            customImage: parsedData.customImageUrl || null,
+            customImage: parsedData.customImage || null,
             imageTemplate_id: imageId|| 1,
           });
         
