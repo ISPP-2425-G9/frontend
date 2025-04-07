@@ -350,6 +350,7 @@ const styles = StyleSheet.create({
   },
   carouselContainer: {
     width: "100%",
+    backgroundColor: GlobalStyles.lightGrey,
     position: "relative",
     top: 0,
     justifyContent: "center",
