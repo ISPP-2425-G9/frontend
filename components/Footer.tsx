@@ -1,4 +1,4 @@
-import { Linking, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image, Platform } from "react-native";
+import { Linking, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, Animated } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome6";
 import { GlobalStyles } from "@/constants/Colors";
 import React, { useState } from "react";
@@ -6,6 +6,7 @@ import TermsAndConditions from "./TermsAndConditions";
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from "./CustomButton";
 import Logo from "./Logo";
+import AnimatedIcon from "./AnimatedIcon";
 
 const socialLinks = [
   { name: "instagram", url: "https://instagram.com/caronte_es" },
@@ -23,11 +24,14 @@ const Footer = () => {
     const styles = StyleSheet.create({
         footer: {
           backgroundColor: GlobalStyles.darkGrey,
-          padding: 4,
+          paddingVertical: 10,
+          paddingHorizontal: 16,
           flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "center",
+          width: "100%",
         },
+      
         banner: {
           height: 50, 
           resizeMode: 'contain'
@@ -35,18 +39,22 @@ const Footer = () => {
         section: {
           flexDirection: "row",
         },
+          
         centerSection: {
+          flex: 2,
+          flexDirection: "row",
           alignItems: "center",
-          flex: 1,
+          justifyContent: "center",
+          gap: 20,
         },
         text: {
-          fontSize: 12,
+          fontSize: 13,
           color: "white",
           textAlign: "center",
         },
         textLink: {
           color: "#00aced",
-          fontSize: 11,
+          fontSize: 12,
           textAlign: "center",
           textDecorationLine: "underline",
         },
@@ -93,58 +101,64 @@ const Footer = () => {
             color: GlobalStyles.lightGrey,
             marginTop: 4,
           },
+          leftSection: {
+            flex: 1,
+            flexDirection: "row",
+            justifyContent: "flex-start",
+            alignItems: "center",
+          },
+          rightSection: {
+            flex: 1,
+            alignItems: "flex-end",
+            justifyContent: "center",
+          },
+          
       });
 
   return (
     <View style={styles.footer}>
+  {/* Sección izquierda: Redes sociales */}
+  <View style={styles.leftSection}>
+  {socialLinks.map((link, index) => (
+    <AnimatedIcon key={index} name={link.name} url={link.url} />
+  ))}
+</View>
 
-      <View style={styles.logoContainer}>
-          {
-            Platform.OS === 'web' ?
-              <Image source={require("../assets/images/banner.png")} style={styles.banner} /> :
-              <Logo size={55} color="cementGrey"/>
-          }
+  {/* Sección central: Texto + enlaces */}
+  <View style={styles.centerSection}>
+    <Text style={styles.textLink} onPress={() => setModalVisible(true)}>Términos y condiciones</Text>
+    <Text style={styles.textLink} onPress={() => navigation.navigate("about/index" as never)}>Sobre nosotros</Text>
+    <Text style={styles.textLink} onPress={() => navigation.navigate("contact/index" as never)}>Contáctanos</Text>
+  </View>
+
+  {/* Sección derecha: Logo u otra info */}
+  <View style={styles.rightSection}>
+    <Text style={styles.text}>&copy; 2025 CARONTE. Todos los derechos reservados.</Text>
+  </View>
+
+  {/* Modal de Términos */}
+  <Modal
+    visible={modalVisible}
+    animationType="fade"
+    transparent
+    onRequestClose={() => setModalVisible(false)}
+  >
+    <View style={styles.modalContainer}>
+      <View style={styles.modalContent}>
+        <ScrollView>
+          <Text style={styles.modalTitle}>Términos y condiciones de uso</Text>
+          <TermsAndConditions />
+        </ScrollView>
+        <CustomButton
+          title="Cerrar"
+          onPress={() => setModalVisible(false)}
+          color="blue"
+          style={styles.modalButton}
+        />
       </View>
-
-      <View style={styles.section}>
-        {socialLinks.map((link, index) => (
-          <TouchableOpacity key={index} onPress={() => Linking.openURL(link.url)}>
-            <Icon name={link.name} size={24} color="white" style={styles.icon} />
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <View style={styles.centerSection}>
-        <Text style={styles.text}>&copy; 2025 CARONTE. Todos los derechos reservados.</Text>
-        <Text style={styles.textLink} onPress={() => {setModalVisible(true)}}>Términos y condiciones de uso</Text>
-        <Text style={styles.textLink} onPress={()=> { navigation.navigate("about/index" as never);}}>Sobre nosotros</Text>
-        <Text style={styles.textLink} onPress={()=> { navigation.navigate("contact/index" as never);}}>Contáctanos</Text>
-        {/* <Text style={styles.textLink} onPress={() => Linking.openURL('/privacy')}>Política de privacidad</Text> */}
-      </View>
-
-      <Modal
-                visible={modalVisible}
-                animationType="fade"
-                transparent={true}
-                onRequestClose={() => {setModalVisible(false)}}
-              >
-                <View style={styles.modalContainer}>
-                  <View style={styles.modalContent}>
-                    <ScrollView>
-                      <Text style={styles.modalTitle}>Términos y condiciones de uso</Text>
-                      <TermsAndConditions />
-                    </ScrollView>
-                    <CustomButton
-                      title="Cerrar"
-                      onPress={() => {setModalVisible(false)}}
-                      color="blue"
-                      style={styles.modalButton}
-                    />
-                  </View>
-                </View>
-      </Modal>
     </View>
-
+  </Modal>
+</View>
   );
 };
 

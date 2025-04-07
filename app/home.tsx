@@ -1,4 +1,5 @@
 import CustomButton from "@/components/CustomButton";
+import Footer from "@/components/Footer";
 import LineBreak from "@/components/LineBreak";
 import Logo from "@/components/Logo";
 import { GlobalStyles } from "@/constants/Colors";
@@ -68,6 +69,7 @@ export default function HomeScreen() {
             </Text>
           </View>
         </View>
+        
       </View>
 
       {isAuthenticated && userRoles?.includes("CUSTOMER") && (
