@@ -1,6 +1,5 @@
 import CustomButton from '@/components/CustomButton';
 import CustomModal from '@/components/CustomModal';
-import CustomTable from '@/components/CustomTable';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { GlobalStyles } from '@/constants/Colors';
@@ -8,9 +7,10 @@ import { BACKEND_API } from '@/constants/Mysc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Dimensions, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Text, ScrollView, StyleSheet, View } from 'react-native';
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
+
 
 function AdminListUsers() {
   type Cliente = {
@@ -66,7 +66,7 @@ function AdminListUsers() {
     }
   };
 
-  // Ejecutar fetchData cuando se entra en la pantalla
+  
   useFocusEffect(
     useCallback(() => {
       document.title = mostrarClientes ? 'Clientes' : 'Empresas';
@@ -120,50 +120,53 @@ function AdminListUsers() {
         />
       </ThemedView>
 
-      <ThemedView>
-        <ThemedText type="title" style={styles.title}>
-          {mostrarClientes ? 'Lista de Clientes' : 'Lista de Empresas'}
-        </ThemedText>
+      <View style={styles.introContainer}>
+        <Text style={styles.introTitle}>{mostrarClientes ? 'Lista de clientes' : 'Lista de empresas'}</Text>
+        <Text style={styles.introText}>
+          A continuación se muestra un listado de los <Text style={styles.highlight}>{mostrarClientes ? 'clientes' : 'empresas'}</Text> del sistema.
+        </Text>
+      </View>
 
-        {loading ? (
-          <ActivityIndicator size="large" color={GlobalStyles.blue} />
-        ) : (
+      {loading ? (
+        <ActivityIndicator size="large" color={GlobalStyles.blue} />
+      ) : (
+        <View style={{ width: '100%', alignItems: 'center' }}>
           <ScrollView horizontal contentContainerStyle={styles.scrollContainer}>
             <View style={styles.tableWrapper}>
-              <CustomTable
-                columns={['NOMBRE', 'EMAIL', mostrarClientes ? 'DNI' : 'NIF', 'TELÉFONO', 'ACCIONES']}
-                columnWidths={[1, 0.9, 0.9, 1, 1.2]}
-              />
+            <View style={styles.tableHeader}>
+              <Text style={styles.headerCell}>Nombre</Text>
+              <Text style={styles.headerCell}>Email</Text>
+              <Text style={styles.headerCell}>{mostrarClientes ? 'DNI' : 'NIF'}</Text>
+              <Text style={styles.headerCell}>Teléfono</Text>
+              <Text style={styles.headerCell}>Acciones</Text>
+            </View>
 
-              <ScrollView style={styles.tableBody}>
-                {(mostrarClientes ? clientes : empresas).map((item) => (
-                  <View key={item.id} style={styles.row}>
-                    <ThemedText style={styles.cell}>{item.name}</ThemedText>
-                    <ThemedText style={styles.cell}>{item.email}</ThemedText>
-                    <ThemedText style={styles.cell}>
+            <ScrollView style={styles.tableBody}>
+              {(mostrarClientes ? clientes : empresas).map((item) => (
+                <View key={item.id} style={styles.tableRow}>
+                  <View style={styles.cell}><Text style={styles.cellText}>{item.name}</Text></View>
+                  <View style={styles.cell}><Text style={styles.cellText}>{item.email}</Text></View>
+                  <View style={styles.cell}>
+                    <Text style={styles.cellText}>
                       {'dni' in item ? item.dni : (item as Empresa).nif}
-                    </ThemedText>
-                    <ThemedText style={styles.cell}>{item.telephone}</ThemedText>
-                    <View style={styles.actions}>
-                      <CustomButton title="Editar" onPress={() => { handleEdit(item.id); }} color="blue" />
-                      <CustomButton
-                        title="Eliminar"
-                        onPress={() => {
-                          setSelectedUserId(item.id);
-                          setModalVisible(true);
-                        }}
-                        color="red"
-                      />
+                    </Text>
+                  </View>
+                  <View style={styles.cell}><Text style={styles.cellText}>{item.telephone}</Text></View>
+                  <View style={styles.cell}>
+                    <View style={styles.actionButtonsContainer}>
+                      <CustomButton title="Editar" onPress={() => handleEdit(item.id)} color="blue" style={styles.actionsButton} />
+                      <CustomButton title="Eliminar" onPress={() => { setSelectedUserId(item.id); setModalVisible(true); }} color="red" style={styles.actionsButton} />
                     </View>
                   </View>
-                ))}
-              </ScrollView>
+                </View>
+              ))}
+            </ScrollView>
             </View>
           </ScrollView>
-        )}
-      </ThemedView>
+        </View>
+      )}
 
-      <CustomModal visible={modalVisible} onClose={() => { setModalVisible(false); } } title="Confirmar Eliminación">
+      <CustomModal visible={modalVisible} onClose={() => { setModalVisible(false); } } title="Confirmar eliminación">
         <ThemedText>¿Estás seguro de que deseas eliminar este usuario?</ThemedText>
         <View style={styles.modalButtons}>
           <CustomButton title="Cancelar" onPress={() => { setModalVisible(false);} } color="grey" />
@@ -174,6 +177,7 @@ function AdminListUsers() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -187,8 +191,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: 20,
     gap: 8,
-    backgroundColor: 'transparent',
-    marginBottom: 50,
+    marginBottom: 30,
+    backgroundColor: GlobalStyles.white,
   },
   smallButton: {
     width: 140,
@@ -205,46 +209,91 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flexGrow: 1,
-    minWidth: Dimensions.get('window').width,
-    backgroundColor: 'transparent',
+    width: '100%',
+    paddingHorizontal: 10,
   },
   tableWrapper: {
-    width: '100%',
-    minWidth: Dimensions.get('window').width,
-    backgroundColor: 'transparent',
+    alignSelf: 'center',
   },
-  tableBody: {
-    maxHeight: 400,
-    backgroundColor: 'transparent', 
-  },
-  row: {
+  tableHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: GlobalStyles.grey,
+    backgroundColor: GlobalStyles.blue,
+    paddingHorizontal: 5,
+    borderRadius: 8,
+    minHeight: 50,
     alignItems: 'center',
-    backgroundColor: GlobalStyles.lightGrey,
+  },
+  headerCell: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    minWidth: 250,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+    minHeight: 50,
   },
   cell: {
     flex: 1,
-    textAlign: 'center',
-    fontSize: 14,
-    fontFamily: GlobalStyles.font,
-    color: GlobalStyles.darkGrey,
-    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 10,
+    minWidth: 200,
   },
-  actions: {
+  cellText: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: GlobalStyles.darkGrey,
+  },
+  actionButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 5,
+    alignItems: 'center',
+  },
+  actionsButton: {
+    alignSelf: 'center',
+    width: 100,
+    marginHorizontal: 5,
+  },
+  tableBody: {
+    maxHeight: 400,
   },
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 10,
     marginTop: 20,
+  },
+  introContainer: {
+    width: '90%',
+    backgroundColor: GlobalStyles.lightGrey,
+    padding: 20,
+    borderRadius: 10,
+    marginBottom: 20,
+    alignSelf: 'center',
+    alignItems: 'center',
+  },
+  introTitle: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: GlobalStyles.darkGrey,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  introText: {
+    fontSize: 18,
+    color: GlobalStyles.darkGrey,
+    textAlign: 'center',
+  },
+  highlight: {
+    color: GlobalStyles.blue,
+    fontWeight: 'bold',
   },
 });
 
