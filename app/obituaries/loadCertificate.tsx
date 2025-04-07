@@ -54,10 +54,6 @@ function LoadCertificate() {
   // Nuevos estados para el pago
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  const json = route.params?.jsonData;
-
 
   const is_mine = route.params?.is_mine;
   const [formData, setFormData] = useState({
@@ -192,12 +188,17 @@ function LoadCertificate() {
       setDniError("El DNI no es válido");
       return;
     }
-    setShowPaymentModal(true);
+    
+    if (!is_mine) {
+      setShowPaymentModal(true);
+    } else {
+      await handleSubmit();
+    }
   };
 
-  const handlePaymentSuccess = async () => {
+  const handlePaymentSuccess = async (paymentMethod: { id: string }) => {
     setShowPaymentModal(false);
-    await handleSubmit();
+    await handleSubmit(paymentMethod.id);
     setShowSuccessModal(true);
   };
 
@@ -215,12 +216,11 @@ function LoadCertificate() {
   };
 
 
-  const handleSubmit = async () => {
-
+  const handleSubmit = async (paymentMethodId?: string) => {
     const authToken = await AsyncStorage.getItem("authToken");
     const jsonData = route.params.jsonData ?? '';
     const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
-    console.log("adios", jsonData);
+    
     const dataToSend = {
       ...JSON.parse(jsonData),
       deathCertificate: {
@@ -231,13 +231,22 @@ function LoadCertificate() {
     };
 
     try {
+      const requestBody = {
+        ...dataToSend
+      };
+      
+      if (paymentMethodId) {
+        requestBody.paymentMethodId = paymentMethodId;
+      }
+      
+      
       const response = await fetch(BACKEND_API + '/api/obituary/create', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify(dataToSend),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
