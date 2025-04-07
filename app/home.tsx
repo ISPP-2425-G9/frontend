@@ -1,6 +1,7 @@
 import CustomButton from "@/components/CustomButton";
 import LineBreak from "@/components/LineBreack";
 import Logo from "@/components/Logo";
+import { ThemedText } from "@/components/ThemedText";
 import { GlobalStyles } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -41,16 +42,13 @@ export default function HomeScreen() {
         <View style={styles.spacer} />
 
         <View style={[styles.infoBox, { width: width > 800 ? 900 : "90%" }]}>
-          <Text style={styles.title}>¿Qué es CARONTE?</Text>
+          <Text style={styles.title}>¿Qué hacemos?</Text>
           <View style={styles.infoItem}>
-            <MaterialIcons name="check-circle" size={24} color={GlobalStyles.blue} style={styles.icon} />
             <Text style={styles.description}>
-              CARONTE permite a los usuarios gestionar el envío de mensajes finales y esquelas digitales
-              a una lista de contactos seleccionada.
+              Somos una plataforma innovadora que te permite gestionar el envío de mensajes finales y esquelas digitales a tus contactos.
             </Text>
           </View>
           <View style={styles.infoItem}>
-            <MaterialIcons name="check-circle" size={24} color={GlobalStyles.blue} style={styles.icon} />
             <Text style={styles.description}>
               <Text style={styles.bold}>No queremos que dejes palabras sin decir:</Text> garantizamos que
               los mensajes y esquelas sean enviados tras la confirmación del fallecimiento, asegurando la entrega en el momento
@@ -58,17 +56,31 @@ export default function HomeScreen() {
             </Text>
           </View>
           <View style={styles.infoItem}>
-            <MaterialIcons name="check-circle" size={24} color={GlobalStyles.blue} style={styles.icon} />
             <Text style={styles.description}>
               <Text style={styles.bold}>Cumplimos tu último deseo facilitando despedidas seguras y recuerdos eternos.</Text>
             </Text>
           </View>
           <View style={styles.infoItem}>
-            <MaterialIcons name="check-circle" size={24} color={GlobalStyles.blue} style={styles.icon} />
             <Text style={styles.description}>
               Además, ofrecemos un espacio para que las empresas relacionadas con el sector funerario puedan patrocinar sus servicios.
             </Text>
           </View>
+        </View>
+      </View>
+
+      <View style={styles.featuresContainer}>
+        <ThemedText style={styles.featuresTitle}>
+          ¿Por qué elegirnos?
+        </ThemedText>
+        <View style={styles.featuresGrid}>
+          {features.map((feature, index) => (
+            <FeatureCard
+              key={index}
+              icon={feature.icon}
+              heading={feature.heading}
+              description={feature.description}
+            />
+          ))}
         </View>
       </View>
 
@@ -177,7 +189,60 @@ const ImageCarousel: React.FC = () => {
   );
 };
 
-export { ImageCarousel };
+const features: {
+  icon: "security" | "check-circle" | "autorenew" | "brush";
+  heading: string;
+  description: string;
+}[] = [
+    {
+      icon: "security",
+      heading: "Seguridad",
+      description:
+        "Verificación de fallecimiento y cifrado seguro garantizan la integridad de tus mensajes.",
+    },
+    {
+      icon: "check-circle",
+      heading: "Confianza",
+      description:
+        "Plataforma transparente y accesible para que no te preocupes por nada.",
+    },
+    {
+      icon: "autorenew",
+      heading: "Automaticación",
+      description:
+        "Notificaciones automáticas a contactos de emergencia y envío de mensajes sin complicaciones.",
+    },
+    {
+      icon: "brush",
+      heading: "Personalización",
+      description:
+        "Personaliza mensajes y esquelas con fotos, videos y detalles del funeral.",
+    },
+  ];
+
+const FeatureCard: React.FC<{
+  icon: keyof typeof MaterialIcons.glyphMap;
+  heading: string;
+  description: string;
+}> = ({ icon, heading, description }) => {
+  const scale = React.useRef(new Animated.Value(0.8)).current;
+
+  React.useEffect(() => {
+    Animated.spring(scale, {
+      toValue: 1,
+      friction: 5,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
+  return (
+    <Animated.View style={[styles.featureCard, { transform: [{ scale }] }]}>
+      <MaterialIcons name={icon} size={32} color={GlobalStyles.blue} />
+      <ThemedText style={styles.featureCardHeading}>{heading}</ThemedText>
+      <ThemedText style={styles.featureCardDescription}>{description}</ThemedText>
+    </Animated.View>
+  );
+};
 
 const styles = StyleSheet.create({
   scrollContainer: {
@@ -338,5 +403,57 @@ const styles = StyleSheet.create({
   bold: {
     fontFamily: GlobalStyles.fontBold,
     color: GlobalStyles.darkGrey,
+  },
+  featuresContainer: {
+    alignSelf: "center",
+    width: "100%",
+    marginVertical: 20,
+    paddingVertical: 20,
+    backgroundColor: GlobalStyles.lightGrey,
+  },
+  featuresTitle: {
+    fontSize: 24,
+    fontFamily: GlobalStyles.fontBold,
+    color: GlobalStyles.darkGrey,
+    textAlign: "center",
+    marginBottom: 15,
+  },
+  featuresGrid: {
+    flexDirection: "row",
+    alignContent: "center",
+    alignItems: "center",
+    justifyContent: "center",
+    flexWrap: "wrap",
+    gap: 20,
+  },
+  featureCard: {
+    width: "24%",
+    maxWidth: 250,
+    aspectRatio: 1,
+    minWidth: 250,
+    borderRadius: 10,
+    padding: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: GlobalStyles.white,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  featureCardHeading: {
+    fontSize: 16,
+    fontFamily: GlobalStyles.fontBold,
+    color: GlobalStyles.blue,
+    textAlign: "center",
+    marginTop: 8,
+  },
+  featureCardDescription: {
+    fontSize: 12,
+    fontFamily: GlobalStyles.font,
+    color: GlobalStyles.grey,
+    textAlign: "center",
+    marginTop: 4,
   },
 });
