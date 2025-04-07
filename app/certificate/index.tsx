@@ -3,13 +3,13 @@ import CustomModal from "@/components/CustomModal";
 import { CustomTextInput } from "@/components/CustomTextInput";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
+import { useNotification } from '@/context/NotificationContext';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationProp, useFocusEffect, useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { useCallback, useState } from "react";
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { AUTHORITIES } from "../_util/Authorities";
-import { withAuth } from "../_util/withAuth";
+import { ScrollView } from "react-native-gesture-handler";
 
 type RootStackParamList = {
   "obituaries/loadCertificate": { jsonData: string },
@@ -20,6 +20,8 @@ const { width } = Dimensions.get("window");
 
 function LoadCertificate() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  const { showNotification } = useNotification();
 
   const [dni, setDni] = useState<string>("");
   const [certificateImage, setCertificateImage] = useState<string | null>(null);
@@ -36,7 +38,21 @@ function LoadCertificate() {
       quality: 1,
     });
 
-    if (!result.canceled) {
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const allowedFormats = ["png", "jpg", "jpeg"];
+      const filteredAssets = result.assets.filter(asset => {
+        const fileExtension = asset.mimeType ? asset.mimeType.split("/")[1] : '';
+        return allowedFormats.includes(fileExtension);
+      });
+
+      if (filteredAssets.length === 0) {
+        showNotification({
+          message: "Solo se permiten imágenes en formato PNG, JPG o JPEG.",
+          type: "info",
+          duration: 2500,
+        });
+        return;
+      }
       const fileUri = result.assets[0].uri;
       const fileName = result.assets[0].fileName || null;
       setCertificateImage(fileUri);
@@ -50,7 +66,7 @@ function LoadCertificate() {
       setCertificateImage(null);
       setFileName(null);
       setDniError("");
-      document.title = 'Cargar certificado';
+      document.title = 'Subir certificado';
     }, [])
   );
 
@@ -71,12 +87,24 @@ function LoadCertificate() {
 
   const validateDni = (dni: string) => {
     const dniRegex = /^\d{8}[A-Z]$/;
-    return dniRegex.test(dni);
+    if (!dniRegex.test(dni)){
+      return false
+    }
+    const dniNumber = dni.slice(0, 8);
+    const dniLetter = dni.charAt(8);
+    const dniLetters = "TRWAGMYFPDXBNJZSQVHLCKE";
+    const dniIndex = parseInt(dniNumber, 10) % 23;
+    const expectedLetter = dniLetters.charAt(dniIndex);
+    return dniLetter === expectedLetter;
   };
 
   const showConfirmationModal = async () => {
     if (!dni || !certificateImage) {
-      alert("Por favor, introduce el DNI y selecciona un archivo.");
+      showNotification({
+        message: "Por favor, introduce el DNI y selecciona un archivo.",
+        type: "info",
+        duration: 2500,
+      });
       return;
     }
     if (!validateDni(dni)) {
@@ -84,7 +112,7 @@ function LoadCertificate() {
       setDniError("El DNI no es válido. Debe tener el formato 12345678A.");
       return;
     }
-    setModalMessage("La esquela no será enviada hasta que un administrador del sistema verifique que el certificado sea válido. Podrá modificar su esquela hasta que sea enviada a todos los contactos que usted eligió.");
+    setModalMessage("Una vez subido el certificado de defunción un administrador lo revisará. Si todo es correcto, se enviarán las esquelas y/o mensajes asociados al certificado. ¿Estás seguro de que quieres continuar?");
     setModalVisible(true);
   };
 
@@ -106,20 +134,24 @@ function LoadCertificate() {
         throw new Error(errorData.error || "Hubo un problema al enviar los datos. Inténtalo de nuevo.");
       }
 
-    else{ 
-      setSuccessMessageVisible(true);
-      setTimeout(() => {
-        setSuccessMessageVisible(false);  
-        navigation.navigate("home");  
-      }, 2000);
+      else {
+        setSuccessMessageVisible(true);
+        setTimeout(() => {
+          setSuccessMessageVisible(false);
+          navigation.navigate("home");
+        }, 2000);
 
-    }
+      }
 
     } catch (error) {
       console.error("Error al enviar datos:", error);
       setModalVisible(false);
       const errorMessage = (error as any).message || "Hubo un problema al enviar los datos. Inténtalo de nuevo.";
-      alert(errorMessage);
+      showNotification({
+        message: `${errorMessage}`,
+        type: "info",
+        duration: 2500,
+      });
     }
   };
 
@@ -130,7 +162,7 @@ function LoadCertificate() {
 
     const headers = {
       "Content-Type": "application/json",
-      ...(authToken && { "Authorization": `Bearer ${authToken}` }), 
+      ...(authToken && { "Authorization": `Bearer ${authToken}` }),
     };
 
     return await fetch(url, {
@@ -141,108 +173,125 @@ function LoadCertificate() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.dataContainer}>
-        <Text style={styles.title}>Carga el certificado de defunción</Text>
+    <ScrollView style={{ flex: 1, width: "100%" }} contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false} bounces={false}>
+      <View style={styles.container}>
 
-        <Text style={styles.text}>DNI:</Text>
-        <CustomTextInput
-          placeholder={dniError ? dniError : "DNI del fallecido"}
-          value={dni}
-          maxLength={9}
-          keyboardType="numeric"
-          onChangeText={(value) => {
-            let newValue = value.replace(/[^0-9A-Za-z]/g, "");
-
-            if (newValue.length > 9) {
-              newValue = newValue.slice(0, 9);
-            }
-
-            if (newValue.length <= 8) {
-              newValue = newValue.replace(/[^0-9]/g, "");
-            }
-
-            if (newValue.length === 9) {
-              const lastChar = newValue[8];
-              if (!/[A-Za-z]/.test(lastChar)) {
-                newValue = newValue.slice(0, 8);
-              } else {
-                newValue = newValue.slice(0, 8) + lastChar.toUpperCase();
-              }
-            }
-            setDni(newValue);
-            setDniError("");
-          }}
-          style={styles.input}
-          placeholderTextColor={dniError ? "red" : GlobalStyles.darkGrey}
-        />
-
-        {certificateImage && (
-          <Image
-            source={{ uri: certificateImage }}
-            style={styles.imagePreview}
-          />
-        )}
-
-        {fileName && (
-          <Text style={styles.fileNameText}>
-            Archivo subido: {fileName}
+        <View style={styles.introContainer}>
+          <Text style={styles.introTitle}>📜 Certificados de defunción 📜</Text>
+          <Text style={styles.introText}>
+            En esta sección, puedes cargar el certificado de defunción de un ser querido que haya contratado nuestros servicios.
           </Text>
+          <Text style={styles.introText}>
+            Una vez verificado, las esquelas y/o mensajes previamente creados serán enviados a los contactos seleccionados.
+          </Text>
+          <Text style={styles.introText}>
+            Para ello necesitamos que introduzcas el DNI del fallecido y subas el certificado de defunción.
+          </Text>
+        </View>
+        <View style={styles.dataContainer}>
+
+          <Text style={styles.text}>DNI:</Text>
+          <CustomTextInput
+            placeholder={dniError ? dniError : "DNI del fallecido"}
+            value={dni}
+            maxLength={9}
+            keyboardType="default"
+            onChangeText={(value) => {
+              let newValue = value.replace(/[^0-9A-Za-z]/g, "");
+
+              if (newValue.length > 9) {
+                newValue = newValue.slice(0, 9);
+              }
+
+              if (newValue.length <= 8) {
+                newValue = newValue.replace(/[^0-9]/g, "");
+              }
+
+              if (newValue.length === 9) {
+                const lastChar = newValue[8];
+                if (!/[A-Za-z]/.test(lastChar)) {
+                  newValue = newValue.slice(0, 8);
+                } else {
+                  newValue = newValue.slice(0, 8) + lastChar.toUpperCase();
+                }
+              }
+              setDni(newValue);
+              setDniError("");
+            }}
+            style={styles.input}
+            placeholderTextColor={dniError ? "red" : GlobalStyles.darkGrey}
+          />
+
+          {certificateImage && (
+            <Image
+              source={{ uri: certificateImage }}
+              style={styles.imagePreview}
+            />
+          )}
+
+          {fileName ? (
+            <Text style={styles.fileNameText}>
+              Archivo subido: {fileName}
+            </Text>
+          ) : (
+            <Text style={styles.acceptedFormats}>
+              Formatos aceptados: PNG, JPG, JPEG
+            </Text>
+          )}
+
+        </View>
+        <View style={styles.buttonContainer}>
+          <CustomButton title="Seleccionar archivo" style={styles.certificateButton} textStyle={styles.certificateText} onPress={pickImage} />
+          <CustomButton title="Subir certificado de defunción" style={styles.certificateButton} textStyle={styles.certificateText} onPress={showConfirmationModal} />
+        </View>
+
+        {modalVisible && (
+          <CustomModal
+            visible={modalVisible}
+            onClose={handleCloseModal}
+            title={modalMessage}
+            style={styles.modalStyle}
+          >
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => { handleSubmit(); }}
+              >
+                <Text style={styles.buttonText}>Aceptar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => { handleCloseModal(); }}
+              >
+                <Text style={styles.buttonText}>Cancelar</Text>
+              </TouchableOpacity>
+            </View>
+          </CustomModal>
+        )}
+
+        {successMessageVisible && (
+          <CustomModal
+            visible={successMessageVisible}
+            onClose={() => { setSuccessMessageVisible(false) }}
+            title="¡Certificado de defunción subido con éxito!✅"
+            style={styles.successModal}
+          >
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => {
+                  setSuccessMessageVisible(false);
+                  navigation.navigate("home");
+                }}
+              >
+                <Text style={styles.buttonText}>Aceptar</Text>
+              </TouchableOpacity>
+            </View>
+          </CustomModal>
         )}
 
       </View>
-      <View style={styles.divider} />
-      <View style={styles.buttonContainer}>
-        <CustomButton title="Seleccionar archivo" onPress={pickImage} />
-        <CustomButton title="Subir certificado" onPress={showConfirmationModal} />
-      </View>
-
-      {modalVisible && (
-        <CustomModal
-          visible={modalVisible}
-          onClose={handleCloseModal}
-          title={modalMessage}
-          style={styles.modalStyle}
-        >
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => { handleSubmit(); }}
-            >
-              <Text style={styles.buttonText}>Aceptar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => { handleCloseModal(); }}
-            >
-              <Text style={styles.buttonText}>Cancelar</Text>
-            </TouchableOpacity>
-          </View>
-        </CustomModal>
-      )}
-
-      {successMessageVisible && (
-        <CustomModal
-          visible={successMessageVisible}
-          onClose={() => {setSuccessMessageVisible(false)}}
-          title="¡Datos enviados con éxito!✅"
-          style={styles.successModal}
-        >
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => {
-                setSuccessMessageVisible(false);
-                navigation.navigate("home");
-              }}
-            >
-              <Text style={styles.buttonText}>Aceptar</Text>
-            </TouchableOpacity>
-          </View>
-        </CustomModal>
-      )}
-
-    </View>
+    </ScrollView>
   );
 }
 
@@ -256,10 +305,11 @@ const styles = StyleSheet.create({
   dataContainer: {
     flex: 1,
     justifyContent: "flex-start",
-    alignItems: "center",
-    paddingTop: '2%',
+    alignItems: "stretch",
     width: "90%",
     maxWidth: 500,
+    padding: 20,
+    gap: 10,
   },
   title: {
     fontSize: 30,
@@ -274,19 +324,9 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   input: {
-    width: "100%",
-    height: 40,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    paddingHorizontal: 8,
-    marginBottom: 16,
-    fontSize: 16,
-  },
-  divider: {
-    height: 1,
-    width: "100%",
-    backgroundColor: "#ccc",
-    marginVertical: 20,
+    width: '100%',
+    flex: 1,
+
   },
   buttonContainer: {
     alignItems: "center",
@@ -295,13 +335,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: '100%',
     gap: '2%',
+    marginTop: 20,
   },
   fileNameText: {
     marginTop: 10,
     fontSize: 14,
     fontWeight: "bold",
+    textAlign: "center",
   },
   imagePreview: {
+    alignContent: "center",
+    alignSelf: "center",
     width: "30%",
     height: "30%",
     marginTop: 10,
@@ -316,10 +360,12 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: GlobalStyles.blue,
     paddingHorizontal: 25,
-    width: '13%',
+    width: width > 600 ? '20%'  :'30%',
+    height: width > 600 ? 40 : '120%',
     borderRadius: 8,
     alignItems: "center",
     alignSelf: "center",
+    justifyContent: "center",
   },
   modalStyle: {
     backgroundColor: "#fff",
@@ -331,7 +377,8 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
     width: width > 600 ? "40%" : "80%",
-    height: width > 600 ? "15%" : "32%",
+    minHeight: 200,
+    justifyContent: "space-between",
   },
   successModal: {
     backgroundColor: 'white',
@@ -339,8 +386,50 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    width: width > 600 ? '40%': '80%',
+    width: width > 600 ? '40%' : '80%',
+  },
+  introContainer: {
+    width: '90%',
+    backgroundColor: GlobalStyles.lightGrey,
+    padding: 20,
+    borderRadius: 10,
+    marginBottom: 20,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  introTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: GlobalStyles.darkGrey,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  introText: {
+    fontSize: 20,
+    color: GlobalStyles.darkGrey,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 3,
+  },
+  acceptedFormats: {
+    marginTop: 8,
+    fontSize: 16,
+    textAlign: 'center',
+    color: GlobalStyles.darkGrey,
+    fontStyle: 'italic',
+  },
+  certificateButton: {
+    height: "80%",
+    width: width > 600 ? "15%" : "45%"
+  },
+  certificateText: {
+    fontSize: width > 600 ? 18 : 16,
+  },
+  dniStyle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
   },
 });
 
-export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER, AUTHORITIES.ANONYMOUS]);
+export default LoadCertificate;

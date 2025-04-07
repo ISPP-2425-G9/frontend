@@ -8,6 +8,7 @@ type UserType = {
   id: string;
   token: string;
   roles: AuthorityType[];
+  expiredPlanDate: Date;
 };
 
 export const useAuth = () => {
@@ -42,13 +43,14 @@ export const useAuth = () => {
     token: string,
     roles: AuthorityType[],
     username: string,
-    name: string
+    name: string,
+    expiredPlanDate: Date
   ) => {
-    const userData = { id, token, roles, username, name };
+    const userData = { id, token, roles, username, name, expiredPlanDate };
 
     try {
       setUser(userData);
-
+      await AsyncStorage.clear();
       await AsyncStorage.setItem('authToken', token);
       await AsyncStorage.setItem('userId', id);
       await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
@@ -82,5 +84,15 @@ export const useAuth = () => {
     }
   };
 
-  return { user, getUserFromStorage, login, logout, updateUser, loading };
+  const decodeJWT = (token: string) => {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1])); // Decodificar la parte del payload
+      return payload;
+    } catch (error) {
+      console.error("Error al decodificar el JWT:", error);
+      return null;
+    }
+  };
+
+  return { getUserFromStorage, login, logout, updateUser, loading, decodeJWT, user };
 };

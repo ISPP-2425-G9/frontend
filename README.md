@@ -1,109 +1,115 @@
-# CARONTE - Frontend
+# CARONTE - Frontend  
 
-## Descripción
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8a2b25799bbb4c179815520623e7a73d)](https://app.codacy.com/gh/ISPP-2425-G9/frontend/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)  [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/8a2b25799bbb4c179815520623e7a73d)](https://app.codacy.com/gh/ISPP-2425-G9/frontend/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage) ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg) ![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg?logo=conventional-commits)
 
-Caronte es la aplicación frontend desarrollada con Expo y React Native para proporcionar una interfaz intuitiva y accesible a los usuarios. Este proyecto permite la gestión de esquelas y mensajes post-mortem con un diseño moderno y adaptable a distintos dispositivos. Además, ofrecemos a empresas del sector funerario poder promocionarse en nuestra aplicación.
+## Description  
 
+This is the frontend of CARONTE developed with Expo and React Native to provide an intuitive and accessible interface for users. This project allows the management of obituaries and post-mortem messages with a modern design adaptable to different devices. Additionally, we offer funeral industry businesses the opportunity to promote themselves on our application.  
 
-## Requisitos
+## Requirements  
 
-- **Node.js** (versión recomendada: 18 o superior)
-- **npm** (incluido con Node.js) o **yarn**
-- **Expo CLI**
+- **Node.js** (recommended version: 18 or higher)  
+- **npm** (included with Node.js) or **yarn**  
+- **Expo CLI**  
 
-### Instalación en Ubuntu
+### Installation on Ubuntu  
 
-1. **Instalar Node.js y npm:**
+1. **Install Node.js and npm:**  
 
    ```bash
    sudo apt update
    sudo apt install nodejs npm
-   ```
+   ```  
 
-   Verifica la instalación con:
+   Verify the installation with:  
    ```bash
    node -v
    npm -v
-   ```
-   
-2. **Instalar Expo CLI:**
+   ```  
+
+2. **Install Expo CLI:**  
 
    ```bash
    npm install -g expo-cli
-   ```
-   
-   Verifica la instalación con:
+   ```  
+
+   Verify the installation with:  
    ```bash
    expo --version
-   ```
-   
-### Instalación en Windows
+   ```  
 
-1. **Instalar Node.js:**
+### Installation on Windows  
 
-- Descarga el instalador desde la [página oficial de Node.js](https://nodejs.org/).
-- Ejecuta el instalador y sigue las instrucciones.
-- Verifica la instalación con:
+1. **Install Node.js:**  
+
+- Download the installer from the [official Node.js website](https://nodejs.org/).  
+- Run the installer and follow the instructions.  
+- Verify the installation with:  
 
    ```bash
    node -v
    npm -v
-   ```
-   
-2. **Instalar Expo CLI:**
+   ```  
+
+2. **Install Expo CLI:**  
    ```bash
    npm install -g expo-cli
-   ```
+   ```  
 
-   Verifica la instalación con:
+   Verify the installation with:  
 
    ```bash
    expo --version
-   ```
+   ```  
 
-   
-## Instalación del proyecto
+## Project Installation  
 
-### Paso 1: Clonar el repositorio
+### Step 1: Clone the repository  
 
-   Clona el repositorio en tu máquina:
+   Clone the repository to your machine:  
    ```bash
    git clone git@github.com:ISPP-2425-G9/frontend.git
    cd frontend
-   ```
+   ```  
 
-### Paso 2: Instalar dependencias
+### Step 2: Install dependencies  
 
-   Ejecuta el siguiente comando para instalar las dependencias del proyecto:
+   Run the following command to install the project dependencies:  
    ```bash
    npm install
-   ```
-   Si estás usando Yarn, puedes ejecutar:
+   ```  
+   If you are using Yarn, you can run:  
    ```bash
    yarn install
-   ```
+   ```  
 
-### Paso 3: Iniciar la aplicación
+### Step 3: Start the application  
 
-   Para iniciar la aplicación en modo desarrollo, ejecuta:
+   To start the application in development mode, run:  
    ```bash
    npx expo start
-   ```
-   o también puedes hacer
+   ```  
+   Alternatively, you can also run:  
    ```bash
    npm start
-   ```
+   ```  
 
-En la salida de la consola, encontrarás opciones para abrir la app en un:
-- Poniendo en el navegador: `http://localhost:8081`.
-- Expo Go
+In the console output, you will find options to open the app in:  
+- By entering in the browser: `http://localhost:8081`.  
+- Expo Go  
 
+## Reset the project  
 
-## Restablecer el proyecto
-   
-   Si deseas comenzar con una versión limpia del proyecto, puedes ejecutar:
+   If you want to start with a clean version of the project, you can run:  
    ```bash
    npm run reset-project
-   ```
-   Este comando moverá el código inicial a un directorio de ejemplo y creará un nuevo directorio app donde podrás empezar a desarrollar.
+   ```  
+   This command will move the initial code to an example directory and create a new `app` directory where you can start developing.
 
+
+## Test
+
+   In case you want to run test, you just have to run the following command:
+      ```bash
+      npm test
+      ```  

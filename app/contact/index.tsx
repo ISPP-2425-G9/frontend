@@ -1,4 +1,4 @@
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import React, { useState } from "react";
 import { Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome6";
@@ -102,7 +102,7 @@ const Contact = () => {
           <TouchableOpacity onPress={() => Linking.openURL("https://x.com/CaronteApp")}>
             <Icon name="x-twitter" size={30} color="#1DA1F2" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => Linking.openURL("https://instagram.com/caronteapp")}>
+          <TouchableOpacity onPress={() => Linking.openURL("https://instagram.com/caronte_es")}>
             <Icon name="instagram" size={30} color="#C13584" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => Linking.openURL("https://www.tiktok.com/@caronteapp")}>

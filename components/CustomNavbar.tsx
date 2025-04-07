@@ -3,6 +3,7 @@ import useAuth from '@/hooks/useAuth';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useNavigationState } from '@react-navigation/native';
+import { BlurView } from 'expo-blur';
 import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import CustomButton from './CustomButton';
@@ -27,10 +28,34 @@ const CustomNavbar = () => {
         userRoles = roles;
         userName = name;
     }
+    const [title, setTitle] = useState<string>('CARONTE');
 
     useEffect(() => {
-        if (currentRoute) setActiveItem(currentRoute);
+        if (currentRoute) {
+            setActiveItem(currentRoute);
+            setTitle(getTitleFromRoute(currentRoute));
+        }
     }, [currentRoute]);
+
+    const getTitleFromRoute = (route: string): string => {
+        const routeTitles: Record<string, string> = {
+            'home': 'Inicio',
+            'certificate/index': 'Subir certificado',
+            'about/index': 'Sobre nosotros',
+            'contact/index': 'Contáctanos',
+            'login/index': 'Iniciar sesión',
+            'register/index': 'Registrarse',
+            'admin/listUsers': 'Usuarios',
+            'admin/certificatesManagement': 'Certificados de defunción',
+            'obituaries/index': 'Esquelas',
+            'messages/listMyMessages': 'Mensajes',
+            'contacts/index': 'Contactos de emergencia',
+            'services/index': 'Servicios',
+            'subscribe/index': 'Planes',
+            'profile/index': 'Mi perfil'
+        };
+        return routeTitles[route] || 'CARONTE';
+    };
 
     const handleLogout = () => {
         try {
@@ -46,11 +71,86 @@ const CustomNavbar = () => {
         setActiveItem(route);
         navigation.navigate(route as never);
         setMenuOpen(false);
+        setUserMenuOpen(false);
+    };
+
+    const renderDropdown = () => {
+        if (!menuOpen) return null;
+
+        const items: { title: string; route?: string; action?: () => void }[] = [];
+
+        if (!isAuthenticated) {
+            items.push(
+                { title: 'Sobre nosotros', route: 'about/index' },
+                { title: 'Contáctanos', route: 'contact/index' },
+                { title: 'Iniciar sesión', route: 'login/index' },
+                { title: 'Registrarse', route: 'register/index' }
+            );
+        } else {
+            if (userRoles?.includes("ADMIN")) {
+                items.push(
+                    { title: 'Usuarios', route: 'admin/listUsers' },
+                    { title: 'Certificados de defunción', route: 'admin/certificatesManagement' },
+                    { title: 'Sobre nosotros', route: 'about/index' },
+                    { title: 'Contáctanos', route: 'contact/index' },
+                    { title: 'Cerrar sesión', action: () => {
+                        setUserMenuOpen(false);
+                        setIsLogoutModalVisible(true);
+                    }}
+                );
+            }
+            if (userRoles?.includes("CUSTOMER")) {
+                items.push({ title: 'Esquelas', route: 'obituaries/index' });
+            }
+            if (userRoles?.includes("CUSTOMER_PREMIUM")) {
+                items.push(
+                    { title: 'Mensajes', route: 'messages/listMyMessages' },
+                    { title: 'Contactos de emergencia', route: 'contacts/index' }
+                );
+            }
+            if (userRoles?.includes("CUSTOMER") || userRoles?.includes("COMPANY")) {
+                items.push(
+                    { title: 'Servicios', route: 'services/index' },
+                    { title: 'Planes', route: 'subscribe/index' },
+                    { title: 'Sobre nosotros', route: 'about/index' },
+                    { title: 'Contáctanos', route: 'contact/index' },
+                    { title: userName || '', route: 'profile/index' },
+                    { title: 'Cerrar sesión', action: () => {
+                            setUserMenuOpen(false);
+                            setIsLogoutModalVisible(true);
+                        }
+                    }
+                );
+            }
+        }
+
+        return (
+            <BlurView intensity={90} tint="light" style={styles.dropdown}>
+                {items.map((item, index) => (
+                    <TouchableOpacity key={index} onPress={() => {
+                        if (item.route) {
+                            handleNavigation(item.route);
+                        } else if (item.action) {
+                            item.action();
+                        }
+                        setMenuOpen(false);
+                    }}>
+                        <Text style={styles.dropdownNavItem}>{item.title}</Text>
+                    </TouchableOpacity>
+                ))}
+            </BlurView>
+        );
     };
 
     return (
         <View style={styles.navbar}>
-            <TouchableOpacity onPress={() => { setActiveItem('home'); navigation.navigate('home' as never) }}>
+            <TouchableOpacity
+                onPress={() => {
+                    setActiveItem('home');
+                    navigation.navigate('home' as never);
+                    setMenuOpen(false);
+                    setUserMenuOpen(false);
+                }}>
                 <Image
                     source={require("@/assets/images/icon_caronte_azul.png")}
                     style={styles.logo}
@@ -58,116 +158,44 @@ const CustomNavbar = () => {
             </TouchableOpacity>
             {
                 isNarrow ? (
-                    <View>
-                        <TouchableOpacity onPress={() => { setMenuOpen(!menuOpen); }}>                            <Ionicons name="menu" size={28} color="#333" />
+                    <View style={{ width: '90%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Text style={styles.navItemMobile}>{title}</Text>
+                        <TouchableOpacity onPress={() => setMenuOpen(!menuOpen)}>
+                            <Ionicons name={menuOpen ? "close" : "menu"} size={28} color="#333" />
                         </TouchableOpacity>
-                        {menuOpen && (
-                            <View style={styles.dropdown}>
-                                <TouchableOpacity onPress={() => { handleNavigation('certificate/index'); setMenuOpen(false); }}>
-                                    <Text style={styles.dropdownNavItem}>Cargar certificado</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => { handleNavigation('about/index'); setMenuOpen(false); }}>
-                                    <Text style={styles.dropdownNavItem}>Sobre nosotros</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => { handleNavigation('contact/index'); setMenuOpen(false); }}>
-                                    <Text style={styles.dropdownNavItem}>Contáctanos</Text>
-                                </TouchableOpacity>
-                                {!isAuthenticated && (
-                                    <>
-                                        <TouchableOpacity onPress={() => { handleNavigation('login/index'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Iniciar sesión</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => { handleNavigation('register/index'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Registrarse</Text>
-                                        </TouchableOpacity>
-                                    </>
-                                )}
-                                {isAuthenticated && userRoles?.includes("ADMIN") && (
-                                    <>
-                                        <TouchableOpacity onPress={() => { handleNavigation('admin/listUsers'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Usuarios</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => {
-                                            setUserMenuOpen(false);
-                                            setIsLogoutModalVisible(true);
-                                        }}>
-                                            <Text style={styles.dropdownNavItem}>Cerrar sesión</Text>
-                                        </TouchableOpacity>
-                                    </>
-                                )}
-                                {isAuthenticated && userRoles?.includes("CUSTOMER") && (
-                                    <>
-                                        <TouchableOpacity onPress={() => { handleNavigation('obituaries/index'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Esquelas</Text>
-                                        </TouchableOpacity>
-                                    </>
-                                )}
-                                {isAuthenticated && userRoles?.includes("CUSTOMER_PREMIUM") && (
-                                    <>
-                                        <TouchableOpacity onPress={() => { handleNavigation('messages/index'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Mensajes</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => { handleNavigation('contacts/index'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Contactos de emergencia</Text>
-                                        </TouchableOpacity>
-                                    </>
-                                )}
-                                {isAuthenticated && (userRoles?.includes("CUSTOMER") || userRoles?.includes("COMPANY")) && (
-                                    <>
-                                        <TouchableOpacity onPress={() => { handleNavigation('services/index'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Servicios</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => { handleNavigation('subscribe/index'); setMenuOpen(false); }}>
-                                            <Text style={styles.dropdownNavItem}>Planes</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => {
-                                            setUserMenuOpen(false);
-                                            handleNavigation('profile/index');
-                                            setMenuOpen(false);
-                                        }}>
-                                            <Text style={styles.dropdownNavItem}>{userName}</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => {
-                                            setUserMenuOpen(false);
-                                            setIsLogoutModalVisible(true);
-                                        }}>
-                                            <Text style={styles.dropdownNavItem}>Cerrar sesión</Text>
-                                        </TouchableOpacity>
-                                    </>
-                                )}
-                            </View>
-                        )}
+                        {renderDropdown()}
                     </View>
                 ) : (
                     <React.Fragment>
                         <View style={styles.navItems}>
-                            <TouchableOpacity onPress={() => {handleNavigation('certificate/index')}}>
+                            <TouchableOpacity onPress={() => { handleNavigation('certificate/index') }}>
                                 <View>
-                                    <Text style={styles.navItem}>Cargar certificado</Text>
+                                    <Text style={styles.navItem}>Subir certificado</Text>
                                     {activeItem === 'certificate/index' && <View style={styles.activeIndicator} />}
                                 </View>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => {handleNavigation('about/index')}}>
-                                 <View>
-                                    <Text style={styles.navItem}>Sobre nosotros</Text>
-                                    {activeItem === 'about/index' && <View style={styles.activeIndicator} />}
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => {handleNavigation('contact/index')}}>
-                                <View>
-                                    <Text style={styles.navItem}>Contáctanos</Text>
-                                    {activeItem === 'contact/index' && <View style={styles.activeIndicator} />}
-                                </View>
-                            </TouchableOpacity>
+
                             {!isAuthenticated && (
                                 <>
-                                    <TouchableOpacity onPress={() => {handleNavigation('login/index')}}>
+                                    <TouchableOpacity onPress={() => { handleNavigation('about/index') }}>
+                                        <View>
+                                            <Text style={styles.navItem}>Sobre nosotros</Text>
+                                            {activeItem === 'about/index' && <View style={styles.activeIndicator} />}
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => { handleNavigation('contact/index') }}>
+                                        <View>
+                                            <Text style={styles.navItem}>Contáctanos</Text>
+                                            {activeItem === 'contact/index' && <View style={styles.activeIndicator} />}
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => { handleNavigation('login/index') }}>
                                         <View>
                                             <Text style={styles.navItem}>Iniciar sesión</Text>
                                             {activeItem === 'login/index' && <View style={styles.activeIndicator} />}
                                         </View>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => {handleNavigation('register/index')}}>
+                                    <TouchableOpacity onPress={() => { handleNavigation('register/index') }}>
                                         <View>
                                             <Text style={styles.navItem}>Registrarse</Text>
                                             {activeItem === 'register/index' && <View style={styles.activeIndicator} />}
@@ -177,10 +205,25 @@ const CustomNavbar = () => {
                             )}
                             {isAuthenticated && userRoles?.includes("ADMIN") && (
                                 <>
-                                    <TouchableOpacity onPress={() => {handleNavigation('admin/listUsers')}}>
+                                    <TouchableOpacity onPress={() => { handleNavigation('admin/listUsers') }}>
                                         <View>
                                             <Text style={styles.navItem}>Usuarios</Text>
                                             {activeItem === 'admin/listUsers' && <View style={styles.activeIndicator} />}
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => { handleNavigation('admin/certificatesManagement'); setMenuOpen(false); }}>
+                                        <Text style={styles.dropdownNavItem}>Certificados de defunción</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => { handleNavigation('about/index') }}>
+                                        <View>
+                                            <Text style={styles.navItem}>Sobre nosotros</Text>
+                                            {activeItem === 'about/index' && <View style={styles.activeIndicator} />}
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => { handleNavigation('contact/index') }}>
+                                        <View>
+                                            <Text style={styles.navItem}>Contáctanos</Text>
+                                            {activeItem === 'contact/index' && <View style={styles.activeIndicator} />}
                                         </View>
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => {
@@ -195,7 +238,7 @@ const CustomNavbar = () => {
                             )}
                             {isAuthenticated && userRoles?.includes("CUSTOMER") && (
                                 <>
-                                    <TouchableOpacity onPress={() => {handleNavigation('obituaries/index')}}>
+                                    <TouchableOpacity onPress={() => { handleNavigation('obituaries/index') }}>
                                         <View>
                                             <Text style={styles.navItem}>Esquelas</Text>
                                             {activeItem === 'obituaries/index' && <View style={styles.activeIndicator} />}
@@ -205,13 +248,13 @@ const CustomNavbar = () => {
                             )}
                             {isAuthenticated && userRoles?.includes("CUSTOMER_PREMIUM") && (
                                 <>
-                                    <TouchableOpacity onPress={() => {handleNavigation('messages/index')}}>
+                                    <TouchableOpacity onPress={() => { handleNavigation('messages/listMyMessages') }}>
                                         <View>
                                             <Text style={styles.navItem}>Mensajes</Text>
-                                            {activeItem === 'messages/index' && <View style={styles.activeIndicator} />}
+                                            {activeItem === 'messages/listMyMessages' && <View style={styles.activeIndicator} />}
                                         </View>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => {handleNavigation('contacts/index')}}>
+                                    <TouchableOpacity onPress={() => { handleNavigation('contacts/index') }}>
                                         <View>
                                             <Text style={styles.navItem}>Contactos de emergencia</Text>
                                             {activeItem === 'contacts/index' && <View style={styles.activeIndicator} />}
@@ -221,26 +264,38 @@ const CustomNavbar = () => {
                             )}
                             {isAuthenticated && (userRoles?.includes("CUSTOMER") || userRoles?.includes("COMPANY")) && (
                                 <>
-                                    <TouchableOpacity onPress={() => {handleNavigation('services/index')}}>
+                                    <TouchableOpacity onPress={() => { handleNavigation('services/index') }}>
                                         <View>
                                             <Text style={styles.navItem}>Servicios</Text>
                                             {activeItem === 'services/index' && <View style={styles.activeIndicator} />}
                                         </View>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => {handleNavigation('subscribe/index')}}>
+                                    <TouchableOpacity onPress={() => { handleNavigation('subscribe/index') }}>
                                         <View>
                                             <Text style={styles.navItem}>Planes</Text>
                                             {activeItem === 'subscribe/index' && <View style={styles.activeIndicator} />}
                                         </View>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => {setUserMenuOpen(!userMenuOpen)}}>
+                                    <TouchableOpacity onPress={() => { handleNavigation('about/index') }}>
+                                        <View>
+                                            <Text style={styles.navItem}>Sobre nosotros</Text>
+                                            {activeItem === 'about/index' && <View style={styles.activeIndicator} />}
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => { handleNavigation('contact/index') }}>
+                                        <View>
+                                            <Text style={styles.navItem}>Contáctanos</Text>
+                                            {activeItem === 'contact/index' && <View style={styles.activeIndicator} />}
+                                        </View>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => { setUserMenuOpen(!userMenuOpen) }}>
                                         <View>
                                             <Text style={styles.navItem}>{userName}</Text>
                                             {activeItem === 'profile/index' && <View style={styles.activeIndicator} />}
                                         </View>
                                     </TouchableOpacity>
                                     {userMenuOpen && (
-                                        <View style={styles.dropdown}>
+                                        <BlurView intensity={90} tint="light" style={styles.dropdown}>
                                             <TouchableOpacity onPress={() => {
                                                 setUserMenuOpen(false);
                                                 handleNavigation('profile/index');
@@ -253,7 +308,7 @@ const CustomNavbar = () => {
                                             }}>
                                                 <Text style={styles.dropdownNavItem}>Cerrar sesión</Text>
                                             </TouchableOpacity>
-                                        </View>
+                                        </BlurView>
                                     )}
                                 </>
                             )}
@@ -263,7 +318,7 @@ const CustomNavbar = () => {
             }
             <CustomModal
                 visible={isLogoutModalVisible}
-                onClose={() => {setIsLogoutModalVisible(false)}}
+                onClose={() => { setIsLogoutModalVisible(false) }}
                 title="Cerrar sesión"
                 style={styles.modalContent}
             >
@@ -274,7 +329,7 @@ const CustomNavbar = () => {
                     <View style={styles.modalButtons}>
                         <CustomButton
                             title="Cancelar"
-                            onPress={() => {setIsLogoutModalVisible(false)}}
+                            onPress={() => { setIsLogoutModalVisible(false) }}
                             style={styles.modalButton}
                             color="red"
                         />
@@ -296,7 +351,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: '#f8f8f8',
+        backgroundColor: '#fff',
         paddingVertical: 10,
         paddingHorizontal: 15,
         height: 60,
@@ -320,6 +375,13 @@ const styles = StyleSheet.create({
         fontFamily: GlobalStyles.font,
         marginHorizontal: 10,
     },
+    navItemMobile: {
+        fontSize: 16,
+        color: GlobalStyles.blue,
+        fontFamily: GlobalStyles.font,
+        marginHorizontal: 10,
+        textAlign: 'left',
+    },
     activeIndicator: {
         borderBottomWidth: 2,
         borderBottomColor: GlobalStyles.blue,
@@ -329,8 +391,7 @@ const styles = StyleSheet.create({
     dropdown: {
         position: 'absolute',
         top: 60,
-        right: 15,
-        backgroundColor: '#f8f8f8',
+        right: 0,
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 10,
@@ -349,7 +410,8 @@ const styles = StyleSheet.create({
         borderBottomColor: GlobalStyles.lightGrey,
     },
     modalContent: {
-        width: 'auto',
+        width: '90%',
+        maxWidth: 400,
         padding: '2%',
     },
     modalText: {

@@ -1,18 +1,19 @@
 import React from 'react';
-import { Text, Pressable, StyleSheet, ViewStyle } from 'react-native';
+import { Text, Pressable, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { GlobalStyles } from '@/constants/Colors';
 
 interface CustomButtonProps {
   title: string;
   onPress: () => void;
   style?: ViewStyle;
+  textStyle?: TextStyle;
 
   color?: 'blue' | 'grey' | 'red' | 'white' | 'green' | 'orange';
   disabled?: boolean;
 };
 
-const CustomButton: React.FC<CustomButtonProps> = ({ title, onPress, style, color = 'blue', disabled = false }) => {
-  const textStyles = [styles.text, color === 'white' ? styles.textGrey : styles.textWhite];
+const CustomButton: React.FC<CustomButtonProps> = ({ title, onPress, style, textStyle, color = 'blue', disabled = false }) => {
+  const textStyles = [styles.text, color === 'white' ? styles.textGrey : styles.textWhite, textStyle];
   const buttonStyles = [
     styles.button,
     styles[color],
@@ -22,11 +23,13 @@ const CustomButton: React.FC<CustomButtonProps> = ({ title, onPress, style, colo
 
   return (
     <Pressable 
+      testID='custom-button'
       style={buttonStyles} 
       onPress={onPress}
       disabled={disabled}
     >
       <Text style={textStyles}>{title}</Text>
+
     </Pressable>
   );
 };
