@@ -1,5 +1,5 @@
 import CustomButton from "@/components/CustomButton";
-import LineBreak from "@/components/LineBreack";
+import LineBreak from "@/components/LineBreak";
 import Logo from "@/components/Logo";
 import { GlobalStyles } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
