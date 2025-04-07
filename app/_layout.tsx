@@ -7,6 +7,7 @@ import { DMSans_500Medium, DMSans_700Bold, useFonts } from "@expo-google-fonts/d
 import { Tabs } from "expo-router";
 import React from "react";
 import { StyleSheet, View, useColorScheme } from "react-native";
+import Footer from "@/components/Footer";
 
 export default function TabLayout() {
   const { isAuthenticated, roles } = useAuth();
@@ -139,7 +140,7 @@ export default function TabLayout() {
             }
           </Tabs>
         </View>
-        {/* <Footer /> */}
+          <Footer /> 
       </View>
     </NotificationProvider>
   );

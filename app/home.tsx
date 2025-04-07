@@ -90,9 +90,6 @@ export default function HomeScreen() {
           </View>
         </View>
       )}
-      <View style={{ width: '100%' }}>
-        <Footer />
-      </View>
     </ScrollView>
   );
 }
@@ -100,7 +97,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: "space-between",
+    justifyContent: "center",
     alignItems: "center",
     paddingTop: 20,
   },
