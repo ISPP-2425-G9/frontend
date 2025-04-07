@@ -54,7 +54,7 @@ function ReviewObituairesAndMessagesView() {
         const authToken = await AsyncStorage.getItem('authToken');
         if (!authToken) throw new Error('Token no disponible');
         
-        const messagesRes = await fetch(`${BACKEND_API}/api/admin/messages/${certificateId}`, {
+        const messagesRes = await fetch(`${BACKEND_API}/api/admin/certificates/messages/${certificateId}`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
@@ -63,7 +63,7 @@ function ReviewObituairesAndMessagesView() {
         if (!messagesRes.ok) throw new Error('Error al cargar mensajes');
         const messagesData = await messagesRes.json();
   
-        const obituariesRes = await fetch(`${BACKEND_API}/api/admin/obituaries/${certificateId}`, {
+        const obituariesRes = await fetch(`${BACKEND_API}/api/admin/certificates/obituaries/${certificateId}`, {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
