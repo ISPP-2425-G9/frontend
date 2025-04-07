@@ -6,7 +6,7 @@ import useAuth from "@/hooks/useAuth";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { Animated, Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 
 export default function HomeScreen() {
   const { isAuthenticated, roles } = useAuth();
@@ -26,6 +26,8 @@ export default function HomeScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ImageCarousel />
+
       <View style={[styles.container, width > 800 ? styles.rowLayout : styles.columnLayout]}>
         <View style={styles.logoContainer}>
           <Logo size={250} />
@@ -75,15 +77,15 @@ export default function HomeScreen() {
           <View style={styles.buttonContainer}>
             <View style={[styles.buttonWrapper, { width: width > 800 ? "30%" : "90%" }]}>
               <Text style={styles.buttonText}>Pulsa aquí, si quieres personalizar la esquela para un familiar o amigo que haya fallecido</Text>
-              <CustomButton title="Personalizar esquela" onPress={() => {navigation.navigate("obituaries/index" as never) }} color="blue" />
+              <CustomButton title="Personalizar esquela" onPress={() => { navigation.navigate("obituaries/index" as never) }} color="blue" />
             </View>
             <View style={[styles.buttonWrapper, { width: width > 800 ? "30%" : "90%" }]}>
               <Text style={styles.buttonText}>Pulsa aquí, si quieres pagar el plan para personalizar mensajes para familiares o amigos una vez que haya fallecido o para promocionar tu empresa relacionada con el sector funerario.</Text>
-              <CustomButton title="Suscribirse" onPress={() => {navigation.navigate("subscribe/index" as never) }} color="blue" />
+              <CustomButton title="Suscribirse" onPress={() => { navigation.navigate("subscribe/index" as never) }} color="blue" />
             </View>
             <View style={[styles.buttonWrapper, { width: width > 800 ? "30%" : "90%" }]}>
               <Text style={styles.buttonText}>Si quieres ver los servicios que ofrecen empresas del sector funerario, pulsa aquí</Text>
-              <CustomButton title="Ver servicios" onPress={() => {navigation.navigate("services/index" as never) }} color="blue" />
+              <CustomButton title="Ver servicios" onPress={() => { navigation.navigate("services/index" as never) }} color="blue" />
             </View>
           </View>
         </View>
@@ -92,18 +94,162 @@ export default function HomeScreen() {
   );
 }
 
+const ImageCarousel: React.FC = () => {
+  const images = [
+    "https://store-images.s-microsoft.com/image/apps.58752.13942869738016799.078aba97-2f28-440f-97b6-b852e1af307a.95fdf1a1-efd6-4938-8100-8abae91695d6?q=90&w=336&h=200",
+    "https://hips.hearstapps.com/hmg-prod/images/red-dead-redemption-2-1539704658.jpg?crop=0.502xw:1.00xh;0.498xw,0&resize=1200:*",
+    "https://i.scdn.co/image/ab67616d0000b273f337a21d945f44e802a1eb1d",
+  ];
+
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+  const progress = React.useRef(new Animated.Value(0)).current;
+
+  const startAnimation = React.useCallback(() => {
+    progress.setValue(0);
+    Animated.timing(progress, {
+      toValue: 1,
+      duration: 5000,
+      useNativeDriver: false,
+    }).start(({ finished }) => {
+      if (finished) {
+        handleNext();
+      }
+    });
+  }, [progress]);
+
+  const handlePrev = () => {
+    progress.stopAnimation();
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
+  };
+
+  const handleNext = React.useCallback(() => {
+    progress.stopAnimation();
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+  }, [images.length, progress]);
+
+  React.useEffect(() => {
+    startAnimation();
+  }, [currentIndex, startAnimation]);
+
+  const handleDotPress = (index: number) => {
+    progress.stopAnimation();
+    setCurrentIndex(index);
+  };
+
+  return (
+    <View style={styles.carouselContainer}>
+      <Image
+        source={{ uri: images[currentIndex] }}
+        style={styles.carouselImage}
+        resizeMode="cover"
+      />
+      <View style={styles.carouselButtons}>
+        <TouchableOpacity onPress={handlePrev} style={styles.carouselButton}>
+          <MaterialIcons name="chevron-left" size={32} color={GlobalStyles.white} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleNext} style={styles.carouselButton}>
+          <MaterialIcons name="chevron-right" size={32} color={GlobalStyles.white} />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.progressBarContainer}>
+        <Animated.View
+          style={[
+            styles.progressBar,
+            {
+              width: progress.interpolate({
+                inputRange: [0, 1],
+                outputRange: ["0%", "100%"],
+              }),
+            },
+          ]}
+        />
+      </View>
+      <View style={styles.dotsContainer}>
+        {images.map((_, index) => (
+          <TouchableOpacity
+            key={index}
+            onPress={() => handleDotPress(index)}
+            style={[styles.dot, currentIndex === index && styles.activeDot]}
+          />
+        ))}
+      </View>
+    </View>
+  );
+};
+
+export { ImageCarousel };
+
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: "center",
+    justifyContent: 'flex-start',
     alignItems: "center",
-    paddingTop: 20,
   },
   container: {
     width: "90%",
     maxWidth: 1500,
     alignItems: "center",
     justifyContent: "center",
+    marginTop: 20,
+  },
+  carouselContainer: {
+    width: "100%",
+    position: "relative",
+    top: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    alignContent: "center",
+    margin: 0,
+    padding: 0,
+  },
+  carouselImage: {
+    width: Dimensions.get("window").width,
+    height: 300,
+  },
+  carouselButtons: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+  },
+  carouselButton: {
+    backgroundColor: "rgba(0, 0, 0, 0.3)",
+    padding: 5,
+    borderRadius: 20,
+  },
+  progressBarContainer: {
+    position: "absolute",
+    bottom: 10,
+    height: 4,
+    minWidth: 100,
+    width: "10%",
+    alignSelf: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    borderRadius: 2,
+  },
+  progressBar: {
+    alignContent: "center",
+    height: "100%",
+    backgroundColor: GlobalStyles.blue,
+    borderRadius: 2,
+  },
+  dotsContainer: {
+    position: "absolute",
+    bottom: 20,
+    flexDirection: "row",
+    alignSelf: "center",
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    marginHorizontal: 5,
+  },
+  activeDot: {
+    backgroundColor: GlobalStyles.blue,
   },
   rowLayout: {
     flexDirection: "row",
