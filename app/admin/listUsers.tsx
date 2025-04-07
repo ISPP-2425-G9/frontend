@@ -130,27 +130,22 @@ function AdminListUsers() {
       {loading ? (
         <ActivityIndicator size="large" color={GlobalStyles.blue} />
       ) : (
-        <View style={{ width: '100%', alignItems: 'center' }}>
-          <ScrollView horizontal contentContainerStyle={styles.scrollContainer}>
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 10 }}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={true} contentContainerStyle={styles.tableScrollContent}>
             <View style={styles.tableWrapper}>
-            <View style={styles.tableHeader}>
-              <Text style={styles.headerCell}>Nombre</Text>
-              <Text style={styles.headerCell}>Email</Text>
-              <Text style={styles.headerCell}>{mostrarClientes ? 'DNI' : 'NIF'}</Text>
-              <Text style={styles.headerCell}>Teléfono</Text>
-              <Text style={styles.headerCell}>Acciones</Text>
-            </View>
+              <View style={styles.tableHeader}>
+                <Text style={styles.headerCell}>Nombre</Text>
+                <Text style={styles.headerCell}>Email</Text>
+                <Text style={styles.headerCell}>{mostrarClientes ? 'DNI' : 'NIF'}</Text>
+                <Text style={styles.headerCell}>Teléfono</Text>
+                <Text style={styles.headerCell}>Acciones</Text>
+              </View>
 
-            <ScrollView style={styles.tableBody}>
               {(mostrarClientes ? clientes : empresas).map((item) => (
                 <View key={item.id} style={styles.tableRow}>
                   <View style={styles.cell}><Text style={styles.cellText}>{item.name}</Text></View>
                   <View style={styles.cell}><Text style={styles.cellText}>{item.email}</Text></View>
-                  <View style={styles.cell}>
-                    <Text style={styles.cellText}>
-                      {'dni' in item ? item.dni : (item as Empresa).nif}
-                    </Text>
-                  </View>
+                  <View style={styles.cell}><Text style={styles.cellText}>{'dni' in item ? item.dni : (item as Empresa).nif}</Text></View>
                   <View style={styles.cell}><Text style={styles.cellText}>{item.telephone}</Text></View>
                   <View style={styles.cell}>
                     <View style={styles.actionButtonsContainer}>
@@ -160,10 +155,9 @@ function AdminListUsers() {
                   </View>
                 </View>
               ))}
-            </ScrollView>
             </View>
           </ScrollView>
-        </View>
+        </ScrollView>
       )}
 
       <CustomModal visible={modalVisible} onClose={() => { setModalVisible(false); } } title="Confirmar eliminación">
@@ -214,6 +208,7 @@ const styles = StyleSheet.create({
   },
   tableWrapper: {
     alignSelf: 'center',
+    minWidth: '90%',
   },
   tableHeader: {
     flexDirection: 'row',
@@ -295,6 +290,11 @@ const styles = StyleSheet.create({
     color: GlobalStyles.blue,
     fontWeight: 'bold',
   },
+  tableScrollContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexGrow: 1,
+  },  
 });
 
 
