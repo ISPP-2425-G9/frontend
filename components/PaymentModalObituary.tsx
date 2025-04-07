@@ -16,7 +16,7 @@ interface PaymentModalObituaryProps {
   onClose: () => void;
   amount: number;
   description: string;
-  onSuccess?: () => void;
+  onSuccess?: (paymentMethod: { id: string }) => void;
 }
 
 const CheckoutForm: React.FC<PaymentModalObituaryProps> = ({
@@ -54,7 +54,7 @@ const CheckoutForm: React.FC<PaymentModalObituaryProps> = ({
 
       if (paymentMethod) {
         try {
-          onSuccess?.();
+          onSuccess?.(paymentMethod);
           setShowSuccess(true);
           onClose();
         } catch (err: unknown) {

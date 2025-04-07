@@ -80,10 +80,8 @@ function EsquelaCustomizer() {
 
   const is_mine = route.params?.is_mine;
 
-  const [isMine, setIsMine] = useState(Boolean);
+  const [isMine, setIsMine] = useState(false);
 
-  console.log("isMine", isMine)
-  console.log("is_mine", is_mine)
 
   const [is_sended, setIsSended] = useState(false);
 
