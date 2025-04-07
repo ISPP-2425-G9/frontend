@@ -50,7 +50,7 @@ export const useAuth = () => {
 
     try {
       setUser(userData);
-
+      await AsyncStorage.clear();
       await AsyncStorage.setItem('authToken', token);
       await AsyncStorage.setItem('userId', id);
       await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
