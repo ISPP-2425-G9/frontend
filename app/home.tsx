@@ -5,7 +5,7 @@ import { GlobalStyles } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Animated, Image, Platform, Pressable, ScrollView, StyleSheet, TouchableOpacity, View, useWindowDimensions } from "react-native";
 
 export default function HomeScreen() {
@@ -158,21 +158,24 @@ const ImageCarousel: React.FC = () => {
   );
 };
 
-const videoIds = [
-  "WHBSjduVhoo",
-  "A_VFqpbJ5Yw",
-  "KkkRXSZX0lg?si=caXEZSRZN4IG8Gjk",
+const videoItems = [
+  { videoId: "WHBSjduVhoo", title: "PRUEBA 1" },
+  { videoId: "A_VFqpbJ5Yw", title: "PRUEBA 2" },
+  { videoId: "KkkRXSZX0lg?si=caXEZSRZN4IG8Gjk", title: "PRUEBA 3" },
 ];
 
-const GallerySection: React.FC = ({ }) => {
+const GallerySection: React.FC = () => {
   return (
     <>
       <View style={{ height: 40 }} />
       <ThemedText style={styles.featuresTitle}>Galería</ThemedText>
       <View style={styles.galleryContainer}>
         <View style={styles.galleryGrid}>
-          {videoIds.map((videoId, index) => (
-            <YoutubeVideo key={index} videoId={videoId} />
+          {videoItems.map((item, index) => (
+            <View key={index} style={{ alignItems: 'center', margin: 10 }}>
+              <ThemedText style={styles.videoCaption}>{item.title}</ThemedText>
+              <YoutubeVideo videoId={item.videoId} />
+            </View>
           ))}
         </View>
       </View>
@@ -180,15 +183,14 @@ const GallerySection: React.FC = ({ }) => {
   );
 };
 
+
 const YoutubeVideo: React.FC<{ videoId: string }> = ({ videoId }) => {
-  const [playerReady, setPlayerReady] = useState(false);
 
   return (
     <View style={styles.videoContainer}>
       <YoutubeIframe
         videoId={videoId}
-        height={200}
-        onReady={() => setPlayerReady(true)}
+        height={300}
         webViewProps={{
           renderToHardwareTextureAndroid: true,
           androidLayerType: 'hardware',
@@ -203,7 +205,7 @@ const YoutubeVideo: React.FC<{ videoId: string }> = ({ videoId }) => {
               } catch(e) {}
               true;
             `,
-          onMessage: () => setPlayerReady(true)
+          onMessage: () => (true)
         }}
       />
     </View>
@@ -553,7 +555,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flexWrap: "wrap",
-    gap: 20,
+    rowGap: 20,
+    columnGap: 40,
   },
   featureCardHeading: {
     fontSize: 20,
@@ -640,27 +643,35 @@ const styles = StyleSheet.create({
   galleryContainer: {
     width: "90%",
     height: "auto",
-    maxWidth: 1200,
-    backgroundColor: GlobalStyles.lightGrey,
     borderRadius: 25,
     paddingVertical: 20,
     marginBottom: 40,
+  },
+  videoCaption: {
+    width: "100%",
+    marginBottom: 10,
+    fontSize: 16,
+    color: GlobalStyles.darkGrey,
+    textAlign: 'center',
   },
   galleryGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
-    height: "100%",
     columnGap: 50,
     rowGap: 20,
-    width: "100%",
   },
   videoContainer: {
     borderRadius: 15,
     overflow: 'hidden',
-    width: "90%",
-    maxWidth: 350,
-    height: "auto",
+    aspectRatio: 16 / 9,
+    width: document.documentElement.clientWidth > 800 ? 400 : 300,
+    maxWidth: 600,                
+    alignSelf: "center",         
+    shadowColor: "#000",
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 10 },
   },
   cardContainer: {
     width: "22%",
