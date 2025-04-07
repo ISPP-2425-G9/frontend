@@ -1,8 +1,8 @@
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { Animated, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-const teamMembers = [
+export const teamMembers = [
   { name: "Hugo Angulo Borrego", role: "Desarrollador Frontend", image: require('@/assets/images/team/hugo.png'), hobbies: "Amante de la tecnología y los gatos." },
   { name: "Álvaro Chico Castellano", role: "Desarrollador Full-Stack y Especialista en Marketing", image: require('@/assets/images/team/alvaro.png'), hobbies: "Apasionado de la ingeniería software e interesado en la inteligencia artificial." },
   { name: "Rafael Duque Colete", role: "Desarrollador Frontend", image: require('@/assets/images/team/rafael.png'), hobbies: "Amante del fútbol, el deporte y las buenas series." },
@@ -61,11 +61,15 @@ const AboutUs = () => {
 
         <View style={styles.teamGrid}>
           {teamMembers.map((member, index) => (
-            <View key={index} style={styles.teamMember}>
+            <View key={index} style={styles.teamMember} testID={`team-member-${index}`}>
               <Image source={member.image} style={styles.memberImage} />
               <Text style={styles.memberName}>{member.name}</Text>
-              <Text style={styles.memberRole}>{member.role}</Text>
-              <Text style={styles.hobbies}><Text style={styles.bold}>Aficiones:</Text> {member.hobbies}</Text>
+              <Text style={styles.memberRole} testID={`role-${index}`}>
+                {member.role}
+              </Text>
+              <Text style={styles.hobbies} testID={`hobbies-${index}`}>
+                <Text style={styles.bold}>Aficiones:</Text> {member.hobbies}
+              </Text>
             </View>
           ))}
         </View>
