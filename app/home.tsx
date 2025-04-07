@@ -1,4 +1,4 @@
-import LineBreak from "@/components/LineBreack";
+import LineBreak from "@/components/LineBreak";
 import Logo from "@/components/Logo";
 import { ThemedText } from "@/components/ThemedText";
 import { GlobalStyles } from "@/constants/Colors";
