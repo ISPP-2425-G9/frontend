@@ -39,7 +39,10 @@ function EditUserScreen() {
   const [selectedPlan, setSelectedPlan] = useState<string>('FREE');
   const navigation = useNavigation();
   const route = useRoute();
-  const { userId = '', isCustomer = false } = route.params as RouteParams;
+  const params = route.params as RouteParams | undefined;
+  const userId = params?.userId ?? '';
+  const isCustomer = params?.isCustomer ?? false;
+
 
   const [originalProfile, setOriginalProfile] = useState<Profile | null>(null);
   const [editedProfile, setEditedProfile] = useState<Profile>({
