@@ -52,7 +52,7 @@ function ObituaryIndex() {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
-  const is_newObituary = route.params?.is_newObituary ?? true;
+  
 
   interface Obituary {
     id: number
@@ -63,9 +63,8 @@ function ObituaryIndex() {
   const [obituaries, setObituaries] = useState<Obituary[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const is_newObituary = route.params?.is_newObituary ?? true;
   const changeDesign = route.params?.changeDesign ?? false;
-
-  const jsonData = route.params?.jsonData ?? undefined;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -120,9 +119,7 @@ function ObituaryIndex() {
       }
     }
 
-    const obituaryId = route.params?.obituaryId ?? undefined;
-    const jsonData = route.params?.jsonData ?? undefined;
-    const selectedColor = route.params?.selectedColor ?? undefined;
+    const { obituaryId, jsonData, selectedColor } = route.params ?? {};
     navigation.navigate('obituaries/createObituary', {
       imageTemplateId: selectedObituary.id,
       imageUrl: selectedObituary.imageUrl,
@@ -140,9 +137,7 @@ function ObituaryIndex() {
   const handleElseObituary = async () => {
     if (!selectedObituary) return;
 
-    const obituaryId = route.params?.obituaryId ?? undefined;
-    const jsonData = route.params?.jsonData ?? undefined;
-    const selectedColor = route.params?.selectedColor ?? undefined;
+    const { obituaryId, jsonData, selectedColor } = route.params ?? {};
     navigation.navigate('obituaries/createObituary', {
       imageTemplateId: selectedObituary.id,
       imageUrl: selectedObituary.imageUrl,
@@ -160,11 +155,6 @@ function ObituaryIndex() {
   const handleCloseModal = () => {
     setModalVisible(false);
   };
-
-
-
-
-
 
   if (loading) {
     return (
@@ -200,14 +190,15 @@ function ObituaryIndex() {
               key={item.id}
               onPress={() => {
                 if (changeDesign) {
+                  const { obituaryId, jsonData, is_mine, selectedColor } = route.params ?? {};
                   navigation.navigate('obituaries/createObituary', {
                     imageTemplateId: item.id,
                     imageUrl: item.imageUrl,
                     is_newObituary,
-                    obituaryId: route.params?.obituaryId ?? undefined,
-                    jsonData: route.params?.jsonData ?? undefined,
-                    is_mine: route.params?.is_mine,
-                    selectedColor: route.params?.selectedColor ?? undefined,
+                    obituaryId,
+                    jsonData,
+                    is_mine,
+                    selectedColor,
                   });
                 } else {
                   showConfirmationModal(item.id, item.imageUrl);
