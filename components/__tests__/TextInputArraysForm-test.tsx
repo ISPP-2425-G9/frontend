@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import TextInputArraysForm from '../TextInputArraysForm';
+import * as ImagePicker from 'expo-image-picker';
 
 const mockOnSubmit = jest.fn();
 
@@ -8,19 +9,23 @@ jest.mock('@expo/vector-icons', () => ({
     AntDesign: 'AntDesign',
   }));
   
-  jest.mock('expo-image-picker', () => ({
-    launchImageLibraryAsync: jest.fn(() =>
-      Promise.resolve({
-        canceled: false,
-        assets: [{ uri: 'mocked-image-uri' }]
-      })
-    ),
-    MediaTypeOptions: {
-      Images: 'image',
-    },
-  }));
+jest.mock('expo-image-picker', () => ({
+  launchImageLibraryAsync: jest.fn(() =>
+    Promise.resolve({
+      canceled: false,
+      assets: [{ uri: 'mocked-image-uri' }]
+    })
+  ),
+  MediaTypeOptions: {
+    Images: 'image',
+  },
+}));
 
 describe('TextInputArraysForm', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('render title and description', () => {
     const { getByText } = render(
       <TextInputArraysForm
@@ -81,7 +86,7 @@ describe('TextInputArraysForm', () => {
     expect(mockHandleClose).toHaveBeenCalled();
   });
 
-it('allow pick images', async () => {
+  it('allow pick images', async () => {
     const mockOnSubmit = jest.fn();
   
     const { getByText } = render(
@@ -100,4 +105,108 @@ it('allow pick images', async () => {
     });
   });
 
+  it('should handle image selection and update state', async () => {
+    const { getByText } = render(
+      <TextInputArraysForm
+        title="Test Form"
+        inputs={[]}
+        imageFields={['imagen']}
+        onSubmit={mockOnSubmit}
+      />
+    );
+
+    fireEvent.press(getByText('Seleccionar imagen'));
+
+    expect(ImagePicker.launchImageLibraryAsync).toHaveBeenCalledWith({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    await waitFor(() => {
+      expect(getByText('Seleccionar imagen')).toBeTruthy();
+    });
+  });
+
+  it('should handle canceled image selection', async () => {
+    (ImagePicker.launchImageLibraryAsync as jest.Mock).mockImplementationOnce(() => 
+      Promise.resolve({ canceled: true })
+    );
+
+    const { getByText } = render(
+      <TextInputArraysForm
+        title="Test Form"
+        inputs={[]}
+        imageFields={['imagen']}
+        onSubmit={mockOnSubmit}
+      />
+    );
+
+    fireEvent.press(getByText('Seleccionar imagen'));
+
+    await waitFor(() => {
+      expect(getByText('Seleccionar imagen')).toBeTruthy();
+    });
+  });
+
+  it('should include image data in form submission', async () => {
+    const { getByText } = render(
+      <TextInputArraysForm
+        title="Test Form"
+        inputs={[{ name: 'testInput', placeholder: 'Test' }]}
+        imageFields={['imagen']}
+        onSubmit={mockOnSubmit}
+      />
+    );
+
+    fireEvent.press(getByText('Seleccionar imagen'));
+
+    await waitFor(() => {
+      fireEvent.press(getByText('Enviar'));
+      
+      expect(mockOnSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          imagen: expect.objectContaining({
+            uri: 'mocked-image-uri',
+            name: expect.any(String),
+            type: expect.stringMatching(/^image\/.*$/)
+          })
+        })
+      );
+    });
+  });
+
+  it('should handle multiple image fields', async () => {
+    const { getByText } = render(
+      <TextInputArraysForm
+        title="Test Form"
+        inputs={[]}
+        imageFields={['imagen1', 'imagen2']}
+        onSubmit={mockOnSubmit}
+      />
+    );
+
+    fireEvent.press(getByText('Seleccionar imagen1'));
+    fireEvent.press(getByText('Seleccionar imagen2'));
+
+    await waitFor(() => {
+      fireEvent.press(getByText('Enviar'));
+      
+      expect(mockOnSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          imagen1: expect.objectContaining({
+            uri: 'mocked-image-uri',
+            name: expect.any(String),
+            type: expect.stringMatching(/^image\/.*$/)
+          }),
+          imagen2: expect.objectContaining({
+            uri: 'mocked-image-uri',
+            name: expect.any(String),
+            type: expect.stringMatching(/^image\/.*$/)
+          })
+        })
+      );
+    });
+  });
 });
