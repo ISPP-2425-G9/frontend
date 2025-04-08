@@ -4,11 +4,9 @@ import SecureField from '../SecureField';
 import { CardNumberElement, CardExpiryElement, CardCvcElement } from '@stripe/react-stripe-js';
 import useResponsiveLayout from '@/hooks/useResponsiveLayout';
 
-// Mock de Animated
 jest.mock('react-native', () => {
   const RN = jest.requireActual('react-native');
   
-  // Mock de Animated
   RN.Animated = {
     Value: jest.fn(() => ({
       interpolate: jest.fn(() => '0deg'),
@@ -28,20 +26,17 @@ jest.mock('react-native', () => {
   return RN;
 });
 
-// Mock de los componentes de Stripe
 jest.mock('@stripe/react-stripe-js', () => ({
   CardNumberElement: jest.fn(() => null),
   CardExpiryElement: jest.fn(() => null),
   CardCvcElement: jest.fn(() => null),
 }));
 
-// Mock de useResponsiveLayout
 jest.mock('@/hooks/useResponsiveLayout', () => ({
   __esModule: true,
   default: jest.fn(),
 }));
 
-// Mock de FontAwesome
 jest.mock('@expo/vector-icons', () => ({
   FontAwesome: () => <div data-testid="card-icon">💳</div>,
 }));
@@ -100,16 +95,12 @@ describe('SecureField Component', () => {
     expect(getByText('Número de tarjeta')).toBeTruthy();
   });
 
-  // Test for lines 62,75-90 - Animation effects on focus/blur
   it('calls animation functions when focus state changes', () => {
-    // Mock the animation functions
     const mockSpring = jest.fn().mockReturnValue({ start: jest.fn() });
     
-    // Override the Animated mocks
     const RN = jest.requireActual('react-native');
     RN.Animated.spring = mockSpring;
     
-    // Render the component
     render(
       <SecureField 
         label="Número de tarjeta" 
@@ -118,34 +109,26 @@ describe('SecureField Component', () => {
       />
     );
     
-    // Verify that the animation functions were called
     expect(mockSpring).toHaveBeenCalled();
   });
 
-  // Test for lines 104-112 - Card brand icon handling
   it('handles card brand changes', () => {
-    // Create a mock onChange handler
     const mockOnChange = jest.fn();
     
-    // Mock the CardNumberElement to call our mock onChange
     (CardNumberElement as jest.Mock).mockImplementation(({ onChange }) => {
-      // Call onChange with a card brand change
       setTimeout(() => {
         onChange({ brand: 'visa', complete: true });
       }, 0);
       return null;
     });
     
-    // Mock the animation functions
     const mockSequence = jest.fn().mockReturnValue({ start: jest.fn() });
     const mockTiming = jest.fn().mockReturnValue({ start: jest.fn() });
     
-    // Override the Animated mocks
     const RN = jest.requireActual('react-native');
     RN.Animated.sequence = mockSequence;
     RN.Animated.timing = mockTiming;
     
-    // Render the component
     render(
       <SecureField 
         label="Número de tarjeta" 
@@ -154,30 +137,23 @@ describe('SecureField Component', () => {
       />
     );
     
-    // Manually trigger the card brand change
     const onChangeHandler = (CardNumberElement as jest.Mock).mock.calls[0][0].onChange;
     onChangeHandler({ brand: 'visa', complete: true });
     
-    // Verify that the animation functions were called
     expect(mockSequence).toHaveBeenCalled();
     expect(mockTiming).toHaveBeenCalled();
   });
 
-  // Test for lines 152-153 - Complete state styling
   it('handles complete state', () => {
-    // Create a mock onChange handler
     const mockOnChange = jest.fn();
     
-    // Mock the CardNumberElement to call our mock onChange
     (CardNumberElement as jest.Mock).mockImplementation(({ onChange }) => {
-      // Call onChange with a complete state
       setTimeout(() => {
         onChange({ complete: true });
       }, 0);
       return null;
     });
     
-    // Render the component
     render(
       <SecureField 
         label="Número de tarjeta" 
@@ -186,19 +162,13 @@ describe('SecureField Component', () => {
       />
     );
     
-    // Manually trigger the complete state
     const onChangeHandler = (CardNumberElement as jest.Mock).mock.calls[0][0].onChange;
     onChangeHandler({ complete: true });
-    
-    // We can't directly test the style changes, but we can verify the component renders
-    // The actual style changes would be tested in an integration test
   });
 
-  // Test for custom styles
   it('applies custom styles correctly', () => {
     const customStyle = { marginBottom: 20 };
     
-    // Render the component with custom styles
     render(
       <SecureField 
         label="Número de tarjeta" 
@@ -208,7 +178,5 @@ describe('SecureField Component', () => {
       />
     );
     
-    // We can't directly test the style application, but we can verify the component renders
-    // The actual style application would be tested in an integration test
   });
 }); 

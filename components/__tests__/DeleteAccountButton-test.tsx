@@ -67,7 +67,6 @@ describe('DeleteAccountButton', () => {
     fireEvent.press(getByText('Eliminar'));
 
     await waitFor(() => {
-      // Verifica que se llamó a fetch con los parámetros correctos
       expect(mockFetch).toHaveBeenCalledWith(
         `${BACKEND_API}/api/auth/123`,
         {
@@ -78,10 +77,8 @@ describe('DeleteAccountButton', () => {
         }
       );
       
-      // Verifica que se limpió el localStorage
       expect(mockLocalStorage.clear).toHaveBeenCalled();
       
-      // Verifica que se redirigió a login
       expect(mockReplace).toHaveBeenCalledWith('/login');
     });
   });
@@ -98,7 +95,7 @@ describe('DeleteAccountButton', () => {
     await waitFor(() => {
       expect(consoleErrorSpy).toHaveBeenCalled();
       const modalText = queryByText('¿Estás seguro que deseas eliminar tu cuenta permanentemente?');
-      expect(modalText).toBeNull(); // El modal debe cerrarse incluso si hay error
+      expect(modalText).toBeNull();
     });
 
     consoleErrorSpy.mockRestore();
