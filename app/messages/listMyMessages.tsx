@@ -132,6 +132,9 @@ function MessageList() {
                 <Text style={styles.introText}>
                     En esta sección, podrás ver y crear mensajes para tus seres queridos.
                 </Text>
+                <Text style={styles.introText}>
+                    Los mensajes permanecerán guardados en todo momento y podrás verlos y editarlos cuando quieras
+                </Text>
             </ThemedView>
 
             <CustomButton
@@ -219,6 +222,7 @@ const styles = StyleSheet.create({
         color: GlobalStyles.darkGrey,
         textAlign: 'center',
         lineHeight: 24,
+        marginBottom: 3,
     },
     messagePreviewImage: {
         width: 250,

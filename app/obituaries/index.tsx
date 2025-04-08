@@ -177,18 +177,21 @@ function ObituaryIndex() {
   return isAuthenticated ? (
     <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-
         <View style={styles.introContainer}>
           <Text style={styles.introTitle}>📜 Esquelas 📜</Text>
           <Text style={styles.introText}>
             En esta sección podrás crear esquelas personalizadas para ti o para un ser querido.
           </Text>
           <Text style={styles.introText}>
-            Si la esquela es para un ser querido, al final del proceso se le pedirá cargar el certificado de defunción para que uno de nuestros administradores verifique la información.
+            Si la esquela es para un ser querido, al final del proceso se le pedirá cargar el certificado de defunción para que uno de nuestros <Text style={{fontWeight: "bold"}}>administradores</Text> verifique la información.
           </Text>
           <Text style={styles.introText}>
             Si la esquela es para ti, permanecerá guardada en tu perfil y podrás editarla en cualquier momento.
           </Text>
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <CustomButton title="Tus esquelas" style={styles.button3} textStyle={styles.button3Text} onPress={() => { navigation.navigate('obituaries/listMyObituaries') }} />
         </View>
         <Text style={styles.title}>Elige un diseño</Text>
         <View style={styles.listContainer}>
@@ -242,9 +245,7 @@ function ObituaryIndex() {
       )}
 
 
-      <View style={styles.buttonContainer}>
-        <CustomButton title="Tus esquelas" style={{ height: 70 }} textStyle={{ fontSize: 22 }} onPress={() => { navigation.navigate('obituaries/listMyObituaries') }} />
-      </View>
+
     </ThemedView>
   ) : (
     <ThemedView style={styles.container}>
@@ -257,9 +258,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     fontFamily: GlobalStyles.font,
-    padding: 8,
+    paddingBottom: 15,
     alignItems: 'center',
-    paddingTop: 30,
     backgroundColor: GlobalStyles.white,
   },
   title: {
@@ -308,10 +308,11 @@ const styles = StyleSheet.create({
   },
 
   buttonContainer: {
-    width: '90%',
-    alignItems: 'flex-end',
-    marginBottom: '0.5%',
-    marginRight: '6%',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 15,
+    marginTop: 15,
   },
   buttonModalContainer: {
     alignItems: "center",
@@ -368,6 +369,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 3,
+  },
+  button3: {
+    width: width > 600 ?  400 : '80%',
+    height: "100%",
+  },
+  button3Text: {
+    fontSize: 17,
+    color: GlobalStyles.white,
   },
 });
 

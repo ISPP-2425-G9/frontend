@@ -8,7 +8,7 @@ import { useRoute,useFocusEffect, useNavigation } from '@react-navigation/native
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
 import { BACKEND_API } from '@/constants/Mysc';
-import { Picker } from '@react-native-picker/picker';
+
 
 
 function EditUserScreen() {
@@ -39,8 +39,10 @@ function EditUserScreen() {
   const [selectedPlan, setSelectedPlan] = useState<string>('FREE');
   const navigation = useNavigation();
   const route = useRoute();
-  const { userId = '', isCustomer = false } = route.params as RouteParams;
-  const [showPlanModal, setShowPlanModal] = useState(false);
+  const params = route.params as RouteParams | undefined;
+  const userId = params?.userId ?? '';
+  const isCustomer = params?.isCustomer ?? false;
+
 
   const [originalProfile, setOriginalProfile] = useState<Profile | null>(null);
   const [editedProfile, setEditedProfile] = useState<Profile>({
@@ -120,11 +122,6 @@ function EditUserScreen() {
     useCallback(() => {
       setHasChanges(false); // Restablecer cambios al entrar en la pestaña
       fetchProfile(); // Cargar datos del usuario
-      setShowPlanModal(false); // Cierra el modal al entrar
-  
-      return () => {
-        setShowPlanModal(false); // Cierra el modal cuando la pantalla pierde el foco
-      };
     }, [fetchProfile])
   );
 
@@ -135,30 +132,6 @@ function EditUserScreen() {
       return updatedProfile;
     });
   };
-
-  const handleSavePlan = async () => {
-    try {
-      const token = await AsyncStorage.getItem('authToken');
-      if (!token) throw new Error('No se encontró el token de autenticación.');
-  
-      const planEndpoint = `${BACKEND_API}/api/plans/${userId}/${editedProfile.plan?.planType.toLowerCase()}`;
-  
-      const response = await fetch(planEndpoint, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      });
-  
-      if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar el plan.`);
-  
-      showAlert('Éxito', 'El plan ha sido actualizado correctamente.');
-      setShowPlanModal(false);
-  
-    } catch (error: any) {
-      console.error('Error al guardar el plan:', error.message);
-      showAlert('Error', error.message);
-    }
-  };
-  
 
   const handleSave = async () => {
     try {
@@ -299,12 +272,6 @@ function EditUserScreen() {
             </View>
           )}
           <View style={styles.buttonContainer}>
-          <ThemedText style={styles.changePlanText}>
-              ¿Desea cambiar su plan?{' '}
-              <Pressable onPress={() => { setShowPlanModal(true); } }>
-                <ThemedText style={styles.changePlanLink}>Cambiar plan</ThemedText>
-              </Pressable>
-          </ThemedText>
             <CustomButton 
               title="Guardar" 
               onPress={() => {
@@ -319,74 +286,6 @@ function EditUserScreen() {
           </View>
         </View>
       </ScrollView>
-
-      {/* Modal de Cambio de Plan */}
-      <Modal visible={showPlanModal} transparent animationType="fade">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <ThemedText style={styles.modalTitle}>Modificar plan</ThemedText>
-            {/* Tipo de Plan */}
-            <ThemedText style={styles.label}>Tipo de plan</ThemedText>
-            <Picker
-              selectedValue={editedProfile.plan?.planType}
-              onValueChange={(itemValue) => 
-                setEditedProfile((prev) => ({
-                  ...prev,
-                  plan: { ...prev.plan, planType: itemValue },
-                }))
-              }
-              style={styles.picker}
-            >
-              {['FREE', 'PREMIUM'].map((plan) => (
-                <Picker.Item key={plan} label={plan} value={plan} />
-              ))}
-            </Picker>
-            {/* Dirección de Facturación */}
-            <ThemedText style={styles.label}>Dirección de facturación</ThemedText>
-            <TextInput
-              style={styles.input}
-              value={editedProfile.plan?.billingAddress ?? ''}
-              onChangeText={(text) =>
-                setEditedProfile((prev) => ({
-                  ...prev,
-                  plan: { ...prev.plan, billingAddress: text },
-                }))
-              }
-              placeholder="Dirección de facturación"
-              placeholderTextColor="#666"
-            />
-            {/* Fecha de Expiración */}
-            <ThemedText style={styles.label}>Fecha de expiración</ThemedText>
-            <TextInput
-              style={styles.input}
-              value={editedProfile.plan?.expireDate ?? ''}
-              onChangeText={(text) =>
-                setEditedProfile((prev) => ({
-                  ...prev,
-                  plan: { ...prev.plan, expireDate: text },
-                }))
-              }
-              placeholder="AAAA-MM-DD"
-              placeholderTextColor="#666"
-            />
-            {/* Botones de acción */}
-            <View style={styles.buttonRow}>
-              <CustomButton 
-                title="Guardar" 
-                onPress={handleSavePlan}
-                color="blue" 
-                style={styles.smallButton} 
-              />
-              <CustomButton 
-                title="Cancelar" 
-                onPress={() => { setShowPlanModal(false); }} 
-                color="red" 
-                style={styles.smallButton} 
-              />
-            </View>
-          </View>
-        </View>
-      </Modal>
     </ThemedView>
   );
 }
