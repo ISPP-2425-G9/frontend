@@ -5,10 +5,14 @@ import './commands'
 // require('./commands')
 
 // Hide fetch/XHR requests from command log
-const app = window.top;
-if (app) {
-  // @ts-ignore
-  app.console.log = () => {};
+const app = window as any;
+if (app.top === app) {
+  // Hide fetch/XHR requests
+  const originalLog = console.log
+  console.log = (...args) => {
+    if (args.length === 1 && typeof args[0] === 'string' && args[0].match(/^(FetchXHR|XHR)/)) return
+    originalLog(...args)
+  }
 }
 
 // Prevent TypeScript errors when accessing the "cy" object in your test files
@@ -25,4 +29,4 @@ declare global {
 import { mount } from 'cypress/react';
 
 // Add mount command to Cypress
-Cypress.Commands.add('mount', mount); 
+Cypress.Commands.add('mount', mount);

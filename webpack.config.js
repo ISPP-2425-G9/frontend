@@ -12,40 +12,68 @@ module.exports = {
     rules: [
       {
         test: /\.(ts|tsx)$/,
-        exclude: /node_modules\/(?!@expo|react-native|react-native-web)/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: [
-              ['@babel/preset-env', { targets: { node: 'current' } }],
-              '@babel/preset-react',
-              '@babel/preset-typescript'
-            ],
-            plugins: [
-              '@babel/plugin-transform-flow-strip-types',
-              '@babel/plugin-transform-export-namespace-from',
-              'react-native-reanimated/plugin'
-            ]
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                '@babel/preset-env',
+                '@babel/preset-react',
+                '@babel/preset-typescript'
+              ],
+              plugins: [
+                '@babel/plugin-transform-flow-strip-types',
+                '@babel/plugin-transform-export-namespace-from',
+                ['babel-plugin-istanbul', {
+                  exclude: [
+                    'coverage/**',
+                    'test/**',
+                    '**/*.test.ts',
+                    '**/*.test.tsx',
+                    '**/*.spec.ts',
+                    '**/*.spec.tsx',
+                    'cypress/**',
+                    '**/*.config.js',
+                    '**/*.config.ts'
+                  ]
+                }]
+              ]
+            }
           }
-        }
+        ]
       },
       {
         test: /\.(js|jsx)$/,
-        exclude: /node_modules\/(?!@expo|react-native|react-native-web)/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: [
-              ['@babel/preset-env', { targets: { node: 'current' } }],
-              '@babel/preset-react'
-            ],
-            plugins: [
-              '@babel/plugin-transform-flow-strip-types',
-              '@babel/plugin-transform-export-namespace-from',
-              'react-native-reanimated/plugin'
-            ]
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                '@babel/preset-env',
+                '@babel/preset-react'
+              ],
+              plugins: [
+                '@babel/plugin-transform-flow-strip-types',
+                '@babel/plugin-transform-export-namespace-from',
+                ['babel-plugin-istanbul', {
+                  exclude: [
+                    'coverage/**',
+                    'test/**',
+                    '**/*.test.js',
+                    '**/*.test.jsx',
+                    '**/*.spec.js',
+                    '**/*.spec.jsx',
+                    'cypress/**',
+                    '**/*.config.js',
+                    '**/*.config.ts'
+                  ]
+                }]
+              ]
+            }
           }
-        }
+        ]
       },
       {
         test: /\.(png|jpe?g|gif|svg|ttf|woff|woff2|eot)$/i,
