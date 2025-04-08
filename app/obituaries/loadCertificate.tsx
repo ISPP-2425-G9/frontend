@@ -277,10 +277,10 @@ function LoadCertificate() {
             En esta sección, tiene que cargar el certificado de defunción de la persona fallecida.
           </Text>
           <Text style={styles.introText}>
-            Este certificado será verificado por un administrador del sistema para garantizar su autenticidad.
+            Este certificado será verificado por un <Text style={{fontWeight: "bold"}}>administrador</Text> del sistema para garantizar su autenticidad. (Puede tardar un tiempo)
           </Text>
           <Text style={styles.introText}>
-            Una vez verificado, la esquela será enviada a los familiares y amigos seleccionados.
+            Una vez verificado, la esquela que ha creado será compartida con los contactos añadidos automáticamente.
           </Text>
         </View>
         <View style={styles.dataContainer}>
@@ -428,10 +428,7 @@ const styles = StyleSheet.create({
   input: {
     width: "100%",
     height: 40,
-    borderWidth: 1,
-    borderColor: "#ccc",
     paddingHorizontal: 8,
-    marginBottom: 16,
     fontSize: 16,
   },
   divider: {

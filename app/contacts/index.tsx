@@ -13,6 +13,13 @@ import { BACKEND_API } from '@/constants/Mysc';
 
 
 function EmergencyContactScreen() {
+  type EmergencyContact = {
+    id: number;
+    name: string;
+    email: string;
+    telephone: string;
+  };
+  
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedContactId, setSelectedContactId] = useState<number | null>(null);
@@ -27,11 +34,9 @@ function EmergencyContactScreen() {
   const [selectedContactToEdit, setSelectedContactToEdit] = useState<EmergencyContact | null>(null);
   const [, setLoading] = useState(true);
 
-  type EmergencyContact = {
-    id: number;
-    name: string;
-    email: string;
-    telephone: string;
+  const formatPhoneNumber = (phone: string): string => {
+    const digits = phone.replace(/\D/g, '');
+    return digits.replace(/(\d{3})(?=\d)/g, '$1 ').trim();
   };
   
   const validateContact = async (
@@ -207,7 +212,15 @@ function EmergencyContactScreen() {
   
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || `Error ${response.status}: No se pudo actualizar el contacto.`);
+        const backendErrors: string[] =
+          data.errors
+            ? Object.values(data.errors).flat()
+            : data.error
+              ? [data.error]
+              : [`Error ${response.status}: No se pudo actualizar el contacto.`];
+      
+        setEditFormErrors(backendErrors);
+        return;
       }
   
       Alert.alert("Éxito", "El contacto ha sido actualizado correctamente.");
@@ -258,7 +271,7 @@ function EmergencyContactScreen() {
                 <View key={contact.id} style={styles.tableRow}>
                   <View style={styles.cell}><Text style={styles.cellText}>{contact.name}</Text></View>
                   <View style={styles.cell}><Text style={styles.cellText}>{contact.email}</Text></View>
-                  <View style={styles.cell}><Text style={styles.cellText}>{contact.telephone}</Text></View>
+                  <View style={styles.cell}><Text style={styles.cellText}>{formatPhoneNumber(contact.telephone)}</Text></View>
                   <View style={styles.cell}>
                     <View style={styles.actionButtonsContainer}>
                       <CustomButton title="Editar" onPress={() => { setSelectedContactToEdit(contact); setShowEditContactModal(true); }} color="blue" style={styles.actionsButton} />

@@ -60,6 +60,8 @@ function MessageCreation() {
 
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
 
+  const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     title: '',
     body: '',
@@ -70,8 +72,9 @@ function MessageCreation() {
   const [code, setCode] = useState<string>("");
 
   useEffect(() => {
+    setLoading(false);
     setSelectedMedia(null);
-  
+
     const fetchOwnerStatus = async () => {
       if (is_newMessage) {
         setFormData({
@@ -83,12 +86,12 @@ function MessageCreation() {
       } else {
         try {
           const authToken = await AsyncStorage.getItem('authToken');
-  
+
           if (!authToken) {
             console.error('No se encontró el token de autenticación');
             return;
           }
-  
+
           const response = await fetch(`${BACKEND_API}/api/messages/${messageId}/is-owner`, {
             method: 'GET',
             headers: {
@@ -96,11 +99,11 @@ function MessageCreation() {
               'Authorization': `Bearer ${authToken}`,
             },
           });
-  
+
           if (!response.ok) {
             throw new Error(`Error en la solicitud: ${response.status} ${response.statusText}`);
           }
-  
+
           const data = await response.json();
           setIsOwner(data.isOwner);
         } catch (error) {
@@ -108,10 +111,10 @@ function MessageCreation() {
         }
       }
     };
-  
+
     fetchOwnerStatus();
   }, [is_newMessage, messageId]);
-  
+
 
   const fetchMessageData = useCallback(async () => {
     if (!is_newMessage && isOwner) {
@@ -215,6 +218,8 @@ function MessageCreation() {
 
 
   const handleSubmitMessage = async () => {
+    if (loading) return;
+    setLoading(true);
 
     const url = !is_newMessage ? `${BACKEND_API}/api/messages/${messageId}` : `${BACKEND_API}/api/messages`;
     const method = !is_newMessage ? 'PUT' : 'POST';
@@ -260,6 +265,7 @@ function MessageCreation() {
         throw new Error(`Error en la creación del mensaje 1: ${errorText}`);
       }
     } catch (error: any) {
+      setLoading(false);
       console.error("Error en la creación del mensaje 2:", error.message);
       window.alert(`Error en la creación del mensaje 2: ${error.message}`);
     }
@@ -523,11 +529,17 @@ function MessageCreation() {
                     title={is_newMessage ? "Seleccionar contactos" : "Actualizar contactos"}
                     onPress={handleSelectContacts}
                   />
-                </View>
 
+                  <CustomButton
+                    color="grey"
+                    style={styles.customButton2}
+                    title={"Volver"}
+                    onPress={() => navigation.navigate("messages/listMyMessages" as never)}
+                  />
+                </View>
                 <CustomButton
                   color="grey"
-                  style={styles.customButton2}
+                  style={styles.customButton3}
                   title={is_newMessage ? "Guardar mensaje" : "Actualizar mensaje"}
                   onPress={showConfirmationModal}
                 />
@@ -728,6 +740,7 @@ const styles = StyleSheet.create({
     width: width > 600 ? '45%' : "100%",
     justifyContent: 'flex-start',
     padding: 20,
+    gap: 8,
   },
   mediaContainer: {
     width: width > 600 ? '55%' : "100%",
@@ -804,10 +817,15 @@ const styles = StyleSheet.create({
     height: 35
   },
   customButton1: {
-    width: '49%',
+    width: '32%',
     alignSelf: 'center',
   },
   customButton2: {
+    width: '32%',
+    alignSelf: 'center',
+    backgroundColor: GlobalStyles.grey,
+  },
+  customButton3: {
     width: '100%',
     alignSelf: 'center',
     marginTop: 20,
@@ -838,6 +856,7 @@ const styles = StyleSheet.create({
     width: width > 600 ? "100%" : 1000,
     marginBottom: 10,
     flexDirection: width > 600 ? "row" : "column",
+    gap: 10,  
   },
   input: {
     width: 250,

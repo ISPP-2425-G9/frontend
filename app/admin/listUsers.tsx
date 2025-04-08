@@ -36,6 +36,11 @@ function AdminListUsers() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
+  const formatPhoneNumber = (phone: string): string => {
+    const digits = phone.replace(/\D/g, '');
+    return digits.replace(/(\d{3})(?=\d)/g, '$1 ').trim();
+  };
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -146,7 +151,7 @@ function AdminListUsers() {
                   <View style={styles.cell}><Text style={styles.cellText}>{item.name}</Text></View>
                   <View style={styles.cell}><Text style={styles.cellText}>{item.email}</Text></View>
                   <View style={styles.cell}><Text style={styles.cellText}>{'dni' in item ? item.dni : (item as Empresa).nif}</Text></View>
-                  <View style={styles.cell}><Text style={styles.cellText}>{item.telephone}</Text></View>
+                  <View style={styles.cell}><Text style={styles.cellText}>{formatPhoneNumber(item.telephone)}</Text></View>
                   <View style={styles.cell}>
                     <View style={styles.actionButtonsContainer}>
                       <CustomButton title="Editar" onPress={() => handleEdit(item.id)} color="blue" style={styles.actionsButton} />

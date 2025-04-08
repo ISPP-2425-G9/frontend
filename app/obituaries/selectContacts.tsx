@@ -74,6 +74,7 @@ function SelectContacts() {
   const [userRole, setUserRole] = useState<string | null>(null);
 
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [loading, setLoading] = useState(false);
 
 
   const hasError =
@@ -84,6 +85,7 @@ function SelectContacts() {
 
   useFocusEffect(
     useCallback(() => {
+      setLoading(false);
       if (is_newObituary) {
         setNewContact({ id: Date.now(), name: "", phone: "", email: "" });
         setContacts([]);
@@ -294,7 +296,7 @@ function SelectContacts() {
           setModalMessage("¿Desea guardar su propia esquela?");
         }
       } else {
-        setModalMessage("¿Desea crear y enviar una esquela para un ser querido?");
+        setModalMessage("¿Desea continuar? El próximo paso es subir el certificado de defunción.");
       }
 
       setModalVisible(true);
@@ -316,6 +318,8 @@ function SelectContacts() {
   };
 
   const handleSubmit = async () => {
+    if (loading) return;
+    setLoading(true);
 
     try {
       if (is_mine) {
@@ -325,6 +329,7 @@ function SelectContacts() {
       }
       setModalVisible(false);
     } catch (error: any) {
+      setLoading(false);
       if (Platform.OS === "web") {
         window.alert("Error: " + error.message);
       } else {
@@ -490,7 +495,7 @@ function SelectContacts() {
         {
           is_newObituary ? (
             <CustomButton
-              title={is_mine ? "Crear esquela" : "Subir certificado de defunción"}
+              title={is_mine ? "Crear esquela" : "Continuar"}
               onPress={() => { showConfirmationModal() }}
               style={styles.saveButton}
             />
@@ -563,6 +568,7 @@ const styles = StyleSheet.create({
     width: width > 600 ? "100%" : "90%",
     marginBottom: 10,
     flexDirection: width > 600 ? "row" : "column",
+    gap: 10,
   },
   deleteButton: {
     marginRight: 5,
