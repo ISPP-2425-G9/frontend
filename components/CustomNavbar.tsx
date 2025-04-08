@@ -41,11 +41,11 @@ const CustomNavbar = () => {
         const routeTitles: Record<string, string> = {
             'home': 'Inicio',
             'certificate/index': 'Subir certificado',
-            'about/index': 'Sobre nosotros',
             'contact/index': 'Contáctanos',
             'login/index': 'Iniciar sesión',
             'register/index': 'Registrarse',
             'admin/listUsers': 'Usuarios',
+            'admin/certificatesManagement': 'Certificados de defunción',
             'obituaries/index': 'Esquelas',
             'messages/listMyMessages': 'Mensajes',
             'contacts/index': 'Contactos de emergencia',
@@ -80,7 +80,6 @@ const CustomNavbar = () => {
 
         if (!isAuthenticated) {
             items.push(
-                { title: 'Sobre nosotros', route: 'about/index' },
                 { title: 'Contáctanos', route: 'contact/index' },
                 { title: 'Iniciar sesión', route: 'login/index' },
                 { title: 'Registrarse', route: 'register/index' }
@@ -89,8 +88,14 @@ const CustomNavbar = () => {
             if (userRoles?.includes("ADMIN")) {
                 items.push(
                     { title: 'Usuarios', route: 'admin/listUsers' },
-                    { title: 'Sobre nosotros', route: 'about/index' },
-                    { title: 'Contáctanos', route: 'contact/index' }
+                    { title: 'Certificados de defunción', route: 'admin/certificatesManagement' },
+                    { title: 'Contáctanos', route: 'contact/index' },
+                    {
+                        title: 'Cerrar sesión', action: () => {
+                            setUserMenuOpen(false);
+                            setIsLogoutModalVisible(true);
+                        }
+                    }
                 );
             }
             if (userRoles?.includes("CUSTOMER")) {
@@ -106,7 +111,6 @@ const CustomNavbar = () => {
                 items.push(
                     { title: 'Servicios', route: 'services/index' },
                     { title: 'Planes', route: 'subscribe/index' },
-                    { title: 'Sobre nosotros', route: 'about/index' },
                     { title: 'Contáctanos', route: 'contact/index' },
                     { title: userName || '', route: 'profile/index' },
                     {
@@ -172,12 +176,6 @@ const CustomNavbar = () => {
 
                             {!isAuthenticated && (
                                 <>
-                                    <TouchableOpacity onPress={() => { handleNavigation('about/index') }}>
-                                        <View>
-                                            <Text style={styles.navItem}>Sobre nosotros</Text>
-                                            {activeItem === 'about/index' && <View style={styles.activeIndicator} />}
-                                        </View>
-                                    </TouchableOpacity>
                                     <TouchableOpacity onPress={() => { handleNavigation('contact/index') }}>
                                         <View>
                                             <Text style={styles.navItem}>Contáctanos</Text>
@@ -206,11 +204,8 @@ const CustomNavbar = () => {
                                             {activeItem === 'admin/listUsers' && <View style={styles.activeIndicator} />}
                                         </View>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => { handleNavigation('about/index') }}>
-                                        <View>
-                                            <Text style={styles.navItem}>Sobre nosotros</Text>
-                                            {activeItem === 'about/index' && <View style={styles.activeIndicator} />}
-                                        </View>
+                                    <TouchableOpacity onPress={() => { handleNavigation('admin/certificatesManagement'); setMenuOpen(false); }}>
+                                        <Text style={styles.dropdownNavItem}>Certificados de defunción</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => { handleNavigation('contact/index') }}>
                                         <View>
@@ -266,12 +261,6 @@ const CustomNavbar = () => {
                                         <View>
                                             <Text style={styles.navItem}>Planes</Text>
                                             {activeItem === 'subscribe/index' && <View style={styles.activeIndicator} />}
-                                        </View>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => { handleNavigation('about/index') }}>
-                                        <View>
-                                            <Text style={styles.navItem}>Sobre nosotros</Text>
-                                            {activeItem === 'about/index' && <View style={styles.activeIndicator} />}
                                         </View>
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => { handleNavigation('contact/index') }}>

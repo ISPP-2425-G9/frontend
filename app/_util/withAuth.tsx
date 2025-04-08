@@ -1,5 +1,6 @@
 import { useNavigation } from '@react-navigation/native';
-import { useFocusEffect, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
+import { useFocusEffect } from '@react-navigation/native';
 import React, { FC, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from "react-native";
 import { AUTHORITIES, AuthorityType } from "./Authorities";
