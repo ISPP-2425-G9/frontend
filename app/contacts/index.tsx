@@ -212,7 +212,15 @@ function EmergencyContactScreen() {
   
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || `Error ${response.status}: No se pudo actualizar el contacto.`);
+        const backendErrors: string[] =
+          data.errors
+            ? Object.values(data.errors).flat()
+            : data.error
+              ? [data.error]
+              : [`Error ${response.status}: No se pudo actualizar el contacto.`];
+      
+        setEditFormErrors(backendErrors);
+        return;
       }
   
       Alert.alert("Éxito", "El contacto ha sido actualizado correctamente.");
