@@ -63,8 +63,7 @@ function ObituaryIndex() {
   const [obituaries, setObituaries] = useState<Obituary[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const is_newObituary = route.params?.is_newObituary ?? true;
-  const changeDesign = route.params?.changeDesign ?? false;
+  const { is_newObituary = true, changeDesign = false } = route.params ?? {};
 
   useEffect(() => {
     const fetchData = async () => {
