@@ -10,7 +10,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { useCallback, useEffect, useState } from "react";
-import { Alert, Dimensions, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { RFValue, } from "react-native-responsive-fontsize";
 import { AUTHORITIES } from "../_util/Authorities";
 import { withAuth } from "../_util/withAuth";
@@ -340,11 +340,10 @@ function EsquelaCustomizer() {
         });
       }
     } catch (error: any) {
-      if (Platform.OS === "web") {
-        window.alert("Error: " + error);
-      } else {
-        Alert.alert("Error", error);
-      }
+      showNotification({
+        message: "Error al validar el formulario",
+        type: "error",
+      });
     }
   };
 

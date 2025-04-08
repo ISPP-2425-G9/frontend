@@ -346,7 +346,11 @@ function LoadCertificate() {
               if (is_newObituary) {
                 void showConfirmationModal();
               } else {
-                window.alert("Función todavía no implementada");
+                showNotification({
+                  message: "Función todavía no implementada",
+                  type: "info",
+                  duration: 2500,
+                });
               }
             }}
           />

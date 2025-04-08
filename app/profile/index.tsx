@@ -11,7 +11,7 @@ import { useNotification } from '@/context/NotificationContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Dimensions, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
 
@@ -419,7 +419,10 @@ function ProfileScreen() {
 
       if (!response.ok) {
         const errorData = await response.text();
-        Alert.alert('Error', errorData || 'Error mientras se actualizaba la contraseña');
+        showNotification({
+          message: errorData || "Error mientras se actualizaba la contraseña",
+          type: "error",
+        });
         return;
       }
 
@@ -438,8 +441,10 @@ function ProfileScreen() {
       setNewPassword('');
       setConfirmPassword('');
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      Alert.alert('Error', errorMessage);
+      showNotification({
+        message: "Error al cambiar la contraseña",
+        type: "error",
+      });
     }
   };
 
