@@ -110,7 +110,9 @@ In the console output, you will find options to open the app in:
 ## Running tests
 
    In case you want to run test, you just have to run the following command:
-      ```bash
-      npm test
-      ```  
-Once you have executed the command, you will have a coverage report in ***./coverage/lcov-report/index.html***. Check that file in yout browser to see the results.
+   
+   ```bash
+   npm test
+   ```  
+      
+   Once you have executed the command, you will have a coverage report in ***./coverage/lcov-report/index.html***. Check that file in yout browser to see the results.
