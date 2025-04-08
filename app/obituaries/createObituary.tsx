@@ -263,31 +263,28 @@ function EsquelaCustomizer() {
     }
 
     if (!name || !birthDate || !farewellMessage || !farewellPhrase) {
-      if (customImage === null) {
-        setModalMessage(
-          "No has seleccionado una imagen y hay datos sin completar. ¿Desea continuar?"
-        );
-      } else {
-        setModalMessage("Hay datos sin completar. ¿Desea continuar?");
-      }
-
-      if ( birthDate && deathDate){
-        const [birthDay, birthMonth, birthYear] = birthDate.split("/");
-        const [deathDay, deathMonth, deathYear] = deathDate.split("/");
-
-        const parsedBirthDate = new Date(`${birthYear}-${birthMonth}-${birthDay}`);
-        const parsedDeathDate = new Date(`${deathYear}-${deathMonth}-${deathDay}`);
-
-        if (parsedBirthDate > parsedDeathDate){
-          errors.push("La fecha de nacimiento debe ser inferior a la fecha de fallecimiento")
-          return errors;
-        }
-      }
-    } else if (customImage === null) {
-      setModalMessage("No has seleccionado una imagen. ¿Desea continuar?");
-    } else {
-      setModalMessage("¿Desea continuar?");
+      setModalMessage(customImage === null ? 
+          "No has seleccionado una imagen y hay datos sin completar. ¿Desea continuar?" : 
+          "Hay datos sin completar. ¿Desea continuar?");
     }
+
+    if (birthDate && deathDate){
+      const [birthDay, birthMonth, birthYear] = birthDate.split("/");
+      const [deathDay, deathMonth, deathYear] = deathDate.split("/");
+
+      const parsedBirthDate = new Date(`${birthYear}-${birthMonth}-${birthDay}`);
+      const parsedDeathDate = new Date(`${deathYear}-${deathMonth}-${deathDay}`);
+
+      if (parsedBirthDate > parsedDeathDate){
+        errors.push("La fecha de nacimiento debe ser inferior a la fecha de fallecimiento")
+        return errors;
+      }
+    }
+    
+    setModalMessage(customImage === null ?
+      "No has seleccionado una imagen. ¿Desea continuar?" :
+      "¿Desea continuar?");
+
     setModalVisible(true);
 
     return errors;
