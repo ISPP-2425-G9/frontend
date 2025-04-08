@@ -49,17 +49,8 @@ type RootStackParamList = {
 
 function EsquelaCustomizer() {
 
-  const { showNotification } = useNotification();
-
-  const [selectedColor, setSelectedColor] = useState("");
-  const [colorPickerVisible, setColorPickerVisible] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [isMine, setIsMine] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
-  const [is_sended, setIsSended] = useState(false);
-
   const { isAuthenticated } = useAuth();
-
+  const { showNotification } = useNotification();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, "obituaries/createObituary">>();
 
@@ -73,6 +64,13 @@ function EsquelaCustomizer() {
     is_mine,
     selectedColor: textColor = ""
   } = route.params ?? {};
+
+  const [selectedColor, setSelectedColor] = useState("");
+  const [colorPickerVisible, setColorPickerVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [isMine, setIsMine] = useState(is_mine);
+  const [modalMessage, setModalMessage] = useState("");
+  const [is_sended, setIsSended] = useState(false);
 
   const handleColorSelect = (color: string) => {
     setSelectedColor(color);
@@ -88,13 +86,6 @@ function EsquelaCustomizer() {
     imageTemplate_id: imageId,
     customImage: null as string | null,
   });
-
-
-  useEffect(() => {
-    setIsMine(is_mine)
-  
-  }
-  , [is_mine])
 
   useFocusEffect(
     useCallback(() => {
@@ -372,20 +363,16 @@ function EsquelaCustomizer() {
             type={"birthDate"}
             handleChange={handleChange}
           />
-          {
-            !isMine && (
-              <>
-                <Text style={styles.formText}>Fecha de fallecimiento:</Text>
-                <DatePickerInput 
-                  containerStyle={{width: "75%"}}
-                  placeholder={"Fecha de fallecimiento (dd/mm/aaaa)"} 
-                  value={formData.deathDate} 
-                  type={"deathDate"}
-                  handleChange={handleChange}
-                />
-              </>
-            )
-          }
+          
+          <Text style={styles.formText}>Fecha de fallecimiento:</Text>
+          <DatePickerInput 
+            containerStyle={{width: "75%"}}
+            placeholder={"Fecha de fallecimiento (dd/mm/aaaa)"} 
+            value={formData.deathDate} 
+            type={"deathDate"}
+            handleChange={handleChange}
+            editable={!isMine}
+          />
 
 
           <Text style={styles.formText}>Mensaje de despedida:</Text>
