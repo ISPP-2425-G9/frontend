@@ -350,6 +350,7 @@ function EsquelaCustomizer() {
             maxLength={37}
             value={formData.name}
             onChangeText={(text) => { handleChange("name", text) }}
+            editable={!is_visualization}
           />
 
           <Text style={styles.formText}>Fecha de nacimiento:</Text>
@@ -359,17 +360,21 @@ function EsquelaCustomizer() {
             value={formData.birthDate} 
             type={"birthDate"}
             handleChange={handleChange}
+            editable={!is_visualization}
           />
           
-          <Text style={styles.formText}>Fecha de fallecimiento:</Text>
-          <DatePickerInput 
-            containerStyle={{width: "75%"}}
-            placeholder={"Fecha de fallecimiento (dd/mm/aaaa)"} 
-            value={formData.deathDate} 
-            type={"deathDate"}
-            handleChange={handleChange}
-            editable={!isMine}
-          />
+          {!isMine &&
+          <>
+            <Text style={styles.formText}>Fecha de fallecimiento:</Text>
+            <DatePickerInput 
+              containerStyle={{width: "75%"}}
+              placeholder={"Fecha de fallecimiento (dd/mm/aaaa)"} 
+              value={formData.deathDate} 
+              type={"deathDate"}
+              handleChange={handleChange}
+              editable={!is_visualization}
+            />
+          </>}
 
 
           <Text style={styles.formText}>Mensaje de despedida:</Text>
@@ -380,6 +385,7 @@ function EsquelaCustomizer() {
             maxLength={624}
             //multiline
             onChangeText={(text) => { handleChange("farewellMessage", text) }}
+            editable={!is_visualization}
           />
 
           <Text style={styles.formText}>Frase de despedida:</Text>
@@ -389,6 +395,7 @@ function EsquelaCustomizer() {
             maxLength={90}
             value={formData.farewellPhrase}
             onChangeText={(text) => { handleChange("farewellPhrase", text) }}
+            editable={!is_visualization}
           />
 
           {(!is_sended && !is_visualization) && (
