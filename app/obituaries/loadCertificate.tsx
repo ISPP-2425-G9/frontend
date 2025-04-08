@@ -1,21 +1,20 @@
-import React from 'react';
 import CustomButton from "@/components/CustomButton";
 import CustomModal from "@/components/CustomModal";
 import { CustomTextInput } from "@/components/CustomTextInput";
+import PaymentModalObituary from "@/components/PaymentModalObituary";
 import { ThemedView } from "@/components/ThemedView";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
+import { useNotification } from '@/context/NotificationContext';
 import useAuth from "@/hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from 'react';
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import { AUTHORITIES } from "../_util/Authorities";
 import { withAuth } from "../_util/withAuth";
-import { useNotification } from '@/context/NotificationContext';
-import { ScrollView } from "react-native-gesture-handler";
-import PaymentModalObituary from "@/components/PaymentModalObituary";
 
 type RootStackParamList = {
   "obituaries/loadCertificate": {
@@ -185,7 +184,10 @@ function LoadCertificate() {
     }
     if (!validateDni(dni)) {
       setDni("");
-      setDniError("El DNI no es válido");
+      showNotification({
+        message: "El DNI no es válido. Debe tener el formato 12345678A.",
+        type: "error",
+      });
       return;
     }
     
@@ -284,11 +286,10 @@ function LoadCertificate() {
           </Text>
         </View>
         <View style={styles.dataContainer}>
-          <Text style={styles.title}>Datos del fallecido</Text>
 
-          <Text style={{ textAlign: 'left' }}>DNI:</Text>
+          <Text style={styles.text}>DNI:</Text>
           <CustomTextInput
-            placeholder={dniError ? dniError : "Dni del fallecido"}
+            placeholder={dniError ? dniError : "DNI del fallecido"}
             value={dni}
             maxLength={9}
             keyboardType="default"
@@ -400,42 +401,35 @@ function LoadCertificate() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 8,
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-start",
-    backgroundColor: "#ffff",
+    backgroundColor: GlobalStyles.white,
   },
   dataContainer: {
     flex: 1,
     justifyContent: "flex-start",
-    alignItems: "center",
-    padding: 30,
-  },
-  infoText: {
-    fontSize: 10,
-    color: GlobalStyles.white,
-    textAlign: "center",
-    marginTop: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
+    alignItems: "stretch",
+    width: "90%",
+    maxWidth: 500,
+    padding: 20,
+    gap: 10,
   },
   title: {
-    fontSize: 26,
+    fontSize: 30,
+    fontWeight: "bold",
+    marginBottom: 30,
+  },
+  text: {
+    fontSize: 16,
     fontWeight: "bold",
     marginBottom: 10,
+    marginLeft: '1%',
+    alignSelf: 'flex-start',
   },
   input: {
-    width: "100%",
-    height: 40,
-    paddingHorizontal: 8,
-    fontSize: 16,
-  },
-  divider: {
-    height: 1,
-    width: "100%",
-    backgroundColor: "#ccc",
-    marginVertical: 20,
+    width: '100%',
+    flex: 1,
   },
   buttonContainer: {
     alignItems: "center",
@@ -450,8 +444,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 14,
     fontWeight: "bold",
+    textAlign: "center",
   },
   imagePreview: {
+    alignContent: "center",
+    alignSelf: "center",
     width: "30%",
     height: "30%",
     marginTop: 10,
@@ -496,7 +493,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   introTitle: {
-    fontSize: 30,
+    fontSize: 28,
     fontWeight: 'bold',
     color: GlobalStyles.darkGrey,
     marginBottom: 10,
@@ -507,7 +504,7 @@ const styles = StyleSheet.create({
     color: GlobalStyles.darkGrey,
     textAlign: 'center',
     lineHeight: 22,
-    marginBottom: 3,
+    marginBottom: 5,
   },
   certificateButton: {
     height: "90%",
@@ -524,10 +521,10 @@ const styles = StyleSheet.create({
   acceptedFormats: {
     marginTop: 8,
     fontSize: 16,
+    textAlign: 'center',
     color: GlobalStyles.darkGrey,
     fontStyle: 'italic',
   },
-
 });
 
 export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER]);

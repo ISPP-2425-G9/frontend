@@ -1,19 +1,19 @@
-import { useState, useEffect, useCallback } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { StyleSheet, View, Text, Image, Dimensions, Alert, Platform, TouchableOpacity, ScrollView } from "react-native";
-import * as ImagePicker from "expo-image-picker";
 import CustomButton from "@/components/CustomButton";
-import { CustomTextInput } from "@/components/CustomTextInput";
-import { useNavigation, NavigationProp, useRoute, RouteProp, useFocusEffect } from "@react-navigation/native";
 import CustomModal from "@/components/CustomModal";
+import { CustomTextInput } from "@/components/CustomTextInput";
+import { ThemedView } from "@/components/ThemedView";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
-import { withAuth } from "../_util/withAuth";
-import { AUTHORITIES } from "../_util/Authorities";
-import { RFValue, } from "react-native-responsive-fontsize";
-import useAuth from "@/hooks/useAuth";
-import { ThemedView } from "@/components/ThemedView";
 import { useNotification } from '@/context/NotificationContext';
+import useAuth from "@/hooks/useAuth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
+import * as ImagePicker from "expo-image-picker";
+import { useCallback, useEffect, useState } from "react";
+import { Alert, Dimensions, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { RFValue, } from "react-native-responsive-fontsize";
+import { AUTHORITIES } from "../_util/Authorities";
+import { withAuth } from "../_util/withAuth";
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
@@ -315,7 +315,7 @@ function EsquelaCustomizer() {
         const parsedDeathDate = new Date(`${deathYear}-${deathMonth}-${deathDay}`);
 
         if (parsedBirthDate > parsedDeathDate){
-          errors.push("La fecha de nacimiento debe ser inferior a la fecha de fallecimiento")
+          errors.push("La fecha de nacimiento debe ser anterior  a la fecha de fallecimiento")
           return errors;
         }
       }
@@ -334,7 +334,7 @@ function EsquelaCustomizer() {
       const errors = validateForm();
       if (errors.length != 0) {
         showNotification({
-          message:`Hay errores en su formulario: ${errors}`,
+          message:`${errors}`,
           type: "error",
           duration: 3000,
         });
