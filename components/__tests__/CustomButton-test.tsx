@@ -36,4 +36,30 @@ describe('CustomButton Component', () => {
     fireEvent.press(getByText('Disabled'));
     expect(mockOnPress).not.toHaveBeenCalled();
   });
+
+  it('applies grey text color when button color is white', () => {
+    const { getByText } = render(
+      <CustomButton title="White Button" onPress={() => {}} color="white" />
+    );
+    
+    const buttonText = getByText('White Button');
+    expect(buttonText.props.style).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ color: GlobalStyles.darkGrey })
+      ])
+    );
+  });
+
+  it('applies white text color when button color is not white', () => {
+    const { getByText } = render(
+      <CustomButton title="Blue Button" onPress={() => {}} color="blue" />
+    );
+    
+    const buttonText = getByText('Blue Button');
+    expect(buttonText.props.style).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ color: GlobalStyles.white })
+      ])
+    );
+  });
 });
