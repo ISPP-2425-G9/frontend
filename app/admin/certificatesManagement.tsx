@@ -65,22 +65,12 @@ const CertificateManagement: React.FC = () => {
     }
     return { valid: true };
   };
-  
-  const showSuccessMessage = (msg: string) => {
-    setSuccessMessage(msg);
-    setTimeout(() => setSuccessMessage(""), 3000);
-  };
-
-  const showFailureMessage = (msg: string) => {
-    setFailureMessage(msg);
-    setTimeout(() => setFailureMessage(""), 3000);
-  };
 
   const fetchCertificates = async () => {
     try {
       const authToken = await AsyncStorage.getItem('authToken');
       if (!authToken) throw new Error('Token no disponible');
-  
+
       const response = await fetch(`${BACKEND_API}/api/admin/certificates/pending`, {
         method: 'GET',
         headers: {
@@ -88,17 +78,20 @@ const CertificateManagement: React.FC = () => {
           'Authorization': `Bearer ${authToken.trim()}`,
         },
       });
-  
+
       if (!response.ok) throw new Error('Error al obtener certificados');
-  
+
       const data = await response.json();
       setCertificates(data);
     } catch (error) {
       const error_str = 'Error al obtener certificados:' + error;
-      showFailureMessage(error_str);
+      showNotification({
+        message: error_str,
+        type: 'error',
+      });
     }
   };
-  
+
   useFocusEffect(
     useCallback(() => {
       fetchCertificates();
@@ -162,7 +155,7 @@ const CertificateManagement: React.FC = () => {
               }
               setSelectedCertificateForApproval(item);
               setAcceptModalVisible(true);
-            }}            
+            }}
           />
           <CustomButton
             title="Denegar"
@@ -178,9 +171,9 @@ const CertificateManagement: React.FC = () => {
       </View>
     </View>
   );
-  
-  
-  
+
+
+
   return (
     <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -261,13 +254,22 @@ const CertificateManagement: React.FC = () => {
                   });
 
                   if (response.ok) {
-                    showSuccessMessage(`Certificado aprobado correctamente.`);
+                    showNotification({
+                      message: 'Certificado aprobado correctamente',
+                      type: 'success',
+                    });
                     fetchCertificates();
                   } else {
-                    showFailureMessage('Error al aprobar el certificado');
+                    showNotification({
+                      message: 'Error al aprobar el certificado',
+                      type: 'error',
+                    });
                   }
                 } catch (error) {
-                  showFailureMessage('Error de red al aprobar el certificado: ' + error);
+                  showNotification({
+                    message: 'Error de red al aprobar el certificado: ' + error,
+                    type: 'error',
+                  });
                 } finally {
                   setAcceptModalVisible(false);
                   setSelectedCertificateForApproval(null);
@@ -300,23 +302,32 @@ const CertificateManagement: React.FC = () => {
                         Authorization: `Bearer ${authToken}`,
                       },
                     });
-        
+
                     if (response.ok) {
-                      showSuccessMessage(`Certificado denegado correctamente.`);
+                      showNotification({
+                        message: 'Certificado denegado correctamente',
+                        type: 'success',
+                      });
                       setModalVisible(false);
                       fetchCertificates();
                     } else {
-                      showFailureMessage('Error al denegar el certificado');
+                      showNotification({
+                        message: 'Error al denegar el certificado',
+                        type: 'error',
+                      });
                     }
                   } catch (error) {
                     const error_str = 'Error de red al denegar el certificado:' + error;
-                    showFailureMessage(error_str);
+                    showNotification({
+                      message: error_str,
+                      type: 'error',
+                    });
                   }
                 }
               }}
             />
           </View>
-        </CustomModal>      
+        </CustomModal>
       )}
     </ThemedView>
   );
@@ -386,7 +397,7 @@ const styles = StyleSheet.create({
     minWidth: 220,
     fontWeight: 'bold',
     color: '#fff',
-  }, 
+  },
   tableRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -447,13 +458,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 10,
     fontSize: 14,
-  },  
+  },
   failureMessage: {
     color: 'red',
     textAlign: 'center',
     marginTop: 10,
     fontSize: 14,
-  }, 
+  },
 });
 
 export default withAuth(CertificateManagement, [AUTHORITIES.ADMIN]);
