@@ -1,10 +1,9 @@
 import { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, Dimensions, Text, Modal, TextInput, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, Text, Modal, TextInput, Alert } from 'react-native';
 import { withAuth } from '../_util/withAuth';
 import { AUTHORITIES } from '../_util/Authorities';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
-import CustomTable from '@/components/CustomTable';
 import CustomButton from '@/components/CustomButton';
 import CustomModal from '@/components/CustomModal';
 import { useFocusEffect } from '@react-navigation/native';
@@ -229,7 +228,7 @@ function EmergencyContactScreen() {
     <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.introContainer}>
-          <Text style={styles.introTitle}>Contactos de Emergencia</Text>
+          <Text style={styles.introTitle}>Contactos de emergencia</Text>
           <Text style={styles.introText}>
             Aquí podrás gestionar tus <Text style={styles.highlight}>contactos de emergencia</Text>,
             para que en caso de que notemos inactividad en tu cuenta, contactemos con estas personas
@@ -238,36 +237,41 @@ function EmergencyContactScreen() {
           </Text>
         </View>
 
-        <View style={styles.buttonContainer}>
-          <CustomButton
-            title="Añadir nuevo contacto"
-            onPress={() => setShowAddContactModal(true) }
-            color="green"
-          />
-        </View>
+        <View style={{ width: '100%', alignItems: 'center' }}>
+          <View style={styles.buttonContainer}>
+            <CustomButton
+              title="Añadir nuevo contacto"
+              onPress={() => setShowAddContactModal(true) }
+              color="green"
+            />
+          </View>
 
-        <ScrollView horizontal style={styles.horizontalScroll}>
-          <View style={styles.tableWrapper}>
-            <CustomTable
-              columns={['NOMBRE', 'EMAIL', 'TELÉFONO', 'ACCIONES']}
-              columnWidths={[1.2, 1.1, 1.05, 1.2]}
-            >
+          <ScrollView horizontal style={styles.tableScrollContainer} contentContainerStyle={styles.tableScrollContent}>
+            <View style={styles.tableWrapper}>
+              <View style={styles.tableHeader}>
+                <Text style={styles.headerCell}>Nombre</Text>
+                <Text style={styles.headerCell}>Email</Text>
+                <Text style={styles.headerCell}>Teléfono</Text>
+                <Text style={styles.headerCell}>Acciones</Text>
+              </View>
               {contacts.map((contact) => (
-                <View key={contact.id} style={styles.row}>
-                  <ThemedText style={styles.cell}>{contact.name}</ThemedText>
-                  <ThemedText style={styles.cell}>{contact.email}</ThemedText>
-                  <ThemedText style={styles.cell}>{contact.telephone}</ThemedText>
-                  <View style={styles.actions}>
-                  <CustomButton title="Editar" onPress={() => { setSelectedContactToEdit(contact); setShowEditContactModal(true); }} color="blue"/>
-                  <CustomButton title="Eliminar" onPress={() => { setSelectedContactId(contact.id); setModalVisible(true); }} color="red"/>
+                <View key={contact.id} style={styles.tableRow}>
+                  <View style={styles.cell}><Text style={styles.cellText}>{contact.name}</Text></View>
+                  <View style={styles.cell}><Text style={styles.cellText}>{contact.email}</Text></View>
+                  <View style={styles.cell}><Text style={styles.cellText}>{contact.telephone}</Text></View>
+                  <View style={styles.cell}>
+                    <View style={styles.actionButtonsContainer}>
+                      <CustomButton title="Editar" onPress={() => { setSelectedContactToEdit(contact); setShowEditContactModal(true); }} color="blue" style={styles.actionsButton} />
+                      <CustomButton title="Eliminar" onPress={() => { setSelectedContactId(contact.id); setModalVisible(true); }} color="red" style={styles.actionsButton} />
+                    </View>
                   </View>
                 </View>
               ))}
-            </CustomTable>
-          </View>
-        </ScrollView>
+            </View>
+          </ScrollView>
+        </View>
 
-        <CustomModal visible={modalVisible} onClose={() => setModalVisible(false)} title="Confirmar Eliminación">
+        <CustomModal visible={modalVisible} onClose={() => setModalVisible(false)} title="Confirmar eliminación">
           <ThemedText>¿Estás seguro de que deseas eliminar este contacto?</ThemedText>
           <View style={styles.modalButtons}>
             <CustomButton title="Cancelar" onPress={() => setModalVisible(false)} color="grey" />
@@ -438,39 +442,64 @@ const styles = StyleSheet.create({
     color: GlobalStyles.blue,
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingHorizontal: 15,
-    marginBottom: 20,
-  },
-  horizontalScroll: {
+    marginBottom: 10,
+  },  
+  tableScrollContainer: {
     width: '100%',
+    paddingHorizontal: 10,
+  },
+  tableScrollContent: {
+    justifyContent: 'center',
+    flexGrow: 1,
   },
   tableWrapper: {
-    width: '100%',
-    minWidth: Dimensions.get('window').width,
+    alignSelf: 'center',
+    minWidth: '80%',
   },
-  row: {
+  tableHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: GlobalStyles.grey,
+    backgroundColor: GlobalStyles.blue,
+    paddingHorizontal: 5,
+    borderRadius: 8,
+    minHeight: 50,
     alignItems: 'center',
-    backgroundColor: GlobalStyles.lightGrey,
+  },
+  headerCell: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    minWidth: 220,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+    minHeight: 50,
   },
   cell: {
     flex: 1,
-    textAlign: 'center',
-    fontSize: 14,
-    fontFamily: GlobalStyles.font,
-    color: GlobalStyles.darkGrey,
+    justifyContent: 'center',
+    minWidth: 200,
+    alignItems: 'center',
+    paddingVertical: 10,
   },
-  actions: {
+  cellText: {
+    textAlign: 'center',
+    fontSize: 16,
+  },
+  actionButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 5,
+    alignItems: 'center',
+    gap: 10,
+  },
+  actionsButton: {
+    alignSelf: 'center',
+    width: 100,
   },
   modalButtons: {
     flexDirection: 'row',
@@ -484,30 +513,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
-  modalContent: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    width: '80%',
-    alignItems: 'center',
-  },
-  input: {
-    width: '100%',
-    backgroundColor: '#f0f0f0',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    fontSize: 16,
-    color: '#333',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    textAlign: 'center',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 15,
-  },
   modalContentStyled: {
     backgroundColor: '#fff',
     padding: 20,
@@ -516,7 +521,6 @@ const styles = StyleSheet.create({
     width: '85%',
     gap: 10,
   },
-  
   modalTitleStyled: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -524,7 +528,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center',
   },
-  
   modalInput: {
     width: '100%',
     backgroundColor: '#eee',
@@ -537,7 +540,6 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     textAlign: 'left',
   },
-  
   verticalButtonContainer: {
     flexDirection: 'column',
     gap: 10,
@@ -556,9 +558,7 @@ const styles = StyleSheet.create({
     color: 'red',
     fontSize: 14,
   },
-  
-  
-  
 });
+
 
 export default withAuth(EmergencyContactScreen, [AUTHORITIES.CUSTOMER_PREMIUM]);
