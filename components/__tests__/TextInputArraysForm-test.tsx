@@ -241,4 +241,36 @@ describe('TextInputArraysForm', () => {
       });
     });
   });
+
+  it('should handle image with empty path segments', async () => {
+    (ImagePicker.launchImageLibraryAsync as jest.Mock).mockImplementationOnce(() =>
+      Promise.resolve({
+        canceled: false,
+        assets: [{ uri: '/' }]
+      })
+    );
+
+    const { getByText } = render(
+      <TextInputArraysForm
+        title="Test Form"
+        inputs={[]}
+        imageFields={['imagen']}
+        onSubmit={mockOnSubmit}
+      />
+    );
+
+    fireEvent.press(getByText('Seleccionar imagen'));
+
+    await waitFor(() => {
+      fireEvent.press(getByText('Enviar'));
+      
+      expect(mockOnSubmit).toHaveBeenCalledWith({
+        imagen: {
+          uri: '/',
+          name: 'image.jpg',
+          type: 'image/'
+        }
+      });
+    });
+  });
 });
