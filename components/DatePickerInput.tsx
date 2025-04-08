@@ -5,13 +5,13 @@ import CustomTextInput from './CustomTextInput'; // Asumo que tienes un componen
 interface DatePickerInputProps {
   placeholder: string;
   type: string;
-  editable: boolean;
+  editable?: boolean;
   value: Date | string; // La fecha puede ser un Date o un string con formato 'YYYY-MM-DD'
   containerStyle?: StyleProp<ViewStyle>; 
   handleChange: (field: string, value: string) => void;
 }
 
-const DatePickerInput: React.FC<DatePickerInputProps> = ({containerStyle, placeholder, type, editable, value, handleChange }) => {
+const DatePickerInput: React.FC<DatePickerInputProps> = ({containerStyle, placeholder, type, editable = true, value, handleChange }) => {
 
   const formatDate = (date: Date | string): string => {
     if (typeof date === 'string') return date;

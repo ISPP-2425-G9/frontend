@@ -366,12 +366,12 @@ function EsquelaCustomizer() {
 
           <Text style={styles.formText}>Fecha de nacimiento:</Text>
           <DatePickerInput 
-                  containerStyle={{width: "75%"}}
-                  placeholder={"Fecha de nacimiento (dd/mm/aaaa)"} 
-                  value={formData.birthDate} 
-                  type={"birthDate"}
-                  handleChange={handleChange} 
-                  editable={!isMine}/>
+            containerStyle={{width: "75%"}}
+            placeholder={"Fecha de nacimiento (dd/mm/aaaa)"} 
+            value={formData.birthDate} 
+            type={"birthDate"}
+            handleChange={handleChange}
+          />
           {
             !isMine && (
               <>
@@ -381,8 +381,8 @@ function EsquelaCustomizer() {
                   placeholder={"Fecha de fallecimiento (dd/mm/aaaa)"} 
                   value={formData.deathDate} 
                   type={"deathDate"}
-                  handleChange={handleChange} 
-                  editable={true}/>
+                  handleChange={handleChange}
+                />
               </>
             )
           }
