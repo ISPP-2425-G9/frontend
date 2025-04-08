@@ -13,6 +13,13 @@ import { BACKEND_API } from '@/constants/Mysc';
 
 
 function EmergencyContactScreen() {
+  type EmergencyContact = {
+    id: number;
+    name: string;
+    email: string;
+    telephone: string;
+  };
+  
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedContactId, setSelectedContactId] = useState<number | null>(null);
@@ -27,11 +34,17 @@ function EmergencyContactScreen() {
   const [selectedContactToEdit, setSelectedContactToEdit] = useState<EmergencyContact | null>(null);
   const [, setLoading] = useState(true);
 
-  type EmergencyContact = {
-    id: number;
-    name: string;
-    email: string;
-    telephone: string;
+  const formatPhoneNumber = (phone: string): string => {
+    const digits = phone.replace(/\D/g, '');
+    return digits.replace(/(\d{3})(?=\d)/g, '$1 ').trim();
+  };
+
+  const closeAddContactModal = () => {
+    setShowAddContactModal(false);
+    setContactName('');
+    setContactEmail('');
+    setContactPhone('');
+    setFormErrors([]);
   };
   
   const validateContact = async (
@@ -40,7 +53,7 @@ function EmergencyContactScreen() {
     const errors: string[] = [];
   
     const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const phoneRegex = /^\+?\d{9,15}$/;
+    const phoneRegex = /^\d{3} \d{3} \d{3}$/;
   
     if (
       !values.name ||
@@ -154,7 +167,7 @@ function EmergencyContactScreen() {
         body: JSON.stringify({
           name: values.name,
           email: values.email,
-          telephone: values.telephone,
+          telephone: values.telephone.replace(/\s+/g, ''),
         }),
       });
   
@@ -168,7 +181,7 @@ function EmergencyContactScreen() {
       }
   
       Alert.alert("Éxito", "Contacto de emergencia añadido correctamente.");
-      setShowAddContactModal(false); 
+      closeAddContactModal(); 
       fetchContacts();
   
     } catch (error: any) {
@@ -201,13 +214,21 @@ function EmergencyContactScreen() {
           id: selectedContactToEdit.id,
           name: values.name,
           email: values.email,
-          telephone: values.telephone,
+          telephone: values.telephone.replace(/\s+/g, ''),
         }),
       });
   
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || `Error ${response.status}: No se pudo actualizar el contacto.`);
+        const backendErrors: string[] =
+          data.errors
+            ? Object.values(data.errors).flat()
+            : data.error
+              ? [data.error]
+              : [`Error ${response.status}: No se pudo actualizar el contacto.`];
+      
+        setEditFormErrors(backendErrors);
+        return;
       }
   
       Alert.alert("Éxito", "El contacto ha sido actualizado correctamente.");
@@ -258,10 +279,16 @@ function EmergencyContactScreen() {
                 <View key={contact.id} style={styles.tableRow}>
                   <View style={styles.cell}><Text style={styles.cellText}>{contact.name}</Text></View>
                   <View style={styles.cell}><Text style={styles.cellText}>{contact.email}</Text></View>
-                  <View style={styles.cell}><Text style={styles.cellText}>{contact.telephone}</Text></View>
+                  <View style={styles.cell}>
+                    <Text style={styles.cellText}>
+                      {contact.telephone.replace(/\D/g, '').replace(/(\d{3})/g, '$1 ').trim()}
+                    </Text>
+                  </View>
                   <View style={styles.cell}>
                     <View style={styles.actionButtonsContainer}>
-                      <CustomButton title="Editar" onPress={() => { setSelectedContactToEdit(contact); setShowEditContactModal(true); }} color="blue" style={styles.actionsButton} />
+                      <CustomButton title="Editar" onPress={() => { const formattedTelephone = contact.telephone.replace(/\D/g, '').replace(/(\d{3})/g, '$1 ').trim();
+                                                                                                setSelectedContactToEdit({ ...contact, telephone: formattedTelephone });
+                                                                                                setShowEditContactModal(true);}} color="blue" style={styles.actionsButton} />
                       <CustomButton title="Eliminar" onPress={() => { setSelectedContactId(contact.id); setModalVisible(true); }} color="red" style={styles.actionsButton} />
                     </View>
                   </View>
@@ -324,13 +351,19 @@ function EmergencyContactScreen() {
               placeholder="Teléfono"
               placeholderTextColor="#666"
               keyboardType="phone-pad"
+              maxLength={11}
               value={contactPhone}
-              onChangeText={setContactPhone}
+              onChangeText={(text) => {
+                const numericText = text.replace(/\D/g, "");
+                const formattedText = numericText.replace(/(\d{3})/g, "$1 ").trim();
+                setContactPhone(formattedText);
+              }}              
+
             />
 
             <View style={styles.verticalButtonContainer}>
               <CustomButton title="Guardar" onPress={() => handleAddContact({name: contactName,email: contactEmail,telephone: contactPhone})} color="blue" />
-              <CustomButton title="Cancelar" onPress={() => setShowAddContactModal(false)} color="red" />
+              <CustomButton title="Cancelar" onPress={() => closeAddContactModal()} color="red" />
             </View>
           </View>
         </View>
@@ -378,9 +411,15 @@ function EmergencyContactScreen() {
                 placeholderTextColor="#666"
                 keyboardType="phone-pad"
                 value={selectedContactToEdit?.telephone || ''}
-                onChangeText={(text) =>
-                  setSelectedContactToEdit((prev) => prev ? { ...prev, telephone: text } : null)
-                }
+                maxLength={11}
+                onChangeText={(text) => {
+                  const numericText = text.replace(/\D/g, ""); // Elimina todo lo que no es número
+                  const formattedText = numericText.replace(/(\d{3})/g, "$1 ").trim(); // Agrupa en bloques de 3
+                  setSelectedContactToEdit((prev) =>
+                    prev ? { ...prev, telephone: formattedText } : null
+                  );
+                }}
+                
               />
 
             <View style={styles.verticalButtonContainer}>
