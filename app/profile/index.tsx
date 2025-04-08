@@ -661,7 +661,7 @@ function ProfileScreen() {
                   placeholder="Nueva contraseña"
                   placeholderTextColor="#666"
                   secureTextEntry
-                  showPasswordToggle={false}
+                  showPasswordToggle={true}
                   value={newPassword}
                   maxLength={36}
                   onChangeText={setNewPassword}
@@ -670,7 +670,7 @@ function ProfileScreen() {
                   placeholder="Confirmar contraseña"
                   placeholderTextColor="#666"
                   secureTextEntry
-                  showPasswordToggle={false}
+                  showPasswordToggle={true}
                   maxLength={36}
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
