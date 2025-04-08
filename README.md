@@ -1,6 +1,6 @@
 # CARONTE - Frontend  
 
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8a2b25799bbb4c179815520623e7a73d)](https://app.codacy.com/gh/ISPP-2425-G9/frontend/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)  
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8a2b25799bbb4c179815520623e7a73d)](https://app.codacy.com/gh/ISPP-2425-G9/frontend/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)  [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/8a2b25799bbb4c179815520623e7a73d)](https://app.codacy.com/gh/ISPP-2425-G9/frontend/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage) ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg) ![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg?logo=conventional-commits)
 
 ## Description  
 
@@ -107,9 +107,12 @@ In the console output, you will find options to open the app in:
    This command will move the initial code to an example directory and create a new `app` directory where you can start developing.
 
 
-## Test
+## Running tests
 
    In case you want to run test, you just have to run the following command:
-      ```bash
-      npm test
-      ```  
+   
+   ```bash
+   npm test
+   ```  
+      
+   Once you have executed the command, you will have a coverage report in ***./coverage/lcov-report/index.html***. Check that file in yout browser to see the results.
