@@ -1,5 +1,6 @@
 import { defineConfig } from 'cypress'
 import webpackConfig from './webpack.config.js'
+import codeCoverage from '@cypress/code-coverage/task'
 
 export default defineConfig({
   e2e: {
@@ -19,19 +20,25 @@ export default defineConfig({
     devServer: {
       framework: 'react',
       bundler: 'webpack',
-      webpackConfig,
     },
     supportFile: 'cypress/support/component.ts',
     indexHtmlFile: 'cypress/support/component-index.html',
     setupNodeEvents(on, config) {
-      on('task', {
-        coverage: () => {
-          return null
-        }
-      });
-      require('@cypress/code-coverage/task')(on, config);
-      return config;
+      codeCoverage(on, config)
+      return config
     },
+    env: {
+      coverage: true,
+      codeCoverage: {
+        exclude: [
+          'cypress/**/*.*',
+          'coverage/**/*.*',
+          '**/*.test.*',
+          '**/*.spec.*',
+          '**/*.cy.*'
+        ]
+      }
+    }
   },
   video: false,
   screenshotOnRunFailure: false,

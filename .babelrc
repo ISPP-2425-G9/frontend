@@ -4,19 +4,11 @@
     "@babel/preset-react",
     "@babel/preset-typescript"
   ],
-  "plugins": [
-    "@babel/plugin-transform-flow-strip-types",
-    "@babel/plugin-transform-export-namespace-from",
-    ["babel-plugin-istanbul", {
-      "exclude": [
-        "**/*.spec.ts",
-        "**/*.test.ts",
-        "**/*.cy.ts",
-        "**/*.spec.tsx",
-        "**/*.test.tsx",
-        "**/*.cy.tsx",
-        "cypress/**"
+  "env": {
+    "test": {
+      "plugins": [
+        "istanbul"
       ]
-    }]
-  ]
+    }
+  }
 } 

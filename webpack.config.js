@@ -28,15 +28,14 @@ module.exports = {
                 ['babel-plugin-istanbul', {
                   exclude: [
                     'coverage/**',
-                    'test/**',
-                    '**/*.test.ts',
-                    '**/*.test.tsx',
-                    '**/*.spec.ts',
-                    '**/*.spec.tsx',
-                    'cypress/**',
-                    '**/*.config.js',
-                    '**/*.config.ts'
-                  ]
+                    '**/*.{test,spec,cy}.{ts,tsx}',
+                    'cypress/**'
+                  ],
+                  include: [
+                    'components/**/*.{ts,tsx}'
+                  ],
+                  extension: ['.ts', '.tsx'],
+                  require: '@babel/register'
                 }]
               ]
             }
@@ -60,15 +59,14 @@ module.exports = {
                 ['babel-plugin-istanbul', {
                   exclude: [
                     'coverage/**',
-                    'test/**',
-                    '**/*.test.js',
-                    '**/*.test.jsx',
-                    '**/*.spec.js',
-                    '**/*.spec.jsx',
-                    'cypress/**',
-                    '**/*.config.js',
-                    '**/*.config.ts'
-                  ]
+                    '**/*.{test,spec,cy}.{js,jsx}',
+                    'cypress/**'
+                  ],
+                  include: [
+                    'components/**/*.{js,jsx}'
+                  ],
+                  extension: ['.js', '.jsx'],
+                  require: '@babel/register'
                 }]
               ]
             }
