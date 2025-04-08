@@ -1,15 +1,17 @@
-import React, { useState, useCallback } from 'react';
-import { FlatList, StyleSheet, Text, View, ScrollView, TextInput } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { ThemedView } from '@/components/ThemedView';
-import { withAuth } from '../_util/withAuth';
-import { AUTHORITIES } from '../_util/Authorities';
-import { GlobalStyles } from '@/constants/Colors';
 import CustomButton from '@/components/CustomButton';
-import { ThemedText } from '@/components/ThemedText';
 import CustomModal from '@/components/CustomModal';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import CustomTextInput from '@/components/CustomTextInput';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
+import { useNotification } from '@/context/NotificationContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import React, { useCallback, useState } from 'react';
+import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AUTHORITIES } from '../_util/Authorities';
+import { withAuth } from '../_util/withAuth';
 
 
 type Certificate = {
@@ -31,21 +33,35 @@ const CertificateManagement: React.FC = () => {
   const [failureMessage, setFailureMessage] = useState<string>("");
   const [acceptModalVisible, setAcceptModalVisible] = useState(false);
   const [selectedCertificateForApproval, setSelectedCertificateForApproval] = useState<Certificate | null>(null);
+  const { showNotification } = useNotification();
+
 
   const isValidDeathDate = (dateStr: string): { valid: boolean; message?: string } => {
     if (!dateStr) {
-      return { valid: false, message: "Debes introducir una fecha." };
+      showNotification({
+        message: 'Debes introducir una fecha',
+        type: 'error',
+      });
+      return { valid: false, message: "" };
     }
 
     const enteredDate = new Date(dateStr);
     if (isNaN(enteredDate.getTime())) {
-      return { valid: false, message: "La fecha introducida no es válida." };
+      showNotification({
+        message: 'La fecha introducida no es válida',
+        type: 'error',
+      });
+      return { valid: false, message: "" };
     }
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (enteredDate > today) {
-      return { valid: false, message: "La fecha debe ser igual o anterior al día de hoy." };
+      showNotification({
+        message: 'La fecha de fallecimiento no puede ser posterior a hoy',
+        type: 'error',
+      });
+      return { valid: false, message: "" };
     }
     return { valid: true };
   };
@@ -110,12 +126,22 @@ const CertificateManagement: React.FC = () => {
         />
       </View>
       <View style={styles.cell}>
-        <TextInput
+        <CustomTextInput
           placeholder="aaaa-mm-dd"
+          maxLength={10}
           value={deathDates[item.id] || ''}
           onChangeText={(text) => {
             setErrorMessage("");
-            setDeathDates((prev) => ({ ...prev, [item.id]: text }));
+            let cleaned = text.replace(/[^0-9]/g, '');
+            if (cleaned.length > 8) cleaned = cleaned.substring(0, 8);
+            let formatted = cleaned;
+            if (cleaned.length >= 5) {
+              formatted = cleaned.substring(0, 4) + '-' + cleaned.substring(4);
+              if (cleaned.length >= 7) {
+                formatted = formatted.substring(0, 7) + '-' + formatted.substring(7);
+              }
+            }
+            setDeathDates((prev) => ({ ...prev, [item.id]: formatted }));
           }}
           style={styles.dateInput}
         />
@@ -189,7 +215,7 @@ const CertificateManagement: React.FC = () => {
                   <Text style={styles.headerCell}>DNI</Text>
                   <Text style={styles.headerCell}>Certificado</Text>
                   <Text style={styles.headerCell}>Esquelas/Mensajes</Text>
-                  <Text style={styles.headerCell}>Fecha fallecimiento</Text>
+                  <Text style={styles.headerCell}>Fecha de fallecimiento</Text>
                   <Text style={styles.headerCell}>Acciones</Text>
                 </View>
                 <FlatList
@@ -396,12 +422,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   dateInput: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    width: 120,
     textAlign: 'center',
   },
   actionButtonsContainer: {
