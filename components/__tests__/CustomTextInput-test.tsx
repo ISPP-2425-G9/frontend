@@ -2,18 +2,43 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import CustomTextInput from '../CustomTextInput';
 import { GlobalStyles } from '@/constants/Colors';
-import { View, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity, Platform } from 'react-native';
 
 jest.mock('@expo/vector-icons', () => ({
   AntDesign: () => 'MockedIcon'
 }));
 
 describe('CustomTextInput', () => {
-  it('debe renderizar correctamente', () => {
+  const originalPlatform = Platform.OS;
+
+  afterEach(() => {
+    Platform.OS = originalPlatform;
+  });
+
+  it('debe renderizar correctamente en plataforma web', () => {
+    Platform.OS = 'web';
     const { getByPlaceholderText } = render(
       <CustomTextInput placeholder="Test placeholder" />
     );
-    expect(getByPlaceholderText('Test placeholder')).toBeTruthy();
+    const input = getByPlaceholderText('Test placeholder');
+    expect(input.props.style).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ outline: 'none' })
+      ])
+    );
+  });
+
+  it('debe renderizar correctamente en plataforma no web', () => {
+    Platform.OS = 'android';
+    const { getByPlaceholderText } = render(
+      <CustomTextInput placeholder="Test placeholder" />
+    );
+    const input = getByPlaceholderText('Test placeholder');
+    expect(input.props.style).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ outline: 'none' })
+      ])
+    );
   });
 
   it('debe aplicar estilos de focus al recibir focus', () => {
