@@ -4,7 +4,6 @@ import { render } from '@testing-library/react-native';
 
 import { ThemedText } from '../ThemedText';
 
-// Mock GlobalStyles
 jest.mock('@/constants/Colors', () => ({
   GlobalStyles: {
     font: 'Arial',
