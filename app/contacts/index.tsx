@@ -33,6 +33,14 @@ function EmergencyContactScreen() {
     email: string;
     telephone: string;
   };
+
+  const closeAddContactModal = () => {
+    setShowAddContactModal(false);
+    setContactName('');
+    setContactEmail('');
+    setContactPhone('');
+    setFormErrors([]);
+  };
   
   const validateContact = async (
     values: Record<string, string>
@@ -168,7 +176,7 @@ function EmergencyContactScreen() {
       }
   
       Alert.alert("Éxito", "Contacto de emergencia añadido correctamente.");
-      setShowAddContactModal(false); 
+      closeAddContactModal(); 
       fetchContacts();
   
     } catch (error: any) {
@@ -342,7 +350,7 @@ function EmergencyContactScreen() {
 
             <View style={styles.verticalButtonContainer}>
               <CustomButton title="Guardar" onPress={() => handleAddContact({name: contactName,email: contactEmail,telephone: contactPhone})} color="blue" />
-              <CustomButton title="Cancelar" onPress={() => setShowAddContactModal(false)} color="red" />
+              <CustomButton title="Cancelar" onPress={() => closeAddContactModal()} color="red" />
             </View>
           </View>
         </View>
