@@ -38,6 +38,7 @@ function CertificateViewer() {
     <View style={styles.container}>
       <View style={styles.backButton}>
         <CustomButton
+          testID="custom-button"
           title="Volver al listado"
           onPress={() => navigation.navigate('admin/certificatesManagement')}
           color="blue"

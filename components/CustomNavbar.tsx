@@ -204,8 +204,11 @@ const CustomNavbar = () => {
                                             {activeItem === 'admin/listUsers' && <View style={styles.activeIndicator} />}
                                         </View>
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => { handleNavigation('admin/certificatesManagement'); setMenuOpen(false); }}>
-                                        <Text style={styles.dropdownNavItem}>Certificados de defunción</Text>
+                                    <TouchableOpacity onPress={() => { handleNavigation('admin/certificatesManagement') }}>
+                                        <View>
+                                            <Text style={styles.navItem}>Certificados de defunción</Text>
+                                            {activeItem === 'admin/certificatesManagement' && <View style={styles.activeIndicator} />}
+                                        </View>
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => { handleNavigation('contact/index') }}>
                                         <View>

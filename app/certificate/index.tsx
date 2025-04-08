@@ -182,13 +182,13 @@ function LoadCertificate() {
         <View style={styles.introContainer}>
           <Text style={styles.introTitle}>📜 Certificados de defunción 📜</Text>
           <Text style={styles.introText}>
-            En esta sección, puedes cargar el certificado de defunción de un ser querido que haya contratado nuestros servicios.
+            El certificado de defunción es un documento oficial que acredita el fallecimiento de una persona y es necesario para llevar a cabo ciertos trámites legales.
           </Text>
           <Text style={styles.introText}>
-            Una vez verificado, las esquelas y/o mensajes previamente creados serán enviados a los contactos seleccionados.
+            En esta sección, puedes cargar el certificado de defunción e introducir el DNI de un ser querido que haya contratado previamente nuestros servicios.
           </Text>
           <Text style={styles.introText}>
-            Para ello necesitamos que introduzcas el DNI del fallecido y subas el certificado de defunción.
+            El certificado será revisado por un <Text style={{fontWeight: "bold"}}>administrador</Text> (puede tardar un tiempo) y, si todo es correcto, se enviarán las esquelas y/o mensajes asociados a los contactos que el fallecido haya indicado.
           </Text>
         </View>
         <View style={styles.dataContainer}>
@@ -412,7 +412,7 @@ const styles = StyleSheet.create({
     color: GlobalStyles.darkGrey,
     textAlign: 'center',
     lineHeight: 22,
-    marginBottom: 3,
+    marginBottom: 5,
   },
   acceptedFormats: {
     marginTop: 8,
