@@ -13,6 +13,13 @@ import { BACKEND_API } from '@/constants/Mysc';
 
 
 function EmergencyContactScreen() {
+  type EmergencyContact = {
+    id: number;
+    name: string;
+    email: string;
+    telephone: string;
+  };
+  
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedContactId, setSelectedContactId] = useState<number | null>(null);
@@ -27,11 +34,9 @@ function EmergencyContactScreen() {
   const [selectedContactToEdit, setSelectedContactToEdit] = useState<EmergencyContact | null>(null);
   const [, setLoading] = useState(true);
 
-  type EmergencyContact = {
-    id: number;
-    name: string;
-    email: string;
-    telephone: string;
+  const formatPhoneNumber = (phone: string): string => {
+    const digits = phone.replace(/\D/g, '');
+    return digits.replace(/(\d{3})(?=\d)/g, '$1 ').trim();
   };
 
   const closeAddContactModal = () => {
