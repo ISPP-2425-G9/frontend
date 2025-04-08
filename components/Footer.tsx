@@ -138,7 +138,6 @@ const Footer = () => {
       {/* Sección central: Texto + enlaces */}
       <View style={styles.centerSection}>
         <Text style={styles.textLink} onPress={() => setModalVisible(true)}>Términos y condiciones</Text>
-        <Text style={styles.textLink} onPress={() => navigation.navigate("about/index" as never)}>Sobre nosotros</Text>
         <Text style={styles.textLink} onPress={() => navigation.navigate("contact/index" as never)}>Contáctanos</Text>
       </View>
 
