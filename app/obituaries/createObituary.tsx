@@ -159,21 +159,13 @@ function EsquelaCustomizer() {
           if (!response.ok) throw new Error("Error al obtener los datos");
           const data = await response.json();
 
-          let formatBirthDate = "";
-          if (data.birthDate) {
-            const [year, month, day] = data.birthDate.split("-") || [];
-            if (day && month && year) {
-              formatBirthDate = `${day}/${month}/${year}`;
-            }
-          }
-
-          let formatDeathDate = "";
-          if (data.deathDate) {
-            const [year, month, day] = data.deathDate.split("-") || [];
-            if (day && month && year) {
-              formatDeathDate = `${day}/${month}/${year}`;
-            }
-          }
+          const formatDate = (date?: string): string => {
+            const [year, month, day] = date?.split("-") || [];
+            return day && month && year ? `${day}/${month}/${year}` : "";
+          };
+          
+          const formatBirthDate: string = data.birthDate ? formatDate(data.birthDate) : "";
+          const formatDeathDate: string = data.deathDate ? formatDate(data.deathDate) : "";
 
           setSelectedColor(`rgb(${data.wordColor})`);
           setIsMine(data.isMine);
