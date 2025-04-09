@@ -51,7 +51,7 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
       });
 
       if (error) {
-        throw new Error(error.message); 
+        throw new Error(error.message || 'Error al procesar el pago');
       }
 
       if (paymentMethod) {
@@ -98,21 +98,14 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
           setShowSuccess(true);
           onClose();
         } catch (err: unknown) {
-          if (err instanceof Error) {
-            console.error('Error en el servidor:', err.message);
-          } else {
-            console.error('Error desconocido en el servidor');
-          }
+          const errorMessage = err instanceof Error ? err.message : 'Error desconocido en el servidor';
+          console.error('Error en el servidor:', errorMessage);
           setIsProcessing(false);
         }
       }
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error('Error al procesar el pago:', err.message);
-      } else {
-        console.error('Error desconocido al procesar el pago');
-      }
-      
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido al procesar el pago';
+      console.error('Error al procesar el pago:', errorMessage);
     } finally {
       setIsProcessing(false);
     }

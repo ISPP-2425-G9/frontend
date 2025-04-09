@@ -7,10 +7,12 @@ import { BACKEND_API } from '@/constants/Mysc';
 import useIsDesktop from '@/hooks/useResponsiveLayout';
 import { ReactNode } from 'react';
 
+// Declaración de tipo para loadedNativeFonts global
 declare global {
   var loadedNativeFonts: string[];
 }
 
+// Mock de los hooks y módulos
 jest.mock('@/app/_util/useAuth', () => ({
   useAuth: jest.fn(),
 }));
@@ -20,12 +22,7 @@ jest.mock('expo-font', () => ({
   loadAsync: jest.fn(),
 }));
 
-jest.mock('@expo-google-fonts/dm-sans', () => ({
-  DMSans_400Regular: 'DMSans_400Regular',
-  DMSans_500Medium: 'DMSans_500Medium',
-  DMSans_700Bold: 'DMSans_700Bold',
-}));
-
+// Mock de las fuentes nativas
 const mockLoadedFonts = {
   'DMSans_400Regular': true,
   'DMSans_500Medium': true,
@@ -161,11 +158,48 @@ describe('PaymentModal', () => {
 
     await act(async () => {
       fireEvent.press(getByText('Pagar'));
+      // Esperar a que se complete el procesamiento
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
 
     expect(consoleSpy).toHaveBeenCalledWith(
       'Error al procesar el pago:',
       'Invalid card'
+    );
+    consoleSpy.mockRestore();
+  });
+
+  it('handles stripe not being initialized', async () => {
+    (useStripe as jest.Mock).mockReturnValue(null);
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    
+    const { getByText } = render(<PaymentModal {...defaultProps} />);
+
+    await act(async () => {
+      fireEvent.press(getByText('Pagar'));
+      // Esperar a que se complete el procesamiento
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
+
+    expect(consoleSpy).not.toHaveBeenCalled();
+    consoleSpy.mockRestore();
+  });
+
+  it('handles stripe error without message', async () => {
+    mockStripe.createPaymentMethod.mockRejectedValueOnce({});
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+    const { getByText } = render(<PaymentModal {...defaultProps} />);
+
+    await act(async () => {
+      fireEvent.press(getByText('Pagar'));
+      // Esperar a que se complete el procesamiento
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Error al procesar el pago:',
+      'Error desconocido al procesar el pago'
     );
     consoleSpy.mockRestore();
   });
@@ -187,6 +221,8 @@ describe('PaymentModal', () => {
 
     await act(async () => {
       fireEvent.press(getByText('Pagar'));
+      // Esperar a que se complete el procesamiento
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
 
     expect(consoleSpy).toHaveBeenCalledWith(
@@ -207,6 +243,8 @@ describe('PaymentModal', () => {
 
     await act(async () => {
       fireEvent.press(getByText('Pagar'));
+      // Esperar a que se complete el procesamiento
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
 
     expect(consoleSpy).toHaveBeenCalledWith(
@@ -227,19 +265,5 @@ describe('PaymentModal', () => {
         flexDirection: 'column',
       })
     );
-  });
-
-  it('handles stripe not being initialized', async () => {
-    (useStripe as jest.Mock).mockReturnValue(null);
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-    
-    const { getByText } = render(<PaymentModal {...defaultProps} />);
-
-    await act(async () => {
-      fireEvent.press(getByText('Pagar'));
-    });
-
-    expect(consoleSpy).not.toHaveBeenCalled();
-    consoleSpy.mockRestore();
   });
 }); 
