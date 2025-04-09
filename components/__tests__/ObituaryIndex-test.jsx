@@ -92,6 +92,40 @@ describe('ObituaryIndex screen', () => {
         });
 
     });
+      
 
+    // it('should render all key texts and images', async () => {
+    //   renderWithNavigation(<ObituaryIndex />);
+      
+    //   // Espera a que se resuelva el estado de "loading"
+    //   await waitFor(() => expect(screen.queryByText('Cargando...')).toBeNull());
+    //   screen.debug()
+    //   await waitFor(()=> {
+    //     expect(screen.getByText('📜 Esquelas 📜')).toBeTruthy();
+    //     expect(screen.getByText(/crear esquelas personalizadas/i)).toBeTruthy();
+    //     expect(screen.getByTestId('obituary-image-1')).toBeTruthy();
+    //     expect(screen.getByTestId('obituary-image-2')).toBeTruthy();
+    //   })
+    //  });
+  
+    // it('opens modal when image is pressed', async () => {
+    //   renderWithNavigation(<ObituaryIndex />);
+    //   await waitFor(() => expect(screen.getByTestId('obituary-image-1')).toBeTruthy());
+  
+    //   const imageButton = screen.getAllByRole('button')[1];
+    //   fireEvent.press(imageButton);
+  
+    //   await waitFor(() => {
+    //     expect(screen.getByText('¿Para quién es la esquela?')).toBeTruthy();
+    //   });
+    // });
+  
+    // it('navigates to list of user obituaries', async () => {
+    //   renderWithNavigation(<ObituaryIndex />);
+    //   const myObituariesButton = await screen.findByText(/tus esquelas/i);
+    //   fireEvent.press(myObituariesButton);
+  
+    //   expect(require('@react-navigation/native').useNavigation().navigate).toHaveBeenCalledWith('obituaries/listMyObituaries');
+    // });
   });
   
