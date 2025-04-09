@@ -46,6 +46,14 @@ describe('DropDownPicker', () => {
     expect(getByText('-')).toBeTruthy();
   });
 
+  it('renders correctly with empty options array', () => {
+    const { getByText } = render(
+      <DropDownPicker options={[]} onSelect={mockOnSelect} />
+    );
+    
+    expect(getByText('-')).toBeTruthy();
+  });
+
   it('opens dropdown when pressed', () => {
     const { getByText, queryByText } = render(
       <DropDownPicker options={mockOptions} onSelect={mockOnSelect} />
@@ -135,5 +143,109 @@ describe('DropDownPicker', () => {
     fireEvent.press(getByText('Option 3'));
     
     expect(getByText('Option 3')).toBeTruthy();
+  });
+
+  it('handles hover state on options', () => {
+    const { getByText } = render(
+      <DropDownPicker options={mockOptions} onSelect={mockOnSelect} />
+    );
+    
+    fireEvent.press(getByText('-'));
+    
+    const option = getByText('Option 1');
+    fireEvent(option, 'hoverIn');
+    
+    fireEvent.press(option);
+    expect(mockOnSelect).toHaveBeenCalledWith('1');
+  });
+
+  it('handles case when selected value is not found in options', () => {
+    const { getByText } = render(
+      <DropDownPicker 
+        options={mockOptions} 
+        onSelect={mockOnSelect} 
+      />
+    );
+    
+    expect(getByText('-')).toBeTruthy();
+  });
+
+  it('handles case when selected value is not found in options after selection', () => {
+    const { getByText, rerender, queryByText } = render(
+      <DropDownPicker 
+        options={mockOptions} 
+        onSelect={mockOnSelect} 
+      />
+    );
+    
+    fireEvent.press(getByText('-'));
+    
+    fireEvent.press(getByText('Option 1'));
+    
+    expect(getByText('Option 1')).toBeTruthy();
+    
+    const newOptions = [
+      { label: 'New Option 1', value: 'new1' },
+      { label: 'New Option 2', value: 'new2' },
+    ];
+    
+    rerender(
+      <DropDownPicker 
+        options={newOptions} 
+        onSelect={mockOnSelect} 
+      />
+    );
+
+    expect(queryByText('Option 1')).toBeNull();
+    expect(queryByText('Option 2')).toBeNull();
+    expect(queryByText('Option 3')).toBeNull();
+  });
+
+  it('toggles dropdown state correctly', () => {
+    const { getByText } = render(
+      <DropDownPicker options={mockOptions} onSelect={mockOnSelect} />
+    );
+    
+    fireEvent.press(getByText('-'));
+    expect(getByText('Option 1')).toBeTruthy();
+    
+    fireEvent.press(getByText('Option 1'));
+    expect(getByText('Option 1')).toBeTruthy();
+    
+    fireEvent.press(getByText('Option 1'));
+    expect(getByText('Option 2')).toBeTruthy();
+  });
+
+  it('toggles dropdown state when clicking on the selector after selection', () => {
+    const { getByText } = render(
+      <DropDownPicker options={mockOptions} onSelect={mockOnSelect} />
+    );
+    
+    fireEvent.press(getByText('-'));
+    
+    fireEvent.press(getByText('Option 1'));
+    
+    expect(getByText('Option 1')).toBeTruthy();
+    
+    fireEvent.press(getByText('Option 1'));
+    
+    expect(getByText('Option 2')).toBeTruthy();
+  });
+
+  it('handles selection of middle option correctly', () => {
+    const { getByText, queryByText } = render(
+      <DropDownPicker options={mockOptions} onSelect={mockOnSelect} />
+    );
+    
+    fireEvent.press(getByText('-'));
+    
+    fireEvent.press(getByText('Option 2'));
+    
+    expect(getByText('Option 2')).toBeTruthy();
+    
+    expect(mockOnSelect).toHaveBeenCalledWith('2');
+    
+    expect(queryByText('Option 1')).toBeNull();
+    expect(queryByText('Option 3')).toBeNull();
   });
 }); 
