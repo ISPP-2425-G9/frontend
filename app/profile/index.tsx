@@ -150,6 +150,9 @@ function ProfileScreen() {
   };
 
   const handleInputChangeCompany = (field: keyof CompanyProfile, value: string) => {
+    if (field === 'zipCode') {
+      value = value.replace(/\D/g, '');
+    }
     setEditedCompany({ ...editedCompany, [field]: value });
   };
 
@@ -488,7 +491,7 @@ function ProfileScreen() {
           placeholder={placeholder}
           placeholderTextColor={'#666'}
           multiline={field === 'description'}
-          maxLength={field === 'telephone' ? 11 : field === 'description' ? 500 : 50}
+          maxLength={field === 'telephone' ? 11 : field === 'description' ? 500 : field === 'zipCode' ? 5 : 50}
           style={field === 'description' ? { height: 100, width: 300 } : styles.input}
         />
       ) : (

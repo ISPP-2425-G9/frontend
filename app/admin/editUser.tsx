@@ -127,12 +127,15 @@ function EditUserScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      setHasChanges(false); // Restablecer cambios al entrar en la pestaña
-      fetchProfile(); // Cargar datos del usuario
+      setHasChanges(false);
+      fetchProfile();
     }, [fetchProfile])
   );
 
   const handleInputChange = (field: keyof Profile, value: string) => {
+    if (field === 'telephone' || field === 'zipCode') {
+      value = value.replace(/\D/g, '');
+    }
     setEditedProfile((prev) => {
       const updatedProfile = { ...prev, [field]: value };
       setHasChanges(JSON.stringify(updatedProfile) !== JSON.stringify(originalProfile));
@@ -255,7 +258,13 @@ function EditUserScreen() {
               ? 9
               : field === 'description'
                 ? 500
-                : 50
+                : field === 'zipCode'
+                  ? 5
+                  : field === 'dni'
+                    ? 9
+                    : field === 'nif'
+                      ? 9
+                      : 50
         } secureTextEntry={secureTextEntry}
       />
     </View>
@@ -274,7 +283,7 @@ function EditUserScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.profileContainer}>
-          <ThemedText style={styles.title}>{isCustomer ? 'Editar Cliente' : 'Editar Empresa'}</ThemedText>
+          <ThemedText style={styles.title}>{isCustomer ? 'Editar cliente' : 'Editar empresa'}</ThemedText>
           {isCustomer ? (
             <View style={styles.formContainer}>
               {renderEditableField('Nombre', editedProfile.fullName, 'fullName', 'Nombre')}
@@ -288,14 +297,15 @@ function EditUserScreen() {
               <View style={styles.column}>
                 {renderEditableField('Nombre', editedProfile.fullName, 'fullName', 'Nombre')}
                 {renderEditableField('Email', editedProfile.email, 'email', 'Email')}
-                {renderEditableField('NIF', editedProfile.nif ?? '', 'nif', 'NIF')}
-                {renderEditableField('Descripción', editedProfile.description ?? '', 'description', 'Descripción')}
+                {renderEditableField('Dirección', editedProfile.address ?? '', 'address', 'Dirección')}
+                {renderEditableField('Código Postal', editedProfile.zipCode ?? '', 'zipCode', 'Código Postal')}
+
               </View>
               <View style={styles.column}>
-                {renderEditableField('Contraseña', editedProfile.password, 'password', 'Contraseña', true)}
-                {renderEditableField('Dirección', editedProfile.address ?? '', 'address', 'Dirección')}
+                {renderEditableField('Descripción', editedProfile.description ?? '', 'description', 'Descripción')}
+                {renderEditableField('NIF', editedProfile.nif ?? '', 'nif', 'NIF')}
+                {renderEditableField('Teléfono', editedProfile.telephone, 'telephone', 'Teléfono')}
                 {renderEditableField('Ciudad', editedProfile.city ?? '', 'city', 'Ciudad')}
-                {renderEditableField('Código Postal', editedProfile.zipCode ?? '', 'zipCode', 'Código Postal')}
               </View>
             </View>
           )}

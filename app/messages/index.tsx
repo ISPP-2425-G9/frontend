@@ -393,7 +393,7 @@ function MessageCreation() {
     }
 
     if (!values.telephone || !telephoneRegex.test(values.telephone)) {
-      errors.push("Por favor, introduce un teléfono válido (sin prefijo)");
+      errors.push("Por favor, introduce un teléfono válido");
     }
 
     if (!values.email || !emailRegex.test(values.email)) {
@@ -614,7 +614,7 @@ function MessageCreation() {
                   style={styles.input}
                 />
                 <CustomTextInput
-                  placeholder="Teléfono (sin prefijo)"
+                  placeholder="Teléfono"
                   value={newContact.telephone}
                   maxLength={11}
                   keyboardType="phone-pad"

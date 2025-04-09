@@ -154,21 +154,28 @@ function LoadCertificate() {
 
   const validateDni = (dni: string) => {
     const dniRegex = /^\d{8}[A-Z]$/;
-    if (!dniRegex.test(dni)){
+    if (!dniRegex.test(dni)) {
       {
         showNotification({
           message: "El DNI debe tener 8 números y una letra mayúscula",
           type: "error",
         });
       }
-      return false
+      return false;
     }
     const dniNumber = dni.slice(0, 8);
     const dniLetter = dni.charAt(8);
     const dniLetters = "TRWAGMYFPDXBNJZSQVHLCKE";
     const dniIndex = parseInt(dniNumber, 10) % 23;
     const expectedLetter = dniLetters.charAt(dniIndex);
-    return dniLetter === expectedLetter;
+    if (dniLetter !== expectedLetter) {
+      showNotification({
+        message: "El DNI no es válido",
+        type: "error",
+      });
+      return false;
+    }
+    return true;
   };
 
 
@@ -183,10 +190,6 @@ function LoadCertificate() {
     }
     if (!validateDni(dni)) {
       setDni("");
-      showNotification({
-        message: "El DNI no es válido. Debe tener el formato 12345678A.",
-        type: "error",
-      });
       return;
     }
     

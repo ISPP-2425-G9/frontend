@@ -105,6 +105,10 @@ const ListServiceScreen: React.FC = () => {
     React.useCallback(() => {
       document.title = 'Servicios';
       fetchCompanyTypes();
+      setCity('');
+      setName('');
+      setCompanyType('');
+      setPage(0);
     }, [])
   );
 

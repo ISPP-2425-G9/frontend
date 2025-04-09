@@ -1,6 +1,7 @@
 import CustomTextInput from "@/components/CustomTextInput";
 import { GlobalStyles } from "@/constants/Colors";
 import { useNotification } from "@/context/NotificationContext";
+import { useFocusEffect } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -26,6 +27,15 @@ const Contact: React.FC = () => {
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [message, setMessage] = useState<string>("");
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setName("");
+      setEmail("");
+      setMessage("");
+    }
+      , [])
+  );
 
   useEffect(() => {
     Animated.timing(titleAnim, {
