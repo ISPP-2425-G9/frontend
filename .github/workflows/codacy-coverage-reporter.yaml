@@ -1,9 +1,6 @@
 name: Codacy Coverage Reporter
 
 on:
-  pull_request:
-    branches: [develop]
-    types: [opened, reopened, edited, review_requested, synchronize]
   push:
     branches:
       - "develop"
