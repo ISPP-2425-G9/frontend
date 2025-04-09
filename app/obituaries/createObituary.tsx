@@ -318,7 +318,7 @@ function EsquelaCustomizer() {
       const errors = validateForm();
       if (errors.length != 0) {
         showNotification({
-          message: `${errors}`,
+          message: errors.join(', '),
           type: "error",
           duration: 3000,
         });
