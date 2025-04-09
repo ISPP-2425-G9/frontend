@@ -7,7 +7,7 @@ interface AddRecipientsModalProps {
   visible: boolean;
   onClose: () => void;
   onConfirm: (emails: string[]) => void;
-  emails: string[]
+  emails?: string[]
 }
 
 const AddRecipientsModal: React.FC<AddRecipientsModalProps> = ({ visible, onClose, onConfirm, emails = [] }) => {
