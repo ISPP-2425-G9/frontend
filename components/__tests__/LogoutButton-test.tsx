@@ -3,6 +3,7 @@ import LogoutButton from '@/components/LogoutButton';
 import { useAuth } from '@/app/_util/useAuth';
 import { useNavigation } from '@react-navigation/native';
 import { View } from 'react-native';
+import { ReactTestInstance } from 'react-test-renderer';
 
 jest.mock('expo-font', () => ({
     isLoaded: jest.fn(() => true),
@@ -48,14 +49,15 @@ describe('LogoutButton', () => {
     expect(queryByText('¿Estás seguro que deseas cerrar sesión?')).toBeTruthy();
   });
 
-  it('should call logout and navigate when Confirmar is pressed', () => {
-    const { getByText } = render(<LogoutButton />);
+  it('should call logout, navigate and close modal when Confirmar is pressed', () => {
+    const { getByText, queryByText } = render(<LogoutButton />);
 
     fireEvent.press(getByText('Cerrar sesión'));
     fireEvent.press(getByText('Confirmar'));
 
     expect(mockLogout).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith('home');
+    expect(queryByText('¿Estás seguro que deseas cerrar sesión?')).toBeNull();
   });
 
   it('should close the modal when Cancelar is pressed', () => {
@@ -67,22 +69,23 @@ describe('LogoutButton', () => {
     expect(queryByText('¿Estás seguro que deseas cerrar sesión?')).toBeNull();
   });
 
-  it('should handle logout errors correctly', () => {
+  it('should handle logout errors correctly and close modal', () => {
     const error = new Error('Logout failed');
     mockLogout.mockImplementation(() => {
       throw error;
     });
 
-    const { getByText } = render(<LogoutButton />);
+    const { getByText, queryByText } = render(<LogoutButton />);
 
     fireEvent.press(getByText('Cerrar sesión'));
     fireEvent.press(getByText('Confirmar'));
 
     expect(mockConsoleError).toHaveBeenCalledWith('Error al cerrar sesión:', error);
     expect(mockNavigate).not.toHaveBeenCalled();
+    expect(queryByText('¿Estás seguro que deseas cerrar sesión?')).toBeNull();
   });
 
-  it('should apply correct styles to modal content', () => {
+  it('should apply correct styles to modal and its components', () => {
     const { getByText, getByTestId } = render(<LogoutButton />);
 
     fireEvent.press(getByText('Cerrar sesión'));
@@ -95,5 +98,48 @@ describe('LogoutButton', () => {
         padding: '2%',
       })
     );
+
+    const modalText = getByText('¿Estás seguro que deseas cerrar sesión?');
+    expect(modalText.props.style).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          fontSize: 16,
+          lineHeight: 24,
+          fontFamily: 'DMSans_500Medium',
+          color: '#434343'
+        }),
+        expect.objectContaining({
+          textAlign: 'center',
+          marginBottom: 20,
+          fontSize: 16,
+        })
+      ])
+    );
+
+    const buttonsContainer = modalContent.props.children[1];
+    expect(buttonsContainer.props.style).toEqual(
+      expect.objectContaining({
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 20,
+      })
+    );
+
+    const cancelButton = getByText('Cancelar');
+    const confirmButton = getByText('Confirmar');
+    expect(cancelButton).toBeTruthy();
+    expect(confirmButton).toBeTruthy();
+
+    expect(buttonsContainer.props.children).toHaveLength(2);
+    buttonsContainer.props.children.forEach((button: ReactTestInstance) => {
+      expect(button.props.style).toEqual(
+        expect.objectContaining({
+          flex: 1,
+          paddingVertical: 12,
+          borderRadius: 8,
+          marginHorizontal: 5,
+        })
+      );
+    });
   });
 });
