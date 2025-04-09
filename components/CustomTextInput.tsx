@@ -3,14 +3,14 @@ import { AntDesign } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
   Platform,
+  StyleProp,
   StyleSheet,
   TextInput,
   TextInputProps,
+  TextStyle,
   TouchableOpacity,
   View,
   ViewStyle,
-  TextStyle,
-  StyleProp,
 } from 'react-native';
 
 type CustomTextInputProps = TextInputProps & {
@@ -81,8 +81,13 @@ const styles = StyleSheet.create({
     color: GlobalStyles.darkGrey,
   },
   iconContainer: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
     padding: 5,
-    marginRight: '1%',
+    marginRight: 10,
+    justifyContent: 'center',
   },
   containerFocused: {
     borderWidth: 2,

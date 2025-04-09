@@ -1,20 +1,20 @@
-import { useState, useEffect, useCallback } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { StyleSheet, View, Text, Image, Dimensions, Alert, Platform, TouchableOpacity, ScrollView } from "react-native";
-import * as ImagePicker from "expo-image-picker";
 import CustomButton from "@/components/CustomButton";
-import { CustomTextInput } from "@/components/CustomTextInput";
-import { useNavigation, NavigationProp, useRoute, RouteProp, useFocusEffect } from "@react-navigation/native";
 import CustomModal from "@/components/CustomModal";
+import { CustomTextInput } from "@/components/CustomTextInput";
+import DatePickerInput from "@/components/DatePickerInput";
+import { ThemedView } from "@/components/ThemedView";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
-import { withAuth } from "../_util/withAuth";
-import { AUTHORITIES } from "../_util/Authorities";
-import { RFValue, } from "react-native-responsive-fontsize";
-import useAuth from "@/hooks/useAuth";
-import { ThemedView } from "@/components/ThemedView";
 import { useNotification } from '@/context/NotificationContext';
-import DatePickerInput from "@/components/DatePickerInput";
+import useAuth from "@/hooks/useAuth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
+import * as ImagePicker from "expo-image-picker";
+import { useCallback, useEffect, useState } from "react";
+import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { RFValue, } from "react-native-responsive-fontsize";
+import { AUTHORITIES } from "../_util/Authorities";
+import { withAuth } from "../_util/withAuth";
 
 const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
@@ -120,9 +120,9 @@ function EsquelaCustomizer() {
             farewellMessage: parsedData.farewellMessage || "",
             farewellPhrase: parsedData.farewellPhrase || "",
             customImage: parsedData.customImage || null,
-            imageTemplate_id: imageId|| 1,
+            imageTemplate_id: imageId || 1,
           });
-        
+
           setSelectedColor(textColor);
         } catch (error) {
           console.error("Error al parsear jsonData:", error);
@@ -154,7 +154,7 @@ function EsquelaCustomizer() {
             const [year, month, day] = date?.split("-") || [];
             return day && month && year ? `${day}/${month}/${year}` : "";
           };
-          
+
           const formatBirthDate: string = data.birthDate ? formatDate(data.birthDate) : "";
           const formatDeathDate: string = data.deathDate ? formatDate(data.deathDate) : "";
 
@@ -263,24 +263,47 @@ function EsquelaCustomizer() {
     }
 
     if (!name || !birthDate || !farewellMessage || !farewellPhrase) {
-      setModalMessage(customImage === null ? 
-          "No has seleccionado una imagen y hay datos sin completar. ¿Desea continuar?" : 
-          "Hay datos sin completar. ¿Desea continuar?");
+      if (customImage === null) {
+        setModalMessage(
+          "No has seleccionado una imagen y hay datos sin completar. ¿Desea continuar?"
+        );
+      } else {
+        setModalMessage("Hay datos sin completar. ¿Desea continuar?");
+      }
+
+      if (birthDate && deathDate) {
+        const [birthDay, birthMonth, birthYear] = birthDate.split("/");
+        const [deathDay, deathMonth, deathYear] = deathDate.split("/");
+
+        const parsedBirthDate = new Date(`${birthYear}-${birthMonth}-${birthDay}`);
+        const parsedDeathDate = new Date(`${deathYear}-${deathMonth}-${deathDay}`);
+
+        if (parsedBirthDate > parsedDeathDate) {
+          errors.push("La fecha de nacimiento debe ser anterior a la fecha de fallecimiento")
+          return errors;
+        }
+      }
+    } else if (customImage === null) {
+      setModalMessage("No has seleccionado una imagen. ¿Desea continuar?");
+    } else {
+      setModalMessage(customImage === null ?
+        "No has seleccionado una imagen y hay datos sin completar. ¿Desea continuar?" :
+        "Hay datos sin completar. ¿Desea continuar?");
     }
 
-    if (birthDate && deathDate){
+    if (birthDate && deathDate) {
       const [birthDay, birthMonth, birthYear] = birthDate.split("/");
       const [deathDay, deathMonth, deathYear] = deathDate.split("/");
 
       const parsedBirthDate = new Date(`${birthYear}-${birthMonth}-${birthDay}`);
       const parsedDeathDate = new Date(`${deathYear}-${deathMonth}-${deathDay}`);
 
-      if (parsedBirthDate > parsedDeathDate){
+      if (parsedBirthDate > parsedDeathDate) {
         errors.push("La fecha de nacimiento debe ser inferior a la fecha de fallecimiento")
         return errors;
       }
     }
-    
+
     setModalMessage(customImage === null ?
       "No has seleccionado una imagen. ¿Desea continuar?" :
       "¿Desea continuar?");
@@ -295,7 +318,7 @@ function EsquelaCustomizer() {
       const errors = validateForm();
       if (errors.length != 0) {
         showNotification({
-          message:`Hay errores en su formulario: ${errors}`,
+          message: errors.join(', '),
           type: "error",
           duration: 3000,
         });
@@ -339,13 +362,13 @@ function EsquelaCustomizer() {
         <View style={styles.formSection}>
           <Text style={styles.titlePage}>
             {isMine ?
-              is_newObituary ? "Cree su esquela" : (is_visualization ? "Información de la esquela" : "Edita tu esquela"):
+              is_newObituary ? "Cree su esquela" : (is_visualization ? "Información de la esquela" : "Edita tu esquela") :
               is_newObituary ? "Cree la esquela para un ser querido" : "Información de la esquela"
             }
           </Text>
           <Text style={styles.formText}>Nombre del fallecido:</Text>
           <CustomTextInput
-            containerStyle={{ width: '75%'}} 
+            containerStyle={{ width: '75%' }}
             placeholder="Nombre"
             maxLength={37}
             value={formData.name}
@@ -354,32 +377,32 @@ function EsquelaCustomizer() {
           />
 
           <Text style={styles.formText}>Fecha de nacimiento:</Text>
-          <DatePickerInput 
-            containerStyle={{width: "75%"}}
-            placeholder={"Fecha de nacimiento (dd/mm/aaaa)"} 
-            value={formData.birthDate} 
+          <DatePickerInput
+            containerStyle={{ width: "75%" }}
+            placeholder={"Fecha de nacimiento (dd/mm/aaaa)"}
+            value={formData.birthDate}
             type={"birthDate"}
             handleChange={handleChange}
             editable={!is_visualization}
           />
-          
+
           {!isMine &&
-          <>
-            <Text style={styles.formText}>Fecha de fallecimiento:</Text>
-            <DatePickerInput 
-              containerStyle={{width: "75%"}}
-              placeholder={"Fecha de fallecimiento (dd/mm/aaaa)"} 
-              value={formData.deathDate} 
-              type={"deathDate"}
-              handleChange={handleChange}
-              editable={!is_visualization}
-            />
-          </>}
+            <>
+              <Text style={styles.formText}>Fecha de fallecimiento:</Text>
+              <DatePickerInput
+                containerStyle={{ width: "75%" }}
+                placeholder={"Fecha de fallecimiento (dd/mm/aaaa)"}
+                value={formData.deathDate}
+                type={"deathDate"}
+                handleChange={handleChange}
+                editable={!is_visualization}
+              />
+            </>}
 
 
           <Text style={styles.formText}>Mensaje de despedida:</Text>
           <CustomTextInput
-            containerStyle={{ width: '75%'}} 
+            containerStyle={{ width: '75%' }}
             placeholder="Mensaje de despedida"
             value={formData.farewellMessage}
             maxLength={624}
@@ -390,7 +413,7 @@ function EsquelaCustomizer() {
 
           <Text style={styles.formText}>Frase de despedida:</Text>
           <CustomTextInput
-            containerStyle={{ width: '75%'}} 
+            containerStyle={{ width: '75%' }}
             placeholder="Frase de despedida"
             maxLength={90}
             value={formData.farewellPhrase}

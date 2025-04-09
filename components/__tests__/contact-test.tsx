@@ -10,10 +10,29 @@ jest.mock("expo-font", () => ({
   useFonts: () => [true],
 }));
 
-jest.mock("@react-navigation/native", () => ({
-  ...jest.requireActual("@react-navigation/native"),
-  useFocusEffect: jest.fn(),
-  useNavigation: jest.fn().mockReturnValue({ navigate: jest.fn() }),
+jest.mock("@react-navigation/native", () => {
+  const actualNav = jest.requireActual("@react-navigation/native");
+  return {
+    ...actualNav,
+    useFocusEffect: jest.fn(),
+    useNavigation: jest.fn(() => ({
+      navigate: jest.fn(),
+    })),
+  };
+});
+
+jest.mock("expo-router", () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    back: jest.fn(),
+  }),
+  useNavigation: () => ({
+    navigate: jest.fn(),
+  }),
+  navigationRef: {
+    current: {},
+  },
 }));
 
 jest.mock("react-native/Libraries/Linking/Linking", () => ({

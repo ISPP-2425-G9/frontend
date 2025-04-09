@@ -11,7 +11,7 @@ import { useNotification } from '@/context/NotificationContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Dimensions, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
 
@@ -150,6 +150,9 @@ function ProfileScreen() {
   };
 
   const handleInputChangeCompany = (field: keyof CompanyProfile, value: string) => {
+    if (field === 'zipCode') {
+      value = value.replace(/\D/g, '');
+    }
     setEditedCompany({ ...editedCompany, [field]: value });
   };
 
@@ -419,7 +422,10 @@ function ProfileScreen() {
 
       if (!response.ok) {
         const errorData = await response.text();
-        Alert.alert('Error', errorData || 'Error mientras se actualizaba la contraseña');
+        showNotification({
+          message: errorData || "Error mientras se actualizaba la contraseña",
+          type: "error",
+        });
         return;
       }
 
@@ -438,8 +444,10 @@ function ProfileScreen() {
       setNewPassword('');
       setConfirmPassword('');
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      Alert.alert('Error', errorMessage);
+      showNotification({
+        message: "Error al cambiar la contraseña",
+        type: "error",
+      });
     }
   };
 
@@ -483,7 +491,7 @@ function ProfileScreen() {
           placeholder={placeholder}
           placeholderTextColor={'#666'}
           multiline={field === 'description'}
-          maxLength={field === 'telephone' ? 11 : field === 'description' ? 500 : 50}
+          maxLength={field === 'telephone' ? 11 : field === 'description' ? 500 : field === 'zipCode' ? 5 : 50}
           style={field === 'description' ? { height: 100, width: 300 } : styles.input}
         />
       ) : (
@@ -536,7 +544,6 @@ function ProfileScreen() {
                         onPress={handleSave}
                         color="blue"
                       />
-                      <LogoutButton />
                     </View>
                   ) : (
                     <View style={styles.buttonContainer}>
@@ -545,6 +552,7 @@ function ProfileScreen() {
                         onPress={() => { setIsEditing(true) }}
                         color="blue"
                       />
+                      <LogoutButton />
                       <DeleteAccountButton />
                     </View>
                   )}
@@ -626,7 +634,6 @@ function ProfileScreen() {
                         onPress={handleSaveCompany}
                         color="blue"
                       />
-                      <LogoutButton />
                     </View>
                   ) : (
                     <View>
@@ -636,6 +643,7 @@ function ProfileScreen() {
                           onPress={() => { setIsEditing(true) }}
                           color="blue"
                         />
+                        <LogoutButton />
                         <DeleteAccountButton />
                       </View>
                       <ThemedText style={styles.changePasswordText}>

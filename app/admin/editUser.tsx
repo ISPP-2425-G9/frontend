@@ -1,13 +1,16 @@
 import CustomButton from '@/components/CustomButton';
+import CustomTextInput from '@/components/CustomTextInput';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useEffect, useState, useCallback } from 'react';
-import { ActivityIndicator, Alert, ScrollView, TextInput, Platform,  Modal, View, StyleSheet,Pressable } from 'react-native';
-import { useRoute,useFocusEffect, useNavigation } from '@react-navigation/native';
-import { withAuth } from '../_util/withAuth';
-import { AUTHORITIES } from '../_util/Authorities';
+import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
+import { useNotification } from '@/context/NotificationContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
+import { AUTHORITIES } from '../_util/Authorities';
+import { withAuth } from '../_util/withAuth';
 
 
 
@@ -43,6 +46,7 @@ function EditUserScreen() {
   const userId = params?.userId ?? '';
   const isCustomer = params?.isCustomer ?? false;
 
+  const { showNotification } = useNotification();
 
   const [originalProfile, setOriginalProfile] = useState<Profile | null>(null);
   const [editedProfile, setEditedProfile] = useState<Profile>({
@@ -79,11 +83,11 @@ function EditUserScreen() {
       });
 
       if (!response.ok) {
-        throw new Error(`Error ${response.status}: No se pudo obtener los datos del perfil.`);
+        throw new Error(`Error ${response.status}: No se pudo obtener los datos del perfil`);
       }
 
       const data = await response.json();
-      
+
       const profileData: Profile = {
         name: data.name || '',
         fullName: data.name || '',
@@ -104,28 +108,34 @@ function EditUserScreen() {
       setSelectedPlan(profileData.plan.planType);
     } catch (error: any) {
       console.error('Error al obtener el perfil:', error.message);
-      showAlert('Error', error.message);
+      showNotification({
+        message: 'Error al cargar el perfil. Por favor, inténtelo de nuevo más tarde',
+        type: 'error',
+      });
     } finally {
       setLoading(false);
     }
   }, [userId, isCustomer]);
-  
+
 
   useEffect(() => {
     if (!userId) {
-      return
+      return;
     };
     void fetchProfile();
   }, [userId, isCustomer]);
 
   useFocusEffect(
     useCallback(() => {
-      setHasChanges(false); // Restablecer cambios al entrar en la pestaña
-      fetchProfile(); // Cargar datos del usuario
+      setHasChanges(false);
+      fetchProfile();
     }, [fetchProfile])
   );
 
   const handleInputChange = (field: keyof Profile, value: string) => {
+    if (field === 'telephone' || field === 'zipCode') {
+      value = value.replace(/\D/g, '');
+    }
     setEditedProfile((prev) => {
       const updatedProfile = { ...prev, [field]: value };
       setHasChanges(JSON.stringify(updatedProfile) !== JSON.stringify(originalProfile));
@@ -134,14 +144,30 @@ function EditUserScreen() {
   };
 
   const handleSave = async () => {
+
+    if (!editedProfile) {
+      showNotification({
+        message: 'No se encontraron cambios para guardar.',
+        type: 'error',
+      });
+      return;
+    }
+    if (editedProfile.password.length < 6) {
+      showNotification({
+        message: 'La contraseña debe tener al menos 6 caracteres.',
+        type: 'error',
+      });
+      return;
+    }
+
     try {
       const token = await AsyncStorage.getItem('authToken');
       if (!token) throw new Error('No se encontró el token de autenticación.');
-  
+
       const endpoint = isCustomer
         ? `${BACKEND_API}/api/auth/admin/customers/${userId}`
         : `${BACKEND_API}/api/auth/admin/companies/${userId}`;
-  
+
       const profileToSend: any = {
         fullName: isCustomer ? editedProfile.fullName : undefined,
         name: !isCustomer ? editedProfile.fullName : undefined,
@@ -153,17 +179,17 @@ function EditUserScreen() {
         nif: editedProfile.nif,
         description: editedProfile.description,
       };
-  
+
       if (isCustomer) {
         profileToSend.dni = editedProfile.dni;
       }
-  
+
       const passwordChanged = editedProfile.password && editedProfile.password !== originalProfile?.password;
-  
+
       if (passwordChanged) {
         profileToSend.password = editedProfile.password;
       }
-  
+
       const response = await fetch(endpoint, {
         method: 'PUT',
         headers: {
@@ -172,9 +198,9 @@ function EditUserScreen() {
         },
         body: JSON.stringify(profileToSend),
       });
-  
+
       if (!response.ok) throw new Error(`Error ${response.status}: No se pudo actualizar el perfil.`);
-  
+
       if (passwordChanged) {
         const passwordUpdateResponse = await fetch(`${BACKEND_API}/api/auth/password/${userId}`, {
           method: 'PUT',
@@ -183,35 +209,32 @@ function EditUserScreen() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            userId,  
+            userId,
             newPassword: editedProfile.password,
             confirmPassword: editedProfile.password,
           }),
         });
-  
+
         if (!passwordUpdateResponse.ok) throw new Error(`Error ${passwordUpdateResponse.status}: No se pudo actualizar la contraseña.`);
       }
-  
-      showAlert('Éxito', 'Perfil actualizado correctamente.');
+
+      showNotification({
+        message: 'Perfil actualizado correctamente',
+        type: 'success',
+      });
       setHasChanges(false);
       setOriginalProfile(editedProfile);
-  
+
       navigation.navigate('admin/listUsers' as never);
-  
+
     } catch (error: any) {
       console.error('Error al guardar los cambios:', error.message);
-      showAlert('Error', error.message);
+      showNotification({
+        message: 'Error al guardar los cambios. Por favor, inténtelo de nuevo más tarde',
+        type: 'error',
+      });
     }
   };
-  
-  const showAlert = (title: string, message: string) => {
-    if (Platform.OS === 'web') {
-      window.alert(`${title}: ${message}`);
-    } else {
-      Alert.alert(title, message);
-    }
-  };
-  
 
   const renderEditableField = (
     label: string,
@@ -222,13 +245,27 @@ function EditUserScreen() {
   ) => (
     <View key={field} style={styles.inputContainer}>
       <ThemedText style={styles.label}>{label}</ThemedText>
-      <TextInput
+      <CustomTextInput
         style={styles.input}
         value={value ?? ''}
-        onChangeText={(text) => {handleInputChange(field, text)}}
+        onChangeText={(text) => { handleInputChange(field, text) }}
         placeholder={placeholder}
         placeholderTextColor={'#666'}
-        secureTextEntry={secureTextEntry}
+        maxLength={
+          field === 'password'
+            ? 36
+            : field === 'telephone'
+              ? 9
+              : field === 'description'
+                ? 500
+                : field === 'zipCode'
+                  ? 5
+                  : field === 'dni'
+                    ? 9
+                    : field === 'nif'
+                      ? 9
+                      : 50
+        } secureTextEntry={secureTextEntry}
       />
     </View>
   );
@@ -241,12 +278,12 @@ function EditUserScreen() {
     );
   }
 
-  return ( 
+  return (
     <ThemedView style={styles.container}>
 
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.profileContainer}>
-          <ThemedText style={styles.title}>{isCustomer ? 'Editar Cliente' : 'Editar Empresa'}</ThemedText>
+          <ThemedText style={styles.title}>{isCustomer ? 'Editar cliente' : 'Editar empresa'}</ThemedText>
           {isCustomer ? (
             <View style={styles.formContainer}>
               {renderEditableField('Nombre', editedProfile.fullName, 'fullName', 'Nombre')}
@@ -260,28 +297,32 @@ function EditUserScreen() {
               <View style={styles.column}>
                 {renderEditableField('Nombre', editedProfile.fullName, 'fullName', 'Nombre')}
                 {renderEditableField('Email', editedProfile.email, 'email', 'Email')}
-                {renderEditableField('NIF', editedProfile.nif ?? '', 'nif', 'NIF')}
-                {renderEditableField('Descripción', editedProfile.description ?? '', 'description', 'Descripción')}
+                {renderEditableField('Dirección', editedProfile.address ?? '', 'address', 'Dirección')}
+                {renderEditableField('Código Postal', editedProfile.zipCode ?? '', 'zipCode', 'Código Postal')}
+
               </View>
               <View style={styles.column}>
-                {renderEditableField('Contraseña', editedProfile.password, 'password', 'Contraseña', true)}
-                {renderEditableField('Dirección', editedProfile.address ?? '', 'address', 'Dirección')}
+                {renderEditableField('Descripción', editedProfile.description ?? '', 'description', 'Descripción')}
+                {renderEditableField('NIF', editedProfile.nif ?? '', 'nif', 'NIF')}
+                {renderEditableField('Teléfono', editedProfile.telephone, 'telephone', 'Teléfono')}
                 {renderEditableField('Ciudad', editedProfile.city ?? '', 'city', 'Ciudad')}
-                {renderEditableField('Código Postal', editedProfile.zipCode ?? '', 'zipCode', 'Código Postal')}
               </View>
             </View>
           )}
           <View style={styles.buttonContainer}>
-            <CustomButton 
-              title="Guardar" 
+            <CustomButton
+              title="Guardar"
               onPress={() => {
                 if (!hasChanges) {
-                  showAlert('Aviso', 'Es necesario modificar alguno de los campos antes de guardar.');
+                  showNotification({
+                    message: "Es necesario modificar alguno de los campos antes de guardar",
+                    type: "error",
+                  });
                 } else {
                   handleSave();
                 }
-              }} 
-              color={hasChanges ? 'blue' : 'red'} 
+              }}
+              color={hasChanges ? 'blue' : 'red'}
             />
           </View>
         </View>
@@ -294,13 +335,13 @@ function EditUserScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: GlobalStyles.white,
     paddingVertical: 10,
   },
-  twoColumnsContainer: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    marginBottom: 20 
+  twoColumnsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20
   },
   scrollContainer: {
     flexGrow: 1,
@@ -344,15 +385,9 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   input: {
+    minWidth: 300,
     width: '100%',
-    backgroundColor: '#f0f0f0',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
     fontSize: 16,
-    color: '#333',
-    borderWidth: 1,
-    borderColor: '#ccc',
     textAlign: 'center',
   },
   buttonContainer: {
@@ -430,10 +465,10 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   smallButton: {
-    paddingVertical: 6,  
-    paddingHorizontal: 15,  
-    width: 100,  
-    height: 35,  
+    paddingVertical: 6,
+    paddingHorizontal: 15,
+    width: 100,
+    height: 35,
     borderRadius: 8,
   },
 });

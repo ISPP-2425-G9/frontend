@@ -1,15 +1,16 @@
-import { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, Text, Modal, TextInput, Alert } from 'react-native';
-import { withAuth } from '../_util/withAuth';
-import { AUTHORITIES } from '../_util/Authorities';
-import { ThemedView } from '@/components/ThemedView';
-import { ThemedText } from '@/components/ThemedText';
 import CustomButton from '@/components/CustomButton';
 import CustomModal from '@/components/CustomModal';
-import { useFocusEffect } from '@react-navigation/native';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 import { GlobalStyles } from '@/constants/Colors';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_API } from '@/constants/Mysc';
+import { useNotification } from '@/context/NotificationContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useState } from 'react';
+import { Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { AUTHORITIES } from '../_util/Authorities';
+import { withAuth } from '../_util/withAuth';
 
 
 function EmergencyContactScreen() {
@@ -33,6 +34,7 @@ function EmergencyContactScreen() {
   const [editFormErrors, setEditFormErrors] = useState<string[]>([]);
   const [selectedContactToEdit, setSelectedContactToEdit] = useState<EmergencyContact | null>(null);
   const [, setLoading] = useState(true);
+  const { showNotification } = useNotification();
 
   const formatPhoneNumber = (phone: string): string => {
     const digits = phone.replace(/\D/g, '');
@@ -180,14 +182,21 @@ function EmergencyContactScreen() {
         throw new Error(errorMessage);
       }
   
-      Alert.alert("Éxito", "Contacto de emergencia añadido correctamente.");
+      showNotification({
+        message: "Añadido correctamente",
+        type: "success",
+      });
+      showNotification
       closeAddContactModal(); 
       fetchContacts();
   
     } catch (error: any) {
       console.error("Error al añadir contacto:", error);
       setFormErrors([error.message || "Error inesperado"]);
-      Alert.alert("Error", error.message || "Error inesperado");
+      showNotification({
+        message: error.message || "Error inesperado",
+        type: "error",
+      });
     }
   };
 
@@ -231,14 +240,20 @@ function EmergencyContactScreen() {
         return;
       }
   
-      Alert.alert("Éxito", "El contacto ha sido actualizado correctamente.");
+      showNotification({
+        message: "El contacto ha sido actualizado correctamente.",
+        type: "success",
+      });
       setShowEditContactModal(false);
       setSelectedContactToEdit(null);
       setEditFormErrors([]);
       fetchContacts();
     } catch (error: any) {
       console.error("Error al actualizar contacto:", error.message);
-      Alert.alert("Error", error.message);
+      showNotification({
+        message: error.message || "Error inesperado",
+        type: "error",
+      });
     }
   };
   

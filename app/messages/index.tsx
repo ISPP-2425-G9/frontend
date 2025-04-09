@@ -1,17 +1,17 @@
-import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView, FlatList, Pressable, Dimensions, Image, Platform, Alert } from 'react-native';
+import CustomButton from '@/components/CustomButton';
+import CustomModal from '@/components/CustomModal';
+import CustomTextInput from '@/components/CustomTextInput';
 import { GlobalStyles } from '@/constants/Colors';
+import { BACKEND_API } from '@/constants/Mysc';
+import { useNotification } from '@/context/NotificationContext';
+import { AntDesign } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NavigationProp, RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import * as ImagePicker from "expo-image-picker";
+import { useCallback, useEffect, useState } from 'react';
+import { Dimensions, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AUTHORITIES } from '../_util/Authorities';
 import { withAuth } from '../_util/withAuth';
-import CustomTextInput from '@/components/CustomTextInput';
-import { useCallback, useEffect, useState } from 'react';
-import CustomButton from '@/components/CustomButton';
-import { AntDesign } from '@expo/vector-icons';
-import * as ImagePicker from "expo-image-picker";
-import { useNavigation, NavigationProp, useRoute, RouteProp, useFocusEffect } from '@react-navigation/native';
-import { BACKEND_API } from '@/constants/Mysc';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNotification } from '@/context/NotificationContext';
-import CustomModal from '@/components/CustomModal';
 
 
 const { width } = Dimensions.get("window");
@@ -267,7 +267,10 @@ function MessageCreation() {
     } catch (error: any) {
       setLoading(false);
       console.error("Error en la creación del mensaje 2:", error.message);
-      window.alert(`Error en la creación del mensaje 2: ${error.message}`);
+      showNotification({
+        message: `Error en la creación del mensaje: ${error.message}`,
+        type: "error",
+      });
     }
   };
 
@@ -390,7 +393,7 @@ function MessageCreation() {
     }
 
     if (!values.telephone || !telephoneRegex.test(values.telephone)) {
-      errors.push("Por favor, introduce un teléfono válido (sin prefijo)");
+      errors.push("Por favor, introduce un teléfono válido");
     }
 
     if (!values.email || !emailRegex.test(values.email)) {
@@ -611,7 +614,7 @@ function MessageCreation() {
                   style={styles.input}
                 />
                 <CustomTextInput
-                  placeholder="Teléfono (sin prefijo)"
+                  placeholder="Teléfono"
                   value={newContact.telephone}
                   maxLength={11}
                   keyboardType="phone-pad"

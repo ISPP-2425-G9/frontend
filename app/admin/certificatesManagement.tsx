@@ -1,15 +1,17 @@
-import React, { useState, useCallback } from 'react';
-import { FlatList, StyleSheet, Text, View, ScrollView, TextInput } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { ThemedView } from '@/components/ThemedView';
-import { withAuth } from '../_util/withAuth';
-import { AUTHORITIES } from '../_util/Authorities';
-import { GlobalStyles } from '@/constants/Colors';
 import CustomButton from '@/components/CustomButton';
-import { ThemedText } from '@/components/ThemedText';
 import CustomModal from '@/components/CustomModal';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import CustomTextInput from '@/components/CustomTextInput';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
+import { useNotification } from '@/context/NotificationContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import React, { useCallback, useState } from 'react';
+import { FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { AUTHORITIES } from '../_util/Authorities';
+import { withAuth } from '../_util/withAuth';
 
 
 type Certificate = {
@@ -31,40 +33,44 @@ const CertificateManagement: React.FC = () => {
   const [failureMessage, setFailureMessage] = useState<string>("");
   const [acceptModalVisible, setAcceptModalVisible] = useState(false);
   const [selectedCertificateForApproval, setSelectedCertificateForApproval] = useState<Certificate | null>(null);
+  const { showNotification } = useNotification();
+
 
   const isValidDeathDate = (dateStr: string): { valid: boolean; message?: string } => {
     if (!dateStr) {
-      return { valid: false, message: "Debes introducir una fecha." };
+      showNotification({
+        message: 'Debes introducir una fecha',
+        type: 'error',
+      });
+      return { valid: false, message: "Debes introducir una fecha" };
     }
 
     const enteredDate = new Date(dateStr);
     if (isNaN(enteredDate.getTime())) {
-      return { valid: false, message: "La fecha introducida no es válida." };
+      showNotification({
+        message: 'La fecha introducida no es válida',
+        type: 'error',
+      });
+      return { valid: false, message: "" };
     }
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (enteredDate > today) {
-      return { valid: false, message: "La fecha debe ser igual o anterior al día de hoy." };
+      showNotification({
+        message: 'La fecha de fallecimiento no puede ser posterior a hoy',
+        type: 'error',
+      });
+      return { valid: false, message: "" };
     }
     return { valid: true };
-  };
-  
-  const showSuccessMessage = (msg: string) => {
-    setSuccessMessage(msg);
-    setTimeout(() => setSuccessMessage(""), 3000);
-  };
-
-  const showFailureMessage = (msg: string) => {
-    setFailureMessage(msg);
-    setTimeout(() => setFailureMessage(""), 3000);
   };
 
   const fetchCertificates = async () => {
     try {
       const authToken = await AsyncStorage.getItem('authToken');
       if (!authToken) throw new Error('Token no disponible');
-  
+
       const response = await fetch(`${BACKEND_API}/api/admin/certificates/pending`, {
         method: 'GET',
         headers: {
@@ -72,17 +78,20 @@ const CertificateManagement: React.FC = () => {
           'Authorization': `Bearer ${authToken.trim()}`,
         },
       });
-  
+
       if (!response.ok) throw new Error('Error al obtener certificados');
-  
+
       const data = await response.json();
       setCertificates(data);
     } catch (error) {
       const error_str = 'Error al obtener certificados:' + error;
-      showFailureMessage(error_str);
+      showNotification({
+        message: error_str,
+        type: 'error',
+      });
     }
   };
-  
+
   useFocusEffect(
     useCallback(() => {
       fetchCertificates();
@@ -110,12 +119,22 @@ const CertificateManagement: React.FC = () => {
         />
       </View>
       <View style={styles.cell}>
-        <TextInput
+        <CustomTextInput
           placeholder="aaaa-mm-dd"
+          maxLength={10}
           value={deathDates[item.id] || ''}
           onChangeText={(text) => {
             setErrorMessage("");
-            setDeathDates((prev) => ({ ...prev, [item.id]: text }));
+            let cleaned = text.replace(/[^0-9]/g, '');
+            if (cleaned.length > 8) cleaned = cleaned.substring(0, 8);
+            let formatted = cleaned;
+            if (cleaned.length >= 5) {
+              formatted = cleaned.substring(0, 4) + '-' + cleaned.substring(4);
+              if (cleaned.length >= 7) {
+                formatted = formatted.substring(0, 7) + '-' + formatted.substring(7);
+              }
+            }
+            setDeathDates((prev) => ({ ...prev, [item.id]: formatted }));
           }}
           style={styles.dateInput}
         />
@@ -136,7 +155,7 @@ const CertificateManagement: React.FC = () => {
               }
               setSelectedCertificateForApproval(item);
               setAcceptModalVisible(true);
-            }}            
+            }}
           />
           <CustomButton
             title="Denegar"
@@ -152,9 +171,9 @@ const CertificateManagement: React.FC = () => {
       </View>
     </View>
   );
-  
-  
-  
+
+
+
   return (
     <ThemedView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -189,7 +208,7 @@ const CertificateManagement: React.FC = () => {
                   <Text style={styles.headerCell}>DNI</Text>
                   <Text style={styles.headerCell}>Certificado</Text>
                   <Text style={styles.headerCell}>Esquelas/Mensajes</Text>
-                  <Text style={styles.headerCell}>Fecha fallecimiento</Text>
+                  <Text style={styles.headerCell}>Fecha de fallecimiento</Text>
                   <Text style={styles.headerCell}>Acciones</Text>
                 </View>
                 <FlatList
@@ -235,13 +254,22 @@ const CertificateManagement: React.FC = () => {
                   });
 
                   if (response.ok) {
-                    showSuccessMessage(`Certificado aprobado correctamente.`);
+                    showNotification({
+                      message: 'Certificado aprobado correctamente',
+                      type: 'success',
+                    });
                     fetchCertificates();
                   } else {
-                    showFailureMessage('Error al aprobar el certificado');
+                    showNotification({
+                      message: 'Error al aprobar el certificado',
+                      type: 'error',
+                    });
                   }
                 } catch (error) {
-                  showFailureMessage('Error de red al aprobar el certificado: ' + error);
+                  showNotification({
+                    message: 'Error de red al aprobar el certificado: ' + error,
+                    type: 'error',
+                  });
                 } finally {
                   setAcceptModalVisible(false);
                   setSelectedCertificateForApproval(null);
@@ -274,23 +302,32 @@ const CertificateManagement: React.FC = () => {
                         Authorization: `Bearer ${authToken}`,
                       },
                     });
-        
+
                     if (response.ok) {
-                      showSuccessMessage(`Certificado denegado correctamente.`);
+                      showNotification({
+                        message: 'Certificado denegado correctamente',
+                        type: 'success',
+                      });
                       setModalVisible(false);
                       fetchCertificates();
                     } else {
-                      showFailureMessage('Error al denegar el certificado');
+                      showNotification({
+                        message: 'Error al denegar el certificado',
+                        type: 'error',
+                      });
                     }
                   } catch (error) {
                     const error_str = 'Error de red al denegar el certificado:' + error;
-                    showFailureMessage(error_str);
+                    showNotification({
+                      message: error_str,
+                      type: 'error',
+                    });
                   }
                 }
               }}
             />
           </View>
-        </CustomModal>      
+        </CustomModal>
       )}
     </ThemedView>
   );
@@ -360,7 +397,7 @@ const styles = StyleSheet.create({
     minWidth: 220,
     fontWeight: 'bold',
     color: '#fff',
-  }, 
+  },
   tableRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -396,12 +433,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   dateInput: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    width: 120,
     textAlign: 'center',
   },
   actionButtonsContainer: {
@@ -427,13 +458,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 10,
     fontSize: 14,
-  },  
+  },
   failureMessage: {
     color: 'red',
     textAlign: 'center',
     marginTop: 10,
     fontSize: 14,
-  }, 
+  },
 });
 
 export default withAuth(CertificateManagement, [AUTHORITIES.ADMIN]);
