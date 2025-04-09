@@ -133,6 +133,8 @@ function ObituaryIndex() {
       imageUrl,
       is_newObituary: false,
       obituaryId,
+      is_visualization: false,
+
     });
   };
 

@@ -48,7 +48,7 @@ function MessageCreation() {
 
   const is_visualization = route.params?.is_visualization || undefined;
 
-  const is_newMessage = route.params?.is_newMessage === true;
+  const is_newMessage = route.params?.is_newMessage;
 
   const is_owner = route.params?.is_owner || false;
 
