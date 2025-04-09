@@ -40,7 +40,7 @@ function LoadCertificate() {
   const { showNotification } = useNotification();
 
   const route = useRoute<ObituaryLoadCertificateRouteProp>();
-  const is_newObituary = route.params?.is_newObituary;
+  const { is_mine, is_newObituary } = route.params;
 
 
   const { isAuthenticated } = useAuth();
@@ -55,7 +55,6 @@ function LoadCertificate() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  const is_mine = route.params?.is_mine;
   const [formData, setFormData] = useState({
     dni: "",
     certificateImage: "",
@@ -110,7 +109,7 @@ function LoadCertificate() {
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ['images', 'livePhotos', 'videos'],
       allowsEditing: true,
       quality: 1,
     });

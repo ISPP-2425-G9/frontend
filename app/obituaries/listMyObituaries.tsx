@@ -51,7 +51,6 @@ function ObituaryIndex() {
   const [obituaries, setObituaries] = useState<Obituary[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedObituaryId, setSelectedObituaryId] = useState<number | null>(null);
-  const [isVerified, setIsVerified] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
