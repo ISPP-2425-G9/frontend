@@ -89,6 +89,26 @@ describe('AddRecipientsModal', () => {
     expect(getByText('test2@example.com')).toBeTruthy();
   });
 
+  it('uses default empty array when emails prop is not provided', () => {
+    const propsWithoutEmails = {
+      visible: true,
+      onClose: mockOnClose,
+      onConfirm: mockOnConfirm,
+    };
+    
+    const { getByText } = render(
+      <AddRecipientsModal {...propsWithoutEmails} />
+    );
+    
+    expect(getByText('Añadir destinatarios')).toBeTruthy();
+    expect(getByText('Confirmar')).toBeTruthy();
+    
+    const confirmButton = getByText('Confirmar');
+    fireEvent.press(confirmButton);
+    
+    expect(mockOnConfirm).toHaveBeenCalledWith([]);
+  });
+
   it('adds a new email when the add button is pressed', () => {
     const { getByPlaceholderText, getByText, UNSAFE_getAllByType } = render(
       <AddRecipientsModal {...defaultProps} />
