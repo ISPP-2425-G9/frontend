@@ -279,7 +279,7 @@ function EsquelaCustomizer() {
         const parsedDeathDate = new Date(`${deathYear}-${deathMonth}-${deathDay}`);
 
         if (parsedBirthDate > parsedDeathDate) {
-          errors.push("La fecha de nacimiento debe ser anterior  a la fecha de fallecimiento")
+          errors.push("La fecha de nacimiento debe ser anterior a la fecha de fallecimiento")
           return errors;
         }
       }
