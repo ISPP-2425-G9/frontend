@@ -105,6 +105,10 @@ const ListServiceScreen: React.FC = () => {
     React.useCallback(() => {
       document.title = 'Servicios';
       fetchCompanyTypes();
+      setCity('');
+      setName('');
+      setCompanyType('');
+      setPage(0);
     }, [])
   );
 
@@ -123,6 +127,7 @@ const ListServiceScreen: React.FC = () => {
           <CustomTextInput
             placeholder="Buscar por ciudad"
             value={city}
+            maxLength={50}
             onChangeText={(text) => {
               setCity(text);
               setPage(0);
@@ -131,6 +136,7 @@ const ListServiceScreen: React.FC = () => {
           <CustomTextInput
             placeholder="Buscar por nombre"
             value={name}
+            maxLength={50}
             onChangeText={(text) => {
               setName(text);
               setPage(0);
