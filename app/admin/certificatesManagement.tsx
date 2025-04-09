@@ -42,7 +42,7 @@ const CertificateManagement: React.FC = () => {
         message: 'Debes introducir una fecha',
         type: 'error',
       });
-      return { valid: false, message: "" };
+      return { valid: false, message: "Debes introducir una fecha" };
     }
 
     const enteredDate = new Date(dateStr);
