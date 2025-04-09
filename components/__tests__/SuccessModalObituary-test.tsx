@@ -37,6 +37,9 @@ jest.mock('@/components/CustomButton', () => {
     color: string; 
     style: any;
   }) {
+    if (title === 'Continuar') {
+      onPress();
+    }
     return (
       <button onClick={onPress} style={style}>
         {title}
@@ -110,11 +113,9 @@ describe('SuccessModalObituary', () => {
       <SuccessModal visible={true} onClose={onClose} />
     );
     
-    onClose();
-    
     expect(onClose).toHaveBeenCalledTimes(1);
     
-    expect(mockNavigate).toBeDefined();
+    expect(mockNavigate).toHaveBeenCalledWith('obituaries/index');
   });
 
   it('starts animations when visible becomes true', () => {
