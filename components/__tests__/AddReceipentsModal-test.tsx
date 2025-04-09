@@ -30,7 +30,13 @@ jest.mock('react-native', () => {
   
   RN.TouchableOpacity = 'TouchableOpacity';
   
-  RN.FlatList = ({ data, renderItem }: { data: any[], renderItem: (info: { item: any, index: number }) => React.ReactElement }) => {
+  RN.FlatList = ({ data, renderItem, keyExtractor }: { 
+    data: any[], 
+    renderItem: (info: { item: any, index: number }) => React.ReactElement,
+    keyExtractor?: (item: any) => string
+  }) => {
+    const keys = data.map(item => keyExtractor ? keyExtractor(item) : item);
+    
     return (
       <RN.View>
         {data.map((item, index) => renderItem({ item, index }))}
@@ -217,5 +223,26 @@ describe('AddRecipientsModal', () => {
     fireEvent.press(confirmButton);
 
     expect(mockOnConfirm).toHaveBeenCalledWith(['test2@example.com']);
+  });
+
+  it('uses keyExtractor function for FlatList items', () => {
+    const keyExtractorSpy = jest.fn(item => item);
+    
+    const originalFlatList = require('react-native').FlatList;
+    require('react-native').FlatList = ({ data, keyExtractor }) => {
+      data.forEach(item => keyExtractorSpy(item));
+      return null;
+    };
+    
+    const initialEmails = ['test1@example.com', 'test2@example.com'];
+    render(
+      <AddRecipientsModal {...defaultProps} emails={initialEmails} />
+    );
+    
+    expect(keyExtractorSpy).toHaveBeenCalledTimes(2);
+    expect(keyExtractorSpy).toHaveBeenCalledWith('test1@example.com');
+    expect(keyExtractorSpy).toHaveBeenCalledWith('test2@example.com');
+    
+    require('react-native').FlatList = originalFlatList;
   });
 });
