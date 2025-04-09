@@ -106,6 +106,10 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Error desconocido al procesar el pago';
       console.error('Error al procesar el pago:', errorMessage);
+      if (err && typeof err === 'object' && 'error' in err) {
+        const errorObj = err as { error: string };
+        console.error('Detalles del error:', errorObj.error);
+      }
     } finally {
       setIsProcessing(false);
     }
