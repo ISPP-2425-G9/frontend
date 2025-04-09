@@ -248,4 +248,105 @@ describe('DropDownPicker', () => {
     expect(queryByText('Option 1')).toBeNull();
     expect(queryByText('Option 3')).toBeNull();
   });
+
+  it('applies hover styles to options correctly', () => {
+    const { getByText, getAllByText } = render(
+      <DropDownPicker options={mockOptions} onSelect={mockOnSelect} />
+    );
+    
+    fireEvent.press(getByText('-'));
+    
+    const defaultOptions = getAllByText('-');
+    const defaultOption = defaultOptions[1];
+    
+    fireEvent(defaultOption, 'hoverIn', {});
+    
+    fireEvent.press(defaultOption);
+    expect(mockOnSelect).toHaveBeenCalledWith(null);
+    
+    mockOnSelect.mockClear();
+    
+    fireEvent.press(getByText('-'));
+    
+    const option = getByText('Option 1');
+    
+    fireEvent(option, 'hoverIn', {});
+    
+    fireEvent.press(option);
+    expect(mockOnSelect).toHaveBeenCalledWith('1');
+  });
+
+  it('handles hover state on options with custom color', () => {
+    const { getByText } = render(
+      <DropDownPicker 
+        options={mockOptions} 
+        onSelect={mockOnSelect} 
+        color="grey" 
+      />
+    );
+    
+    fireEvent.press(getByText('-'));
+    
+    const option = getByText('Option 1');
+    
+    fireEvent(option, 'hoverIn', {});
+    
+    fireEvent.press(option);
+    expect(mockOnSelect).toHaveBeenCalledWith('1');
+  });
+
+  it('applies hover styles to all options in the dropdown', () => {
+    const { getByText } = render(
+      <DropDownPicker options={mockOptions} onSelect={mockOnSelect} />
+    );
+    
+    fireEvent.press(getByText('-'));
+    
+    mockOptions.forEach(option => {
+      const optionElement = getByText(option.label);
+      
+      fireEvent(optionElement, 'hoverIn', {});
+      
+      fireEvent.press(optionElement);
+      expect(mockOnSelect).toHaveBeenCalledWith(option.value);
+      
+      mockOnSelect.mockClear();
+      
+      fireEvent.press(getByText(option.label));
+    });
+  });
+
+  it('handles hover state with hoverOut event', () => {
+    const { getByText } = render(
+      <DropDownPicker options={mockOptions} onSelect={mockOnSelect} />
+    );
+    
+    fireEvent.press(getByText('-'));
+    
+    const option = getByText('Option 1');
+    
+    fireEvent(option, 'hoverIn', {});
+    
+    fireEvent(option, 'hoverOut', {});
+    
+    fireEvent.press(option);
+    expect(mockOnSelect).toHaveBeenCalledWith('1');
+  });
+
+  it('handles hover state with multiple hover events', () => {
+    const { getByText } = render(
+      <DropDownPicker options={mockOptions} onSelect={mockOnSelect} />
+    );
+    
+    fireEvent.press(getByText('-'));
+    
+    const option = getByText('Option 1');
+    
+    fireEvent(option, 'hoverIn', {});
+    fireEvent(option, 'hoverOut', {});
+    fireEvent(option, 'hoverIn', {});
+    
+    fireEvent.press(option);
+    expect(mockOnSelect).toHaveBeenCalledWith('1');
+  });
 }); 
