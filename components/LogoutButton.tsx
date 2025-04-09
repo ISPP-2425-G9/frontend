@@ -37,7 +37,7 @@ export default function LogoutButton() {
         title="Cerrar sesión"
         style={styles.modalContent}
       >
-        <View style={styles.modalContent}>
+        <View testID="logout-modal-content" style={styles.modalContent}>
           <ThemedText style={styles.modalText}>
             ¿Estás seguro que deseas cerrar sesión?
           </ThemedText>
