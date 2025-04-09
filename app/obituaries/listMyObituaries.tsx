@@ -18,7 +18,13 @@ const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
 type RootStackParamList = {
-  'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number, is_visualization?: boolean };
+  'obituaries/createObituary': { 
+    imageTemplateId: number; 
+    imageUrl: string, 
+    is_newObituary: boolean, 
+    obituaryId: number,
+    is_visualization?: boolean };
+    
   'obituaries/index': undefined;
 };
 

@@ -53,6 +53,7 @@ function ObituaryIndex() {
   const [modalMessage, setModalMessage] = useState("");
 
   const is_newObituary = route.params?.is_newObituary ?? true;
+  const is_mine = route.params?.is_mine;
 
   interface Obituary {
     id: number
@@ -162,10 +163,6 @@ function ObituaryIndex() {
   };
 
 
-
-
-
-
   if (loading) {
     return (
       <ThemedView style={styles.centeredContainer}>
@@ -200,6 +197,7 @@ function ObituaryIndex() {
               key={item.id}
               onPress={() => {
                 if (changeDesign) {
+                  console.log("is_mine", is_mine);
                   navigation.navigate('obituaries/createObituary', {
                     imageTemplateId: item.id,
                     imageUrl: item.imageUrl,

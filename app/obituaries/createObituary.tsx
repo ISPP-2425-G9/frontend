@@ -239,7 +239,7 @@ function EsquelaCustomizer() {
       obituaryId,
       jsonData,
       changeDesign: true,
-      is_mine,
+      is_mine: isMine,
       selectedColor
     });
   };
