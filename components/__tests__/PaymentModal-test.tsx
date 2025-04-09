@@ -266,4 +266,88 @@ describe('PaymentModal', () => {
       })
     );
   });
+
+  it('handles missing card element correctly', async () => {
+    mockElements.getElement.mockReturnValueOnce(null);
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+
+    const { getByText } = render(<PaymentModal {...defaultProps} />);
+
+    await act(async () => {
+      fireEvent.press(getByText('Pagar'));
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Error al procesar el pago:',
+      'No se pudo encontrar el elemento de tarjeta'
+    );
+    consoleSpy.mockRestore();
+  });
+
+  it('handles missing auth token correctly', async () => {
+    const mockPaymentMethod = { id: 'pm_123' };
+    mockStripe.createPaymentMethod.mockResolvedValueOnce({ paymentMethod: mockPaymentMethod });
+    mockGetUserFromStorage.mockResolvedValueOnce({ id: 'user123' }); // Sin token
+
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    
+    const { getByText } = render(<PaymentModal {...defaultProps} />);
+
+    await act(async () => {
+      fireEvent.press(getByText('Pagar'));
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Error en el servidor:',
+      'No se encontró el token de autenticación'
+    );
+    consoleSpy.mockRestore();
+  });
+
+  it('handles missing user ID correctly', async () => {
+    const mockPaymentMethod = { id: 'pm_123' };
+    mockStripe.createPaymentMethod.mockResolvedValueOnce({ paymentMethod: mockPaymentMethod });
+    mockGetUserFromStorage.mockResolvedValueOnce({ token: 'token123' }); // Sin ID
+
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    
+    const { getByText } = render(<PaymentModal {...defaultProps} />);
+
+    await act(async () => {
+      fireEvent.press(getByText('Pagar'));
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Error en el servidor:',
+      'No se encontró el ID de usuario'
+    );
+    consoleSpy.mockRestore();
+  });
+
+  it('handles non-Error objects in catch block', async () => {
+    const mockPaymentMethod = { id: 'pm_123' };
+    const mockUserData = { token: 'token123', id: 'user123' };
+    
+    mockStripe.createPaymentMethod.mockResolvedValueOnce({ paymentMethod: mockPaymentMethod });
+    mockGetUserFromStorage.mockResolvedValueOnce(mockUserData);
+    (global.fetch as jest.Mock).mockRejectedValueOnce('string error'); // Error no-Error
+
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    
+    const { getByText } = render(<PaymentModal {...defaultProps} />);
+
+    await act(async () => {
+      fireEvent.press(getByText('Pagar'));
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
+
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Error en el servidor:',
+      'Error desconocido en el servidor'
+    );
+    consoleSpy.mockRestore();
+  });
 }); 
