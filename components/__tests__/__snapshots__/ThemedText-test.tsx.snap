@@ -1,5 +1,91 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`ThemedText renders correctly with default type 1`] = `
+<Text
+  style={
+    [
+      {
+        "color": "#333333",
+        "fontFamily": "Arial",
+        "fontSize": 16,
+        "lineHeight": 24,
+      },
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+    ]
+  }
+>
+  Default text
+</Text>
+`;
+
+exports[`ThemedText renders correctly with defaultBold type 1`] = `
+<Text
+  style={
+    [
+      undefined,
+      undefined,
+      {
+        "color": "#333333",
+        "fontFamily": "Arial-Bold",
+        "fontSize": 16,
+        "fontWeight": "600",
+        "lineHeight": 24,
+      },
+      undefined,
+      undefined,
+    ]
+  }
+>
+  Bold text
+</Text>
+`;
+
+exports[`ThemedText renders correctly with subtitle type 1`] = `
+<Text
+  style={
+    [
+      undefined,
+      undefined,
+      undefined,
+      {
+        "color": "#666666",
+        "fontFamily": "Arial",
+        "fontSize": 20,
+        "fontWeight": "bold",
+      },
+      undefined,
+    ]
+  }
+>
+  Subtitle text
+</Text>
+`;
+
+exports[`ThemedText renders correctly with title type 1`] = `
+<Text
+  style={
+    [
+      undefined,
+      {
+        "color": "#2196F3",
+        "fontFamily": "Arial",
+        "fontSize": 32,
+        "fontWeight": "bold",
+        "lineHeight": 32,
+      },
+      undefined,
+      undefined,
+      undefined,
+    ]
+  }
+>
+  Title text
+</Text>
+`;
+
 exports[`renders correctly 1`] = `
 <Text
   style={
