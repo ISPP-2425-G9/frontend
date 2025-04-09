@@ -1,11 +1,11 @@
-import { Linking, Dimensions, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image, Platform } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome6";
 import { GlobalStyles } from "@/constants/Colors";
-import React, { useState } from "react";
-import TermsAndConditions from "./TermsAndConditions";
 import { useNavigation } from '@react-navigation/native';
+import React, { useState } from "react";
+import { Dimensions, Modal, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import AnimatedIcon from "./AnimatedIcon";
 import CustomButton from "./CustomButton";
-import Logo from "./Logo";
+import TermsAndConditions from "./TermsAndConditions";
+import useResponsiveLayout from "@/hooks/useResponsiveLayout";
 
 const socialLinks = [
   { name: "instagram", url: "https://instagram.com/caronte_es" },
@@ -18,16 +18,20 @@ const socialLinks = [
 const Footer = () => {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
     const navigation = useNavigation();
+    const { width } = useWindowDimensions();
+    const { isMobile } = useResponsiveLayout();
     
-    const deviceWidth = Dimensions.get("window").width;
     const styles = StyleSheet.create({
         footer: {
           backgroundColor: GlobalStyles.darkGrey,
-          padding: 4,
-          flexDirection: "row",
-          justifyContent: "space-between",
+          paddingVertical: isMobile ? 8 : 10,
+          paddingHorizontal: isMobile ? 4 : 16,
+          width: "100%",
+          flexDirection: isMobile ? "column" : "row",
           alignItems: "center",
+          justifyContent: "space-between",
         },
+      
         banner: {
           height: 50, 
           resizeMode: 'contain'
@@ -35,23 +39,31 @@ const Footer = () => {
         section: {
           flexDirection: "row",
         },
+          
         centerSection: {
+          flex: isMobile ? 0 : 2,
+          flexDirection: isMobile ? "row" : "row",
           alignItems: "center",
-          flex: 1,
+          justifyContent: "center",
+          gap: isMobile ? 1 : 20,
+          marginVertical: isMobile ? 0 : 0,
+          flexWrap: "wrap",
         },
         text: {
-          fontSize: 12,
+          fontSize: isMobile ? 10 : 13,
           color: "white",
           textAlign: "center",
         },
         textLink: {
           color: "#00aced",
-          fontSize: 11,
+          fontSize: isMobile ? 10 : 12,
           textAlign: "center",
           textDecorationLine: "underline",
+          marginVertical: isMobile ? 0 : 0,
+          marginHorizontal: isMobile ? 4 : 0,
         },
         icon: {
-          marginHorizontal: 10,
+          marginHorizontal: isMobile ? 3 : 10,
         },
         modalContainer: {
           flex: 1,
@@ -60,7 +72,7 @@ const Footer = () => {
           backgroundColor: "rgba(0,0,0,0.5)",
         },
         modalContent: {
-          width: deviceWidth < 375 ? "95%" : "90%",
+          width: width < 375 ? "95%" : "90%",
           maxHeight: "60%",
           backgroundColor: GlobalStyles.white,
           padding: 20,
@@ -93,58 +105,70 @@ const Footer = () => {
             color: GlobalStyles.lightGrey,
             marginTop: 4,
           },
+          leftSection: {
+            flex: isMobile ? 0 : 1,
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            flexWrap: "wrap",
+            marginBottom: isMobile ? 0 : 0,
+          },
+          rightSection: {
+            flex: isMobile ? 0 : 1,
+            alignItems: "center",
+            justifyContent: "center",
+            marginTop: isMobile ? 1 : 0,
+          },
       });
 
   return (
     <View style={styles.footer}>
-
-      <View style={styles.logoContainer}>
-          {
-            Platform.OS === 'web' ?
-              <Image source={require("../assets/images/banner.png")} style={styles.banner} /> :
-              <Logo size={55} color="cementGrey"/>
-          }
-      </View>
-
-      <View style={styles.section}>
+      {/* Sección izquierda: Redes sociales */}
+      <View style={styles.leftSection}>
         {socialLinks.map((link, index) => (
-          <TouchableOpacity key={index} onPress={() => Linking.openURL(link.url)}>
-            <Icon name={link.name} size={24} color="white" style={styles.icon} />
-          </TouchableOpacity>
+          <AnimatedIcon 
+            key={index} 
+            name={link.name} 
+            url={link.url} 
+            size={isMobile ? 16 : 20}
+          />
         ))}
       </View>
 
+      {/* Sección central: Texto + enlaces */}
       <View style={styles.centerSection}>
-        <Text style={styles.text}>&copy; 2025 CARONTE. Todos los derechos reservados.</Text>
-        <Text style={styles.textLink} onPress={() => {setModalVisible(true)}}>Términos y condiciones de uso</Text>
-        <Text style={styles.textLink} onPress={()=> { navigation.navigate("about/index" as never);}}>Sobre nosotros</Text>
-        <Text style={styles.textLink} onPress={()=> { navigation.navigate("contact/index" as never);}}>Contáctanos</Text>
-        {/* <Text style={styles.textLink} onPress={() => Linking.openURL('/privacy')}>Política de privacidad</Text> */}
+        <Text style={styles.textLink} onPress={() => setModalVisible(true)}>Términos y condiciones</Text>
+        <Text style={styles.textLink} onPress={() => navigation.navigate("contact/index" as never)}>Contáctanos</Text>
       </View>
 
+      {/* Sección derecha: Logo u otra info */}
+      <View style={styles.rightSection}>
+        <Text style={styles.text}>&copy; 2025 CARONTE. Todos los derechos reservados.</Text>
+      </View>
+
+      {/* Modal de Términos */}
       <Modal
-                visible={modalVisible}
-                animationType="fade"
-                transparent={true}
-                onRequestClose={() => {setModalVisible(false)}}
-              >
-                <View style={styles.modalContainer}>
-                  <View style={styles.modalContent}>
-                    <ScrollView>
-                      <Text style={styles.modalTitle}>Términos y condiciones de uso</Text>
-                      <TermsAndConditions />
-                    </ScrollView>
-                    <CustomButton
-                      title="Cerrar"
-                      onPress={() => {setModalVisible(false)}}
-                      color="blue"
-                      style={styles.modalButton}
-                    />
-                  </View>
-                </View>
+        visible={modalVisible}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <ScrollView>
+              <Text style={styles.modalTitle}>Términos y condiciones de uso</Text>
+              <TermsAndConditions />
+            </ScrollView>
+            <CustomButton
+              title="Cerrar"
+              onPress={() => setModalVisible(false)}
+              color="blue"
+              style={styles.modalButton}
+            />
+          </View>
+        </View>
       </Modal>
     </View>
-
   );
 };
 

@@ -1,21 +1,20 @@
-import React from 'react';
 import CustomButton from "@/components/CustomButton";
 import CustomModal from "@/components/CustomModal";
 import { CustomTextInput } from "@/components/CustomTextInput";
+import PaymentModalObituary from "@/components/PaymentModalObituary";
 import { ThemedView } from "@/components/ThemedView";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
+import { useNotification } from '@/context/NotificationContext';
 import useAuth from "@/hooks/useAuth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from 'react';
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import { AUTHORITIES } from "../_util/Authorities";
 import { withAuth } from "../_util/withAuth";
-import { useNotification } from '@/context/NotificationContext';
-import { ScrollView } from "react-native-gesture-handler";
-import PaymentModalObituary from "@/components/PaymentModalObituary";
 
 type RootStackParamList = {
   "obituaries/loadCertificate": {
@@ -40,7 +39,7 @@ function LoadCertificate() {
   const { showNotification } = useNotification();
 
   const route = useRoute<ObituaryLoadCertificateRouteProp>();
-  const is_newObituary = route.params?.is_newObituary;
+  const { is_mine, is_newObituary } = route.params;
 
 
   const { isAuthenticated } = useAuth();
@@ -54,12 +53,7 @@ function LoadCertificate() {
   // Nuevos estados para el pago
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
 
-  const json = route.params?.jsonData;
-
-
-  const is_mine = route.params?.is_mine;
   const [formData, setFormData] = useState({
     dni: "",
     certificateImage: "",
@@ -114,7 +108,7 @@ function LoadCertificate() {
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ['images', 'livePhotos', 'videos'],
       allowsEditing: true,
       quality: 1,
     });
@@ -160,21 +154,28 @@ function LoadCertificate() {
 
   const validateDni = (dni: string) => {
     const dniRegex = /^\d{8}[A-Z]$/;
-    if (!dniRegex.test(dni)){
+    if (!dniRegex.test(dni)) {
       {
         showNotification({
           message: "El DNI debe tener 8 números y una letra mayúscula",
           type: "error",
         });
       }
-      return false
+      return false;
     }
     const dniNumber = dni.slice(0, 8);
     const dniLetter = dni.charAt(8);
     const dniLetters = "TRWAGMYFPDXBNJZSQVHLCKE";
     const dniIndex = parseInt(dniNumber, 10) % 23;
     const expectedLetter = dniLetters.charAt(dniIndex);
-    return dniLetter === expectedLetter;
+    if (dniLetter !== expectedLetter) {
+      showNotification({
+        message: "El DNI no es válido",
+        type: "error",
+      });
+      return false;
+    }
+    return true;
   };
 
 
@@ -189,15 +190,19 @@ function LoadCertificate() {
     }
     if (!validateDni(dni)) {
       setDni("");
-      setDniError("El DNI no es válido");
       return;
     }
-    setShowPaymentModal(true);
+    
+    if (!is_mine) {
+      setShowPaymentModal(true);
+    } else {
+      await handleSubmit();
+    }
   };
 
-  const handlePaymentSuccess = async () => {
+  const handlePaymentSuccess = async (paymentMethod: { id: string }) => {
     setShowPaymentModal(false);
-    await handleSubmit();
+    await handleSubmit(paymentMethod.id);
     setShowSuccessModal(true);
   };
 
@@ -215,12 +220,11 @@ function LoadCertificate() {
   };
 
 
-  const handleSubmit = async () => {
-
+  const handleSubmit = async (paymentMethodId?: string) => {
     const authToken = await AsyncStorage.getItem("authToken");
     const jsonData = route.params.jsonData ?? '';
     const base64File = certificateImage ? await convertToBase64(certificateImage) : "";
-    console.log("adios", jsonData);
+    
     const dataToSend = {
       ...JSON.parse(jsonData),
       deathCertificate: {
@@ -231,13 +235,22 @@ function LoadCertificate() {
     };
 
     try {
+      const requestBody = {
+        ...dataToSend
+      };
+      
+      if (paymentMethodId) {
+        requestBody.paymentMethodId = paymentMethodId;
+      }
+      
+      
       const response = await fetch(BACKEND_API + '/api/obituary/create', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify(dataToSend),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
@@ -268,18 +281,17 @@ function LoadCertificate() {
             En esta sección, tiene que cargar el certificado de defunción de la persona fallecida.
           </Text>
           <Text style={styles.introText}>
-            Este certificado será verificado por un administrador del sistema para garantizar su autenticidad.
+            Este certificado será verificado por un <Text style={{fontWeight: "bold"}}>administrador</Text> del sistema para garantizar su autenticidad. (Puede tardar un tiempo)
           </Text>
           <Text style={styles.introText}>
-            Una vez verificado, la esquela será enviada a los familiares y amigos seleccionados.
+            Una vez verificado, la esquela que ha creado será compartida con los contactos añadidos automáticamente.
           </Text>
         </View>
         <View style={styles.dataContainer}>
-          <Text style={styles.title}>Datos del fallecido</Text>
 
-          <Text style={{ textAlign: 'left' }}>DNI:</Text>
+          <Text style={styles.text}>DNI:</Text>
           <CustomTextInput
-            placeholder={dniError ? dniError : "Dni del fallecido"}
+            placeholder={dniError ? dniError : "DNI del fallecido"}
             value={dni}
             maxLength={9}
             keyboardType="default"
@@ -336,7 +348,11 @@ function LoadCertificate() {
               if (is_newObituary) {
                 void showConfirmationModal();
               } else {
-                window.alert("Función todavía no implementada");
+                showNotification({
+                  message: "Función todavía no implementada",
+                  type: "info",
+                  duration: 2500,
+                });
               }
             }}
           />
@@ -391,45 +407,35 @@ function LoadCertificate() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 8,
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-start",
-    backgroundColor: "#ffff",
+    backgroundColor: GlobalStyles.white,
   },
   dataContainer: {
     flex: 1,
     justifyContent: "flex-start",
-    alignItems: "center",
-    padding: 30,
-  },
-  infoText: {
-    fontSize: 10,
-    color: GlobalStyles.white,
-    textAlign: "center",
-    marginTop: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
+    alignItems: "stretch",
+    width: "90%",
+    maxWidth: 500,
+    padding: 20,
+    gap: 10,
   },
   title: {
-    fontSize: 26,
+    fontSize: 30,
+    fontWeight: "bold",
+    marginBottom: 30,
+  },
+  text: {
+    fontSize: 16,
     fontWeight: "bold",
     marginBottom: 10,
+    marginLeft: '1%',
+    alignSelf: 'flex-start',
   },
   input: {
-    width: "100%",
-    height: 40,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    paddingHorizontal: 8,
-    marginBottom: 16,
-    fontSize: 16,
-  },
-  divider: {
-    height: 1,
-    width: "100%",
-    backgroundColor: "#ccc",
-    marginVertical: 20,
+    width: '100%',
+    flex: 1,
   },
   buttonContainer: {
     alignItems: "center",
@@ -444,8 +450,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 14,
     fontWeight: "bold",
+    textAlign: "center",
   },
   imagePreview: {
+    alignContent: "center",
+    alignSelf: "center",
     width: "30%",
     height: "30%",
     marginTop: 10,
@@ -490,7 +499,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   introTitle: {
-    fontSize: 30,
+    fontSize: 28,
     fontWeight: 'bold',
     color: GlobalStyles.darkGrey,
     marginBottom: 10,
@@ -501,7 +510,7 @@ const styles = StyleSheet.create({
     color: GlobalStyles.darkGrey,
     textAlign: 'center',
     lineHeight: 22,
-    marginBottom: 3,
+    marginBottom: 5,
   },
   certificateButton: {
     height: "90%",
@@ -518,10 +527,10 @@ const styles = StyleSheet.create({
   acceptedFormats: {
     marginTop: 8,
     fontSize: 16,
+    textAlign: 'center',
     color: GlobalStyles.darkGrey,
     fontStyle: 'italic',
   },
-
 });
 
 export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER]);

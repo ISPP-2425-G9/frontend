@@ -10,8 +10,6 @@ import * as ImagePicker from "expo-image-picker";
 import { useCallback, useState } from "react";
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { AUTHORITIES } from "../_util/Authorities";
-import { withAuth } from "../_util/withAuth";
 
 type RootStackParamList = {
   "obituaries/loadCertificate": { jsonData: string },
@@ -89,15 +87,28 @@ function LoadCertificate() {
 
   const validateDni = (dni: string) => {
     const dniRegex = /^\d{8}[A-Z]$/;
-    if (!dniRegex.test(dni)){
-      return false
+    if (!dniRegex.test(dni)) {
+      {
+        showNotification({
+          message: "El DNI debe tener 8 números y una letra mayúscula",
+          type: "error",
+        });
+      }
+      return false;
     }
     const dniNumber = dni.slice(0, 8);
     const dniLetter = dni.charAt(8);
     const dniLetters = "TRWAGMYFPDXBNJZSQVHLCKE";
     const dniIndex = parseInt(dniNumber, 10) % 23;
     const expectedLetter = dniLetters.charAt(dniIndex);
-    return dniLetter === expectedLetter;
+    if (dniLetter !== expectedLetter) {
+      showNotification({
+        message: "El DNI no es válido",
+        type: "error",
+      });
+      return false;
+    }
+    return true;
   };
 
   const showConfirmationModal = async () => {
@@ -109,9 +120,9 @@ function LoadCertificate() {
       });
       return;
     }
+
     if (!validateDni(dni)) {
       setDni("");
-      setDniError("El DNI no es válido. Debe tener el formato 12345678A.");
       return;
     }
     setModalMessage("Una vez subido el certificado de defunción un administrador lo revisará. Si todo es correcto, se enviarán las esquelas y/o mensajes asociados al certificado. ¿Estás seguro de que quieres continuar?");
@@ -181,13 +192,13 @@ function LoadCertificate() {
         <View style={styles.introContainer}>
           <Text style={styles.introTitle}>📜 Certificados de defunción 📜</Text>
           <Text style={styles.introText}>
-            En esta sección, puedes cargar el certificado de defunción de un ser querido que haya contratado nuestros servicios.
+            El certificado de defunción es un documento oficial que acredita el fallecimiento de una persona y es necesario para llevar a cabo ciertos trámites legales.
           </Text>
           <Text style={styles.introText}>
-            Una vez verificado, las esquelas y/o mensajes previamente creados serán enviados a los contactos seleccionados.
+            En esta sección, puedes cargar el certificado de defunción e introducir el DNI de un ser querido que haya contratado previamente nuestros servicios.
           </Text>
           <Text style={styles.introText}>
-            Para ello necesitamos que introduzcas el DNI del fallecido y subas el certificado de defunción.
+            El certificado será revisado por un <Text style={{fontWeight: "bold"}}>administrador</Text> (puede tardar un tiempo) y, si todo es correcto, se enviarán las esquelas y/o mensajes asociados a los contactos que el fallecido haya indicado.
           </Text>
         </View>
         <View style={styles.dataContainer}>
@@ -328,7 +339,6 @@ const styles = StyleSheet.create({
   input: {
     width: '100%',
     flex: 1,
-
   },
   buttonContainer: {
     alignItems: "center",
@@ -411,7 +421,7 @@ const styles = StyleSheet.create({
     color: GlobalStyles.darkGrey,
     textAlign: 'center',
     lineHeight: 22,
-    marginBottom: 3,
+    marginBottom: 5,
   },
   acceptedFormats: {
     marginTop: 8,
@@ -434,4 +444,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withAuth(LoadCertificate, [AUTHORITIES.CUSTOMER, AUTHORITIES.ANONYMOUS]);
+export default LoadCertificate;

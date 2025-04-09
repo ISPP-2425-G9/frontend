@@ -1,59 +1,160 @@
-import { useFocusEffect } from 'expo-router';
-import React, { useState } from "react";
-import { Linking, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import CustomTextInput from "@/components/CustomTextInput";
+import { GlobalStyles } from "@/constants/Colors";
+import { useNotification } from "@/context/NotificationContext";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Animated,
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions
+} from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome6";
 
-const Contact = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
+const Contact: React.FC = () => {
+  const { width } = useWindowDimensions();
+  const titleAnim = useRef(new Animated.Value(0)).current;
+  const subtitleAnim = useRef(new Animated.Value(0)).current;
+  const detailsAnim = useRef(new Animated.Value(0)).current;
+  const extraInfoAnim = useRef(new Animated.Value(0)).current;
+  const socialAnim = useRef(new Animated.Value(0)).current;
+  const { showNotification } = useNotification();
 
-  useFocusEffect(
-      React.useCallback(() => {
-        document.title = 'Contáctanos';
-      }, [])
-    );
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+
+  useEffect(() => {
+    Animated.timing(titleAnim, {
+      toValue: 1,
+      duration: 800,
+      delay: 100,
+      useNativeDriver: true,
+    }).start();
+
+    Animated.timing(subtitleAnim, {
+      toValue: 1,
+      duration: 1000,
+      delay: 250,
+      useNativeDriver: true,
+    }).start();
+
+    Animated.timing(detailsAnim, {
+      toValue: 1,
+      duration: 1200,
+      delay: 400,
+      useNativeDriver: true,
+    }).start();
+
+    Animated.timing(extraInfoAnim, {
+      toValue: 1,
+      duration: 1200,
+      delay: 800,
+      useNativeDriver: true,
+    }).start();
+
+    Animated.timing(socialAnim, {
+      toValue: 1,
+      duration: 1200,
+      delay: 1000,
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
   const handleSubmit = () => {
-    if (!name || !email || !message) {
-      alert("Por favor, llena todos los campos.");
+    if (!name.trim()) {
+      showNotification({
+        message: "El nombre es obligatorio",
+        type: "error",
+      });
+      return;
+    }
+    if (!email.trim()) {
+      showNotification({
+        message: "El email es obligatorio",
+        type: "error",
+      });
+      return;
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      showNotification({
+        message: "El email no es válido",
+        type: "error",
+      });
+      return;
+    }
+    if (!message.trim()) {
+      showNotification({
+        message: "El mensaje es obligatorio",
+        type: "error",
+      });
       return;
     }
 
     const subject = `Mensaje de ${name} (${email})`;
     const body = encodeURIComponent(message);
-    Linking.openURL(`mailto:info@caronte.site?subject=${encodeURIComponent(subject)}&body=${body}`);
+    Linking.openURL(
+      `mailto:info@caronte.site?subject=${encodeURIComponent(
+        subject
+      )}&body=${body}`
+    );
   };
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.contactContainer}>
-        <Text style={styles.contactTitle}>Contáctanos</Text>
-        <Text style={styles.contactSubtitle}>
+      <View style={[styles.innerContainer, { paddingHorizontal: width < 480 ? 20 : 90 }]}>
+        <Animated.Text style={[styles.title, { opacity: titleAnim }]}>
+          Contáctanos
+        </Animated.Text>
+        <Animated.Text style={[styles.subtitle, { opacity: subtitleAnim }]}>
           ¿Tienes alguna duda, sugerencia o simplemente quieres saludarnos?{"\n"}
           No dudes en ponerte en contacto con nosotros.
-        </Text>
+        </Animated.Text>
 
-        <View style={styles.contactDetails}>
-          <View style={styles.contactFormWrapper}>
-            <View style={styles.contactForm}>
-              <Text style={styles.formTitle}>Envíanos un mensaje</Text>
-              <TextInput
-                style={styles.input}
+        <Animated.View style={[styles.detailsContainer, { opacity: detailsAnim }]}>
+          <View style={styles.halfContainer}>
+            <Text style={styles.sectionTitle}>Ubicación</Text>
+            <View style={styles.mapContainer}>
+              <View style={{ flex: 1 }}>
+                <iframe
+                  title="Ubicación"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6342.67312084915!2d-5.989684023552625!3d37.358212536045464!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd126dd4a3055555%3A0x29c3f634f8a021b8!2sEscuela%20T%C3%A9cnica%20Superior%20de%20Ingenier%C3%ADa%20Inform%C3%A1tica!5e0!3m2!1ses!2ses!4v1741824402518!5m2!1ses!2ses"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                />
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.halfContainer}>
+            <Text style={styles.sectionTitle}>Envíanos un mensaje</Text>
+            <View style={styles.formContainer}>
+              <CustomTextInput
                 placeholder="Nombre"
+                placeholderTextColor="#888"
+                maxLength={50}
                 value={name}
                 onChangeText={setName}
               />
-              <TextInput
-                style={styles.input}
+              <CustomTextInput
                 placeholder="Email"
+                placeholderTextColor="#888"
                 keyboardType="email-address"
+                maxLength={50}
                 value={email}
                 onChangeText={setEmail}
               />
-              <TextInput
-                style={styles.textArea}
+              <CustomTextInput
+                style={[styles.textArea]}
                 placeholder="Tu mensaje"
+                placeholderTextColor="#888"
+                maxLength={500}
                 multiline
                 numberOfLines={4}
                 value={message}
@@ -63,55 +164,82 @@ const Contact = () => {
                 <Text style={styles.buttonText}>Enviar</Text>
               </TouchableOpacity>
             </View>
-
-            <View style={styles.contactInfo}>
-              <View style={styles.contactItem}>
-                <Icon name="envelope" size={20} color="#4CAF50" />
-                <Text>
-                  <TouchableOpacity onPress={() => Linking.openURL("mailto:info@caronte.site")}>
-                    <Text style={styles.contactLink}>info@caronte.site</Text>
-                  </TouchableOpacity>
-                </Text>
-              </View>
-
-              <View style={styles.contactItem}>
-                <Icon name="phone" size={20} color="#4CAF50" />
-                <Text>
-                  <TouchableOpacity onPress={() => Linking.openURL("tel:+34615145215")}>
-                    <Text style={styles.contactLink}>+34 615 14 52 15</Text>
-                  </TouchableOpacity>
-                </Text>
-              </View>
-            </View>
           </View>
-        </View>
-      </View>
+        </Animated.View>
 
-      <View style={styles.socialMedia}>
-        <Text style={styles.socialMediaTitle}>Nuestras redes sociales</Text>
-        <View style={styles.socialIcons}>
-          <TouchableOpacity onPress={() => Linking.openURL("https://whatsapp.com/channel/0029Vb8vAcUDzgTBG01Tdw1f")}>
-            <Icon name="whatsapp" size={30} color="#25D366" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => Linking.openURL("https://www.linkedin.com/in/caronte-app/")}>
-            <Icon name="linkedin" size={30} color="#0077B5" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => Linking.openURL("https://www.facebook.com/profile.php?id=61573575124143")}>
-            <Icon name="facebook" size={30} color="#3b5998" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => Linking.openURL("https://x.com/CaronteApp")}>
-            <Icon name="x-twitter" size={30} color="#1DA1F2" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => Linking.openURL("https://instagram.com/caronte_es")}>
-            <Icon name="instagram" size={30} color="#C13584" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => Linking.openURL("https://www.tiktok.com/@caronteapp")}>
-            <Icon name="tiktok" size={30} color="#000000" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => Linking.openURL("https://github.com/ISPP-2425-G9")}>
-            <Icon name="github" size={30} color="#333" />
-          </TouchableOpacity>
-        </View>
+        <Animated.View style={[styles.extraInfoContainer, { opacity: extraInfoAnim }]}>
+          <View style={styles.contactItem}>
+            <Text style={styles.icon}>✉️</Text>
+            <TouchableOpacity onPress={() => Linking.openURL("mailto:info@caronte.site")}>
+              <Text style={styles.contactLink}>info@caronte.site</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.contactItem}>
+            <Text style={styles.icon}>📞</Text>
+            <TouchableOpacity onPress={() => Linking.openURL("tel:+34615145215")}>
+              <Text style={styles.contactLink}>+34 615 14 52 15</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+
+        <Animated.View style={[styles.socialContainer, { opacity: socialAnim }]}>
+          <Text style={styles.sectionTitle}>Nuestras redes sociales</Text>
+          <View style={styles.socialIcons}>
+            <TouchableOpacity
+              style={styles.socialIcon}
+              onPress={() =>
+                Linking.openURL("https://whatsapp.com/channel/0029Vb8vAcUDzgTBG01Tdw1f")
+              }
+              testID="whatsapp"
+            >
+              <Icon name="whatsapp" size={30} color="#42B5FC" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.socialIcon}
+              onPress={() => Linking.openURL("https://www.linkedin.com/in/caronte-app/")}
+              testID="linkedin"
+            >
+              <Icon name="linkedin" size={30} color="#42B5FC" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.socialIcon}
+              onPress={() =>
+                Linking.openURL("https://www.facebook.com/profile.php?id=61573575124143")
+              }
+              testID="facebook"
+            >
+              <Icon name="facebook" size={30} color="#42B5FC" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.socialIcon}
+              onPress={() => Linking.openURL("https://x.com/CaronteApp")}
+              testID="x-twitter"
+            >
+              <Icon name="x-twitter" size={30} color="#42B5FC" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.socialIcon}
+              onPress={() => Linking.openURL("https://instagram.com/caronte_es")}
+              testID="instagram"
+            >
+              <Icon name="instagram" size={30} color="#42B5FC" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.socialIcon}
+              onPress={() => Linking.openURL("https://www.tiktok.com/@caronteapp")}
+              testID="tiktok"
+            >
+              <Icon name="tiktok" size={30} color="#42B5FC" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.socialIcon}
+              onPress={() => Linking.openURL("https://github.com/ISPP-2425-G9")}
+              testID="github"
+            >
+              <Icon name="github" size={30} color="#42B5FC" />
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
       </View>
     </ScrollView>
   );
@@ -120,115 +248,107 @@ const Contact = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    backgroundColor: GlobalStyles.white,
   },
-  contactContainer: {
-    marginBottom: 20,
-    borderRadius: 10,
-    padding: 15,
-    justifyContent: 'center',
-    alignItems: 'center',
+  innerContainer: {
+    paddingVertical: 60,
+    alignItems: "center",
   },
-  contactTitle: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#333',
+  title: {
+    fontSize: 40,
+    fontWeight: "700",
+    color: "#333",
     marginBottom: 10,
-    alignSelf: "center",
+    textAlign: "center",
   },
-  contactSubtitle: {
-    fontSize: 16,
-    color: '#666',
+  subtitle: {
+    fontSize: 20,
+    color: "#555",
     marginBottom: 20,
-    lineHeight: 22,
-    alignSelf: "center",
+    lineHeight: 28,
+    textAlign: "center",
   },
-  contactDetails: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
+  detailsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "stretch",
+    flexWrap: "wrap",
+    width: "100%",
+    marginTop: 30,
   },
-  contactFormWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    flexWrap: 'wrap',
-  },
-  contactForm: {
+  halfContainer: {
     flex: 1,
-    marginRight: 20,
+    minWidth: 300,
+    padding: 10,
   },
-  contactInfo: {
-    flex: 1,
-  },
-  formTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#333",
     marginBottom: 10,
-    color: '#333',
-    textAlign: 'center',
+    textAlign: "center",
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 12,
-    marginBottom: 15,
+  mapContainer: {
+    flex: 1,
+    borderWidth: 2,
+    borderColor: "#ddd",
     borderRadius: 8,
-    backgroundColor: '#fff',
-    fontSize: 16,
-    width: '100%',
+    overflow: "hidden",
+  },
+  formContainer: {
+    rowGap: 10,
+    flex: 1,
+    justifyContent: "center",
   },
   textArea: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 12,
-    marginBottom: 15,
-    borderRadius: 8,
-    backgroundColor: '#fff',
     height: 100,
-    fontSize: 16,
-    width: '100%',
+    textAlignVertical: "top",
   },
   button: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    marginBottom: 20,
-    alignItems: 'center',
-    width: '100%',
+    backgroundColor: "#42B5FC",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "600",
+  },
+  extraInfoContainer: {
+    marginTop: 30,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    flexWrap: "wrap",
   },
   contactItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    margin: 10,
+  },
+  icon: {
+    fontSize: 20,
+    marginRight: 8,
   },
   contactLink: {
-    color: '#4CAF50',
-    fontSize: 16,
+    fontSize: 18,
+    color: "#42B5FC",
+    fontWeight: "bold",
   },
-  socialMedia: {
-    marginBottom: 20,
-  },
-  socialMediaTitle: {
-    fontSize: 23,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#333',
-    alignSelf: "center",
+  socialContainer: {
+    marginTop: 30,
+    alignItems: "center",
+    width: "100%",
   },
   socialIcons: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    flexWrap: "wrap",
+    marginTop: 10,
+  },
+  socialIcon: {
+    marginHorizontal: 10,
   },
 });
 

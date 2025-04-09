@@ -1,21 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, Alert, FlatList, StyleSheet, TouchableOpacity, Dimensions, Platform } from "react-native";
 import CustomButton from "@/components/CustomButton";
-import { CustomTextInput } from "@/components/CustomTextInput";
-import { useRoute, RouteProp } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation, NavigationProp } from "@react-navigation/native";
 import CustomModal from "@/components/CustomModal";
+import { CustomTextInput } from "@/components/CustomTextInput";
+import { ThemedView } from "@/components/ThemedView";
 import { GlobalStyles } from "@/constants/Colors";
 import { BACKEND_API } from "@/constants/Mysc";
-import { useFocusEffect } from "@react-navigation/native";
-import { useCallback } from "react";
-import { withAuth } from "../_util/withAuth";
-import { AUTHORITIES } from "../_util/Authorities";
-import useAuth from "@/hooks/useAuth";
-import { ThemedView } from "@/components/ThemedView";
-import { ScrollView } from "react-native-gesture-handler";
 import { useNotification } from '@/context/NotificationContext';
+import useAuth from "@/hooks/useAuth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { NavigationProp, RouteProp, useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
+import React, { useCallback, useEffect, useState } from "react";
+import { Dimensions, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
+import { AUTHORITIES } from "../_util/Authorities";
+import { withAuth } from "../_util/withAuth";
 
 const { width } = Dimensions.get("window");
 
@@ -74,6 +71,7 @@ function SelectContacts() {
   const [userRole, setUserRole] = useState<string | null>(null);
 
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [loading, setLoading] = useState(false);
 
 
   const hasError =
@@ -84,6 +82,7 @@ function SelectContacts() {
 
   useFocusEffect(
     useCallback(() => {
+      setLoading(false);
       if (is_newObituary) {
         setNewContact({ id: Date.now(), name: "", phone: "", email: "" });
         setContacts([]);
@@ -294,20 +293,15 @@ function SelectContacts() {
           setModalMessage("¿Desea guardar su propia esquela?");
         }
       } else {
-        setModalMessage("¿Desea crear y enviar una esquela para un ser querido?");
+        setModalMessage("¿Desea continuar? El próximo paso es subir el certificado de defunción.");
       }
 
       setModalVisible(true);
     } catch (error: any) {
-      if (Platform.OS === "web") {
-        showNotification({
-          message: `Error: ${error.message}`,
-          type: "error",
-          duration: 2500,
-        });
-      } else {
-        Alert.alert("Error", error.message || error);
-      }
+      showNotification({
+        message: `Error: ${error.message}`,
+        type: "error",
+      });
     }
   };
 
@@ -316,6 +310,8 @@ function SelectContacts() {
   };
 
   const handleSubmit = async () => {
+    if (loading) return;
+    setLoading(true);
 
     try {
       if (is_mine) {
@@ -325,11 +321,11 @@ function SelectContacts() {
       }
       setModalVisible(false);
     } catch (error: any) {
-      if (Platform.OS === "web") {
-        window.alert("Error: " + error.message);
-      } else {
-        Alert.alert("Error", error.message || error);
-      }
+      setLoading(false);
+      showNotification({
+        message: `Error: ${error.message}`,
+        type: "error",
+      });
     }
   };
 
@@ -373,7 +369,10 @@ function SelectContacts() {
       const errormssg = is_newObituary
         ? "Error al crear la esquela.Por favor, inténtelo de nuevo."
         : "Error al actualizar la esquela.Por favor, inténtelo de nuevo.";
-      window.alert(errormssg);
+      showNotification({
+        message: errormssg,
+        type: "error",
+      });
     }
   };
 
@@ -463,10 +462,10 @@ function SelectContacts() {
                     <Text style={styles.cell}>{item.phone}</Text>
                     <Text style={styles.cell}>{item.email}</Text>
                     <View style={styles.actionCell}>
-                    <CustomButton
+                      <CustomButton
                         title="Editar"
                         style={styles.editButton}
-                    onPress={() => { handleEditContact(item); }}
+                        onPress={() => { handleEditContact(item); }}
                       />
                       <CustomButton
                         title="Eliminar"
@@ -490,7 +489,7 @@ function SelectContacts() {
         {
           is_newObituary ? (
             <CustomButton
-              title={is_mine ? "Crear esquela" : "Subir certificado de defunción"}
+              title={is_mine ? "Crear esquela" : "Continuar"}
               onPress={() => { showConfirmationModal() }}
               style={styles.saveButton}
             />
@@ -563,6 +562,7 @@ const styles = StyleSheet.create({
     width: width > 600 ? "100%" : "90%",
     marginBottom: 10,
     flexDirection: width > 600 ? "row" : "column",
+    gap: 10,
   },
   deleteButton: {
     marginRight: 5,
@@ -672,7 +672,7 @@ const styles = StyleSheet.create({
   },
   tableHeader: {
     flexDirection: "row",
-    width: "100%", 
+    width: "100%",
     justifyContent: "center",
     backgroundColor: GlobalStyles.blue,
     paddingVertical: 10,

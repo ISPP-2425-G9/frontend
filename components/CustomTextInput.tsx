@@ -1,15 +1,27 @@
 import { GlobalStyles } from '@/constants/Colors';
 import { AntDesign } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { Platform, StyleSheet, TextInput, TextInputProps, TouchableOpacity, View } from 'react-native';
+import {
+  Platform,
+  StyleProp,
+  StyleSheet,
+  TextInput,
+  TextInputProps,
+  TextStyle,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from 'react-native';
 
 type CustomTextInputProps = TextInputProps & {
-  style?: object;
+  containerStyle?: StyleProp<ViewStyle>;  
+  style?: StyleProp<TextStyle>;          
   placeholder?: string;
   showPasswordToggle?: boolean;
 };
 
 export const CustomTextInput: React.FC<CustomTextInputProps> = ({
+  containerStyle,
   style,
   placeholder,
   secureTextEntry,
@@ -23,6 +35,7 @@ export const CustomTextInput: React.FC<CustomTextInputProps> = ({
     <View style={[
       styles.container,
       isFocused && styles.containerFocused,
+      containerStyle,
     ]}>
       <TextInput
         style={[
@@ -68,8 +81,13 @@ const styles = StyleSheet.create({
     color: GlobalStyles.darkGrey,
   },
   iconContainer: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    bottom: 0,
     padding: 5,
-    marginRight: '1%',
+    marginRight: 10,
+    justifyContent: 'center',
   },
   containerFocused: {
     borderWidth: 2,
