@@ -144,7 +144,7 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
           <Text style={styles.description}>{description}</Text>
           <Text style={styles.amount}>{amount.toFixed(2)}€/mes</Text>
 
-          <View style={styles.cardContainer}>
+          <View style={styles.cardContainer} testID="card-container">
             <SecureField 
               label="Número de tarjeta" 
               element={CardNumberElement}
@@ -152,7 +152,7 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
               style={styles.fullWidthField}
             />
             
-            <View style={[styles.middleRow, isMobile && styles.mobileMiddleRow]}>
+            <View style={[styles.middleRow, isMobile && styles.mobileMiddleRow]} testID="middle-row">
               <SecureField 
                 label="Fecha exp." 
                 element={CardExpiryElement}
