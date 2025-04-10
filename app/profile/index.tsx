@@ -12,6 +12,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useRef, useState } from 'react';
 import { ActivityIndicator, Dimensions, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { AUTHORITIES } from '../_util/Authorities';
+import { withAuth } from '../_util/withAuth';
 
 const deviceWidth = Dimensions.get("window").width;
 
@@ -901,3 +903,5 @@ const styles = StyleSheet.create({
     backgroundColor: GlobalStyles.red,
   },
 });
+
+export default withAuth(ProfileScreen, [AUTHORITIES.CUSTOMER, AUTHORITIES.COMPANY]);

@@ -8,7 +8,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
-
+import { AUTHORITIES } from '../_util/Authorities';
+import { withAuth } from '../_util/withAuth';
 
 function AdminListUsers() {
   type Cliente = {
@@ -299,3 +300,5 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },  
 });
+
+export default withAuth(AdminListUsers, [AUTHORITIES.ADMIN]);
