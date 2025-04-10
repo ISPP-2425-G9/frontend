@@ -1,1 +1,1 @@
-export const BACKEND_API = 'https://backend-sprint1.up.railway.app';
+export const BACKEND_API = 'https://backend-s1-dbo0.onrender.com';
