@@ -1,5 +1,6 @@
 import CustomNavbar from "@/components/CustomNavbar";
 // import Footer from "@/components/Footer";
+import Footer from "@/components/Footer";
 import { Colors } from "@/constants/Colors";
 import { NotificationProvider } from "@/context/NotificationContext";
 import useAuth from "@/hooks/useAuth";
@@ -7,7 +8,6 @@ import { DMSans_500Medium, DMSans_700Bold, useFonts } from "@expo-google-fonts/d
 import { Tabs } from "expo-router";
 import React from "react";
 import { StyleSheet, View, useColorScheme } from "react-native";
-import Footer from "@/components/Footer";
 
 export default function TabLayout() {
   const { isAuthenticated, roles } = useAuth();
@@ -17,7 +17,7 @@ export default function TabLayout() {
     userRoles = roles;
   }
   const colorScheme = useColorScheme();
-  const theme = Colors["light"];
+  const theme = Colors[colorScheme || "light"];
 
   const [fontsLoaded] = useFonts({
     DMSans_500Medium,
