@@ -46,7 +46,7 @@ export function withAuth<T extends object>(
     );
 
     if (loading) {
-      return <ActivityIndicator size="large" />;
+      return <ActivityIndicator testID='loading-indicator' size="large" />;
     }
 
     if (allowedRoles.length > 0 && !roles.some(role => allowedRoles.includes(role))) {

@@ -24,7 +24,7 @@ const AdvertisementSponsor: React.FC<SponsorProps> = ({ sponsor }) => {
   };
   
   return (
-    <View style={[styles.sponsorCard, isMobile ? styles.mobileLayout : styles.desktopLayout]}>
+    <View testID="sponsor-container" style={[styles.sponsorCard, isMobile ? styles.mobileLayout : styles.desktopLayout]}>
       <Image testID="sponsor-image" source={{ uri: sponsor.imageUrl }} style={[styles.image, isMobile ? styles.imageMobile : styles.imageDesktop]} />
       <View style={styles.infoContainer}>
         <Text style={styles.sponsorName}>{sponsor.name}</Text>

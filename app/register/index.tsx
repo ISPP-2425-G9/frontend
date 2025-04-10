@@ -8,9 +8,8 @@ import { BACKEND_API } from "@/constants/Mysc";
 import { useNotification } from "@/context/NotificationContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import Checkbox from "expo-checkbox";
-import { useFocusEffect } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated, Dimensions,
@@ -492,6 +491,7 @@ const RegisterScreen: React.FC = () => {
     <View style={styles.container}>
       {!userType ? (
         <ScrollView
+          testID="no-type-view"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -548,6 +548,7 @@ const RegisterScreen: React.FC = () => {
         </ScrollView>
       ) : (
         <ScrollView
+          testID="selected-type-view"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -571,6 +572,7 @@ const RegisterScreen: React.FC = () => {
                   {field.name === "companyType" ? (
                     <View style={styles.pickerContainer}>
                       <Picker
+                        testID="companyTypePicker"
                         style={[
                           styles.picker,
                           Platform.OS === 'web' ? { outline: 'none' } : {},
@@ -595,6 +597,7 @@ const RegisterScreen: React.FC = () => {
                     </View>
                   ) : (
                     <CustomTextInput
+                      testID={`company-input-${field.name}`}
                       placeholder={field.placeholder}
                       secureTextEntry={field.secureTextEntry}
                       value={formValues[field.name] || ""}

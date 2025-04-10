@@ -37,4 +37,18 @@ describe('CustomTableRow Component', () => {
     
     expect(getByText('John Doe')).toBeTruthy();
   });
+
+  it('applies custom column widths correctly', () => {
+    const columnWidths = [2, 1, 1.5];
+    const { getByText } = render(
+      <CustomTableRow 
+        rowData={rowData}
+        columnWidths={columnWidths}
+      />
+    );
+
+    rowData.forEach(data => {
+      expect(getByText(data)).toBeTruthy();
+    });
+  });
 });

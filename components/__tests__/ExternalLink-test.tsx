@@ -21,8 +21,21 @@ describe('<ExternalLink />', () => {
     await link.props.onPress(event);
     
     expect(event.preventDefault).toHaveBeenCalled();
-
     expect(openBrowserAsync).toHaveBeenCalledWith('https://example.com');
   });
 
+  it('does not prevent default behavior on web platform', async () => {
+    Platform.OS = 'web';
+    const { getByText } = render(<ExternalLink href="https://example.com">Click Me</ExternalLink>);
+
+    const link = getByText('Click Me');
+    
+    const event = {
+      preventDefault: jest.fn(),
+    };
+
+    await link.props.onPress(event);
+    
+    expect(event.preventDefault).not.toHaveBeenCalled();
+  });
 });

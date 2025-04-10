@@ -46,4 +46,22 @@ describe('CustomTable Component', () => {
     
     expect(getByText('Test')).toBeTruthy();
   });
+
+  it('applies custom column widths correctly', () => {
+    const columnWidths = [2, 1, 1.5];
+    const { getByText } = render(
+      <CustomTable 
+        columns={columns}
+        columnWidths={columnWidths}
+      >
+        <View>
+          <Text>Test Content</Text>
+        </View>
+      </CustomTable>
+    );
+
+    columns.forEach(column => {
+      expect(getByText(column)).toBeTruthy();
+    });
+  });
 });

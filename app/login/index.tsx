@@ -4,7 +4,7 @@ import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
 import { useNotification } from '@/context/NotificationContext';
 import { useNavigation } from '@react-navigation/native';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect } from "@react-navigation/native";
 import React, { useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, View } from 'react-native';
 import { AUTHORITIES } from '../_util/Authorities';

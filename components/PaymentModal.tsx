@@ -51,7 +51,7 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
       });
 
       if (error) {
-        throw new Error(error.message); 
+        throw new Error(error.message || 'Error al procesar el pago');
       }
 
       if (paymentMethod) {
@@ -98,21 +98,18 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
           setShowSuccess(true);
           onClose();
         } catch (err: unknown) {
-          if (err instanceof Error) {
-            console.error('Error en el servidor:', err.message);
-          } else {
-            console.error('Error desconocido en el servidor');
-          }
+          const errorMessage = err instanceof Error ? err.message : 'Error desconocido en el servidor';
+          console.error('Error en el servidor:', errorMessage);
           setIsProcessing(false);
         }
       }
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error('Error al procesar el pago:', err.message);
-      } else {
-        console.error('Error desconocido al procesar el pago');
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido al procesar el pago';
+      console.error('Error al procesar el pago:', errorMessage);
+      if (err && typeof err === 'object' && 'error' in err) {
+        const errorObj = err as { error: string };
+        console.error('Detalles del error:', errorObj.error);
       }
-      
     } finally {
       setIsProcessing(false);
     }
@@ -144,7 +141,7 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
           <Text style={styles.description}>{description}</Text>
           <Text style={styles.amount}>{amount.toFixed(2)}€/mes</Text>
 
-          <View style={styles.cardContainer}>
+          <View style={styles.cardContainer} testID="card-container">
             <SecureField 
               label="Número de tarjeta" 
               element={CardNumberElement}
@@ -152,7 +149,7 @@ const CheckoutForm: React.FC<PaymentModalProps> = ({
               style={styles.fullWidthField}
             />
             
-            <View style={[styles.middleRow, isMobile && styles.mobileMiddleRow]}>
+            <View style={[styles.middleRow, isMobile && styles.mobileMiddleRow]} testID="middle-row">
               <SecureField 
                 label="Fecha exp." 
                 element={CardExpiryElement}

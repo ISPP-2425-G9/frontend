@@ -186,6 +186,7 @@ function ObituaryIndex() {
         <View style={styles.listContainer}>
           {obituaries.map((item) => (
             <TouchableOpacity
+              testID={`obituary-image-${item.imageId}`}
               key={item.id}
               onPress={() => {
                 if (changeDesign) {
@@ -204,7 +205,7 @@ function ObituaryIndex() {
                 }
               }} style={[styles.obituaryCard]}
             >
-              <Image source={{ uri: item.imageUrl }} style={styles.image} />
+              <Image source={{ uri: item.imageUrl }} style={styles.image} accessibilityRole="image" />
             </TouchableOpacity>
           ))}
         </View>
