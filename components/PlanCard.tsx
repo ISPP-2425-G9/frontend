@@ -1,15 +1,15 @@
+import { useAuth as useAuthApp } from '@/app/_util/useAuth';
 import CustomButton from '@/components/CustomButton';
 import CustomModal from '@/components/CustomModal';
+import { SuccessCancelModal } from "@/components/SucessCancelModel";
 import { ThemedText } from '@/components/ThemedText';
 import { GlobalStyles } from '@/constants/Colors';
-import { useFocusEffect } from '@react-navigation/native';
-import PaymentModal from './PaymentModal';
-import React, { useCallback, useEffect, useState } from 'react';
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { BACKEND_API } from '@/constants/Mysc';
-import { useAuth as useAuthApp } from '@/app/_util/useAuth';
 import useAuth from '@/hooks/useAuth';
-import { SuccessCancelModal } from "@/components/SucessCancelModel";
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import PaymentModal from './PaymentModal';
 
 interface PlanCardProps {
   role: string;
@@ -378,6 +378,3 @@ const styles = StyleSheet.create({
       fontSize: 14,
     },
   });
-
-
-export default PlanCard;

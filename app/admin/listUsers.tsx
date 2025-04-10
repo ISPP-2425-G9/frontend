@@ -7,9 +7,7 @@ import { BACKEND_API } from '@/constants/Mysc';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Text, ScrollView, StyleSheet, View } from 'react-native';
-import { AUTHORITIES } from '../_util/Authorities';
-import { withAuth } from '../_util/withAuth';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 
 function AdminListUsers() {
@@ -301,6 +299,3 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },  
 });
-
-
-export default withAuth(AdminListUsers, [AUTHORITIES.ADMIN]);

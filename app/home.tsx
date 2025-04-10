@@ -1,5 +1,3 @@
-import CustomButton from "@/components/CustomButton";
-import Footer from "@/components/Footer";
 import LineBreak from "@/components/LineBreak";
 import Logo from "@/components/Logo";
 import { ThemedText } from "@/components/ThemedText";
@@ -81,10 +79,9 @@ export default function HomeScreen() {
 
 const ImageCarousel: React.FC = () => {
   const images = [
-    "https://us.123rf.com/450wm/outchill/outchill1712/outchill171202982/91290228-ejemplo-de-texto-escrito-en-sello-vintage-de-goma-de-c%C3%ADrculo-simple-rojo.jpg?ver=6",
-    "https://previews.123rf.com/images/outchill/outchill1712/outchill171204899/91292345-exemplo-texto-escrito-em-amarelo-simples-c%C3%ADrculo-borracha-vintage-selo.jpg",
-    "https://us.123rf.com/450wm/outchill/outchill1712/outchill171204062/91291455-texto-del-ejemplo-escrito-en-el-sello-vintage-de-goma-del-c%C3%ADrculo-simple-verde.jpg?ver=6",
-    "https://previews.123rf.com/images/outchill/outchill1712/outchill171204555/91291972-ejemplo-de-texto-escrito-en-sello-vintage-de-goma-de-c%C3%ADrculo-simple-rosa.jpg",
+    "https://res.cloudinary.com/ds02duuid/image/upload/f_auto,q_auto/v1/images/homepage/ggguxylvif3duwzbxoiv",
+    "https://res.cloudinary.com/ds02duuid/image/upload/f_auto,q_auto/v1/images/homepage/pros5x6mo55etaqilrzd",
+    "https://res.cloudinary.com/ds02duuid/image/upload/f_auto,q_auto/v1/images/homepage/oo3g8jhdsnhbpe5nk1jx",
   ];
 
   const [currentIndex, setCurrentIndex] = React.useState(0);
@@ -164,8 +161,8 @@ const ImageCarousel: React.FC = () => {
 };
 
 const videoItems = [
-  { videoId: "WHBSjduVhoo", title: "Para clientes" },
-  { videoId: "WHBSjduVhoo", title: "Para empresas" },
+  { videoId: "ZW6snDb0S1Y", title: "Para clientes" },
+  { videoId: "hn29FdMJoqY", title: "Para empresas" },
   { videoId: "WHBSjduVhoo", title: "Para inversores" },
 ];
 
