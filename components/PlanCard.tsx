@@ -1,4 +1,4 @@
-import { useAuth, useAuth as useAuthApp } from '@/app/_util/useAuth';
+import { useAuth as useAuthApp } from '@/app/_util/useAuth';
 import CustomButton from '@/components/CustomButton';
 import CustomModal from '@/components/CustomModal';
 import { SuccessCancelModal } from "@/components/SucessCancelModel";
@@ -9,7 +9,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Dimensions, ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import PaymentModal from './PaymentModal';
-
+import useAuth from '@/hooks/useAuth';
 
 interface PlanCardProps {
   role: string;
