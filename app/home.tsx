@@ -161,9 +161,9 @@ const ImageCarousel: React.FC = () => {
 };
 
 const videoItems = [
+  { videoId: "W9tS8qdiZ08", title: "Para empresas" },
+  { videoId: "hn29FdMJoqY", title: "Para inversores" },
   { videoId: "ZW6snDb0S1Y", title: "Para clientes" },
-  { videoId: "hn29FdMJoqY", title: "Para empresas" },
-  { videoId: "WHBSjduVhoo", title: "Para inversores" },
 ];
 
 const GallerySection: React.FC = () => {
