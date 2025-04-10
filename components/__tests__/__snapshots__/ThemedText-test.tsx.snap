@@ -85,24 +85,3 @@ exports[`ThemedText renders correctly with title type 1`] = `
   Title text
 </Text>
 `;
-
-exports[`renders correctly 1`] = `
-<Text
-  style={
-    [
-      {
-        "color": "#434343",
-        "fontFamily": "DMSans_500Medium",
-        "fontSize": 16,
-        "lineHeight": 24,
-      },
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-    ]
-  }
->
-  Snapshot test!
-</Text>
-`;
