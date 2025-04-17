@@ -34,6 +34,8 @@ const ListServiceScreen: React.FC = () => {
   const [companyTypes, setCompanyTypes] = useState<string[]>([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [appliedFilters, setAppliedFilters] = useState({ city: '', name: '', companyType: '' });
 
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
@@ -43,18 +45,18 @@ const ListServiceScreen: React.FC = () => {
     return formatted.charAt(0).toUpperCase() + formatted.slice(1);
   };
 
-  const fetchSponsors = async () => {
+  const fetchSponsors = async (filters: { city: string; name: string; companyType: string }, currentPage = 0) => {
     try {
       const authToken = await AsyncStorage.getItem('authToken');
       if (!authToken) throw new Error('No se encontró un token de autenticación');
 
       const params = new URLSearchParams();
-      params.append('page', String(page));
+      params.append('page', String(currentPage));
       params.append('size', '5');
 
-      if (city) params.append('city', city);
-      if (name) params.append('name', name);
-      if (companyType) params.append('companyType', companyType);
+      if (filters.city) params.append('city', filters.city);
+      if (filters.name) params.append('name', filters.name);
+      if (filters.companyType) params.append('companyType', filters.companyType);
 
       const response = await fetch(`${BACKEND_API}/api/companies/premium?${params.toString()}`, {
         headers: {
@@ -79,8 +81,11 @@ const ListServiceScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchSponsors();
-  }, [page, city, name, companyType]);
+    if (hasSearched) {
+      setLoading(true);
+      fetchSponsors(appliedFilters, page);
+    }
+  }, [page]);
 
   const fetchCompanyTypes = async () => {
     try {
@@ -100,6 +105,14 @@ const ListServiceScreen: React.FC = () => {
       console.error('Error fetching company types:', error);
     }
   };
+
+  useEffect(() => {
+    const initialFilters = { city: '', name: '', companyType: '' };
+    setAppliedFilters(initialFilters);
+    setLoading(true);
+    fetchSponsors(initialFilters, 0);
+    setHasSearched(true);
+  }, []);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -130,7 +143,6 @@ const ListServiceScreen: React.FC = () => {
             maxLength={50}
             onChangeText={(text) => {
               setCity(text);
-              setPage(0);
             }}
           />
           <CustomTextInput
@@ -139,7 +151,6 @@ const ListServiceScreen: React.FC = () => {
             maxLength={50}
             onChangeText={(text) => {
               setName(text);
-              setPage(0);
             }}
           />
           <View style={styles.pickerWrapper}>
@@ -151,7 +162,6 @@ const ListServiceScreen: React.FC = () => {
               selectedValue={companyType}
               onValueChange={(itemValue) => {
                 setCompanyType(itemValue);
-                setPage(0);
               }}
             >
               <Picker.Item label="Tipo de empresa" value="" />
@@ -160,6 +170,19 @@ const ListServiceScreen: React.FC = () => {
               ))}
             </Picker>
           </View>
+          <CustomButton
+            title="Buscar"
+            onPress={() => {
+              const filters = { city, name, companyType };
+              setPage(0);
+              setAppliedFilters(filters);
+              setHasSearched(true);
+              setLoading(true);
+              fetchSponsors(filters, 0);
+            }}
+            color="blue"
+            style={{ marginVertical: 10, width: 100 }}
+          />
         </View>
         {/* LISTADO DE SPONSORS */}
         {loading ? (
@@ -311,5 +334,6 @@ const styles = StyleSheet.create({
     gap: 10,
   },
 });
+
 
 export default withAuth(ListServiceScreen, [AUTHORITIES.CUSTOMER, AUTHORITIES.COMPANY]);
