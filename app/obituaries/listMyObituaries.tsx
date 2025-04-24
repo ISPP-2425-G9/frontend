@@ -20,6 +20,8 @@ const height = Dimensions.get("window").height;
 type RootStackParamList = {
   'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number, is_visualization?: boolean };
   'obituaries/index': undefined;
+  'obituaries/visualizeObituary': {imageUrl: string; is_mine: boolean; obituaryId: number};
+  'obituaries/makeObituary': { imageUrl: string; imageTemplateId: number; is_newObituary: boolean; obituaryId: number; is_mine: boolean | undefined };
 };
 
 
@@ -127,25 +129,27 @@ function ObituaryIndex() {
 
   const handleObituaryPress = (imageTemplateId: number, imageUrl: string, obituaryId: number) => {
     navigation.navigate(
-      'obituaries/createObituary', {
-      imageTemplateId,
+      'obituaries/makeObituary', {
       imageUrl,
+      imageTemplateId,
       is_newObituary: false,
       obituaryId,
+      is_mine: true,
     });
   };
 
-  const handleObituaryVisualizationPress = (imageTemplateId: number, imageUrl: string, obituaryId: number) => {
-    navigation.navigate(
-      'obituaries/createObituary', {
-      imageTemplateId,
-      imageUrl,
-      is_newObituary: false,
-      obituaryId,
-      is_visualization: true,
-    });
-  };
-
+  const handleObituaryVisualizationPress = (
+    imageUrl: string,
+    is_mine: boolean,
+    obituaryId: number
+  ) => {
+      navigation.navigate('obituaries/visualizeObituary', {
+        imageUrl,
+        is_mine,
+        obituaryId
+      });
+    };
+    
   if (loading) {
     return (
       <ThemedView style={styles.centeredContainer}>
@@ -235,7 +239,7 @@ function ObituaryIndex() {
                       <>
                         <CustomButton
                           title="Visualiza tu esquela"
-                          onPress={() => { handleObituaryVisualizationPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id) }
+                          onPress={() => { handleObituaryVisualizationPress(item.imageTemplate.imageUrl, item.isMine, item.id) }
                           }
                         />
                         <CustomButton

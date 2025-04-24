@@ -35,6 +35,12 @@ type RootStackParamList = {
     is_mine: boolean,
     selectedColor: string,
   };
+  'obituaries/makeObituary': {
+    imageUrl: string,
+    is_newObituary: boolean,
+    obituaryId: number,
+    is_mine: boolean | undefined,
+  };
 
 };
 
@@ -119,14 +125,11 @@ function ObituaryIndex() {
     }
 
     const { obituaryId, jsonData, selectedColor } = route.params ?? {};
-    navigation.navigate('obituaries/createObituary', {
-      imageTemplateId: selectedObituary.id,
+    navigation.navigate('obituaries/makeObituary', {
       imageUrl: selectedObituary.imageUrl,
       is_newObituary,
       obituaryId,
-      jsonData,
       is_mine: true,
-      selectedColor,
     });
 
     setModalVisible(false);
@@ -137,14 +140,11 @@ function ObituaryIndex() {
     if (!selectedObituary) return;
 
     const { obituaryId, jsonData, selectedColor } = route.params ?? {};
-    navigation.navigate('obituaries/createObituary', {
-      imageTemplateId: selectedObituary.id,
+    navigation.navigate('obituaries/makeObituary', {
       imageUrl: selectedObituary.imageUrl,
       is_newObituary,
       obituaryId,
-      jsonData,
       is_mine: false,
-      selectedColor,
     });
 
     setModalVisible(false);
@@ -191,14 +191,11 @@ function ObituaryIndex() {
               onPress={() => {
                 if (changeDesign) {
                   const { obituaryId, jsonData, is_mine, selectedColor } = route.params ?? {};
-                  navigation.navigate('obituaries/createObituary', {
-                    imageTemplateId: item.id,
+                  navigation.navigate('obituaries/makeObituary', {
                     imageUrl: item.imageUrl,
                     is_newObituary,
                     obituaryId,
-                    jsonData,
                     is_mine,
-                    selectedColor,
                   });
                 } else {
                   showConfirmationModal(item.id, item.imageUrl);
