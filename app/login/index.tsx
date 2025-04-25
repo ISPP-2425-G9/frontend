@@ -10,6 +10,7 @@ import { Animated, Pressable, StyleSheet, View } from 'react-native';
 import { AUTHORITIES } from '../_util/Authorities';
 import { useAuth } from '../_util/useAuth';
 import { withAuth } from '../_util/withAuth';
+import RememberPasswordModal from '@/components/RememberPasswordModal';
 
 const LoginScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -18,6 +19,7 @@ const LoginScreen: React.FC = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
   const [formKey, setFormKey] = useState(0);
+  const [isVisibleRemeberModal, setIsVisibleRememberModal] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -92,8 +94,12 @@ const LoginScreen: React.FC = () => {
     },
   ];
 
+  const openRememberModal = () => setIsVisibleRememberModal(true);
+  const closeRememberModal = () => setIsVisibleRememberModal(false);
+
   return (
     <View style={styles.container}>
+      <RememberPasswordModal visible={isVisibleRemeberModal} onClose={closeRememberModal} />
       <Animated.View
         style={[
           styles.formContainer,
@@ -116,6 +122,11 @@ const LoginScreen: React.FC = () => {
           ¿Aún no tienes cuenta?{' '}
           <Pressable onPress={() => { navigation.navigate('register/index' as never) }}>
             <ThemedText style={styles.registerLink}>Regístrate</ThemedText>
+          </Pressable>
+        </ThemedText>
+        <ThemedText style={styles.registerText}>
+          <Pressable onPress={openRememberModal}>
+            <ThemedText style={styles.registerLink}>¿Has olvidado tu contraseña?</ThemedText>
           </Pressable>
         </ThemedText>
       </Animated.View>
