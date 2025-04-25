@@ -76,15 +76,14 @@ export default function TabLayout() {
             {
               isAuthenticated && userRoles?.includes("CUSTOMER") ? [
                 <Tabs.Screen name="obituaries/index" options={{ title: "" }} />,
-                <Tabs.Screen name="obituaries/createObituary" options={{ href: null }} />,
                 <Tabs.Screen name="obituaries/visualizeObituary" options={{ href: null }} />,
-                <Tabs.Screen name="obituaries/makeObituary" options={{ href: null }} />,
+                <Tabs.Screen name="obituaries/createObituary" options={{ href: null }} />,
+                <Tabs.Screen name="obituaries/editObituary" options={{ href: null }} />,
                 <Tabs.Screen name="obituaries/listMyObituaries" options={{ href: null }} />,
                 <Tabs.Screen name="obituaries/selectContacts" options={{ href: null }} />,
                 <Tabs.Screen name="obituaries/loadCertificate" options={{ href: null }} />,
               ] : [
                 <Tabs.Screen name="obituaries/index" options={{ href: null }} />,
-                <Tabs.Screen name="obituaries/createObituary" options={{ href: null }} />,
                 <Tabs.Screen name="obituaries/listMyObituaries" options={{ href: null }} />,
                 <Tabs.Screen name="obituaries/selectContacts" options={{ href: null }} />,
               ]

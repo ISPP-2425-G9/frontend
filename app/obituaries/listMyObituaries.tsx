@@ -21,7 +21,17 @@ type RootStackParamList = {
   'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number, is_visualization?: boolean };
   'obituaries/index': undefined;
   'obituaries/visualizeObituary': {imageUrl: string; is_mine: boolean; obituaryId: number};
-  'obituaries/makeObituary': { imageUrl: string; imageTemplateId: number; is_newObituary: boolean; obituaryId: number; is_mine: boolean | undefined };
+
+  'obituaries/editObituary': { 
+    imageUrl: string; 
+    imageTemplateId: number; 
+    is_newObituary: boolean;
+    obituaryId: number;
+    is_mine: boolean | undefined;
+    jsonData: string | undefined;
+    changeDesign: boolean;
+    selectedColor: string | undefined;
+  };
 };
 
 
@@ -127,16 +137,28 @@ function ObituaryIndex() {
   };
 
 
-  const handleObituaryPress = (imageTemplateId: number, imageUrl: string, obituaryId: number) => {
+  const handleObituaryVisualize = (imageUrl: string, obituaryId: number) => {
     navigation.navigate(
-      'obituaries/makeObituary', {
+      'obituaries/visualizeObituary', {
+      imageUrl,
+      obituaryId,
+      is_mine: true,
+    });
+  };
+
+  const handleObituaryEdit = (imageTemplateId: number, imageUrl: string, obituaryId: number) => {
+    navigation.navigate(
+      'obituaries/editObituary', {
       imageUrl,
       imageTemplateId,
       is_newObituary: false,
       obituaryId,
       is_mine: true,
+      jsonData: undefined,
+      changeDesign: false,
+      selectedColor: undefined,
     });
-  };
+  }
 
   const handleObituaryVisualizationPress = (
     imageUrl: string,
@@ -244,7 +266,7 @@ function ObituaryIndex() {
                         />
                         <CustomButton
                           title="Edita tu esquela"
-                          onPress={() => { handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id) }
+                          onPress={() => { handleObituaryEdit(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id) }
                           }
                         />
                         <CustomButton
@@ -257,7 +279,7 @@ function ObituaryIndex() {
                       <>
                         <CustomButton
                           title="Visualiza la esquela"
-                          onPress={() => { handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id) }
+                          onPress={() => { handleObituaryVisualize(item.imageTemplate.imageUrl, item.id) }
                           } />
                         {item.deathCertificate?.isVerified ? (
                           <CustomButton title="Esquela ya enviada" color="green" onPress={() => { }} />

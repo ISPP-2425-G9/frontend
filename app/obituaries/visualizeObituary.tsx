@@ -7,19 +7,19 @@ import { BACKEND_API } from "@/constants/Mysc";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ObituaryStyles from './obituariesStyles';    
 
-type ViewObituaryRouteProp = RouteProp<RootStackParamList, 'obituaries/viewObituary'>;
+type VisualizeObituaryRouteProp = RouteProp<RootStackParamList, 'obituaries/visualizeObituary'>;
 
 type RootStackParamList = {
-    'obituaries/viewObituary': {
+    'obituaries/visualizeObituary': {
     imageUrl: string;
     is_mine: boolean;
-    obituaryId: string;
+    obituaryId: number;
     };
 };
 
 export default function ViewObituaryScreen() {
   const { isAuthenticated } = useAuth();
-  const route = useRoute<ViewObituaryRouteProp>();
+  const route = useRoute<VisualizeObituaryRouteProp>();
   const {
     imageUrl,
     is_mine,
@@ -66,11 +66,11 @@ export default function ViewObituaryScreen() {
             const data = await response.json();
             setFormData({
             name: data.name,
-                birthDate: data.birthDate,
-                deathDate: data.deathDate,
-                farewellMessage: data.farewellMessage,
-                farewellPhrase: data.farewellPhrase,
-                customImage: data.customImage,
+                birthDate: data.birthDate || "",
+                deathDate: data.deathDate || "",
+                farewellMessage: data.farewellMessage || "",
+                farewellPhrase: data.farewellPhrase || "",
+                customImage: data.customImage || undefined,
             });
             setLoading(false);
         } catch (error) {
@@ -94,24 +94,15 @@ export default function ViewObituaryScreen() {
 
   return (
     <ObituaryForm
+      key={'staty'}
       isAuthenticated={isAuthenticated ?? false}
       mode="view"
-      isMine={is_mine}
+      obituaryId={route.params.obituaryId}
+      is_newObituary={false}
+      is_mine={is_mine}
       formData={formData}
       imageUrl={imageUrl}
-      selectedColor={undefined}
-      handlers={{
-        handleChange: () => {},
-        pickImage: () => {},
-        changeDesign: () => {},
-        showConfirmationModal: () => {},
-        handleSubmit: () => {},
-        handleCloseModal: () => {},
-        handleCloseModalColors: () => {},
-        handleColorSelect: () => {},
-      }}
-      modal={{ visible: false, message: '' }}
-      colorPickerVisible={false}
+      letterColor={'undefined'}
       styles={ObituaryStyles}
     />
   );

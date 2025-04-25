@@ -8,7 +8,6 @@ import { ThemedView } from '@/components/ThemedView';
 import { useNotification } from '@/context/NotificationContext';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation, useRoute, RouteProp, NavigationProp } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 type Mode = 'create' | 'edit' | 'view';
 
@@ -22,6 +21,13 @@ type RootStackParamList = {
       is_mine: boolean,
       selectedColor: string
     };
+
+    "obituaries/selectContacts": {
+    jsonData: string,
+    is_newObituary: boolean,
+    obituaryId: number,
+    is_mine: boolean,
+  };
 };
 
 interface FormData {
@@ -33,19 +39,16 @@ interface FormData {
   customImage?: string;
 }
 
-interface ModalProps {
-  visible: boolean;
-  message: string;
-}
 
 interface ObituaryFormProps {
   isAuthenticated: boolean;
   mode: Mode;
   obituaryId: number;
-  isMine: boolean;
+  is_newObituary: boolean;
+  is_mine: boolean;
+  letterColor: string;
   formData: FormData;
   imageUrl: string;
-  modal: ModalProps;
   styles: { [key: string]: StyleProp<any> };
 }
 
@@ -54,10 +57,11 @@ export default function ObituaryForm({
   isAuthenticated,
   mode,
   obituaryId,
-  isMine,
+  is_mine,
+  is_newObituary,
+  letterColor,
   formData,
   imageUrl,
-  modal,
   styles,
 }: ObituaryFormProps) {
 
@@ -67,19 +71,25 @@ export default function ObituaryForm({
   const [localFormData, setLocalFormData] = useState<FormData>(formData);
   const { showNotification } = useNotification();
   const [colorPickerVisible, setColorPickerVisible] = useState(false);
-  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedColor, setSelectedColor] = useState(letterColor ?? 'rgb(0,0,0)');
+
 
   const isVisualization = mode === 'view';
 
   const titleMap: Record<Mode, string> = {
-    create: isMine ? 'Crea tu esquela' : 'Cree la esquela para un ser querido',
-    edit: isMine ? 'Edita tu esquela' : 'Información de la esquela',
+    create: is_mine ? 'Crea tu esquela' : 'Cree la esquela para un ser querido',
+    edit: is_mine ? 'Edita tu esquela' : 'Información de la esquela',
     view: 'Información de la esquela',
   };
 
   const handleFieldChange = (field: string, value: string) => {
     setLocalFormData({ ...localFormData, [field]: value });
   };
+
+  const [modalMessage, setModalMessage] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+
+
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -104,38 +114,124 @@ export default function ObituaryForm({
         return;
       }
 
-      setLocalFormData({ ...localFormData, customImage: result.assets[0].uri });
+      handleFieldChange('customImage', filteredAssets[0].uri);
     }
   };
 
   const changeDesign = async () => {
-    // Determinar si es una nueva esquela o no
     const is_newObituary = mode === 'create';
-
-    // Convertir el formulario de datos a JSON
     const jsonData = JSON.stringify(localFormData, null, 2);
 
-    // Navegar a la pantalla 'obituaries/index' con los parámetros adecuados
     navigation.navigate('obituaries/index', {
       is_newObituary,
       obituaryId,
       jsonData,
       changeDesign: true,
-      is_mine: isMine,
+      is_mine,
       selectedColor,
     });
   };
 
   const showConfirmationModal = () => {
-    console.log('Mostrar modal de confirmación');
+    try {
+      const errors = validateForm();
+      if (errors.length != 0) {
+        showNotification({
+          message: errors.join(', '),
+          type: "error",
+          duration: 3000,
+        });
+      }
+    } catch (error: any) {
+      showNotification({
+        message: "Error: " + error,
+        type: "error",
+        duration: 3000
+      })
+    }
   };
+
+
+  const validateForm = () => {
+    const { name, birthDate, deathDate, farewellMessage, farewellPhrase, customImage } = localFormData;
+    const errors: string[] = [];
+
+    const birthDatePattern = /^\d{2}\/\d{2}\/\d{4}$/;
+    if (birthDate && !birthDate.match(birthDatePattern)) {
+      errors.push(
+        "El formato de la fecha de nacimiento es incorrecto. Debe ser dd/mm/aaaa"
+      );
+      return errors;
+    }
+
+    if (!name || !birthDate || !farewellMessage || !farewellPhrase) {
+      if (customImage === undefined) {
+        setModalMessage(
+          "No has seleccionado una imagen y hay datos sin completar. ¿Desea continuar?"
+        );
+      } else {
+        setModalMessage("Hay datos sin completar. ¿Desea continuar?");
+      }
+
+      if (birthDate && deathDate) {
+        const [birthDay, birthMonth, birthYear] = birthDate.split("/");
+        const [deathDay, deathMonth, deathYear] = deathDate.split("/");
+
+        const parsedBirthDate = new Date(`${birthYear}-${birthMonth}-${birthDay}`);
+        const parsedDeathDate = new Date(`${deathYear}-${deathMonth}-${deathDay}`);
+
+        if (parsedBirthDate > parsedDeathDate) {
+          errors.push("La fecha de nacimiento debe ser anterior a la fecha de fallecimiento")
+          return errors;
+        }
+      }
+    } else {
+      setModalMessage(customImage === undefined ?
+        "No has seleccionado una imagen y hay datos sin completar. ¿Desea continuar?" :
+        "Hay datos sin completar. ¿Desea continuar?");
+    }
+
+    if (birthDate && deathDate) {
+      const [birthDay, birthMonth, birthYear] = birthDate.split("/");
+      const [deathDay, deathMonth, deathYear] = deathDate.split("/");
+
+      const parsedBirthDate = new Date(`${birthYear}-${birthMonth}-${birthDay}`);
+      const parsedDeathDate = new Date(`${deathYear}-${deathMonth}-${deathDay}`);
+
+      if (parsedBirthDate > parsedDeathDate) {
+        errors.push("La fecha de nacimiento debe ser inferior a la fecha de fallecimiento")
+        return errors;
+      }
+    }
+
+    setModalVisible(true);
+    return errors;
+  };
+
 
   const handleSubmit = () => {
-    console.log('Formulario enviado');
-  };
+    if (validateForm()) {
+      const jsonData = JSON.stringify(localFormData, null, 2);
+      const parsedJsonData = JSON.parse(jsonData);
 
+      const rgbMatch = selectedColor.match(/\d+/g);
+      const rgbString = rgbMatch ? rgbMatch.join(",") : "0,0,0";
+
+      parsedJsonData.wordColor = rgbString;
+
+      const finalJsonData = JSON.stringify(parsedJsonData, null, 2);
+
+      navigation.navigate("obituaries/selectContacts" as never, {
+        jsonData: finalJsonData,
+        is_newObituary,
+        obituaryId,
+        is_mine,
+      });
+    }
+    setModalVisible(false);
+  };
   const handleCloseModal = () => {
-    console.log('Cerrar modal');
+    setModalVisible(false);
   };
 
   const handleCloseModalColors = () => {
@@ -160,7 +256,6 @@ export default function ObituaryForm({
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <View style={styles.container}>
-        {/* Form Section */}
         <View style={styles.formSection}>
           <Text style={styles.titlePage}>{titleMap[mode]}</Text>
 
@@ -184,7 +279,7 @@ export default function ObituaryForm({
             editable={!isVisualization}
           />
 
-          {!isMine && (
+          {!is_mine && (
             <>
               <Text style={styles.formText}>Fecha de fallecimiento:</Text>
               <DatePickerInput
@@ -268,11 +363,11 @@ export default function ObituaryForm({
           </View>
         </View>
 
-        {modal.visible && (
+        {modalVisible && (
           <CustomModal
-            visible={modal.visible}
+            visible={modalVisible}
             onClose={handleCloseModal}
-            title={modal.message}
+            title={modalMessage}
             style={styles.modalStyle}
           >
             <View style={styles.buttonContainer}>
