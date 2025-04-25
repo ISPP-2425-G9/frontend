@@ -16,7 +16,7 @@ type RootStackParamList = {
     is_mine: boolean;
     jsonData: string;
     changeDesign: boolean;
-    selectedColor: string;
+    selectedColor: string | undefined;
   };
 
   "obituaries/selectContacts": {
@@ -40,7 +40,7 @@ export default function createObituaryScreen() {
     is_mine = false,
     jsonData = '',
     changeDesign = false,
-    selectedColor = '#000',
+    selectedColor = '',
     obituaryId = 0,
   } = params;
 
