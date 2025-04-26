@@ -4,6 +4,8 @@ import useAuth from "@/hooks/useAuth";
 import ObituaryStyles from './obituariesStyles';
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { useFocusEffect } from 'expo-router';
+import { withAuth } from "../_util/withAuth";
+import { AUTHORITIES } from "../_util/Authorities";
 
 type CreateObituaryRouteProp = RouteProp<RootStackParamList, 'obituaries/createObituary'>;
 
@@ -28,7 +30,7 @@ type RootStackParamList = {
   };
 };
 
-export default function createObituaryScreen() {
+function createObituaryScreen() {
   const { isAuthenticated } = useAuth();
   const route = useRoute<CreateObituaryRouteProp>();
   const params = route.params ?? {};
@@ -103,3 +105,4 @@ export default function createObituaryScreen() {
     />
   );
 }
+export default withAuth(createObituaryScreen, [AUTHORITIES.CUSTOMER])

@@ -6,6 +6,8 @@ import useAuth from "@/hooks/useAuth";
 import { BACKEND_API } from "@/constants/Mysc";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ObituaryStyles from './obituariesStyles';    
+import { withAuth } from "../_util/withAuth";
+import { AUTHORITIES } from "../_util/Authorities";
 
 type VisualizeObituaryRouteProp = RouteProp<RootStackParamList, 'obituaries/visualizeObituary'>;
 
@@ -17,7 +19,7 @@ type RootStackParamList = {
 };
 
 
-export default function VisualizeObituaryScreen() {
+function VisualizeObituaryScreen() {
   const { isAuthenticated } = useAuth();
   const route = useRoute<VisualizeObituaryRouteProp>();
   const params = route.params ?? {};
@@ -105,3 +107,4 @@ export default function VisualizeObituaryScreen() {
     />
   );
 }
+export default withAuth(VisualizeObituaryScreen, [AUTHORITIES.CUSTOMER])

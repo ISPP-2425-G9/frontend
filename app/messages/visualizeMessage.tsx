@@ -5,6 +5,8 @@ import MessageForm from '@/components/MessageForm';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_API } from '@/constants/Mysc';
 import { RouteProp, useRoute } from "@react-navigation/native";
+import { withAuth } from "../_util/withAuth";
+import { AUTHORITIES } from "../_util/Authorities";
 
 type EditMesageRouteProp = RouteProp<RootStackParamList, 'messages/editMessage'>;
 
@@ -24,7 +26,7 @@ type Contact = {
 
 
 
-export default function visualizeMessageScreen() {
+function visualizeMessageScreen() {
   const { isAuthenticated } = useAuth();
 
   const [formData, setFormData] = useState({
@@ -104,3 +106,5 @@ export default function visualizeMessageScreen() {
     />
   );
 }
+
+export default withAuth(visualizeMessageScreen, [AUTHORITIES.CUSTOMER])

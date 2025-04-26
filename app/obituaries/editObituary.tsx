@@ -6,6 +6,8 @@ import useAuth from "@/hooks/useAuth";
 import { BACKEND_API } from "@/constants/Mysc";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ObituaryStyles from './obituariesStyles';    
+import { withAuth } from "../_util/withAuth";
+import { AUTHORITIES } from "../_util/Authorities";
 
 type EditObituaryRouteProp = RouteProp<RootStackParamList, 'obituaries/editObituary'>;
 
@@ -22,7 +24,7 @@ type RootStackParamList = {
   };
 };
 
-export default function EditObituaryScreen() {
+function EditObituaryScreen() {
   const { isAuthenticated } = useAuth();
   const route = useRoute<EditObituaryRouteProp>();
   const params = route.params ?? {};
@@ -148,3 +150,4 @@ export default function EditObituaryScreen() {
     />
   );
 }
+export default withAuth(EditObituaryScreen, [AUTHORITIES.CUSTOMER])

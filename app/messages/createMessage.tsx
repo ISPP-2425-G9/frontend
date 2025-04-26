@@ -4,8 +4,10 @@ import messageStyles from './messageStyles';
 import MessageForm from '@/components/MessageForm';
 import { useFocusEffect } from 'expo-router';
 import { BACKEND_API } from '@/constants/Mysc';
+import { withAuth } from "../_util/withAuth";
+import { AUTHORITIES } from "../_util/Authorities";
 
-export default function createObituaryScreen() {
+function createMessageScreen() {
   const { isAuthenticated } = useAuth();
 
 
@@ -44,3 +46,5 @@ export default function createObituaryScreen() {
     />
   );
 }
+
+export default withAuth(createMessageScreen, [AUTHORITIES.CUSTOMER])
