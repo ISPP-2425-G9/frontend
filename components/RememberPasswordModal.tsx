@@ -1,6 +1,6 @@
 import { useNotification } from '@/context/NotificationContext';
 import React, { useState } from 'react';
-import { Modal, View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { Modal, View, Text, TextInput, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import SendRecoveryEmailModal from './SendRecoveryEmailModal';
 import { BACKEND_API } from '@/constants/Mysc';
@@ -9,6 +9,8 @@ interface RememberPasswordModalProps {
     visible: boolean;
     onClose: () => void;
 }
+
+const width = Dimensions.get("window").width;
 
 const RememberPasswordModal: React.FC<RememberPasswordModalProps> = ({ visible, onClose }) => {
     const [email, setEmail] = useState('');
@@ -153,7 +155,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     modalContainer: {
-        width: '33%',
+        width: width > 600 ? '33%': '90%',
         backgroundColor: '#fff',
         borderRadius: 10,
         padding: 20,
