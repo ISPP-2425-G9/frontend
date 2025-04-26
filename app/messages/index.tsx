@@ -943,7 +943,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
-
   },
   codeContainer: {
     width: width > 600 ? '100%' : "100%",

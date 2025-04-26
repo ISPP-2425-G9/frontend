@@ -29,12 +29,13 @@ type RootStackParamList = {
     'messages/listMyMessages':
     undefined;
     is_newMessage: boolean;
-    'messages/index': {
-        messageId: number | undefined;
-        is_newMessage: boolean;
-        is_visualization?: true,
-        is_owner: boolean | undefined;
-    } | undefined;
+    'messages/createMessage': undefined;
+    'messages/editMessage': {
+        messageId: number ;
+    } 
+    'messages/visualizeMessage': {
+        messageId: number ;
+    };
 };
 
 function MessageList() {
@@ -141,7 +142,7 @@ function MessageList() {
                 title="Crea un mensaje para un ser querido"
                 color="green"
                 style={styles.floatingButton}
-                onPress={() => navigation.navigate('messages/index', { messageId: undefined, is_newMessage: true, is_owner: true })}
+                onPress={() => navigation.navigate('messages/createMessage')}
             />
 
             <View style={styles.messagesWrapper}>
@@ -161,13 +162,13 @@ function MessageList() {
                                 title="Editar"
                                 color="blue"
                                 style={styles.button1}
-                                onPress={() => navigation.navigate('messages/index', { messageId: message.messageId, is_newMessage: false, is_owner: true })}
+                                onPress={() => navigation.navigate('messages/editMessage', { messageId: message.messageId })}
                             />
                             <CustomButton
                                 title="Visualizar"
                                 color="blue"
                                 style={styles.button1}
-                                onPress={() => navigation.navigate('messages/index', { messageId: message.messageId, is_newMessage: false, is_visualization: true, is_owner: true })}
+                                onPress={() => navigation.navigate('messages/visualizeMessage', { messageId: message.messageId})}
                             />
                             <CustomButton
                                 title="Eliminar"

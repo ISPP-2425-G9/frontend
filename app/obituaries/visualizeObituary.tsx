@@ -7,24 +7,26 @@ import { BACKEND_API } from "@/constants/Mysc";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ObituaryStyles from './obituariesStyles';    
 
-type VisualizeObituaryRouteProp = RouteProp<RootStackParamList, 'obituaries/visualizeObituary'>;
-
 type RootStackParamList = {
-    'obituaries/visualizeObituary': {
+  'obituaries/visualizeObituary': {
     imageUrl: string;
     is_mine: boolean;
     obituaryId: number;
-    };
+  };
 };
 
-export default function ViewObituaryScreen() {
+type VisualizeObituaryRouteProp = RouteProp<RootStackParamList, 'obituaries/visualizeObituary'>;
+
+export default function VisualizeObituaryScreen() {
   const { isAuthenticated } = useAuth();
   const route = useRoute<VisualizeObituaryRouteProp>();
+  const params = route.params ?? {};
+
   const {
-    imageUrl,
-    is_mine,
-    obituaryId,
-  } = route.params;
+    imageUrl = '',
+    is_mine = false,
+    obituaryId = 0,
+  } = params;
 
   const [formData, setFormData] = useState({
     name: '',
@@ -39,50 +41,45 @@ export default function ViewObituaryScreen() {
 
   useEffect(() => {
     const fetchObituary = async () => {
-        setLoading(true);
-        try {
-            const authToken = await AsyncStorage.getItem("authToken");
-    
-            if (!authToken) {
-            throw new Error("Token de autenticación no encontrado.");
-            }
-    
-            const response = await fetch(
-            `${BACKEND_API}/api/obituary/myObituaries/${obituaryId}`,
-            {
-                method: "GET",
-                headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${authToken.trim()}`,
-                },
-            }
-            );
-    
-            if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || "Error al obtener la esquela.");
-            }
-    
-            const data = await response.json();
-            setFormData({
-            name: data.name,
-                birthDate: data.birthDate || "",
-                deathDate: data.deathDate || "",
-                farewellMessage: data.farewellMessage || "",
-                farewellPhrase: data.farewellPhrase || "",
-                customImage: data.customImage || undefined,
-            });
-            setLoading(false);
-        } catch (error) {
-            console.error("Error al obtener la esquela:", error);
+      try {
+        const authToken = await AsyncStorage.getItem("authToken");
+        if (!authToken) throw new Error("Token de autenticación no encontrado.");
+
+        const response = await fetch(
+          `${BACKEND_API}/api/obituary/myObituaries/${obituaryId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken.trim()}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Error al obtener la esquela.");
         }
-        };
-    
-        fetchObituary();
-    }, []);
-  
 
+        const data = await response.json();
 
+        setFormData({
+          name: data.name || '',
+          birthDate: data.birthDate || '',
+          deathDate: data.deathDate || '',
+          farewellMessage: data.farewellMessage || '',
+          farewellPhrase: data.farewellPhrase || '',
+          customImage: data.customImage || undefined,
+        });
+      } catch (error) {
+        console.error("Error al obtener la esquela:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (obituaryId) fetchObituary();
+  }, [obituaryId]);
 
   if (loading) {
     return (
@@ -97,7 +94,7 @@ export default function ViewObituaryScreen() {
       key={'staty'}
       isAuthenticated={isAuthenticated ?? false}
       mode="view"
-      obituaryId={route.params.obituaryId}
+      obituaryId={obituaryId}
       is_newObituary={false}
       is_mine={is_mine}
       formData={formData}

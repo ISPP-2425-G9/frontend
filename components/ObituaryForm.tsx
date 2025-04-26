@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, View, Text, Image, TouchableOpacity, StyleSheet, StyleProp, ViewStyle, TextStyle, ImageStyle } from 'react-native';
+import { ScrollView, View, Text, Image, TouchableOpacity, StyleProp } from 'react-native';
 import CustomTextInput from '@/components/CustomTextInput';
 import DatePickerInput from '@/components/DatePickerInput';
 import CustomButton from '@/components/CustomButton';
@@ -7,7 +7,7 @@ import CustomModal from '@/components/CustomModal';
 import { ThemedView } from '@/components/ThemedView';
 import { useNotification } from '@/context/NotificationContext';
 import * as ImagePicker from 'expo-image-picker';
-import { useNavigation, useRoute, RouteProp, NavigationProp } from "@react-navigation/native";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
 
 type Mode = 'create' | 'edit' | 'view';
 
@@ -203,7 +203,11 @@ export default function ObituaryForm({
         return errors;
       }
     }
-
+    setModalMessage(
+      customImage === undefined
+        ? "No has seleccionado una imagen. ¿Desea continuar?"
+        : "¿Desea continuar?"
+    );
     setModalVisible(true);
     return errors;
   };

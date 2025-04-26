@@ -90,7 +90,7 @@ export default function createObituaryScreen() {
 
   return (
     <ObituaryForm
-      key={is_newObituary ? Date.now() : 'stay'}
+      key={Date.now()}
       isAuthenticated={isAuthenticated ?? false}
       mode="create"
       obituaryId={obituaryId}
