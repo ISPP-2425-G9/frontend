@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   addButton: {
-    width: '15%',
+    width: '10%',
     alignSelf: 'center',
     marginTop: 10,
     height: 40,
