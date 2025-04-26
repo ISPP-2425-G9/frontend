@@ -7,15 +7,15 @@ import { BACKEND_API } from "@/constants/Mysc";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ObituaryStyles from './obituariesStyles';    
 
+type VisualizeObituaryRouteProp = RouteProp<RootStackParamList, 'obituaries/visualizeObituary'>;
+
 type RootStackParamList = {
   'obituaries/visualizeObituary': {
     imageUrl: string;
-    is_mine: boolean;
     obituaryId: number;
   };
 };
 
-type VisualizeObituaryRouteProp = RouteProp<RootStackParamList, 'obituaries/visualizeObituary'>;
 
 export default function VisualizeObituaryScreen() {
   const { isAuthenticated } = useAuth();
@@ -23,10 +23,9 @@ export default function VisualizeObituaryScreen() {
   const params = route.params ?? {};
 
   const {
-    imageUrl = '',
-    is_mine = false,
-    obituaryId = 0,
-  } = params;
+    imageUrl,
+    obituaryId,
+  } = params || {};
 
   const [formData, setFormData] = useState({
     name: '',
@@ -34,10 +33,11 @@ export default function VisualizeObituaryScreen() {
     deathDate: '',
     farewellMessage: '',
     farewellPhrase: '',
-    customImage: undefined as string | undefined,
+    customImage: undefined,
   });
 
   const [loading, setLoading] = useState(true);
+  const [ isMine, setIsMine] = useState(false);
 
   useEffect(() => {
     const fetchObituary = async () => {
@@ -71,6 +71,7 @@ export default function VisualizeObituaryScreen() {
           farewellPhrase: data.farewellPhrase || '',
           customImage: data.customImage || undefined,
         });
+        setIsMine(data.isMine || false);
       } catch (error) {
         console.error("Error al obtener la esquela:", error);
       } finally {
@@ -91,12 +92,12 @@ export default function VisualizeObituaryScreen() {
 
   return (
     <ObituaryForm
-      key={'staty'}
+      key={'stay'}
       isAuthenticated={isAuthenticated ?? false}
       mode="view"
       obituaryId={obituaryId}
       is_newObituary={false}
-      is_mine={is_mine}
+      is_mine={isMine}
       formData={formData}
       imageUrl={imageUrl}
       letterColor={'undefined'}

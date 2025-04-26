@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScrollView, View, Text, Image, TouchableOpacity, StyleProp } from 'react-native';
 import CustomTextInput from '@/components/CustomTextInput';
 import DatePickerInput from '@/components/DatePickerInput';
@@ -69,10 +69,14 @@ export default function ObituaryForm({
     
 
   const [localFormData, setLocalFormData] = useState<FormData>(formData);
+
+  useEffect(() => {
+    setLocalFormData(formData);
+  }, [formData]);
+
   const { showNotification } = useNotification();
   const [colorPickerVisible, setColorPickerVisible] = useState(false);
-  const [selectedColor, setSelectedColor] = useState(letterColor ?? 'rgb(0,0,0)');
-
+  const [selectedColor, setSelectedColor] = useState(letterColor || 'rgb(0,0,0)');
 
   const isVisualization = mode === 'view';
 
@@ -385,7 +389,6 @@ export default function ObituaryForm({
           </CustomModal>
         )}
 
-        {/* Modal selector de color */}
         {colorPickerVisible && (
           <CustomModal
             visible={colorPickerVisible}

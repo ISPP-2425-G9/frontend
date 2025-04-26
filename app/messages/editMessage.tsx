@@ -4,7 +4,7 @@ import messageStyles from './messageStyles';
 import MessageForm from '@/components/MessageForm';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BACKEND_API } from '@/constants/Mysc';
-import { RouteProp, useRoute } from "@react-navigation/native";
+import { RouteProp, useRoute, useFocusEffect } from "@react-navigation/native";
 
 type EditMesageRouteProp = RouteProp<RootStackParamList, 'messages/editMessage'>;
 
@@ -37,17 +37,19 @@ export default function editMessageScreen() {
 
   const [contacts, setContacts] = useState<Contact[]>([]);
 
-  const messageId = route.params?.messageId ;
+  const messageId = route.params?.messageId;
+
+  const url = `${BACKEND_API}/api/messages/${messageId}`;
 
   const fetchMessageData = useCallback(async () => {
     try {
       const authToken = await AsyncStorage.getItem('authToken');
-
+  
       if (!authToken) {
         console.error('No se encontró el token de autenticación');
         return;
       }
-
+  
       const response = await fetch(`${BACKEND_API}/api/messages/${messageId}`, {
         method: 'GET',
         headers: {
@@ -55,7 +57,7 @@ export default function editMessageScreen() {
           Authorization: `Bearer ${authToken}`,
         },
       });
-
+  
       if (response.ok) {
         const data = await response.json();
         setFormData({
@@ -63,18 +65,18 @@ export default function editMessageScreen() {
           body: data.body,
           customImages: data.customImages || [],
         });
-
+  
         const formatPhoneNumber = (phone: string) => {
           return phone.replace(/\D/g, '').replace(/(\d{3})(?=\d)/g, '$1 ');
         };
-
+  
         const contactsData = data.recipients.map((contact: any) => ({
           id: Date.now(),
           name: contact.name,
           telephone: formatPhoneNumber(contact.telephone),
           email: contact.email,
         }));
-
+  
         setContacts(contactsData);
       } else {
         console.error('Error al obtener los datos del mensaje');
@@ -83,21 +85,25 @@ export default function editMessageScreen() {
       console.error('Error en la solicitud:', error);
     }
   }, [messageId]);
-
-  useEffect(() => {
-    if (messageId) {
-      fetchMessageData();
-    }
-  }, [fetchMessageData]);
+  
+  useFocusEffect(
+    useCallback(() => {
+      if (messageId) {
+        fetchMessageData();
+      }
+    }, [fetchMessageData, messageId])
+  );
 
   return (
     <MessageForm
       key={Date.now()}
       isAuthenticated={isAuthenticated ?? false}
       mode="edit"
+      url={url}
       isOwner={true}
       is_newMessage={false}
       formData={formData}
+      contacts={contacts}
       styles={messageStyles}
     />
   );

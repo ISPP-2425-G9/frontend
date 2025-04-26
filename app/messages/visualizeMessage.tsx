@@ -95,9 +95,11 @@ export default function visualizeMessageScreen() {
       key={Date.now()}
       isAuthenticated={isAuthenticated ?? false}
       mode="view"
+      url={''}	
       isOwner={true}
       is_newMessage={false}
       formData={formData}
+      contacts={contacts}
       styles={messageStyles}
     />
   );

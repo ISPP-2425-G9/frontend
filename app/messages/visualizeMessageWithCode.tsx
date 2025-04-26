@@ -173,9 +173,11 @@ export default function VisualizeMessageWithCodeScreen() {
           key={Date.now()}
           isAuthenticated={isAuthenticated ?? false}
           mode="view"
+          url={''}
           isOwner={true}
           is_newMessage={false}
           formData={formData}
+          contacts={contacts}
           styles={messageStyles}
         />
       )}

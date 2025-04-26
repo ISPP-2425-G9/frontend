@@ -40,41 +40,45 @@ interface FormData {
   customImages: string[];
 }
 
+interface Contact {
+  id: number;
+  name: string;
+  telephone: string;
+  email: string;
+}
+
 interface MessageFormProps {
   isAuthenticated: boolean;
   mode: Mode;
+  url: string;
   isOwner: boolean;
   is_newMessage: boolean;
   formData: FormData;
+  contacts: Contact[];
   styles: { [key: string]: StyleProp<any> };
 }
 
 export default function MessageForm({
   isAuthenticated,
   mode,
+  url,
   isOwner,
   is_newMessage,
   formData,
+  contacts,
   styles,
 }: MessageFormProps) {
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const [localFormData, setLocalFormData] = useState<FormData>(formData);
+  const [ localContacts, setLocalContacts ] = useState<Contact[]>(contacts);
   const { showNotification } = useNotification();
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [code, setCode] = useState<string>("");
 
   const isVisualization = mode === 'view';
-
-  const isEdit = mode === 'edit';
-
-  const titleMap: Record<Mode, string> = {
-    create: 'Crea tu mensaje personalizado',
-    edit: 'Actualiza tu mensaje',
-    view: 'Tu mensaje',
-  };
 
 
   type Contact = {
@@ -91,7 +95,6 @@ export default function MessageForm({
     email: "",
   });
   
-  const [contacts, setContacts] = useState<Contact[]>([]);
   
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   
@@ -125,11 +128,11 @@ export default function MessageForm({
     }
   
     setNewContact({ id: Date.now(), name: "", telephone: "", email: "" });
-    setContacts([...contacts, newContact]);
+    setLocalContacts([...localContacts, newContact]);
   };
   
   const removeContact = (id: number) => {
-    setContacts(contacts.filter((contact) => contact.id !== id));
+    setLocalContacts(localContacts.filter((contact) => contact.id !== id));
   };
   
   
@@ -154,7 +157,7 @@ export default function MessageForm({
       errors.push("El email no es válido.");
     }
   
-    contacts.forEach((contact) => {
+    localContacts.forEach((contact) => {
       telephoneSet.add(contact.telephone);
     });
   
@@ -162,7 +165,7 @@ export default function MessageForm({
       errors.push("El teléfono ya ha sido añadido");
     }
   
-    contacts.forEach((contact) => {
+    localContacts.forEach((contact) => {
       emailSet.add(contact.email);
     }
     );
@@ -189,20 +192,6 @@ export default function MessageForm({
     });
   };
   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   const setFormData = (newData: FormData) => {
     setLocalFormData(newData);
   };
@@ -272,11 +261,10 @@ export default function MessageForm({
     
     setLoading(true);
 
-    const url = `${BACKEND_API}/api/messages`;
     const method = !is_newMessage ? 'PUT' : 'POST';
     const dataToSend = {
-      ...formData,
-      recipients: contacts.map(contact => ({
+      ...localFormData,
+      recipients: localContacts.map(contact => ({
         ...contact,
         telephone: contact.telephone.replace(/\s+/g, '')
       })),
@@ -527,7 +515,7 @@ export default function MessageForm({
 
                   <ScrollView style={{ maxHeight: width > 600 ? width * 0.1 : width * 0.4 }}>
                     <FlatList
-                      data={contacts}
+                      data={localContacts}
                       keyExtractor={(item) => item.id.toString()}
                       nestedScrollEnabled={true}
                       renderItem={({ item }) => (

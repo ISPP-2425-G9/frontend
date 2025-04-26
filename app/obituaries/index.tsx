@@ -207,15 +207,14 @@ function ObituaryIndex() {
         <View style={styles.listContainer}>
           {obituaries.map((item) => (
             <TouchableOpacity
-              testID={`obituary-image-${item.imageId}`}
+              testID={`obituary-image-${item.id}`}
               key={item.id}
               onPress={() => {
                 if (changeDesign) {
-                  console.log("changeDesign", changeDesign);
                   const { is_newObituary, obituaryId, jsonData, is_mine, selectedColor } = route.params ?? {};
                   if (!is_newObituary) {
                     navigation.navigate('obituaries/editObituary', {
-                      imageTemplateId: item.imageId,
+                      imageTemplateId: item.id,
                       imageUrl: item.imageUrl,
                       is_newObituary,
                       obituaryId,
@@ -226,7 +225,7 @@ function ObituaryIndex() {
                     });
                   } else { 
                     navigation.navigate('obituaries/createObituary', {
-                      imageTemplateId: item.imageId,
+                      imageTemplateId: item.id,
                       imageUrl: item.imageUrl,
                       is_newObituary,
                       obituaryId,

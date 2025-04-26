@@ -34,15 +34,15 @@ export default function createObituaryScreen() {
   const params = route.params ?? {};
 
   const {
-    imageUrl = '',
-    is_newObituary = true,
-    imageTemplateId = 1,
-    is_mine = false,
-    jsonData = '',
-    changeDesign = false,
+    imageUrl,
+    is_newObituary,
+    imageTemplateId,
+    is_mine,
+    jsonData ,
+    changeDesign,
     selectedColor = '',
-    obituaryId = 0,
-  } = params;
+    obituaryId ,
+  } = params || {};
 
   const [formData, setFormData] = useState({
     name: '',
