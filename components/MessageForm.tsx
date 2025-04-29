@@ -375,7 +375,7 @@ export default function MessageForm({
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.formContainer}>
             <Text style={styles.textTitle}>
-              {is_newMessage ? "Crea tu mensaje personalizado" : (isVisualization ? "Tu mensaje" : "Actualiza tu mensaje")}
+              {is_newMessage ? "Crea tu mensaje personalizado" : (isVisualization ? (isOwner ? "Tu mensaje" : "Mensaje") : "Actualiza tu mensaje")}
             </Text>
 
             <CustomTextInput

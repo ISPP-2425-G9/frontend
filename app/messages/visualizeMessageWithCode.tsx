@@ -171,10 +171,10 @@ export default function VisualizeMessageWithCodeScreen() {
       ) : (
         <MessageForm
           key={Date.now()}
-          isAuthenticated={isAuthenticated ?? false}
+          isAuthenticated={true}
           mode="view"
           url={''}
-          isOwner={true}
+          isOwner={false}
           is_newMessage={false}
           formData={formData}
           contacts={contacts}
