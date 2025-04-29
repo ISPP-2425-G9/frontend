@@ -10,8 +10,10 @@ import {
   Pressable,
   Image,
   FlatList,
-  Dimensions, 
+  Dimensions,
   StyleProp,
+  ActivityIndicator,
+  StyleSheet,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 
@@ -72,7 +74,7 @@ export default function MessageForm({
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const [localFormData, setLocalFormData] = useState<FormData>(formData);
-  const [ localContacts, setLocalContacts ] = useState<Contact[]>(contacts);
+  const [localContacts, setLocalContacts] = useState<Contact[]>(contacts);
   const { showNotification } = useNotification();
   const [isConfirmationModalVisible, setIsConfirmationModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -87,28 +89,28 @@ export default function MessageForm({
     telephone: string;
     email: string;
   };
-  
+
   const [newContact, setNewContact] = useState<Contact>({
     id: Date.now(),
     name: "",
     telephone: "",
     email: "",
   });
-  
-  
+
+
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
-  
-  
+
+
   const [isContactModalVisible, setIsContactModalVisible] = useState(false);
-  
+
   const handleChangeContact = (field: keyof Contact, value: string) => {
     setNewContact((prev) => ({ ...prev, [field]: value }));
   };
-  
-  
-  
+
+
+
   const addContact = () => {
-  
+
     if (!newContact.name || !newContact.telephone || !newContact.email) {
       showNotification({
         message: `Todos los campos son obligatorios`,
@@ -126,61 +128,61 @@ export default function MessageForm({
       });
       return;
     }
-  
+
     setNewContact({ id: Date.now(), name: "", telephone: "", email: "" });
     setLocalContacts([...localContacts, newContact]);
   };
-  
+
   const removeContact = (id: number) => {
     setLocalContacts(localContacts.filter((contact) => contact.id !== id));
   };
-  
-  
-  
+
+
+
   const validateContactData = (values: Contact) => {
     const errors: string[] = [];
     const emailRegex = /^[a-zA-Z0-9.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const telephoneRegex = /^\d{3} \d{3} \d{3}$/;
-  
+
     const telephoneSet = new Set();
     const emailSet = new Set();
-  
+
     if (!values.name || values.name.trim() === "") {
       errors.push("El nombre es obligatorio para el contacto");
     }
-  
+
     if (!values.telephone || !telephoneRegex.test(values.telephone)) {
       errors.push("Por favor, introduce un teléfono válido");
     }
-  
+
     if (!values.email || !emailRegex.test(values.email)) {
       errors.push("El email no es válido.");
     }
-  
+
     localContacts.forEach((contact) => {
       telephoneSet.add(contact.telephone);
     });
-  
+
     if (telephoneSet.has(values.telephone)) {
       errors.push("El teléfono ya ha sido añadido");
     }
-  
+
     localContacts.forEach((contact) => {
       emailSet.add(contact.email);
     }
     );
-  
+
     if (emailSet.has(values.email)) {
       errors.push("El email ya ha sido añadido");
     }
-  
+
     return errors;
   };
-  
+
   const handleSelectContacts = () => {
     setIsContactModalVisible(true);
   };
-  
+
   const handleEditContact = (contact: { id: number; name: string; telephone: string; email: string; }) => {
     removeContact(contact.id);
     setEditingContact(contact);
@@ -191,54 +193,54 @@ export default function MessageForm({
       email: contact.email,
     });
   };
-  
+
   const setFormData = (newData: FormData) => {
     setLocalFormData(newData);
   };
 
-   const pickImage = async () => {
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        quality: 1,
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+
+      const allowedFormats = ["jpg", "jpeg", "png"];
+      const maxSizeMB = 5;
+      const maxSizeBytes = maxSizeMB * 1024 * 1024;
+
+      const filteredAssets = result.assets.filter(asset => {
+        const fileExtension = asset.mimeType ? asset.mimeType.split("/")[1] : "";
+        const isFormatAllowed = allowedFormats.includes(fileExtension);
+        const isSizeAllowed = asset.fileSize ? asset.fileSize <= maxSizeBytes : true;
+        return isFormatAllowed && isSizeAllowed;
       });
-  
-      if (!result.canceled) {
-  
-        const allowedFormats = ["jpg", "jpeg", "png"];
-        const maxSizeMB = 5;
-        const maxSizeBytes = maxSizeMB * 1024 * 1024;
-  
-        const filteredAssets = result.assets.filter(asset => {
-          const fileExtension = asset.mimeType ? asset.mimeType.split("/")[1] : "";
-          const isFormatAllowed = allowedFormats.includes(fileExtension);
-          const isSizeAllowed = asset.fileSize ? asset.fileSize <= maxSizeBytes : true;
-          return isFormatAllowed && isSizeAllowed;
-        });
-  
-        if (localFormData.customImages.length >= 5) {
-          showNotification({
-            message: "No puedes añadir mas de 5 imágenes",
-            duration: 2500,
-            type: "info",
-          });
-        }
-  
-        if (filteredAssets.length === 0) {
-          showNotification({
-            message: `Solo se permiten fotos en formato jpg, jpeg y png. El tamaño máximo es de ${maxSizeMB} MB.`,
-            type: "info",
-            duration: 2500,
-          });
-          return;
-        }
-  
-        setFormData({
-          ...localFormData,
-          customImages: [...localFormData.customImages, ...filteredAssets.map(asset => asset.uri)]
+
+      if (localFormData.customImages.length >= 5) {
+        showNotification({
+          message: "No puedes añadir mas de 5 imágenes",
+          duration: 2500,
+          type: "info",
         });
       }
-    };
+
+      if (filteredAssets.length === 0) {
+        showNotification({
+          message: `Solo se permiten fotos en formato jpg, jpeg y png. El tamaño máximo es de ${maxSizeMB} MB.`,
+          type: "info",
+          duration: 2500,
+        });
+        return;
+      }
+
+      setFormData({
+        ...localFormData,
+        customImages: [...localFormData.customImages, ...filteredAssets.map(asset => asset.uri)]
+      });
+    }
+  };
 
   const handleRemoveImage = (uri: string) => {
     const updatedImages = localFormData.customImages.filter(image => image !== uri);
@@ -258,8 +260,11 @@ export default function MessageForm({
   }
 
   const handleSubmitMessage = async () => {
-    
     setLoading(true);
+
+    if (loading) {
+      return;
+    }
 
     const method = !is_newMessage ? 'PUT' : 'POST';
     const dataToSend = {
@@ -304,16 +309,17 @@ export default function MessageForm({
         const errorText = await response.text();
         throw new Error(`Error en la creación del mensaje 1: ${errorText}`);
       }
-      setLoading(false);
     } catch (error: any) {
-      setLoading(false);
       console.error("Error en la creación del mensaje 2:", error.message);
       showNotification({
         message: `Error en la creación del mensaje: ${error.message}`,
         type: "error",
       });
+    } finally {
+      setLoading(false);
     }
   };
+
 
   const validateMessageData = (title: string, body: string, recipients: string[]) => {
     const errors: string[] = [];
@@ -344,17 +350,26 @@ export default function MessageForm({
 
 
 
-   if (!isAuthenticated) {
-      return (
-        <ThemedView style={styles.container}>
-          <Text style={styles.title}>
-            Debes iniciar sesión para poder acceder a esta sección
-          </Text>
-        </ThemedView>
-      );
-    }
+  if (!isAuthenticated) {
+    return (
+      <ThemedView style={styles.container}>
+        <Text style={styles.title}>
+          Debes iniciar sesión para poder acceder a esta sección
+        </Text>
+      </ThemedView>
+    );
+  }
+
+  if (loading) {
+    return (
+      <ThemedView style={loadingStyles.loadingContainer}>
+        <ActivityIndicator size="large" />
+      </ThemedView>
+    );
+  }
 
   return (
+
     <>
       {isVisualization || isOwner ? (
         <ScrollView contentContainerStyle={styles.container}>
@@ -591,3 +606,12 @@ export default function MessageForm({
     </>
   );
 }
+
+
+const loadingStyles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  }
+});
