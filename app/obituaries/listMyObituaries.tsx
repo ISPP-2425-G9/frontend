@@ -20,6 +20,18 @@ const height = Dimensions.get("window").height;
 type RootStackParamList = {
   'obituaries/createObituary': { imageTemplateId: number; imageUrl: string, is_newObituary: boolean, obituaryId: number, is_visualization?: boolean };
   'obituaries/index': undefined;
+  'obituaries/visualizeObituary': {imageUrl: string; is_mine: boolean; obituaryId: number};
+
+  'obituaries/editObituary': { 
+    imageUrl: string; 
+    imageTemplateId: number; 
+    is_newObituary: boolean;
+    obituaryId: number;
+    is_mine: boolean | undefined;
+    jsonData: string | undefined;
+    changeDesign: boolean;
+    selectedColor: string | undefined;
+  };
 };
 
 
@@ -125,27 +137,41 @@ function ObituaryIndex() {
   };
 
 
-  const handleObituaryPress = (imageTemplateId: number, imageUrl: string, obituaryId: number) => {
+  const handleObituaryVisualize = (imageUrl: string, obituaryId: number) => {
     navigation.navigate(
-      'obituaries/createObituary', {
-      imageTemplateId,
+      'obituaries/visualizeObituary', {
       imageUrl,
-      is_newObituary: false,
       obituaryId,
+      is_mine: true,
     });
   };
 
-  const handleObituaryVisualizationPress = (imageTemplateId: number, imageUrl: string, obituaryId: number) => {
+  const handleObituaryEdit = (imageTemplateId: number, imageUrl: string, obituaryId: number) => {
     navigation.navigate(
-      'obituaries/createObituary', {
-      imageTemplateId,
+      'obituaries/editObituary', {
       imageUrl,
+      imageTemplateId,
       is_newObituary: false,
       obituaryId,
-      is_visualization: true,
+      is_mine: true,
+      jsonData: undefined,
+      changeDesign: false,
+      selectedColor: undefined,
     });
-  };
+  }
 
+  const handleObituaryVisualizationPress = (
+    imageUrl: string,
+    is_mine: boolean,
+    obituaryId: number
+  ) => {
+      navigation.navigate('obituaries/visualizeObituary', {
+        imageUrl,
+        is_mine,
+        obituaryId
+      });
+    };
+    
   if (loading) {
     return (
       <ThemedView style={styles.centeredContainer}>
@@ -235,12 +261,12 @@ function ObituaryIndex() {
                       <>
                         <CustomButton
                           title="Visualiza tu esquela"
-                          onPress={() => { handleObituaryVisualizationPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id) }
+                          onPress={() => { handleObituaryVisualizationPress(item.imageTemplate.imageUrl, item.isMine, item.id) }
                           }
                         />
                         <CustomButton
                           title="Edita tu esquela"
-                          onPress={() => { handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id) }
+                          onPress={() => { handleObituaryEdit(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id) }
                           }
                         />
                         <CustomButton
@@ -253,7 +279,7 @@ function ObituaryIndex() {
                       <>
                         <CustomButton
                           title="Visualiza la esquela"
-                          onPress={() => { handleObituaryPress(item.imageTemplate.imageId, item.imageTemplate.imageUrl, item.id) }
+                          onPress={() => { handleObituaryVisualize(item.imageTemplate.imageUrl, item.id) }
                           } />
                         {item.deathCertificate?.isVerified ? (
                           <CustomButton title="Esquela ya enviada" color="green" onPress={() => { }} />

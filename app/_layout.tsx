@@ -76,13 +76,14 @@ export default function TabLayout() {
             {
               isAuthenticated && userRoles?.includes("CUSTOMER") ? [
                 <Tabs.Screen name="obituaries/index" options={{ title: "" }} />,
+                <Tabs.Screen name="obituaries/visualizeObituary" options={{ href: null }} />,
                 <Tabs.Screen name="obituaries/createObituary" options={{ href: null }} />,
+                <Tabs.Screen name="obituaries/editObituary" options={{ href: null }} />,
                 <Tabs.Screen name="obituaries/listMyObituaries" options={{ href: null }} />,
                 <Tabs.Screen name="obituaries/selectContacts" options={{ href: null }} />,
                 <Tabs.Screen name="obituaries/loadCertificate" options={{ href: null }} />,
               ] : [
                 <Tabs.Screen name="obituaries/index" options={{ href: null }} />,
-                <Tabs.Screen name="obituaries/createObituary" options={{ href: null }} />,
                 <Tabs.Screen name="obituaries/listMyObituaries" options={{ href: null }} />,
                 <Tabs.Screen name="obituaries/selectContacts" options={{ href: null }} />,
               ]
@@ -98,8 +99,10 @@ export default function TabLayout() {
 
             {
               isAuthenticated && userRoles?.includes("CUSTOMER_PREMIUM") ? [
-                <Tabs.Screen name="messages/index" options={{ title: "" }} />,
                 <Tabs.Screen name="messages/listMyMessages" options={{ title: "" }} />,
+                <Tabs.Screen name="messages/createMessage" options={{ title: "" }} />,
+                <Tabs.Screen name="messages/visualizeMessage" options={{ title: "" }} />,
+                <Tabs.Screen name="messages/visualizeMessageWithCode" options={{ title: "" }} />,
                 <Tabs.Screen name="contacts/index" options={{ title: "" }} />,
               ] : [
                 <Tabs.Screen name="messages/index" options={{ href: null }} />,
