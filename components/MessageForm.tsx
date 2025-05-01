@@ -21,7 +21,6 @@ import CustomTextInput from "./CustomTextInput";
 import CustomButton from "./CustomButton";
 import CustomModal from "./CustomModal";
 import { useNotification } from '@/context/NotificationContext';
-import { BACKEND_API } from "@/constants/Mysc";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width } = Dimensions.get("window");
@@ -31,9 +30,6 @@ type Mode = 'create' | 'edit' | 'view';
 
 type RootStackParamList = {
   "messages/listMyMessages": undefined;
-  "messages/createMessage": undefined;
-  "messages/editMessage": undefined;
-  "messages/viewMessage": undefined;
 };
 
 interface FormData {
