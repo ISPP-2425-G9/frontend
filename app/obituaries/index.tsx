@@ -17,15 +17,16 @@ const width = Dimensions.get("window").width;
 const height = Dimensions.get("window").height;
 
 type RootStackParamList = {
-  'obituaries/createObituary': {
-    imageTemplateId: number,
-    imageUrl: string,
-    is_newObituary: boolean,
-    obituaryId: number,
-    jsonData: string,
-    is_mine: boolean,
-    selectedColor: string,
-  };
+  // 'obituaries/createObituary': {
+  //   imageTemplateId: number,
+  //   imageUrl: string,
+  //   is_newObituary: boolean,
+  //   obituaryId: number,
+  //   jsonData: string,
+  //   is_mine: boolean,
+  //   selectedColor: string,
+  //   changeDesign: boolean,
+  // };
   'obituaries/listMyObituaries': undefined;
   'obituaries/index': {
     is_newObituary: boolean,
@@ -34,6 +35,27 @@ type RootStackParamList = {
     changeDesign: boolean,
     is_mine: boolean,
     selectedColor: string,
+  };
+  'obituaries/createObituary': {
+    imageTemplateId: number,
+    imageUrl: string,
+    is_newObituary: boolean,
+    obituaryId: number,
+    is_mine: boolean,
+    jsonData: string | undefined,
+    changeDesign: boolean,
+    selectedColor: string | undefined,
+  };
+
+  'obituaries/editObituary': { 
+    imageUrl: string; 
+    imageTemplateId: number; 
+    is_newObituary: boolean;
+    obituaryId: number;
+    is_mine: boolean | undefined;
+    jsonData: string | undefined;
+    changeDesign: boolean;
+    selectedColor: string | undefined;
   };
 
 };
@@ -52,8 +74,8 @@ function ObituaryIndex() {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
-  
 
+  
   interface Obituary {
     id: number
     imageId: number;
@@ -91,7 +113,6 @@ function ObituaryIndex() {
   );
 
   const showConfirmationModal = (id: number, imageUrl: string) => {
-
     setSelectedObituary({ id, imageUrl });
     setModalMessage("¿Para quién es la esquela?");
     setModalVisible(true);
@@ -118,33 +139,33 @@ function ObituaryIndex() {
       }
     }
 
-    const { obituaryId, jsonData, selectedColor } = route.params ?? {};
+    const { obituaryId } = route.params ?? {};
     navigation.navigate('obituaries/createObituary', {
       imageTemplateId: selectedObituary.id,
       imageUrl: selectedObituary.imageUrl,
       is_newObituary,
       obituaryId,
-      jsonData,
       is_mine: true,
-      selectedColor,
+      jsonData: undefined,
+      changeDesign: false,
+      selectedColor: undefined,
     });
-
     setModalVisible(false);
-
   }
 
   const handleElseObituary = async () => {
     if (!selectedObituary) return;
 
-    const { obituaryId, jsonData, selectedColor } = route.params ?? {};
+    const { obituaryId } = route.params ?? {};
     navigation.navigate('obituaries/createObituary', {
       imageTemplateId: selectedObituary.id,
       imageUrl: selectedObituary.imageUrl,
       is_newObituary,
       obituaryId,
-      jsonData,
       is_mine: false,
-      selectedColor,
+      jsonData: undefined,
+      changeDesign: false,
+      selectedColor: undefined
     });
 
     setModalVisible(false);
@@ -186,20 +207,34 @@ function ObituaryIndex() {
         <View style={styles.listContainer}>
           {obituaries.map((item) => (
             <TouchableOpacity
-              testID={`obituary-image-${item.imageId}`}
+              testID={`obituary-image-${item.id}`}
               key={item.id}
               onPress={() => {
                 if (changeDesign) {
-                  const { obituaryId, jsonData, is_mine, selectedColor } = route.params ?? {};
-                  navigation.navigate('obituaries/createObituary', {
-                    imageTemplateId: item.id,
-                    imageUrl: item.imageUrl,
-                    is_newObituary,
-                    obituaryId,
-                    jsonData,
-                    is_mine,
-                    selectedColor,
-                  });
+                  const { is_newObituary, obituaryId, jsonData, is_mine, selectedColor } = route.params ?? {};
+                  if (!is_newObituary) {
+                    navigation.navigate('obituaries/editObituary', {
+                      imageTemplateId: item.id,
+                      imageUrl: item.imageUrl,
+                      is_newObituary,
+                      obituaryId,
+                      is_mine,
+                      jsonData,
+                      changeDesign: true,
+                      selectedColor,
+                    });
+                  } else { 
+                    navigation.navigate('obituaries/createObituary', {
+                      imageTemplateId: item.id,
+                      imageUrl: item.imageUrl,
+                      is_newObituary,
+                      obituaryId,
+                      is_mine,
+                      jsonData,
+                      changeDesign: true,
+                      selectedColor,
+                    });
+                  }
                 } else {
                   showConfirmationModal(item.id, item.imageUrl);
                 }

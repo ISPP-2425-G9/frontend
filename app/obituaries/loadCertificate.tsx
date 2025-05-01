@@ -39,7 +39,7 @@ function LoadCertificate() {
   const { showNotification } = useNotification();
 
   const route = useRoute<ObituaryLoadCertificateRouteProp>();
-  const { is_mine, is_newObituary } = route.params;
+  const { is_mine, is_newObituary } = route.params || {};
 
 
   const { isAuthenticated } = useAuth();
