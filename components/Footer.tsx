@@ -12,7 +12,8 @@ const socialLinks = [
   { name: "linkedin", url: "https://www.linkedin.com/in/caronte-app/" },
   { name: "x-twitter", url: "https://x.com/CaronteApp" },
   { name: "tiktok", url: "https://www.tiktok.com/@caronteapp" },
-  { name: "github", url: "https://github.com/ISPP-2425-G9" }
+  { name: "github", url: "https://github.com/ISPP-2425-G9" },
+  { name: "youtube", url: "https://www.youtube.com/@caronte_es" },
 ];
 
 const Footer = () => {

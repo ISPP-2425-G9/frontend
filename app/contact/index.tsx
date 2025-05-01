@@ -204,11 +204,11 @@ const Contact: React.FC = () => {
             <TouchableOpacity
               style={styles.socialIcon}
               onPress={() =>
-                Linking.openURL("https://www.facebook.com/profile.php?id=61573575124143")
+                Linking.openURL("https://www.youtube.com/@caronte_es")
               }
-              testID="facebook"
+              testID="youtube"
             >
-              <Icon name="facebook" size={30} color="#42B5FC" />
+              <Icon name="youtube" size={30} color="#42B5FC" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.socialIcon}
