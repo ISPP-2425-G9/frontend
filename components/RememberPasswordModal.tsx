@@ -24,14 +24,23 @@ const RememberPasswordModal: React.FC<RememberPasswordModalProps> = ({ visible, 
 
     const handleSendRecovery = async (email: string) => {
         try {
-            await fetch(BACKEND_API + "/api/auth/password/remember?email=" + email, {
+            const response = await fetch(BACKEND_API + "/api/auth/password/remember?email=" + email, {
                 method: "POST"
             });
-            showNotification({
-                message: `Código enviado a ${email}`,
-                type: 'success',
-                duration: 2000,
-            });
+            if(response.ok) {
+                showNotification({
+                    message: `Código enviado a ${email}`,
+                    type: 'success',
+                    duration: 2000,
+                });
+            } else {
+                const message = await response.json();
+                if("error" in message) {
+                    throw Error(message.error);
+                } else {
+                    throw Error(JSON.stringify(message));
+                }
+            }
         } catch (error: any) {
             showNotification({
                 message: error.message,
@@ -42,7 +51,19 @@ const RememberPasswordModal: React.FC<RememberPasswordModalProps> = ({ visible, 
     };
 
     const handleSubmit = async () => {
-        if (newPassword === confirmPassword) {
+        if(!newPassword || !confirmPassword) {
+            showNotification({
+                message: `Debes rellenar ambos campos de contraseña`,
+                type: 'error',
+                duration: 2000,
+            });
+        } else if(!code || code?.length !== 5) {
+            showNotification({
+                message: `El código es de 5 dígitos`,
+                type: 'error',
+                duration: 2000,
+            });
+        } else if (newPassword === confirmPassword) {
             try {
                 const response = await fetch(BACKEND_API + "/api/auth/password/remember/verify", {
                     method: "POST",
