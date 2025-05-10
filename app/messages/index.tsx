@@ -506,6 +506,7 @@ function MessageCreation() {
         </ThemedView>
       );
     }
+    console.log("isOwner", isOwner);
 
   return (
     <>
@@ -513,7 +514,7 @@ function MessageCreation() {
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.formContainer}>
             <Text style={styles.textTitle}>
-              {is_newMessage ? "Crea tu mensaje personalizado" : (is_visualization ? "Tu mensaje" : "Actualiza tu mensaje")}
+              {is_newMessage ? "Crea tu mensaje personalizado" : (is_visualization ? "Tu mensaje" :  ( !isOwner? "Mensaje de despedida": "Actualiza tu mensaje"))}
             </Text>
 
             <CustomTextInput
