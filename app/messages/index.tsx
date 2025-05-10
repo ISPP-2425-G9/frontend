@@ -506,7 +506,7 @@ function MessageCreation() {
         </ThemedView>
       );
     }
-    console.log("isOwner", isOwner);
+
 
   return (
     <>
@@ -515,6 +515,7 @@ function MessageCreation() {
           <View style={styles.formContainer}>
             <Text style={styles.textTitle}>
               {is_newMessage ? "Crea tu mensaje personalizado" : (is_visualization ? "Tu mensaje" :  ( !isOwner? "Mensaje de despedida": "Actualiza tu mensaje"))}
+
             </Text>
 
             <CustomTextInput
