@@ -15,6 +15,7 @@ type RootStackParamList = {
   'obituaries/visualizeObituary': {
     imageUrl: string;
     obituaryId: number;
+    imageTemplateId: number;
   };
 };
 
@@ -27,6 +28,7 @@ function VisualizeObituaryScreen() {
   const {
     imageUrl,
     obituaryId,
+    imageTemplateId,
   } = params || {};
 
   const [formData, setFormData] = useState({
@@ -36,6 +38,8 @@ function VisualizeObituaryScreen() {
     farewellMessage: '',
     farewellPhrase: '',
     customImage: undefined,
+    imageTemplate_id: imageTemplateId,
+
   });
 
   const [loading, setLoading] = useState(true);
@@ -65,13 +69,20 @@ function VisualizeObituaryScreen() {
 
         const data = await response.json();
 
+        const formatDate = (date?: string) => {
+          const [year, month, day] = date?.split('-') || [];
+          return day && month && year ? `${day}/${month}/${year}` : '';
+        };
+
         setFormData({
           name: data.name || '',
-          birthDate: data.birthDate || '',
-          deathDate: data.deathDate || '',
+          birthDate: data.birthDate ? formatDate(data.birthDate) : '',
+          deathDate: data.deathDate ? formatDate(data.deathDate) : '',
           farewellMessage: data.farewellMessage || '',
           farewellPhrase: data.farewellPhrase || '',
-          customImage: data.customImage || undefined,
+          customImage: data.customImageUrl || undefined,
+          imageTemplate_id: data.imageTemplate?.id || 1,
+
         });
         setIsMine(data.isMine || false);
       } catch (error) {
