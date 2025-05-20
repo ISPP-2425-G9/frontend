@@ -1,3 +1,4 @@
+import ImageCarousel from "@/components/ImageCarousel";
 import LineBreak from "@/components/LineBreak";
 import Logo from "@/components/Logo";
 import { ThemedText } from "@/components/ThemedText";
@@ -6,7 +7,7 @@ import useAuth from "@/hooks/useAuth";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useRef } from 'react';
-import { Animated, Image, Platform, Pressable, ScrollView, StyleSheet, TouchableOpacity, View, useWindowDimensions } from "react-native";
+import { Animated, Image, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
 
 export default function HomeScreen() {
   const { isAuthenticated, roles } = useAuth();
@@ -76,89 +77,6 @@ export default function HomeScreen() {
     </ScrollView>
   );
 }
-
-const ImageCarousel: React.FC = () => {
-  const images = [
-    "https://res.cloudinary.com/ds02duuid/image/upload/f_auto,q_auto/v1/images/homepage/ggguxylvif3duwzbxoiv",
-    "https://res.cloudinary.com/ds02duuid/image/upload/f_auto,q_auto/v1/images/homepage/pros5x6mo55etaqilrzd",
-    "https://res.cloudinary.com/ds02duuid/image/upload/f_auto,q_auto/v1/images/homepage/oo3g8jhdsnhbpe5nk1jx",
-  ];
-
-  const [currentIndex, setCurrentIndex] = React.useState(0);
-  const progress = React.useRef(new Animated.Value(0)).current;
-
-  const startAnimation = React.useCallback(() => {
-    progress.setValue(0);
-    Animated.timing(progress, {
-      toValue: 1,
-      duration: 5000,
-      useNativeDriver: false,
-    }).start(({ finished }) => {
-      if (finished) {
-        handleNext();
-      }
-    });
-  }, [progress]);
-
-  const handlePrev = () => {
-    progress.stopAnimation();
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
-  };
-
-  const handleNext = React.useCallback(() => {
-    progress.stopAnimation();
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-  }, [images.length, progress]);
-
-  React.useEffect(() => {
-    startAnimation();
-  }, [currentIndex, startAnimation]);
-
-  const handleDotPress = (index: number) => {
-    progress.stopAnimation();
-    setCurrentIndex(index);
-  };
-
-  return (
-    <View style={styles.carouselContainer}>
-      <Image
-        source={{ uri: images[currentIndex] }}
-        style={styles.carouselImage}
-        resizeMode="cover"
-      />
-      <View style={styles.carouselButtons}>
-        <TouchableOpacity onPress={handlePrev} style={styles.carouselButton}>
-          <MaterialIcons name="chevron-left" size={32} color={GlobalStyles.white} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleNext} style={styles.carouselButton}>
-          <MaterialIcons name="chevron-right" size={32} color={GlobalStyles.white} />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.progressBarContainer}>
-        <Animated.View
-          style={[
-            styles.progressBar,
-            {
-              width: progress.interpolate({
-                inputRange: [0, 1],
-                outputRange: ["0%", "100%"],
-              }),
-            },
-          ]}
-        />
-      </View>
-      <View style={styles.dotsContainer}>
-        {images.map((_, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={() => handleDotPress(index)}
-            style={[styles.dot, currentIndex === index && styles.activeDot]}
-          />
-        ))}
-      </View>
-    </View>
-  );
-};
 
 const videoItems = [
   { videoId: "W9tS8qdiZ08", title: "Para empresas" },
