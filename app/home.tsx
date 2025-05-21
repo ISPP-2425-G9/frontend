@@ -1,6 +1,7 @@
 import ImageCarousel from "@/components/ImageCarousel";
 import LineBreak from "@/components/LineBreak";
 import Logo from "@/components/Logo";
+import SponsorCarousel from "@/components/SponsorCarousel";
 import { ThemedText } from "@/components/ThemedText";
 import { GlobalStyles } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
@@ -55,12 +56,12 @@ export default function HomeScreen() {
         </View>
       </View>
       <View
-        style={[styles.carouselGroup, { flexDirection: width > 800 ? "row" : "column" },]} >
-        <View style={[styles.carouselItemWrapper, { width: width > 800 ? "50%" : "100%" }]}>
+        style={[styles.carouselGroup, { flexDirection: width > 800 ? "row" : "column"},]} >
+        <View style={[styles.carouselItemWrapper, { width: width > 800 ? "50%" : "100%", height: width > 800 ? "100%" : "auto", }]}>
           <ImageCarousel />
         </View>
-        <View style={[styles.carouselItemWrapper, { width: width > 800 ? "50%" : "100%" }]}>
-          <ImageCarousel />
+        <View style={[styles.carouselItemWrapper, { width: width > 800 ? "50%" : "100%", height: width > 800 ? "100%" : "auto", }]}>
+          <SponsorCarousel />
         </View>
       </View>
       <View style={styles.featuresContainer}>
@@ -422,6 +423,7 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     justifyContent: 'center',
     alignItems: 'center',
+    height: '100%',
   },
   bold: {
     fontSize: 16,
