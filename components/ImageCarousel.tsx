@@ -1,27 +1,26 @@
 import { ThemedText } from "@/components/ThemedText";
 import { GlobalStyles } from "@/constants/Colors";
-import { MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import { Animated, Image, StyleSheet, TouchableOpacity, View } from "react-native";
 
 const carouselItems = [
     {
-        image: "https://inkscape.app/wp-content/uploads/imagen-vectorial.webp",
-        name: "Juan Pérez",
-        description: "Desarrollador Frontend con 5 años de experiencia en React Native.",
-        contact: "juan.perez@ejemplo.com",
+        image: "https://i.imgur.com/vJHezRy.png",
+        name: "Esquelas",
+        description: "Crea y envia esquelas personalizadas tanto propias como para tus seres queridos.",
+        price: "1.99€/esquela",
     },
     {
-        image: "https://inkscape.app/wp-content/uploads/imagen-vectorial.webp",
-        name: "María García",
-        description: "Especialista en UI/UX y diseño accesible para apps móviles.",
-        contact: "maria.garcia@ejemplo.com",
+        image: "https://i.imgur.com/J8C8Oyz.png",
+        name: "Mensajes",
+        description: "Deja mensajes totalmente personalizados que serán enviados tras la confirmación de tu fallecimiento.",
+        price: "0.99€/mes",
     },
     {
-        image: "httpss://inkscape.app/wp-content/uploads/imagen-vectorial.webp",
-        name: "Andrés López",
-        description: "Ingeniero de software centrado en performance y arquitectura.",
-        contact: "andres.lopez@ejemplo.com",
+        image: "https://i.imgur.com/p0AMWXO.png",
+        name: "Servicios",
+        description: "Publicita tu empresa relacionada con el sector funerario (funeraria, notaría, floristería, etc.) para que más clientes puedan conocer tus servicios.",
+        price: "9.99€/mes",
     },
 ];
 
@@ -71,17 +70,9 @@ const ImageCarousel: React.FC = () => {
                         {carouselItems[currentIndex].description}
                     </ThemedText>
                     <ThemedText style={styles.carouselItemContact}>
-                        {carouselItems[currentIndex].contact}
+                        {carouselItems[currentIndex].price}
                     </ThemedText>
                 </View>
-            </View>
-            <View style={styles.carouselButtons}>
-                <TouchableOpacity onPress={handlePrev} style={styles.carouselButton}>
-                    <MaterialIcons name="chevron-left" size={32} color={GlobalStyles.white} />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleNext} style={styles.carouselButton}>
-                    <MaterialIcons name="chevron-right" size={32} color={GlobalStyles.white} />
-                </TouchableOpacity>
             </View>
             <View style={styles.progressBarContainer}>
                 <Animated.View
@@ -110,22 +101,17 @@ const ImageCarousel: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-    carouselContainer: { width: "80%", alignItems: "center" },
+    carouselContainer: { width: "100%", alignItems: "center", borderColor: GlobalStyles.lightGrey, borderWidth: 1, borderRadius: 25, overflow: "hidden", position: "relative", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 10.84, elevation: 2 },
     carouselItem: {
-        width: "100%", flexDirection: "row",
+        width: "100%", flexDirection: "column", alignItems: "center", justifyContent: "flex-start",
         backgroundColor: GlobalStyles.lightGrey,
-        borderRadius: 25, overflow: "hidden", height: 200,
+        borderRadius: 25, overflow: "hidden", height: "100%",
     },
-    carouselItemImage: { width: "40%", height: "100%" },
-    carouselItemContent: { width: "60%", padding: 16, justifyContent: "center" },
+    carouselItemImage: { width: "100%", aspectRatio: 2.22, justifyContent: "flex-start", },
+    carouselItemContent: { marginTop: "1%", width: "90%", justifyContent: "center", },
     carouselItemName: { fontSize: 20, fontFamily: GlobalStyles.fontBold, color: GlobalStyles.darkGrey, marginBottom: 8 },
     carouselItemDescription: { fontSize: 16, color: GlobalStyles.grey, marginBottom: 8 },
-    carouselItemContact: { fontSize: 14, color: GlobalStyles.blue },
-    carouselButtons: {
-        position: "absolute", left: 0, right: 0, top: "40%",
-        flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 20,
-    },
-    carouselButton: { backgroundColor: "rgba(0,0,0,0.3)", padding: 5, borderRadius: 20 },
+    carouselItemContact: { fontSize: 14, color: GlobalStyles.blue, marginBottom: "3%" },
     progressBarContainer: {
         position: "absolute", bottom: 10, height: 4, width: "10%",
         backgroundColor: "rgba(0,0,0,0.5)", borderRadius: 2,

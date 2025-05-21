@@ -54,7 +54,15 @@ export default function HomeScreen() {
           </ThemedText>
         </View>
       </View>
-      <ImageCarousel />
+      <View
+        style={[styles.carouselGroup, { flexDirection: width > 800 ? "row" : "column" },]} >
+        <View style={[styles.carouselItemWrapper, { width: width > 800 ? "50%" : "100%" }]}>
+          <ImageCarousel />
+        </View>
+        <View style={[styles.carouselItemWrapper, { width: width > 800 ? "50%" : "100%" }]}>
+          <ImageCarousel />
+        </View>
+      </View>
       <View style={styles.featuresContainer}>
         <View style={styles.featuresTitleContainer}>
           <ThemedText style={styles.featuresTitle}>¿Por qué elegirnos?</ThemedText>
@@ -70,7 +78,7 @@ export default function HomeScreen() {
             />
           ))}
         </View>
-        
+
       </View>
       <GallerySection />
       <TeamMembersSection />
@@ -325,9 +333,6 @@ export const TeamMembersSection: React.FC = () => {
   );
 };
 
-
-
-
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
@@ -350,57 +355,6 @@ const styles = StyleSheet.create({
     alignContent: "center",
     margin: 0,
     padding: 0,
-  },
-  carouselImage: {
-    width: "100%",
-    backgroundColor: GlobalStyles.lightGrey,
-    borderRadius: 25,
-    height: 400,
-  },
-  carouselButtons: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-  },
-  carouselButton: {
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
-    padding: 5,
-    borderRadius: 20,
-  },
-  progressBarContainer: {
-    position: "absolute",
-    bottom: 10,
-    height: 4,
-    minWidth: 100,
-    width: "10%",
-    alignSelf: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    borderRadius: 2,
-  },
-  progressBar: {
-    alignContent: "center",
-    height: "100%",
-    backgroundColor: GlobalStyles.blue,
-    borderRadius: 2,
-  },
-  dotsContainer: {
-    position: "absolute",
-    bottom: 20,
-    flexDirection: "row",
-    alignSelf: "center",
-  },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "rgba(0,0,0,0.3)",
-    marginHorizontal: 5,
-  },
-  activeDot: {
-    backgroundColor: GlobalStyles.blue,
   },
   rowLayout: {
     flexDirection: "row",
@@ -455,6 +409,19 @@ const styles = StyleSheet.create({
     color: GlobalStyles.grey,
     maxWidth: "100%",
     flex: 1,
+  },
+  carouselGroup: {
+    width: '95%',
+    marginVertical: 10,
+    alignContent: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 20,
+  },
+  carouselItemWrapper: {
+    alignContent: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   bold: {
     fontSize: 16,
