@@ -5,11 +5,11 @@ import { SuccessCancelModal } from "@/components/SucessCancelModel";
 import { ThemedText } from '@/components/ThemedText';
 import { GlobalStyles } from '@/constants/Colors';
 import { BACKEND_API } from '@/constants/Mysc';
+import useAuth from '@/hooks/useAuth';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Dimensions, ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import PaymentModal from './PaymentModal';
-import useAuth from '@/hooks/useAuth';
 
 interface PlanCardProps {
   role: string;
@@ -286,6 +286,10 @@ const styles = StyleSheet.create({
       maxWidth: 160,
     },
     cardContainerMobile: {
+      width: '90%',
+      alignContent: 'center',
+      alignSelf: 'center',
+      alignItems: 'center',
       flexDirection: 'column',
       justifyContent: 'center',
     },

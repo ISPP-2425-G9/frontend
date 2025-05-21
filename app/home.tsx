@@ -1,12 +1,14 @@
+import ImageCarousel from "@/components/ImageCarousel";
 import LineBreak from "@/components/LineBreak";
 import Logo from "@/components/Logo";
+import SponsorCarousel from "@/components/SponsorCarousel";
 import { ThemedText } from "@/components/ThemedText";
 import { GlobalStyles } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useRef } from 'react';
-import { Animated, Image, Platform, Pressable, ScrollView, StyleSheet, TouchableOpacity, View, useWindowDimensions } from "react-native";
+import { Animated, Image, Platform, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from "react-native";
 
 export default function HomeScreen() {
   const { isAuthenticated, roles } = useAuth();
@@ -15,6 +17,38 @@ export default function HomeScreen() {
   if (isAuthenticated) {
     userRoles = roles;
   }
+
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+  const infoOpacity = useRef(new Animated.Value(0)).current;
+
+  useFocusEffect(
+    React.useCallback(() => {
+      Animated.sequence([
+        Animated.timing(scaleAnim, {
+          toValue: 1.1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          friction: 2,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, [scaleAnim])
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      infoOpacity.setValue(0);
+      Animated.timing(infoOpacity, {
+        toValue: 1,
+        duration: 600,
+        delay: 300,
+        useNativeDriver: true,
+      }).start();
+    }, [infoOpacity])
+  );
 
   useFocusEffect(
     React.useCallback(() => {
@@ -26,18 +60,18 @@ export default function HomeScreen() {
     <ScrollView contentContainerStyle={styles.scrollContainer}>
 
       <View style={[styles.container, width > 800 ? styles.rowLayout : styles.columnLayout]}>
-        <View style={styles.logoContainer}>
+        <Animated.View style={[styles.logoContainer, { transform: [{ scale: scaleAnim }] }]}>
           <Logo size={250} />
           <LineBreak />
           <ThemedText style={styles.tagline}>Honrando memorias,</ThemedText>
           <ThemedText style={styles.tagline}>facilitando despedidas</ThemedText>
           <LineBreak />
           <LineBreak />
-        </View>
+        </Animated.View>
 
         <View style={styles.spacer} />
 
-        <View style={[styles.infoBox, { width: width > 800 ? 900 : "90%" }]}>
+        <Animated.View style={[styles.infoBox, { width: width > 800 ? 900 : "90%", opacity: infoOpacity }]}>
           <ThemedText style={styles.title}>¿Qué es CARONTE?</ThemedText>
           <ThemedText style={styles.description}>
             Somos una <ThemedText style={styles.bold}>plataforma innovadora</ThemedText> que te permite gestionar el envío de mensajes finales y esquelas digitales a tus contactos.
@@ -51,9 +85,17 @@ export default function HomeScreen() {
           <ThemedText style={styles.description}>
             Además, ofrecemos un espacio para que las empresas relacionadas con el sector funerario puedan patrocinar sus servicios.
           </ThemedText>
+        </Animated.View>
+      </View>
+      <View
+        style={[styles.carouselGroup, { flexDirection: width > 800 ? "row" : "column" },]} >
+        <View style={[styles.carouselItemWrapper, { width: width > 800 ? "50%" : "100%", height: width > 800 ? "100%" : "auto", }]}>
+          <ImageCarousel />
+        </View>
+        <View style={[styles.carouselItemWrapper, { width: width > 800 ? "50%" : "100%", height: width > 800 ? "100%" : "auto", }]}>
+          <SponsorCarousel />
         </View>
       </View>
-      <ImageCarousel />
       <View style={styles.featuresContainer}>
         <View style={styles.featuresTitleContainer}>
           <ThemedText style={styles.featuresTitle}>¿Por qué elegirnos?</ThemedText>
@@ -69,96 +111,13 @@ export default function HomeScreen() {
             />
           ))}
         </View>
-        
+
       </View>
       <GallerySection />
       <TeamMembersSection />
     </ScrollView>
   );
 }
-
-const ImageCarousel: React.FC = () => {
-  const images = [
-    "https://res.cloudinary.com/ds02duuid/image/upload/f_auto,q_auto/v1/images/homepage/ggguxylvif3duwzbxoiv",
-    "https://res.cloudinary.com/ds02duuid/image/upload/f_auto,q_auto/v1/images/homepage/pros5x6mo55etaqilrzd",
-    "https://res.cloudinary.com/ds02duuid/image/upload/f_auto,q_auto/v1/images/homepage/oo3g8jhdsnhbpe5nk1jx",
-  ];
-
-  const [currentIndex, setCurrentIndex] = React.useState(0);
-  const progress = React.useRef(new Animated.Value(0)).current;
-
-  const startAnimation = React.useCallback(() => {
-    progress.setValue(0);
-    Animated.timing(progress, {
-      toValue: 1,
-      duration: 5000,
-      useNativeDriver: false,
-    }).start(({ finished }) => {
-      if (finished) {
-        handleNext();
-      }
-    });
-  }, [progress]);
-
-  const handlePrev = () => {
-    progress.stopAnimation();
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
-  };
-
-  const handleNext = React.useCallback(() => {
-    progress.stopAnimation();
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-  }, [images.length, progress]);
-
-  React.useEffect(() => {
-    startAnimation();
-  }, [currentIndex, startAnimation]);
-
-  const handleDotPress = (index: number) => {
-    progress.stopAnimation();
-    setCurrentIndex(index);
-  };
-
-  return (
-    <View style={styles.carouselContainer}>
-      <Image
-        source={{ uri: images[currentIndex] }}
-        style={styles.carouselImage}
-        resizeMode="cover"
-      />
-      <View style={styles.carouselButtons}>
-        <TouchableOpacity onPress={handlePrev} style={styles.carouselButton}>
-          <MaterialIcons name="chevron-left" size={32} color={GlobalStyles.white} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleNext} style={styles.carouselButton}>
-          <MaterialIcons name="chevron-right" size={32} color={GlobalStyles.white} />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.progressBarContainer}>
-        <Animated.View
-          style={[
-            styles.progressBar,
-            {
-              width: progress.interpolate({
-                inputRange: [0, 1],
-                outputRange: ["0%", "100%"],
-              }),
-            },
-          ]}
-        />
-      </View>
-      <View style={styles.dotsContainer}>
-        {images.map((_, index) => (
-          <TouchableOpacity
-            key={index}
-            onPress={() => handleDotPress(index)}
-            style={[styles.dot, currentIndex === index && styles.activeDot]}
-          />
-        ))}
-      </View>
-    </View>
-  );
-};
 
 const videoItems = [
   { videoId: "W9tS8qdiZ08", title: "Para empresas" },
@@ -407,9 +366,6 @@ export const TeamMembersSection: React.FC = () => {
   );
 };
 
-
-
-
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
@@ -432,57 +388,6 @@ const styles = StyleSheet.create({
     alignContent: "center",
     margin: 0,
     padding: 0,
-  },
-  carouselImage: {
-    width: "100%",
-    backgroundColor: GlobalStyles.lightGrey,
-    borderRadius: 25,
-    height: 400,
-  },
-  carouselButtons: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-  },
-  carouselButton: {
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
-    padding: 5,
-    borderRadius: 20,
-  },
-  progressBarContainer: {
-    position: "absolute",
-    bottom: 10,
-    height: 4,
-    minWidth: 100,
-    width: "10%",
-    alignSelf: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    borderRadius: 2,
-  },
-  progressBar: {
-    alignContent: "center",
-    height: "100%",
-    backgroundColor: GlobalStyles.blue,
-    borderRadius: 2,
-  },
-  dotsContainer: {
-    position: "absolute",
-    bottom: 20,
-    flexDirection: "row",
-    alignSelf: "center",
-  },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "rgba(0,0,0,0.3)",
-    marginHorizontal: 5,
-  },
-  activeDot: {
-    backgroundColor: GlobalStyles.blue,
   },
   rowLayout: {
     flexDirection: "row",
@@ -537,6 +442,20 @@ const styles = StyleSheet.create({
     color: GlobalStyles.grey,
     maxWidth: "100%",
     flex: 1,
+  },
+  carouselGroup: {
+    width: '95%',
+    marginVertical: 10,
+    alignContent: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 20,
+  },
+  carouselItemWrapper: {
+    alignContent: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
   },
   bold: {
     fontSize: 16,
